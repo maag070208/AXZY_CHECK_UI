@@ -18,7 +18,7 @@
     "@types/react-scroll-sync": "^0.9.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
-    "axzy_ui_system": "file:/Users/maag/DEV/AXZY/BSB/AXZY_BSQ_UI/axzy_ui_system-v1.0.116.tgz",
+    "axzy_ui_system": "file:./axzy_ui_system-v1.0.116.tgz",
     "dotenv": "^16.4.7",
     "formik": "^2.4.6",
     "postcss": "^8.4.0",

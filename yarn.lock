@@ -1026,9 +1026,10 @@ axios@^1.7.9:
     form-data "^4.0.4"
     proxy-from-env "^1.1.0"
 
-"axzy_ui_system@file:/Users/maag/DEV/AXZY/BSB/AXZY_BSQ_UI/axzy_ui_system-v1.0.116.tgz":
+"axzy_ui_system@file:./axzy_ui_system-v1.0.116.tgz":
   version "1.0.116"
-  resolved "file:/Users/maag/DEV/AXZY/BSB/AXZY_BSQ_UI/axzy_ui_system-v1.0.116.tgz#803d48cac53f7125758073d9b9930c088607f21c"
+  uid "803d48cac53f7125758073d9b9930c088607f21c"
+  resolved "file:./axzy_ui_system-v1.0.116.tgz#803d48cac53f7125758073d9b9930c088607f21c"
   dependencies:
     autoprefixer "^10.4.20"
     clsx "^2.1.1"
@@ -1044,9 +1045,9 @@ axios@^1.7.9:
     vite-plugin-dts "^4.5.0"
     yup "^1.6.1"
 
-"axzy_ui_system@file:axzy_ui_system-v1.0.115.tgz":
-  version "1.0.115"
-  resolved "file:axzy_ui_system-v1.0.115.tgz#c58aeac1454e595ee601a17b9bf7cdc7a26f6f7d"
+"axzy_ui_system@file:axzy_ui_system-v1.0.116.tgz":
+  version "1.0.116"
+  resolved "file:axzy_ui_system-v1.0.116.tgz#803d48cac53f7125758073d9b9930c088607f21c"
   dependencies:
     autoprefixer "^10.4.20"
     clsx "^2.1.1"
