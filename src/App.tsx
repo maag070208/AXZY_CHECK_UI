@@ -1,19 +1,21 @@
 import LoginPage from "@app/modules/auth/pages/LoginPage";
 import RegisterPage from "@app/modules/auth/pages/RegisterPage";
 import { ITLoader } from "axzy_ui_system";
-import { useEffect, useState } from "react"; // <--- Importa useState
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { PrivateRoutes } from "./core/routes/PrivateRoutes";
 import { setAuth } from "./core/store/auth/auth.slice";
 import HomePage from "./modules/home/pages/HomePage";
-import TrainingModePage from "./modules/traningMode/pages/TraningModePage";
-import DaySchedulePage from "./modules/daySchedules/pages/DaySchedulePage";
-import ChildrenPage from "./modules/children/pages/ChildrenPage";
-import AppointmentsPage from "./modules/appointments/pages/AppointmentsPage";
-import CalendarPage from "./modules/calendar/pages/CalendarPage";
-import PaymentsPage from "./modules/payments/pages/PaymentsPage";
+
+import LocationsPage from "./modules/locations/pages/LocationsPage";
+import EntriesPage from "./modules/entries/pages/EntriesPage";
+import EntryDetailPage from "./modules/entries/pages/EntryDetailPage";
+import MovementsPage from "./modules/movements/pages/MovementsPage";
+import ExitsPage from "./modules/exits/pages/ExitsPage";
+import UsersPage from "./modules/users/pages/UsersPage";
+import KeyAssignmentsPage from "./modules/key-assignments/pages/KeyAssignmentsPage";
 
 
 function App() {
@@ -35,17 +37,14 @@ function App() {
     localStorage.setItem("token", token);
   };
 
-  // 2. Modifica el useEffect para usar el estado de listo
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken && storedToken !== "null") {
       dispatch(setAuth(storedToken));
     }
-    // Marca la aplicación como lista después de la verificación
     setIsAppReady(true);
   }, [dispatch]);
 
-  // 3. Si la aplicación no está lista, no renderices nada (o un loader)
   if (!isAppReady) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
@@ -54,7 +53,6 @@ function App() {
     );
   }
 
-  // 4. Si el token no existe en Redux, redirige al login
   if (!token) {
     return (
       <Routes>
@@ -65,18 +63,19 @@ function App() {
     );
   }
 
-  // 5. Si el token existe, renderiza las rutas protegidas
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<HomePage />} />
-        <Route path="/training-modes" element={<TrainingModePage />} />
-        <Route path="/day-schedule" element={<DaySchedulePage />} />
-        <Route path="/children" element={<ChildrenPage />} />
-        <Route path="/appointments" element={<AppointmentsPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/payments" element={<PaymentsPage />} />
+        
+        <Route path="/locations" element={<LocationsPage />} />
+        <Route path="/entries" element={<EntriesPage />} />
+        <Route path="/assignments" element={<KeyAssignmentsPage />} />
+        <Route path="/entries/:id" element={<EntryDetailPage />} />
+        <Route path="/movements" element={<MovementsPage />} />
+        <Route path="/exits" element={<ExitsPage />} />
+        <Route path="/users" element={<UsersPage />} />
 
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />

@@ -1,4 +1,4 @@
-import { get } from "@app/core/axios/axios";
+import { get, post } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
 export interface User {
@@ -6,9 +6,22 @@ export interface User {
   name: string;
   lastName: string;
   email: string;
+  role: "ADMIN" | "OPERATOR" | "USER" | "LIDER";
+  active: boolean;
+}
+
+export interface CreateUserDto {
+  name: string;
+  lastName: string;
+  email: string;
+  password?: string;
   role: string;
 }
 
-export const getCoaches = async (): Promise<TResult<User[]>> => {
-  return await get<User[]>("/users/coaches");
+export const getUsers = async (): Promise<TResult<User[]>> => {
+  return await get<User[]>("/users");
+};
+
+export const createUser = async (data: CreateUserDto): Promise<TResult<User>> => {
+    return await post<User>("/users", data);
 };

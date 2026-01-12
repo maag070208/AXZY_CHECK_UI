@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { useEffect, useState } from "react";
-import { FaCalendarAlt, FaChild, FaClock, FaDumbbell, FaListAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaChild, FaClock, FaDumbbell, FaListAlt, FaKey } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
@@ -19,39 +19,45 @@ const HomePage = () => {
 
     const cards = [
       {
-        title: "Hijos",
-        description: "Administra los hijos registrados del usuario",
-        icon: <FaChild className="text-white" />,
-        action: () => navigate("/children"),
-      },
-      {
-        title: "Citas",
-        description: "Consulta y gestiona tus citas activas",
+        title: "Ubicaciones",
+        description: "Gestionar espacios de estacionamiento",
         icon: <FaListAlt className="text-white" />,
-        action: () => navigate("/appointments"),
+        action: () => navigate("/locations"),
       },
       {
-        title: "Calendario",
-        description: "Consulta los horarios de entrenamiento",
-        icon: <FaCalendarAlt className="text-white" />,
-        action: () => navigate("/calendar"),
+        title: "Entradas",
+        description: "Registrar y ver vehículos ingresados",
+        icon: <FaCalendarAlt className="text-white" />, 
+        action: () => navigate("/entries"),
+      },
+      {
+        title: "Movimientos",
+        description: "Gestionar movimientos internos",
+        icon: <FaClock className="text-white" />,
+        action: () => navigate("/movements"),
+      },
+      {
+        title: "Salidas",
+        description: "Registrar salidas de vehículos",
+        icon: <FaDumbbell className="text-white" />, // Using dumbell temporarily or better icon
+        action: () => navigate("/exits"),
+      },
+      {
+        title: "Control de Llaves",
+        description: "Historial de asignación de llaves",
+        icon: <FaKey className="text-white" />,
+        action: () => navigate("/assignments"),
       },
     ];
 
     if (user.role === "ADMIN") {
         cards.push(
             {
-              title: "Horarios",
-              description: "Consulta los horarios por día, semana o disponibilidad",
-              icon: <FaClock className="text-white" />,
-              action: () => navigate("/day-schedule"),
-            },
-            {
-              title: "Modos de Entrenamiento",
-              description: "Administra los diferentes modos de entrenamiento",
-              icon: <FaDumbbell className="text-white" />,
-              action: () => navigate("/training-modes"),
-            },
+              title: "Usuarios",
+              description: "Administrar usuarios del sistema",
+              icon: <FaChild className="text-white" />,
+              action: () => navigate("/users"), // Assuming users module exists or will exist
+            }
         );
     }
     

@@ -6,8 +6,8 @@ import {
   FaClock,
   FaDumbbell,
   FaHome,
-  FaListAlt,
-  FaMoneyBillWave,
+  FaKey,
+  FaListAlt
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -33,61 +33,61 @@ export const useNavigationItems = (): any[] => {
       id: "home",
       label: "Inicio",
       action: () => navigate("/home"),
-      isActive: isRouteActive("/home") || isRouteActive("/home"),
+      isActive: isRouteActive("/home"),
       icon: <FaHome className="text-white" />,
     },
     {
-      id: "children",
-      label: "Hijos",
-      action: () => navigate("/children"),
-      isActive: isRouteActive("/children"),
-      icon: <FaChild className="text-white" />,
-    },
-    {
-      id: "appointments",
-      label: "Citas",
-      action: () => navigate("/appointments"),
+      id: "locations",
+      label: "Ubicaciones",
+      action: () => navigate("/locations"),
+      isActive: isRouteActive("/locations"),
       icon: <FaListAlt className="text-white" />,
-      isActive: isRouteActive("/appointments"),
     },
     {
-      id: "calendar",
-      label: "Calendario",
-      action: () => navigate("/calendar"),
-      isActive: isRouteActive("/calendar"),
-      icon: <FaCalendarAlt className="text-white" />,
+      id: "entries",
+      label: "Entradas",
+      action: () => navigate("/entries"),
+      isActive: isRouteActive("/entries"),
+      icon: <FaCalendarAlt className="text-white" />, // Using available icon
     },
-  ].filter(item => {
-    if (user?.role === "COACH" && item.id === "children") {
-        return false;
-    }
-    return true;
-  });
+  ];
 
-  if (user?.role === "ADMIN") {
+  // Operator only sees Home, Locations, Entries (read only logic handles inside pages)
+  // If NOT operator, show the rest of the operational modules
+  if (user?.role !== "OPERATOR") {
     baseItems.push(
       {
-        id: "day-schedule",
-        label: "Horarios",
-        action: () => navigate("/day-schedule"),
-        isActive: isRouteActive("/day-schedule"),
-        icon: <FaClock className="text-white" />,
+        id: "movements",
+        label: "Movimientos",
+        action: () => navigate("/movements"),
+        isActive: isRouteActive("/movements"),
+        icon: <FaClock className="text-white" />, // Using available icon
       },
       {
-        id: "training-modes",
-        label: "Modos de Entrenamiento",
-        action: () => navigate("/training-modes"),
-        icon: <FaDumbbell className="text-white" />,
-        isActive: isRouteActive("/training-modes"),
+        id: "exits",
+        label: "Salidas",
+        action: () => navigate("/exits"),
+        isActive: isRouteActive("/exits"),
+        icon: <FaDumbbell className="text-white" />, // Using available icon
       },
       {
-        id: "payments",
-        label: "Pagos",
-        action: () => navigate("/payments"),
-        icon: <FaMoneyBillWave className="text-white" />,
-        isActive: isRouteActive("/payments"),
-      },
+        id: "assignments",
+        label: "Asignaciones",
+        action: () => navigate("/assignments"),
+        isActive: isRouteActive("/assignments"),
+        icon: <FaKey className="text-white" />,
+      }
     );
+  }
+
+  if (user?.role === "ADMIN" || user?.role === "LIDER") {
+    baseItems.push({
+      id: "users",
+      label: "Usuarios",
+      action: () => navigate("/users"),
+      isActive: isRouteActive("/users"),
+      icon: <FaChild className="text-white" />, // Using available icon
+    });
   }
 
   return baseItems;
@@ -117,9 +117,9 @@ export const Navbar = () => {
 };
 
 export const NAVBAR_LOGO = () => (
-  <img src={LOGO} className="h-[100px] hidden md:flex" />
+  <img src={LOGO} className="h-[40px] hidden md:flex" />
 );
 
 export const SIDEBAR_LOGO = () => (
-  <img src={LOGO} className="mt-5 h-[100px] flex md:hidden" />
+  <img src={LOGO} className="mt-5 h-[40px] flex md:hidden" />
 );
