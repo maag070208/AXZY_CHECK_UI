@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaChevronLeft, FaChevronRight, FaExpand, FaTimes, FaPlay, FaDownload } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaExpand, FaPlay, FaTimes } from 'react-icons/fa';
 
 interface MediaItem {
     type: string; // 'IMAGE' | 'VIDEO'
@@ -14,7 +14,7 @@ interface MediaCarouselProps {
     title?: string;
 }
 
-export const MediaCarousel: React.FC<MediaCarouselProps> = ({ media, initialIndex = 0, onClose, title }) => {
+export const MediaCarousel: React.FC<MediaCarouselProps> = ({ media, initialIndex = 0, title }) => {
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const [isFullscreen, setIsFullscreen] = useState(false);
 

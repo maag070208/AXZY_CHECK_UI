@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { getLocations, createLocation, updateLocation, deleteLocation, Location } from "../service/locations.service";
-import { LocationForm } from "../components/LocationForm";
-import { ITButton, ITDialog, ITLoader, ITTable } from "axzy_ui_system";
-import { useSelector } from "react-redux";
 import { AppState } from "@app/core/store/store";
-import { FaCar, FaPlus, FaQrcode, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { ITButton, ITDialog, ITLoader, ITTable } from "axzy_ui_system";
 import QRCode from "qrcode";
+import { useEffect, useState } from "react";
+import { FaCar, FaCheckCircle, FaEdit, FaPlus, FaQrcode, FaTrash } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { LocationForm } from "../components/LocationForm";
+import { createLocation, deleteLocation, getLocations, Location, updateLocation } from "../service/locations.service";
 
 const LocationsPage = () => {
   const [locations, setLocations] = useState<Location[]>([]);
