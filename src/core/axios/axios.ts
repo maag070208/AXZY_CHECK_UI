@@ -10,7 +10,7 @@ import { logout } from "../store/auth/auth.slice";
 import store from "../store/store";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: 'https://axzycheckapi-production.up.railway.app/api/v1',
   timeout: 30000,
 });
 
