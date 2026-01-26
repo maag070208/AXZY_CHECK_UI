@@ -50,9 +50,6 @@ const LoginPage = () => {
         <div className="flex flex-col items-center space-y-8">
           <img src={Logo} alt={"Logo"} className="h-[150px] dark:bg-transparent" />
           <LoginFormComponent onSubmit={handleSubmit} />
-          <div className="text-sm">
-             ¿No tienes cuenta? <span className="text-blue-600 cursor-pointer font-bold" onClick={() => navigate("/register")}>Regístrate</span>
-          </div>
         </div>
       </ITCard>
     </div>

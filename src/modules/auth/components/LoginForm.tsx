@@ -17,7 +17,7 @@ const LoginFormComponent = ({
   onSubmit: (values: IAuthLogin) => void;
 }) => {
   const initialValues = {
-    email: "",
+    username: "",
     password: "",
   };
 
@@ -25,16 +25,15 @@ const LoginFormComponent = ({
 
   const fields: FieldConfig[] = [
     {
-      name: "email",
-      label: "Email",
+      name: "username",
+      label: "Usuario",
       type: "text",
       required: true,
       column: 12,
       minLength: 3,
       maxLength: 20,
       validation: Yup.string()
-        .required("Este campo es requerido")
-        .email("Ingrese un email válido"),
+        .required("Este campo es requerido"),
       rightIcon: <FaUserAlt />,
     },
     {

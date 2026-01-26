@@ -3,9 +3,9 @@ import * as Yup from "yup";
 import { ITInput, ITButton } from "axzy_ui_system";
 
 interface Props {
-  onSubmit: (data: { aisle: string; spot: string; name?: string }) => void;
+  onSubmit: (data: { aisle: string; spot: string; number: string; name?: string }) => void;
   onCancel: () => void;
-  initialData?: { aisle: string; spot: string; name: string };
+  initialData?: { aisle: string; spot: string; number: string; name: string };
 }
 
 export const LocationForm = ({ onSubmit, onCancel, initialData }: Props) => {
@@ -13,10 +13,12 @@ export const LocationForm = ({ onSubmit, onCancel, initialData }: Props) => {
     initialValues: {
       aisle: initialData?.aisle || "",
       spot: initialData?.spot || "",
+      number: initialData?.number || "",
     },
     validationSchema: Yup.object({
       aisle: Yup.string().required("El pasillo es requerido"),
       spot: Yup.string().required("El cajón es requerido"),
+      number: Yup.string().required("El número es requerido"),
     }),
     onSubmit: (values) => {
       onSubmit(values);
@@ -44,6 +46,16 @@ export const LocationForm = ({ onSubmit, onCancel, initialData }: Props) => {
         error={formik.errors.spot}
         touched={formik.touched.spot}
         placeholder="Ej: 101"
+      />
+      <ITInput
+        label="Número"
+        name="number"
+        value={formik.values.number}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.errors.number}
+        touched={formik.touched.number}
+        placeholder="Ej: 1"
       />
       
       <div className="flex justify-end gap-2 mt-4">

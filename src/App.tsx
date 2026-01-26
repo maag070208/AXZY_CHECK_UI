@@ -10,12 +10,9 @@ import { setAuth } from "./core/store/auth/auth.slice";
 import HomePage from "./modules/home/pages/HomePage";
 
 import LocationsPage from "./modules/locations/pages/LocationsPage";
-import EntriesPage from "./modules/entries/pages/EntriesPage";
-import EntryDetailPage from "./modules/entries/pages/EntryDetailPage";
-import MovementsPage from "./modules/movements/pages/MovementsPage";
-import ExitsPage from "./modules/exits/pages/ExitsPage";
 import UsersPage from "./modules/users/pages/UsersPage";
-import KeyAssignmentsPage from "./modules/key-assignments/pages/KeyAssignmentsPage";
+import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
+import KardexPage from "./modules/kardex/pages/KardexPage";
 
 
 function App() {
@@ -70,12 +67,9 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         
         <Route path="/locations" element={<LocationsPage />} />
-        <Route path="/entries" element={<EntriesPage />} />
-        <Route path="/assignments" element={<KeyAssignmentsPage />} />
-        <Route path="/entries/:id" element={<EntryDetailPage />} />
-        <Route path="/movements" element={<MovementsPage />} />
-        <Route path="/exits" element={<ExitsPage />} />
         <Route path="/users" element={<UsersPage />} />
+        <Route path="/incidents" element={<IncidentsPage />} />
+        <Route path="/kardex" element={<KardexPage />} />
 
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />

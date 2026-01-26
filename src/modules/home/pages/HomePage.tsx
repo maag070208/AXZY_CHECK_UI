@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { useEffect, useState } from "react";
-import { FaCalendarAlt, FaChild, FaClock, FaDumbbell, FaListAlt, FaKey } from "react-icons/fa";
+import { FaChild, FaListAlt, FaExclamationTriangle, FaBook } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
@@ -25,28 +25,16 @@ const HomePage = () => {
         action: () => navigate("/locations"),
       },
       {
-        title: "Entradas",
-        description: "Registrar y ver vehículos ingresados",
-        icon: <FaCalendarAlt className="text-white" />, 
-        action: () => navigate("/entries"),
+        title: "Incidencias",
+        description: "Reportes de incidencias",
+        icon: <FaExclamationTriangle className="text-white" />,
+        action: () => navigate("/incidents"),
       },
       {
-        title: "Movimientos",
-        description: "Gestionar movimientos internos",
-        icon: <FaClock className="text-white" />,
-        action: () => navigate("/movements"),
-      },
-      {
-        title: "Salidas",
-        description: "Registrar salidas de vehículos",
-        icon: <FaDumbbell className="text-white" />, // Using dumbell temporarily or better icon
-        action: () => navigate("/exits"),
-      },
-      {
-        title: "Control de Llaves",
-        description: "Historial de asignación de llaves",
-        icon: <FaKey className="text-white" />,
-        action: () => navigate("/assignments"),
+        title: "Kardex",
+        description: "Historial de movimientos",
+        icon: <FaBook className="text-white" />,
+        action: () => navigate("/kardex"),
       },
     ];
 
@@ -56,7 +44,7 @@ const HomePage = () => {
               title: "Usuarios",
               description: "Administrar usuarios del sistema",
               icon: <FaChild className="text-white" />,
-              action: () => navigate("/users"), // Assuming users module exists or will exist
+              action: () => navigate("/users"),
             }
         );
     }
@@ -65,10 +53,12 @@ const HomePage = () => {
   }, [user]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-8 max-w-5xl mx-auto relative z-10">
-      {homeCardItem.map((item, index) => (
-        <HomeCardItem key={index} item={item} index={index} />
-      ))}
+    <div className="bg-[#f6fbf4] min-h-screen p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto relative z-10">
+          {homeCardItem.map((item, index) => (
+            <HomeCardItem key={index} item={item} index={index} />
+          ))}
+        </div>
     </div>
   );
 };

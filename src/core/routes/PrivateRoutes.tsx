@@ -8,6 +8,7 @@ import { AppDispatch, AppState } from "../store/store";
 export const PrivateRoutes = () => {
   const isAuth = useSelector(isAuthenticated);
   const user = useSelector((state: AppState) => state.auth);
+  console.log(user)
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const navigationItems = useNavigationItems();
@@ -18,7 +19,7 @@ export const PrivateRoutes = () => {
         logo: <NAVBAR_LOGO />,
         userMenu: {
           userName: user.name || "Usuario",
-          userEmail: user.email || "email@example.com",
+          userEmail: "",
           menuItems: [
             {
               label: "Cerrar Sesión",
