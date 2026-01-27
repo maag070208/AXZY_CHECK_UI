@@ -14,7 +14,6 @@ const axiosInstance = axios.create({
   // baseURL: 'http://localhost:4444/api/v1',
   timeout: 30000,
 });
-
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     store.dispatch(showLoader());
