@@ -8,7 +8,7 @@ COPY package.json yarn.lock ./
 
 # Copy local dependencies
 # Note: Ensure this version matches your package.json exactly
-COPY axzy_ui_system-v1.0.133.tgz ./
+COPY axzy_ui_system-v1.0.155.tgz ./
 
 # Install dependencies
 RUN yarn install --frozen-lockfile
