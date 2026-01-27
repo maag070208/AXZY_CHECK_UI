@@ -1,5 +1,4 @@
 import { get, post, put, remove } from "../../core/axios/axios";
-import { TResult } from "../../core/types/TResult";
 
 export interface Schedule {
   id: number;

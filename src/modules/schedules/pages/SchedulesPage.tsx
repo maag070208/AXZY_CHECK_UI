@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { ITButton, ITInput, ITDialog } from "axzy_ui_system";
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
-import { confirmAlert } from "react-confirm-alert"; 
+import { ITButton, ITDialog, ITInput } from "axzy_ui_system";
+import { useEffect, useState } from "react";
+import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-import { Schedule, getSchedules, updateSchedule, createSchedule, deleteSchedule } from "../SchedulesService";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
+import { Schedule, createSchedule, deleteSchedule, getSchedules, updateSchedule } from "../SchedulesService";
 
 const SchedulesPage = () => {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
