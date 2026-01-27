@@ -1,6 +1,8 @@
 import { get, post, put } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
+import { Schedule } from "../../schedules/SchedulesService";
+
 export interface User {
   id: number;
   name: string;
@@ -11,6 +13,8 @@ export interface User {
   shiftStart?: string; // HH:mm
   shiftEnd?: string;   // HH:mm
   isLoggedIn?: boolean;
+  schedule?: Schedule;
+  scheduleId?: number;
 }
 
 export interface CreateUserDto {
@@ -21,6 +25,7 @@ export interface CreateUserDto {
   role: string;
   shiftStart?: string;
   shiftEnd?: string;
+  scheduleId?: number;
 }
 
 export interface UpdateUserDto {
@@ -29,6 +34,7 @@ export interface UpdateUserDto {
     username?: string;
     shiftStart?: string;
     shiftEnd?: string;
+    scheduleId?: number;
 }
 
 export interface ChangePasswordDto {

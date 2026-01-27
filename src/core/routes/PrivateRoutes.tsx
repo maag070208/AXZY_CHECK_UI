@@ -8,7 +8,6 @@ import { AppDispatch, AppState } from "../store/store";
 export const PrivateRoutes = () => {
   const isAuth = useSelector(isAuthenticated);
   const user = useSelector((state: AppState) => state.auth);
-  console.log(user)
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const navigationItems = useNavigationItems();

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ITInput, ITSelect, ITButton, ITTimePicker } from "axzy_ui_system";
+import { ITInput, ITSelect, ITButton } from "axzy_ui_system";
 import { createUser } from "../services/UserService";
 
 interface Props {
@@ -9,8 +9,15 @@ interface Props {
   onSuccess: () => void;
 }
 
+import { getSchedules, Schedule } from "../../schedules/SchedulesService";
+
 export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+
+  React.useEffect(() => {
+    getSchedules().then(setSchedules);
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -22,6 +29,7 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
       role: "OPERATOR",
       shiftStart: "",
       shiftEnd: "",
+      scheduleId: "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Requerido"),
@@ -32,12 +40,7 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
         .oneOf([Yup.ref("password")], "Las contraseñas no coinciden")
         .required("Requerido"),
         role: Yup.string().required("Requerido"),
-      shiftStart: Yup.string().when("role", {
-        is: (val: string) => val === "GUARD" || val === "SHIFT_GUARD",
-        then: () => Yup.string().required("Requerido para guardias"),
-        otherwise: () => Yup.string().notRequired(),
-      }),
-      shiftEnd: Yup.string().when("role", {
+      scheduleId: Yup.string().when("role", {
         is: (val: string) => val === "GUARD" || val === "SHIFT_GUARD",
         then: () => Yup.string().required("Requerido para guardias"),
         otherwise: () => Yup.string().notRequired(),
@@ -51,8 +54,7 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
         username: values.username,
         password: values.password,
         role: values.role,
-        shiftStart: values.shiftStart,
-        shiftEnd: values.shiftEnd,
+        scheduleId: values.scheduleId ? Number(values.scheduleId) : undefined
       });
 
       if (res.success) {
@@ -139,22 +141,15 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
           />
           
           {(formik.values.role === 'GUARD' || formik.values.role === 'SHIFT_GUARD') && (
-            <div className="grid grid-cols-2 gap-4 mt-2 p-4 bg-slate-50 rounded-lg border border-slate-100">
-                <ITTimePicker
-                    label="Inicio de Turno"
-                    name="shiftStart"
-                    value={formik.values.shiftStart}
+            <div className="mt-2 p-4 bg-slate-50 rounded-lg border border-slate-100">
+                <ITSelect
+                    label="Horario Asignado"
+                    name="scheduleId"
+                    value={formik.values.scheduleId}
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.errors.shiftStart}
-                />
-                <ITTimePicker
-                    label="Fin de Turno"
-                    name="shiftEnd"
-                    value={formik.values.shiftEnd}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.errors.shiftEnd}
+                    options={schedules.map(s => ({ label: `${s.name} (${s.startTime} - ${s.endTime})`, value: String(s.id) }))}
+                    error={formik.errors.scheduleId}
+                    touched={formik.touched.scheduleId}
                 />
             </div>
           )}

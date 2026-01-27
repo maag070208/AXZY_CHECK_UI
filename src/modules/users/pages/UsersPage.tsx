@@ -19,7 +19,17 @@ const UsersPage = () => {
     setLoading(true);
     const res = await getUsers();
     if (res.success && res.data) {
-        setUsers(res.data);
+        const sortedUsers = [...res.data].sort((a, b) => {
+            const rolePriority: { [key: string]: number } = {
+                'ADMIN': 1,
+                'SHIFT_GUARD': 2,
+                'GUARD': 3
+            };
+            const priorityA = rolePriority[a.role as string] || 99;
+            const priorityB = rolePriority[b.role as string] || 99;
+            return priorityA - priorityB;
+        });
+        setUsers(sortedUsers);
     }
     setLoading(false);
   };
@@ -99,16 +109,29 @@ const UsersPage = () => {
                 label: "Turno",
                 type: "string",
                 sortable: false,
-                render: (row: User) => (
-                    (row.role === 'GUARD' || row.role === 'SHIFT_GUARD') && row.shiftStart ? (
-                        <div className="flex items-center gap-1 text-slate-600 text-xs font-medium bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 w-fit">
-                            <FaClock className="text-slate-400" />
-                            <span>{row.shiftStart} - {row.shiftEnd}</span>
-                        </div>
-                    ) : (
-                        <span className="text-xs text-slate-300">-</span>
-                    )
-                )
+                render: (row: User) => {
+                    if ((row.role === 'GUARD' || row.role === 'SHIFT_GUARD')) {
+                        if (row.schedule) {
+                            return (
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-sm font-medium text-slate-700">{row.schedule.name}</span>
+                                    <div className="flex items-center gap-1 text-slate-500 text-xs">
+                                         <FaClock className="text-slate-400" />
+                                         <span>{row.schedule.startTime} - {row.schedule.endTime}</span>
+                                    </div>
+                                </div>
+                            );
+                        } else if (row.shiftStart) {
+                             return (
+                                <div className="flex items-center gap-1 text-slate-600 text-xs font-medium bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 w-fit">
+                                    <FaClock className="text-slate-400" />
+                                    <span>{row.shiftStart} - {row.shiftEnd}</span>
+                                </div>
+                            );
+                        }
+                    }
+                    return <span className="text-xs text-slate-300">-</span>;
+                }
             },
             {
                 key: "actions",

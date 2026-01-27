@@ -6,6 +6,7 @@ import {
   FaListAlt,
   FaExclamationTriangle,
   FaBook,
+  FaClock,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -54,6 +55,13 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/kardex"),
       isActive: isRouteActive("/kardex"),
       icon: <FaBook className="text-white" />,
+    },
+    {
+      id: "rounds",
+      label: "Rondas",
+      action: () => navigate("/rounds"),
+      isActive: isRouteActive("/rounds"),
+      icon: <FaClock className="text-white" />,
     },
   ];
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ITInput, ITButton, ITLoader, ITTimePicker } from "axzy_ui_system";
+import { ITInput, ITButton, ITLoader, ITSelect } from "axzy_ui_system";
 import { updateUser, User } from "../services/UserService";
 
 interface Props {
@@ -10,8 +10,15 @@ interface Props {
   onSuccess: () => void;
 }
 
+import { getSchedules, Schedule } from "../../schedules/SchedulesService";
+
 export const EditUserModal: React.FC<Props> = ({ user, onCancel, onSuccess }) => {
   const [loading, setLoading] = React.useState(false);
+  const [schedules, setSchedules] = React.useState<Schedule[]>([]);
+
+  React.useEffect(() => {
+    getSchedules().then(setSchedules);
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -20,6 +27,7 @@ export const EditUserModal: React.FC<Props> = ({ user, onCancel, onSuccess }) =>
       username: user.username,
       shiftStart: user.shiftStart || "",
       shiftEnd: user.shiftEnd || "",
+      scheduleId: user.scheduleId ? String(user.scheduleId) : "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Requerido"),
@@ -34,6 +42,7 @@ export const EditUserModal: React.FC<Props> = ({ user, onCancel, onSuccess }) =>
         username: values.username,
         shiftStart: values.shiftStart,
         shiftEnd: values.shiftEnd,
+        scheduleId: values.scheduleId ? Number(values.scheduleId) : undefined
       });
       setLoading(false);
 
@@ -78,21 +87,14 @@ export const EditUserModal: React.FC<Props> = ({ user, onCancel, onSuccess }) =>
       />
 
       {(user.role === 'GUARD' || user.role === 'SHIFT_GUARD') && (
-        <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border border-slate-100">
-            <h4 className="col-span-2 text-xs font-bold text-slate-400 uppercase">Horario de Turno</h4>
-            <ITTimePicker
-                label="Inicio"
-                name="shiftStart"
-                value={formik.values.shiftStart}
+        <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+            <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Horario de Turno</h4>
+             <ITSelect
+                label="Horario Asignado"
+                name="scheduleId"
+                value={formik.values.scheduleId}
                 onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-            />
-            <ITTimePicker
-                label="Fin"
-                name="shiftEnd"
-                value={formik.values.shiftEnd}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                options={schedules.map(s => ({ label: `${s.name} (${s.startTime} - ${s.endTime})`, value: String(s.id) }))}
             />
         </div>
       )}

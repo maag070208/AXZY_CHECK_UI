@@ -45,6 +45,12 @@ const HomePage = () => {
               description: "Administrar usuarios del sistema",
               icon: <FaChild className="text-white" />,
               action: () => navigate("/users"),
+            },
+            {
+              title: "Horarios",
+              description: "Configurar turnos y horarios",
+              icon: <FaListAlt className="text-white" />,
+              action: () => navigate("/schedules"),
             }
         );
     }

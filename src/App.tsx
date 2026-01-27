@@ -13,6 +13,9 @@ import LocationsPage from "./modules/locations/pages/LocationsPage";
 import UsersPage from "./modules/users/pages/UsersPage";
 import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
 import KardexPage from "./modules/kardex/pages/KardexPage";
+import RoundsPage from "./modules/rounds/pages/RoundsPage";
+import RoundDetailPage from "./modules/rounds/pages/RoundDetailPage";
+import SchedulesPage from "./modules/schedules/pages/SchedulesPage";
 
 
 function App() {
@@ -70,6 +73,10 @@ function App() {
         <Route path="/users" element={<UsersPage />} />
         <Route path="/incidents" element={<IncidentsPage />} />
         <Route path="/kardex" element={<KardexPage />} />
+        <Route path="/schedules" element={<SchedulesPage />} />
+        
+        <Route path="/rounds" element={<RoundsPage />} />
+        <Route path="/rounds/:id" element={<RoundDetailPage />} />
 
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />
