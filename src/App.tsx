@@ -16,6 +16,7 @@ import KardexPage from "./modules/kardex/pages/KardexPage";
 import RoundsPage from "./modules/rounds/pages/RoundsPage";
 import RoundDetailPage from "./modules/rounds/pages/RoundDetailPage";
 import SchedulesPage from "./modules/schedules/pages/SchedulesPage";
+import RoutesPage from "./modules/routes/pages/RoutesPage";
 
 
 function App() {
@@ -77,6 +78,7 @@ function App() {
         
         <Route path="/rounds" element={<RoundsPage />} />
         <Route path="/rounds/:id" element={<RoundDetailPage />} />
+        <Route path="/routes" element={<RoutesPage />} />
 
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />

@@ -7,6 +7,8 @@ import {
   FaExclamationTriangle,
   FaBook,
   FaClock,
+  FaMapMarkedAlt,
+  FaSearchLocation,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -40,7 +42,7 @@ export const useNavigationItems = (): any[] => {
       label: "Ubicaciones",
       action: () => navigate("/locations"),
       isActive: isRouteActive("/locations"),
-      icon: <FaListAlt className="text-white" />,
+      icon: <FaSearchLocation className="text-white" />,
     },
     {
       id: "incidents",
@@ -63,6 +65,20 @@ export const useNavigationItems = (): any[] => {
       isActive: isRouteActive("/rounds"),
       icon: <FaClock className="text-white" />,
     },
+    {
+      id: "routes",
+      label: "Rutas",
+      action: () => navigate("/routes"),
+      isActive: isRouteActive("/routes"),
+      icon: <FaMapMarkedAlt className="text-white" />,
+    },
+    {
+      id: 'schedule',
+      label: 'Horarios',
+       action: () => navigate("/schedules"),
+      isActive: isRouteActive("/schedules"),
+      icon: <FaListAlt className="text-white" />,
+    }
   ];
 
   if (user?.role === "ADMIN" || user?.role === "LIDER") {

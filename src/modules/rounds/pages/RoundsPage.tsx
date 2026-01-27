@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
-import { getRounds, IRound } from "../services/RoundsService";
-import { ITBadget, ITButton, ITTable, ITLoader } from "axzy_ui_system";
-import { FaEye, FaCalendarAlt } from "react-icons/fa";
+import { getRounds, IRound, startRound } from "../services/RoundsService";
+import { getUsers } from "../../users/services/UserService";
+import { ITBadget, ITButton, ITTable, ITLoader, ITDialog } from "axzy_ui_system";
+import { FaEye, FaCalendarAlt, FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+
 
 const RoundsPage = () => {
     const [rounds, setRounds] = useState<IRound[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
     const navigate = useNavigate();
+
+    // Start Round Modal State
+    const [isStartModalOpen, setIsStartModalOpen] = useState(false);
+    const [guards, setGuards] = useState<any[]>([]);
+    const [selectedGuard, setSelectedGuard] = useState<string>("");
 
     const fetchRounds = async () => {
         setLoading(true);
@@ -17,6 +24,35 @@ const RoundsPage = () => {
             setRounds(res.data);
         }
         setLoading(false);
+    };
+
+    const handleOpenStartModal = async () => {
+        const res = await getUsers();
+        if (res.success && res.data) {
+             const onlyGuards = res.data.filter((u: any) => u.role === 'GUARD' || u.role === 'SHIFT_GUARD');
+             setGuards(onlyGuards);
+        }
+        setIsStartModalOpen(true);
+    };
+
+    const handleStartRound = async () => {
+        if (!selectedGuard) return;
+        
+        try {
+            const res = await startRound(Number(selectedGuard));
+            if (res.success) {
+                alert("Ronda iniciada correctamente");
+                setIsStartModalOpen(false);
+                setSelectedGuard("");
+                fetchRounds();
+            } else {
+                 const msg = res.messages?.join("\n") || "Error al iniciar ronda";
+                 alert(msg);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error de conexión");
+        }
     };
 
     useEffect(() => {
@@ -30,14 +66,23 @@ const RoundsPage = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Rondas</h1>
                     <p className="text-slate-500 text-sm mt-1">Historial y supervisión de rondas de seguridad</p>
                 </div>
-                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
-                    <FaCalendarAlt className="text-slate-400" />
-                     <input 
-                        type="date" 
-                        value={selectedDate} 
-                        onChange={(e) => setSelectedDate(e.target.value)} 
-                        className="text-sm text-slate-600 outline-none font-medium"
-                    />
+                <div className="flex gap-4">
+                     <button 
+                        onClick={handleOpenStartModal}
+                        className="flex items-center gap-2 bg-[#065911] text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-[#086f16] transition-colors"
+                    >
+                        <FaPlus className="text-xs" />
+                        <span>Nueva Ronda</span>
+                    </button>
+                    <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
+                        <FaCalendarAlt className="text-slate-400" />
+                        <input 
+                            type="date" 
+                            value={selectedDate} 
+                            onChange={(e) => setSelectedDate(e.target.value)} 
+                            className="text-sm text-slate-600 outline-none font-medium"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -94,7 +139,7 @@ const RoundsPage = () => {
                                 sortable: true,
                                 render: (row: IRound) => (
                                     <ITBadget 
-                                        color={row.status === "COMPLETED" ? "success" : "warning"}
+                                        color={row.status === "COMPLETED" ? "secondary" : "warning"}
                                         variant="filled"
                                         size="small"
                                     >
@@ -126,6 +171,51 @@ const RoundsPage = () => {
                     />
                 )}
             </div>
+
+            {/* Start Round Modal */}
+            <ITDialog
+                isOpen={isStartModalOpen}
+                onClose={() => setIsStartModalOpen(false)}
+                title="Iniciar Nueva Ronda"
+                className="!w-full !max-w-md"
+            >
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Seleccionar Guardia</label>
+                        <select 
+                            className="w-full border border-gray-300 rounded-lg p-2.5 text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            value={selectedGuard}
+                            onChange={(e) => setSelectedGuard(e.target.value)}
+                        >
+                            <option value="">-- Seleccione --</option>
+                            {guards.map((g: any) => (
+                                <option key={g.id} value={g.id}>
+                                    {g.name} {g.lastName} ({g.username}) - {g.role}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">Solo se muestran usuarios con rol GUARD o SHIFT_GUARD.</p>
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                        <button 
+                            onClick={() => setIsStartModalOpen(false)} 
+                            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            onClick={handleStartRound} 
+                            disabled={!selectedGuard}
+                            className={`px-4 py-2 rounded-lg text-white font-medium ${
+                                !selectedGuard ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+                            }`}
+                        >
+                            Iniciar Ronda
+                        </button>
+                    </div>
+                </div>
+            </ITDialog>
         </div>
     );
 };

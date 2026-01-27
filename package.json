@@ -19,7 +19,7 @@
     "@types/react-scroll-sync": "^0.9.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
-    "axzy_ui_system": "file:./axzy_ui_system-v1.0.133.tgz",
+    "axzy_ui_system": "file:./axzy_ui_system-v1.0.155.tgz",
     "dayjs": "^1.11.19",
     "dotenv": "^16.4.7",
     "formik": "^2.4.6",
