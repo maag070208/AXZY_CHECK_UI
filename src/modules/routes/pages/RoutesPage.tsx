@@ -1,8 +1,8 @@
+import { ITBadget, ITButton, ITLoader, ITTable } from "axzy_ui_system";
 import { useEffect, useState } from "react";
-import { getRoutesList, deleteRoute } from "../services/RoutesService";
-import { ITBadget, ITButton, ITTable, ITLoader } from "axzy_ui_system";
-import { FaEdit, FaTrash, FaPlus, FaMapMarkedAlt } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { CreateRouteModal } from "../components/CreateRouteModal";
+import { deleteRoute, getRoutesList } from "../services/RoutesService";
 
 const RoutesPage = () => {
   const [routes, setRoutes] = useState<any[]>([]);
