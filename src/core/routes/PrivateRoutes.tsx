@@ -23,7 +23,6 @@ export const PrivateRoutes = () => {
             {
               label: "Cerrar Sesión",
               onClick: () => {
-                dispatch(logout());
                 navigate("/login");
               },
             },

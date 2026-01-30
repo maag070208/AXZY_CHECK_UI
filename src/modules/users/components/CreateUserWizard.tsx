@@ -130,11 +130,9 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
             value={formik.values.role}
             onChange={formik.handleChange}
             options={[
-              { label: "Operador", value: "OPERATOR" },
               { label: "Guardia", value: "GUARD" },
               { label: "Guardia de Turno", value: "SHIFT_GUARD" },
               { label: "Administrador", value: "ADMIN" },
-              { label: "Usuario", value: "USER" },
             ]}
             error={formik.errors.role}
             touched={formik.touched.role}

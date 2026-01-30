@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
-import { getRounds, IRound, startRound } from "../services/RoundsService";
+import { getRounds, IRound, startRound, endRound } from "../services/RoundsService";
 import { getUsers } from "../../users/services/UserService";
 import { ITBadget, ITButton, ITTable, ITLoader, ITDialog } from "axzy_ui_system";
-import { FaEye, FaCalendarAlt, FaPlus } from "react-icons/fa";
+import { FaEye, FaCalendarAlt, FaPlus, FaStop } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 
 const RoundsPage = () => {
     const [rounds, setRounds] = useState<IRound[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
+    const [selectedDate, setSelectedDate] = useState<string>(() => {
+        // Use Local Time for default date
+        const d = new Date();
+        const offset = d.getTimezoneOffset() * 60000;
+        const local = new Date(d.getTime() - offset);
+        return local.toISOString().split("T")[0];
+    });
     const navigate = useNavigate();
 
     // Start Round Modal State
@@ -52,6 +58,22 @@ const RoundsPage = () => {
         } catch (e) {
             console.error(e);
             alert("Error de conexión");
+        }
+    };
+
+    const handleEndRound = async (roundId: number) => {
+        if (!window.confirm("¿Seguro que deseas FINALIZAR esta ronda manualmente? Esta acción no se puede deshacer.")) return;
+
+        try {
+            const res = await endRound(roundId);
+            if (res.success) {
+                alert("Ronda finalizada correctamente");
+                fetchRounds();
+            } else {
+                alert(res.messages?.join("\n") || "Error al finalizar ronda");
+            }
+        } catch (e) {
+            alert("Error al finalizar ronda");
         }
     };
 
@@ -152,16 +174,31 @@ const RoundsPage = () => {
                                 label: "Acciones",
                                 type: "actions",
                                 actions: (row: IRound) => (
-                                    <ITButton
-                                        onClick={() => navigate(`/rounds/${row.id}`)}
-                                        size="small"
-                                        color="primary"
-                                        variant="outlined"
-                                        className="!p-2"
-                                        title="Ver detalles"
-                                    >
-                                        <FaEye />
-                                    </ITButton>
+                                    <div className="flex gap-2">
+                                        <ITButton
+                                            onClick={() => navigate(`/rounds/${row.id}`)}
+                                            size="small"
+                                            color="primary"
+                                            variant="outlined"
+                                            className="!p-2"
+                                            title="Ver detalles"
+                                        >
+                                            <FaEye />
+                                        </ITButton>
+                                        
+                                        {row.status === "IN_PROGRESS" && (
+                                            <ITButton
+                                                onClick={() => handleEndRound(row.id)}
+                                                size="small"
+                                                color="danger"
+                                                variant="filled"
+                                                className="!p-2"
+                                                title="Finalizar Ronda (Admin)"
+                                            >
+                                                <FaStop />
+                                            </ITButton>
+                                        )}
+                                    </div>
                                 )
                             }
                         ]}
