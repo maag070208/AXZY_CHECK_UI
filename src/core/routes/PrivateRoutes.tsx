@@ -1,5 +1,5 @@
 import { ITLayout } from "axzy_ui_system";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { NAVBAR_LOGO, useNavigationItems } from "../constants/navbar.constants";
 import { isAuthenticated } from "../store/auth/auth.slice";
