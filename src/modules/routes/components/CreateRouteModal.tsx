@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ITDialog, ITButton, ITInput } from "axzy_ui_system";
-import { FaTrash, FaPlus, FaMinus, FaUsers } from "react-icons/fa";
+import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 import { createRoute, ILocationCreate, updateRoute } from "../services/RoutesService";
 import { getLocations, Location } from "../../locations/service/locations.service";
 import { getUsers, User } from "../../users/services/UserService";
