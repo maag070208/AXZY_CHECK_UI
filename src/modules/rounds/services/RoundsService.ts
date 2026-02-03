@@ -7,6 +7,13 @@ export interface IRound {
   startTime: string;
   endTime?: string | null;
   status: "IN_PROGRESS" | "COMPLETED";
+  recurringConfigurationId: number;
+  recurringConfiguration?: {
+      id: number;
+      title: string;
+      startTime?: string;
+      endTime?: string;
+  };
   guard: {
     id: number;
     name: string;

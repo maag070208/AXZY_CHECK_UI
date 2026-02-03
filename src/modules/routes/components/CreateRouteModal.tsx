@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { ITDialog, ITButton, ITInput } from "axzy_ui_system";
-import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
+import { FaTrash, FaPlus, FaMinus, FaUsers } from "react-icons/fa";
 import { createRoute, ILocationCreate, updateRoute } from "../services/RoutesService";
 import { getLocations, Location } from "../../locations/service/locations.service";
+import { getUsers, User } from "../../users/services/UserService";
 
 interface CreateRouteModalProps {
     isOpen: boolean;
@@ -14,9 +15,11 @@ interface CreateRouteModalProps {
 export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: CreateRouteModalProps) => {
     const [title, setTitle] = useState("");
     const [addedLocations, setAddedLocations] = useState<ILocationCreate[]>([]);
+    const [selectedGuards, setSelectedGuards] = useState<number[]>([]);
     
     // Data sources
     const [allLocations, setAllLocations] = useState<Location[]>([]);
+    const [allGuards, setAllGuards] = useState<User[]>([]);
     
     // UI Local State
     const [selectedLocId, setSelectedLocId] = useState<string>("");
@@ -24,30 +27,58 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
 
     useEffect(() => {
         if (isOpen) {
-            fetchLocations();
-            if (editConfig) {
-                // Map existing config to state
-                setTitle(editConfig.title);
-                const mapped = editConfig.recurringLocations.map((rl: any) => ({
-                    locationId: rl.location.id,
-                    locationName: rl.location.name,
-                    tasks: rl.tasks.map((t: any) => ({
-                        description: t.description,
-                        reqPhoto: t.reqPhoto
-                    }))
-                }));
-                setAddedLocations(mapped);
+            fetchInitialData();
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (isOpen && editConfig) {
+            // Map existing config to state
+            setTitle(editConfig.title);
+            const mapped = editConfig.recurringLocations.map((rl: any) => ({
+                locationId: rl.location.id,
+                locationName: rl.location.name,
+                tasks: rl.tasks.map((t: any) => ({
+                    description: t.description,
+                    reqPhoto: t.reqPhoto
+                }))
+            }));
+            setAddedLocations(mapped);
+
+            // Map assigned guards
+            if (editConfig.guards) {
+                setSelectedGuards(editConfig.guards.map((g: any) => g.id));
             } else {
-                setTitle("");
-                setAddedLocations([]);
+                setSelectedGuards([]);
+            }
+        } else if (isOpen) {
+            setTitle("");
+            setAddedLocations([]);
+            // Default select all guards for new routes
+            if (allGuards.length > 0) {
+                 setSelectedGuards(allGuards.map(g => g.id));
             }
         }
-    }, [isOpen, editConfig]);
+    }, [isOpen, editConfig, allGuards]); // Added allGuards dependency so if it loads after open
 
-    const fetchLocations = async () => {
-        const res = await getLocations();
-        if (res.success && res.data) {
-            setAllLocations(res.data);
+    const fetchInitialData = async () => {
+        const [locRes, usersRes] = await Promise.all([
+            getLocations(),
+            getUsers()
+        ]);
+
+        if (locRes.success && locRes.data) {
+            setAllLocations(locRes.data);
+        }
+        
+        if (usersRes.success && usersRes.data) {
+            const guards = usersRes.data.filter(u => u.role === 'GUARD' || u.role === 'SHIFT_GUARD' && u.active);
+            setAllGuards(guards);
+            
+            // Should usually only do this for NEW forms, but we handle in effect above.
+            if (!editConfig) {
+                setSelectedGuards(guards.map(g => g.id));
+            }
         }
     };
 
@@ -96,6 +127,22 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
         setAddedLocations(copy);
     };
 
+    const toggleGuard = (guardId: number) => {
+        if (selectedGuards.includes(guardId)) {
+            setSelectedGuards(selectedGuards.filter(id => id !== guardId));
+        } else {
+            setSelectedGuards([...selectedGuards, guardId]);
+        }
+    };
+
+    const toggleAllGuards = () => {
+        if (selectedGuards.length === allGuards.length) {
+            setSelectedGuards([]);
+        } else {
+            setSelectedGuards(allGuards.map(g => g.id));
+        }
+    };
+
     const handleSave = async () => {
         if (!title.trim()) {
             alert("Ingresa un nombre para la ruta");
@@ -110,7 +157,8 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
         try {
             const payload = {
                 title,
-                locations: addedLocations
+                locations: addedLocations,
+                guardIds: selectedGuards
             };
             
             let res;
@@ -163,8 +211,46 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                 </div>
 
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                     <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                    <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
                         <span className="bg-green-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                        Asignación de Guardias
+                    </h3>
+                    <div className="mb-2 flex justify-between items-center">
+                         <p className="text-sm text-slate-500">Selecciona qué guardias pueden ver e iniciar esta ronda.</p>
+                         <button onClick={toggleAllGuards} className="text-sm font-bold text-green-700 hover:underline">
+                            {selectedGuards.length === allGuards.length ? 'Desmarcar Todos' : 'Seleccionar Todos'}
+                         </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {allGuards.map(guard => (
+                            <div 
+                                key={guard.id} 
+                                onClick={() => toggleGuard(guard.id)}
+                                className={`
+                                    cursor-pointer p-3 rounded-lg border flex items-center gap-3 transition-colors
+                                    ${selectedGuards.includes(guard.id) ? 'bg-green-50 border-green-500' : 'bg-white border-slate-200 hover:border-slate-300'}
+                                `}
+                            >
+                                <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedGuards.includes(guard.id) ? 'bg-green-600 border-green-600' : 'border-slate-400'}`}>
+                                     {selectedGuards.includes(guard.id) && <span className="text-white text-xs">✓</span>}
+                                </div>
+                                <span className={`text-sm ${selectedGuards.includes(guard.id) ? 'font-medium text-green-900' : 'text-slate-600'}`}>
+                                    {guard.name} {guard.lastName}
+                                </span>
+                            </div>
+                        ))}
+                        {allGuards.length === 0 && (
+                            <div className="col-span-3 text-center py-4 text-slate-400 text-sm">
+                                No hay guardias activos.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                     <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <span className="bg-green-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
                         Agregar Ubicaciones
                     </h3>
                     <div className="flex gap-3 items-end">
@@ -194,7 +280,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                 {addedLocations.length > 0 && (
                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
-                            <span className="bg-green-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
+                            <span className="bg-green-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">4</span>
                             Tareas por Ubicación
                         </h3>
                         

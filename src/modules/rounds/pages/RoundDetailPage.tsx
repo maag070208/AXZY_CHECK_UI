@@ -1,15 +1,103 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getRoundDetail, IRoundDetail } from "../services/RoundsService";
 import { ITLoader, ITBadget } from "axzy_ui_system";
-import { FaArrowLeft, FaPlay, FaCheckCircle, FaQrcode, FaExclamationTriangle, FaMapMarkerAlt } from "react-icons/fa";
+import { FaArrowLeft, FaPlay, FaCheckCircle, FaQrcode, FaExclamationTriangle, FaMapMarkerAlt, FaClock, FaStopwatch, FaRoute, FaMapMarkedAlt } from "react-icons/fa";
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
+import { getRoutesList } from "../../routes/services/RoutesService";
 
 const RoundDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [data, setData] = useState<IRoundDetail | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const [routeTitle, setRouteTitle] = useState("");
+
+    const metrics = useMemo(() => {
+        if (!data) return null;
+        
+        const start = new Date(data.round.startTime);
+        const end = data.round.endTime ? new Date(data.round.endTime) : (data.round.status === 'COMPLETED' ? new Date() : null);
+        const effectiveEnd = end || new Date();
+
+        const durationMs = effectiveEnd.getTime() - start.getTime();
+        const durationMinutes = Math.floor(durationMs / 60000);
+        const durationSeconds = Math.floor((durationMs % 60000) / 1000);
+        
+        // Filter scans
+        const scans = data.timeline.filter(e => e.type === 'SCAN').sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        
+        const visitedLocations = new Set<string>();
+        let validScansCount = 0;
+
+        // Treasure Map Nodes
+        const mapNodes: any[] = [];
+        let previousTime = start;
+
+        // Start Node
+        mapNodes.push({
+            type: 'START',
+            label: 'Inicio',
+            status: 'START',
+            timeDiff: null
+        });
+
+        scans.forEach(scan => {
+            const current = new Date(scan.timestamp);
+            const diff = current.getTime() - previousTime.getTime();
+            const mins = Math.floor(diff / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+
+            const locId = String(scan.data?.location?.id);
+            const isDuplicate = visitedLocations.has(locId);
+            visitedLocations.add(locId);
+
+            // Check evidence (naive check on media array)
+            const hasEvidence = scan.data?.media && Array.isArray(scan.data.media) && scan.data.media.length > 0;
+            
+            let status = 'SUCCESS';
+            if (isDuplicate) status = 'DUPLICATE';
+            else if (!hasEvidence) status = 'INCOMPLETE';
+            else validScansCount++; // Only count if unique and complete? Or just valid? User said "no contar 2 veces".
+
+            mapNodes.push({
+                type: 'POINT',
+                label: scan.data?.location?.name || "Punto",
+                status,
+                timeDiff: `${mins}m ${secs}s`,
+                diffMs: diff
+            });
+
+            previousTime = current;
+        });
+
+        // End Node
+        if (data.round.endTime) {
+            const current = new Date(data.round.endTime);
+            const diff = current.getTime() - previousTime.getTime();
+            const mins = Math.floor(diff / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+             mapNodes.push({
+                type: 'END',
+                label: 'Fin',
+                status: 'END',
+                timeDiff: `${mins}m ${secs}s`
+            });
+        }
+        
+        const avgTime = scans.length > 0 ? (durationMs / (scans.length + (data.round.endTime ? 1 : 0))) : 0;
+        const avgMins = Math.floor(avgTime / 60000);
+        const avgSecs = Math.floor((avgTime % 60000) / 1000);
+        
+        return {
+            duration: `${durationMinutes}m ${durationSeconds}s`,
+            totalScans: validScansCount,
+            totalRawScans: scans.length,
+            mapNodes,
+            avgTime: `${avgMins}m ${avgSecs}s`
+        };
+    }, [data]);
 
     useEffect(() => {
         if (id) {
@@ -22,8 +110,50 @@ const RoundDetailPage = () => {
         const res = await getRoundDetail(roundId);
         if (res.success && res.data) {
             setData(res.data);
+            
+            // Handle missing recurringConfiguration relation
+            if (res.data.round.recurringConfiguration) {
+                setRouteTitle(res.data.round.recurringConfiguration.title);
+            } else if (res.data.round.recurringConfigurationId) {
+                // Fetch routes to find title
+                getRoutesList().then(routesRes => {
+                    if (routesRes.success && routesRes.data) {
+                        const match = routesRes.data.find((r: any) => r.id === res.data.round.recurringConfigurationId);
+                        if (match) setRouteTitle(match.title);
+                    }
+                });
+            }
         }
         setLoading(false);
+    };
+
+    const handleOpenRouteMap = () => {
+        if (!data) return;
+        
+        const scansWithCoords = data.timeline
+            .filter(e => e.type === 'SCAN' && e.data?.latitude && e.data?.longitude)
+            .sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+        if (scansWithCoords.length === 0) {
+            alert("No hay puntos con coordenadas GPS para trazar una ruta.");
+            return;
+        }
+
+        if (scansWithCoords.length === 1) {
+             // Just open the single point
+             const url = `https://www.google.com/maps/search/?api=1&query=${scansWithCoords[0].data.latitude},${scansWithCoords[0].data.longitude}`;
+             window.open(url, '_blank');
+             return;
+        }
+
+        const origin = `${scansWithCoords[0].data.latitude},${scansWithCoords[0].data.longitude}`;
+        const destination = `${scansWithCoords[scansWithCoords.length - 1].data.latitude},${scansWithCoords[scansWithCoords.length - 1].data.longitude}`;
+        
+        const waypoints = scansWithCoords.slice(1, -1).map(s => `${s.data.latitude},${s.data.longitude}`).join('|');
+        
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=walking`;
+        
+        window.open(url, '_blank');
     };
 
     if (loading) return <div className="flex justify-center p-10"><ITLoader /></div>;
@@ -40,13 +170,20 @@ const RoundDetailPage = () => {
                     <span>Volver</span>
                 </button>
                 <div className="flex justify-between items-start">
-                     <div>
+                    <div>
                         <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
-                            Detalle de Ronda #{data.round.id}
+                            {routeTitle || data.round.recurringConfiguration?.title || `Ronda #${data.round.id}`}
                         </h1>
-                        <p className="text-slate-500 text-sm mt-1">
-                            Guardia: <span className="font-medium text-slate-700">{data.round.guard.name} {data.round.guard.lastName}</span>
-                        </p>
+                        <div className="flex flex-col gap-1 mt-1">
+                             <p className="text-slate-500 text-sm">
+                                Guardia: <span className="font-medium text-slate-700">{data.round.guard.name} {data.round.guard.lastName}</span>
+                            </p>
+                            {data.round.recurringConfiguration?.startTime && (
+                                <p className="text-slate-500 text-sm">
+                                    Horario: <span className="font-medium text-slate-700">{data.round.recurringConfiguration.startTime} - {data.round.recurringConfiguration.endTime}</span>
+                                </p>
+                            )}
+                        </div>
                     </div>
                      <ITBadget 
                         color={data.round.status === "COMPLETED" ? "success" : "warning"}
@@ -58,7 +195,107 @@ const RoundDetailPage = () => {
                 </div>
             </div>
 
-            <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-slate-100 p-8">
+            <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-sm border border-slate-100 p-8">
+                {/* Metrics Dashboard */}
+                {metrics && (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
+                                <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
+                                    <FaClock size={20} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Duración Total</p>
+                                    <p className="text-xl font-bold text-slate-800">{metrics.duration}</p>
+                                </div>
+                            </div>
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
+                                <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
+                                    <FaQrcode size={20} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Puntos Cubiertos</p>
+                                    <p className="text-xl font-bold text-slate-800">
+                                        {metrics.totalScans} <span className="text-xs text-slate-400 font-normal">/ {metrics.totalRawScans}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
+                                <div className="p-3 bg-orange-100 text-orange-600 rounded-lg">
+                                    <FaStopwatch size={20} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Promedio / Tramo</p>
+                                    <p className="text-xl font-bold text-slate-800">{metrics.avgTime}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Treasure Map Visualization */}
+                        <div className="mb-10 p-6 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto">
+                            <div className="flex justify-between items-center mb-8">
+                                <h3 className="font-bold text-slate-700 text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <FaRoute /> Ruta Recorrida
+                                </h3>
+                                <button 
+                                    onClick={handleOpenRouteMap}
+                                    className="text-xs flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium shadow-sm"
+                                >
+                                    <FaMapMarkedAlt />
+                                    Ver Trazo en Mapa
+                                </button>
+                            </div>
+                            <div className="flex items-start min-w-max pb-4">
+                                {metrics.mapNodes.map((node: any, idx: number) => (
+                                    <div key={idx} className="flex items-center">
+                                        {/* Connector Line (Except for first) */}
+                                        {idx > 0 && (
+                                           <div className="flex flex-col items-center justify-center -mt-6 mx-2">
+                                                <span className="text-[10px] font-bold text-slate-400 mb-1 bg-white px-1 rounded border border-slate-100">{node.timeDiff}</span>
+                                                <div className="w-16 h-0.5 bg-slate-300"></div>
+                                           </div>
+                                        )}
+
+                                        {/* Node */}
+                                        <div className="flex flex-col items-center w-24 relative groups">
+                                            <div className={`
+                                                w-10 h-10 rounded-full flex items-center justify-center border-4 z-10 shadow-sm transition-transform hover:scale-110
+                                                ${node.status === 'START' ? 'bg-blue-600 border-blue-200 text-white' : ''}
+                                                ${node.status === 'END' ? 'bg-slate-800 border-slate-300 text-white' : ''}
+                                                ${node.status === 'SUCCESS' ? 'bg-green-500 border-green-200 text-white' : ''}
+                                                ${node.status === 'DUPLICATE' ? 'bg-red-500 border-red-200 text-white' : ''}
+                                                ${node.status === 'INCOMPLETE' ? 'bg-orange-500 border-orange-200 text-white' : ''}
+                                            `}>
+                                                {node.status === 'START' && <FaPlay className="text-xs ml-0.5" />}
+                                                {node.status === 'END' && <FaCheckCircle className="text-xs" />}
+                                                {node.status === 'SUCCESS' && <FaCheckCircle className="text-sm" />}
+                                                {node.status === 'DUPLICATE' && <span className="font-bold text-lg">!</span>}
+                                                {node.status === 'INCOMPLETE' && <FaExclamationTriangle className="text-xs" />}
+                                            </div>
+                                            
+                                            <p className={`text-center text-xs font-bold mt-3 leading-tight ${node.status === 'DUPLICATE' ? 'text-red-600' : 'text-slate-600'}`}>
+                                                {node.label}
+                                            </p>
+                                            
+                                            {node.status === 'DUPLICATE' && (
+                                                <span className="text-[9px] text-red-500 font-bold mt-1 bg-red-50 px-1 rounded">REPETIDO</span>
+                                            )}
+                                            {node.status === 'INCOMPLETE' && (
+                                                <span className="text-[9px] text-orange-500 font-bold mt-1 bg-orange-50 px-1 rounded">INCOMPLETO</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-6 flex flex-wrap gap-4 justify-end text-[10px] text-slate-500 font-medium border-t border-slate-200 pt-3">
+                                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500"></div>Completado</div>
+                                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div>Repetido/Error</div>
+                                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-orange-500"></div>Sin Evidencia</div>
+                            </div>
+                        </div>
+                    </>
+                )}
+
                 <h2 className="text-lg font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">Timeline</h2>
                 
                 <div className="relative border-l-2 border-slate-200 ml-3 space-y-8">

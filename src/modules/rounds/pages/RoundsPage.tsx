@@ -1,21 +1,39 @@
 import { useEffect, useState } from "react";
-import { getRounds, IRound, startRound } from "../services/RoundsService";
+import { getRoutesList } from "../../routes/services/RoutesService";
+import { getRounds, IRound, startRound, endRound } from "../services/RoundsService";
 import { getUsers } from "../../users/services/UserService";
 import { ITBadget, ITButton, ITTable, ITLoader, ITDialog } from "axzy_ui_system";
-import { FaEye, FaCalendarAlt, FaPlus } from "react-icons/fa";
+import { FaEye, FaCalendarAlt, FaPlus, FaStop } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 
 const RoundsPage = () => {
     const [rounds, setRounds] = useState<IRound[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
+    const [selectedDate, setSelectedDate] = useState<string>("");
+    
+    // Config IDs Map
+    const [routesMap, setRoutesMap] = useState<Record<number, string>>({});
+
     const navigate = useNavigate();
 
     // Start Round Modal State
     const [isStartModalOpen, setIsStartModalOpen] = useState(false);
     const [guards, setGuards] = useState<any[]>([]);
     const [selectedGuard, setSelectedGuard] = useState<string>("");
+
+    // Fetch Routes to build Map
+    useEffect(() => {
+        getRoutesList().then(res => {
+            if (res.success && res.data) {
+                const map: Record<number, string> = {};
+                res.data.forEach((r: any) => {
+                    map[r.id] = r.title;
+                });
+                setRoutesMap(map);
+            }
+        });
+    }, []);
 
     const fetchRounds = async () => {
         setLoading(true);
@@ -35,6 +53,7 @@ const RoundsPage = () => {
         setIsStartModalOpen(true);
     };
 
+    // ... handleStartRound and handleEndRound remain same ...
     const handleStartRound = async () => {
         if (!selectedGuard) return;
         
@@ -52,6 +71,22 @@ const RoundsPage = () => {
         } catch (e) {
             console.error(e);
             alert("Error de conexión");
+        }
+    };
+
+    const handleEndRound = async (roundId: number) => {
+        if (!window.confirm("¿Seguro que deseas FINALIZAR esta ronda manualmente? Esta acción no se puede deshacer.")) return;
+
+        try {
+            const res = await endRound(roundId);
+            if (res.success) {
+                alert("Ronda finalizada correctamente");
+                fetchRounds();
+            } else {
+                alert(res.messages?.join("\n") || "Error al finalizar ronda");
+            }
+        } catch (e) {
+            alert("Error al finalizar ronda");
         }
     };
 
@@ -98,6 +133,17 @@ const RoundsPage = () => {
                                 label: "ID", 
                                 type: "number", 
                                 sortable: true 
+                            },
+                            {
+                                key: "recurringConfiguration",
+                                label: "Ronda",
+                                type: "string",
+                                sortable: true,
+                                render: (row: any) => (
+                                    <span className="font-semibold text-slate-700">
+                                        {row.recurringConfiguration?.title || routesMap[row.recurringConfigurationId] || "Ronda General"}
+                                    </span>
+                                )
                             },
                             {
                                 key: "guard",
@@ -152,16 +198,31 @@ const RoundsPage = () => {
                                 label: "Acciones",
                                 type: "actions",
                                 actions: (row: IRound) => (
-                                    <ITButton
-                                        onClick={() => navigate(`/rounds/${row.id}`)}
-                                        size="small"
-                                        color="primary"
-                                        variant="outlined"
-                                        className="!p-2"
-                                        title="Ver detalles"
-                                    >
-                                        <FaEye />
-                                    </ITButton>
+                                    <div className="flex gap-2">
+                                        <ITButton
+                                            onClick={() => navigate(`/rounds/${row.id}`)}
+                                            size="small"
+                                            color="primary"
+                                            variant="outlined"
+                                            className="!p-2"
+                                            title="Ver detalles"
+                                        >
+                                            <FaEye />
+                                        </ITButton>
+                                        
+                                        {row.status === "IN_PROGRESS" && (
+                                            <ITButton
+                                                onClick={() => handleEndRound(row.id)}
+                                                size="small"
+                                                color="danger"
+                                                variant="filled"
+                                                className="!p-2"
+                                                title="Finalizar Ronda (Admin)"
+                                            >
+                                                <FaStop />
+                                            </ITButton>
+                                        )}
+                                    </div>
                                 )
                             }
                         ]}

@@ -15,6 +15,7 @@ export interface ILocationCreate {
 export interface IRecurringConfigCreate {
     title: string;
     locations: ILocationCreate[];
+    guardIds?: number[];
 }
 
 export const getRoutesList = async (): Promise<TResult<any[]>> => {
