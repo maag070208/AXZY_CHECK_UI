@@ -10,8 +10,8 @@ import { logout } from "../store/auth/auth.slice";
 import store from "../store/store";
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:4444/api/v1',
-  // baseURL: 'https://axzycheckapi-production.up.railway.app/api/v1',
+  // baseURL: 'http://localhost:4444/api/v1',
+  baseURL: 'https://axzycheckapi-production.up.railway.app/api/v1',
   timeout: 30000,
 });
 axiosInstance.interceptors.request.use(

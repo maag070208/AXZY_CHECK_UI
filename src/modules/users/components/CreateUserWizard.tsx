@@ -11,9 +11,13 @@ interface Props {
 
 import { getSchedules, Schedule } from "../../schedules/SchedulesService";
 
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   React.useEffect(() => {
     getSchedules().then(setSchedules);
@@ -104,26 +108,44 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
       label: "Seguridad y Rol",
       content: (
         <div className="flex flex-col gap-4 p-4">
-          <ITInput
+            <div className="relative">
+            <ITInput
             label="Contraseña"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={formik.values.password}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.errors.password}
             touched={formik.touched.password}
           />
+           <button
+            type="button"
+            className="absolute right-3 top-[2.7rem] text-slate-500 hover:text-slate-700"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
+          </div>
+          <div className="relative">
           <ITInput
             label="Confirmar Contraseña"
             name="confirmPassword"
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             value={formik.values.confirmPassword}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.errors.confirmPassword}
             touched={formik.touched.confirmPassword}
           />
+          <button
+            type="button"
+            className="absolute right-3 top-[2.7rem] text-slate-500 hover:text-slate-700"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+          >
+            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
+          </div>
           <ITSelect
             label="Rol"
             name="role"
@@ -169,7 +191,13 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
             {(formik.values.role === 'GUARD' || formik.values.role === 'SHIFT_GUARD') && (
                 <>
                     <span className="font-medium text-slate-600">Turno:</span>
-                    <span className="text-slate-900">{formik.values.shiftStart} - {formik.values.shiftEnd}</span>
+                    <span className="text-slate-900">
+                        {
+                            schedules.find(s => String(s.id) === formik.values.scheduleId) 
+                            ? `${schedules.find(s => String(s.id) === formik.values.scheduleId)?.startTime} - ${schedules.find(s => String(s.id) === formik.values.scheduleId)?.endTime}`
+                            : 'No seleccionado'
+                        }
+                    </span>
                 </>
             )}
           </div>
