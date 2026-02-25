@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ITInput, ITSelect, ITButton } from "@axzydev/axzy_ui_system";
-import { createUser } from "../services/UserService";
+import { createUser, updateUser, User } from "../services/UserService";
 
 interface Props {
+  userToEdit?: User;
   onCancel: () => void;
   onSuccess: () => void;
 }
@@ -13,7 +14,8 @@ import { getSchedules, Schedule } from "../../schedules/SchedulesService";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
+export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSuccess }) => {
+  const isEditing = !!userToEdit;
   const [currentStep, setCurrentStep] = useState(0);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [showPassword, setShowPassword] = useState(false);
@@ -25,46 +27,60 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
 
   const formik = useFormik({
     initialValues: {
-      name: "",
-      lastName: "",
-      username: "",
+      name: userToEdit?.name || "",
+      lastName: userToEdit?.lastName || "",
+      username: userToEdit?.username || "",
       password: "",
       confirmPassword: "",
-      role: "OPERATOR",
-      shiftStart: "",
-      shiftEnd: "",
-      scheduleId: "",
+      role: userToEdit?.role || "OPERATOR",
+      shiftStart: userToEdit?.shiftStart || "",
+      shiftEnd: userToEdit?.shiftEnd || "",
+      scheduleId: userToEdit?.scheduleId ? String(userToEdit.scheduleId) : "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Requerido"),
       lastName: Yup.string().required("Requerido"),
       username: Yup.string().required("Requerido"),
-      password: Yup.string().min(6, "Mínimo 6 caracteres").required("Requerido"),
-      confirmPassword: Yup.string()
+      password: isEditing 
+        ? Yup.string().notRequired() 
+        : Yup.string().min(6, "Mínimo 6 caracteres").required("Requerido"),
+      confirmPassword: isEditing 
+        ? Yup.string().notRequired() 
+        : Yup.string()
         .oneOf([Yup.ref("password")], "Las contraseñas no coinciden")
         .required("Requerido"),
         role: Yup.string().required("Requerido"),
       scheduleId: Yup.string().when("role", {
-        is: (val: string) => val === "GUARD" || val === "SHIFT_GUARD",
+        is: (val: string) => val === "GUARD" || val === "SHIFT_GUARD" || val === "MANTENIMIENTO",
         then: () => Yup.string().required("Requerido para guardias"),
         otherwise: () => Yup.string().notRequired(),
       }),
     }),
     onSubmit: async (values) => {
-      // Final submit
-      const res = await createUser({
-        name: values.name,
-        lastName: values.lastName,
-        username: values.username,
-        password: values.password,
-        role: values.role,
-        scheduleId: values.scheduleId ? Number(values.scheduleId) : undefined
-      });
+      let res;
+      if (isEditing && userToEdit) {
+          res = await updateUser(userToEdit.id, {
+            name: values.name,
+            lastName: values.lastName,
+            username: values.username,
+            role: values.role,
+            scheduleId: values.scheduleId ? Number(values.scheduleId) : undefined
+          });
+      } else {
+          res = await createUser({
+            name: values.name,
+            lastName: values.lastName,
+            username: values.username,
+            password: values.password,
+            role: values.role,
+            scheduleId: values.scheduleId ? Number(values.scheduleId) : undefined
+          });
+      }
 
       if (res.success) {
         onSuccess();
       } else {
-        alert("Error al crear usuario");
+        alert(isEditing ? "Error al editar usuario" : "Error al crear usuario");
       }
     },
   });
@@ -108,44 +124,48 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
       label: "Seguridad y Rol",
       content: (
         <div className="flex flex-col gap-4 p-4">
+            {!isEditing && (
+              <>
+              <div className="relative">
+              <ITInput
+              label="Contraseña"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.errors.password}
+              touched={formik.touched.password}
+            />
+             <button
+              type="button"
+              className="absolute right-3 top-[2.7rem] text-slate-500 hover:text-slate-700"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+            </div>
             <div className="relative">
             <ITInput
-            label="Contraseña"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={formik.errors.password}
-            touched={formik.touched.password}
-          />
-           <button
-            type="button"
-            className="absolute right-3 top-[2.7rem] text-slate-500 hover:text-slate-700"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </button>
-          </div>
-          <div className="relative">
-          <ITInput
-            label="Confirmar Contraseña"
-            name="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
-            value={formik.values.confirmPassword}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={formik.errors.confirmPassword}
-            touched={formik.touched.confirmPassword}
-          />
-          <button
-            type="button"
-            className="absolute right-3 top-[2.7rem] text-slate-500 hover:text-slate-700"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          >
-            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-          </button>
-          </div>
+              label="Confirmar Contraseña"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.errors.confirmPassword}
+              touched={formik.touched.confirmPassword}
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-[2.7rem] text-slate-500 hover:text-slate-700"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+            </div>
+            </>
+            )}
           <ITSelect
             label="Rol"
             name="role"
@@ -154,13 +174,14 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
             options={[
               { label: "Guardia", value: "GUARD" },
               { label: "Guardia de Turno", value: "SHIFT_GUARD" },
+              { label: "Mantenimiento", value: "MANTENIMIENTO" },
               { label: "Administrador", value: "ADMIN" },
             ]}
             error={formik.errors.role}
             touched={formik.touched.role}
           />
           
-          {(formik.values.role === 'GUARD' || formik.values.role === 'SHIFT_GUARD') && (
+          {(formik.values.role === 'GUARD' || formik.values.role === 'SHIFT_GUARD' || formik.values.role === 'MANTENIMIENTO') && (
             <div className="mt-2 p-4 bg-slate-50 rounded-lg border border-slate-100">
                 <ITSelect
                     label="Horario Asignado"
@@ -188,7 +209,7 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
             <span className="text-slate-900">{formik.values.username}</span>
             <span className="font-medium text-slate-600">Rol:</span>
             <span className="text-slate-900">{formik.values.role}</span>
-            {(formik.values.role === 'GUARD' || formik.values.role === 'SHIFT_GUARD') && (
+            {(formik.values.role === 'GUARD' || formik.values.role === 'SHIFT_GUARD' || formik.values.role === 'MANTENIMIENTO') && (
                 <>
                     <span className="font-medium text-slate-600">Turno:</span>
                     <span className="text-slate-900">
@@ -229,6 +250,16 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
 
   return (
     <div className="w-full">
+        {/* Title Header */}
+        <div className="mb-8 px-4 text-center mt-4">
+            <h2 className="text-2xl font-bold text-slate-800">
+                {isEditing ? 'Editar Usuario' : 'Alta de Usuario'}
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">
+                {isEditing ? 'Modifica los datos y permisos del usuario' : 'Ingresa los datos para registrar un nuevo perfil'}
+            </p>
+        </div>
+
         {/* Stepper Header */}
         <div className="flex justify-between mb-8 px-4">
             {steps.map((step, index) => (
@@ -255,7 +286,7 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between px-4 pt-4 border-t border-slate-100">
+        <div className="flex justify-between px-4 pt-6 pb-2 border-t border-slate-100 mt-4">
             <div>
                  {currentStep === 0 ? (
                     <ITButton color="secondary" variant="outlined" onClick={onCancel}>Cancelar</ITButton>
@@ -268,7 +299,7 @@ export const CreateUserWizard: React.FC<Props> = ({ onCancel, onSuccess }) => {
                 disabled={formik.isSubmitting}
             >
                 {currentStep === steps.length - 1 ? (
-                    formik.isSubmitting ? 'Guardando...' : 'Confirmar y Crear'
+                    formik.isSubmitting ? 'Guardando...' : (isEditing ? 'Confirmar y Guardar Cambios' : 'Confirmar y Crear')
                 ) : 'Siguiente'}
             </ITButton>
         </div>

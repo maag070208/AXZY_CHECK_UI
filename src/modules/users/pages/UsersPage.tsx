@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUsers, User } from "../services/UserService";
 import { CreateUserWizard } from "../components/CreateUserWizard";
-import { EditUserModal } from "../components/EditUserModal";
 import { ChangePasswordModal } from "../components/ChangePasswordModal";
 import { ITButton, ITDialog, ITLoader, ITTable, ITBadget } from "@axzydev/axzy_ui_system";
 import { FaUser, FaEdit, FaKey, FaClock, FaPlus } from "react-icons/fa";
@@ -23,7 +22,8 @@ const UsersPage = () => {
             const rolePriority: { [key: string]: number } = {
                 'ADMIN': 1,
                 'SHIFT_GUARD': 2,
-                'GUARD': 3
+                'GUARD': 3,
+                'MANTENIMIENTO': 4
             };
             const priorityA = rolePriority[a.role as string] || 99;
             const priorityB = rolePriority[b.role as string] || 99;
@@ -96,6 +96,7 @@ const UsersPage = () => {
                     if (row.role === 'OPERATOR') color = "secondary";
                     if (row.role === 'GUARD') color = "success";
                     if (row.role === 'SHIFT_GUARD') color = "warning";
+                    if (row.role === 'MANTENIMIENTO') color = "warning";
                     
                     return (
                         <ITBadget color={color} size="small" variant="filled">
@@ -110,7 +111,7 @@ const UsersPage = () => {
                 type: "string",
                 sortable: false,
                 render: (row: User) => {
-                    if ((row.role === 'GUARD' || row.role === 'SHIFT_GUARD')) {
+                    if ((row.role === 'GUARD' || row.role === 'SHIFT_GUARD' || row.role === 'MANTENIMIENTO')) {
                         if (row.schedule) {
                             return (
                                 <div className="flex flex-col gap-1">
@@ -173,7 +174,6 @@ const UsersPage = () => {
       <ITDialog 
         isOpen={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)} 
-        title="Alta de Usuario"
         className="!w-full !max-w-4xl"
         useFormHeader={true}
       >
@@ -187,13 +187,12 @@ const UsersPage = () => {
       <ITDialog
         isOpen={!!editingUser}
         onClose={() => setEditingUser(null)}
-        title="Editar Usuario"
-        className="!w-full !max-w-2xl"
+        className="!w-full !max-w-4xl"
         useFormHeader={true}
       >
         {editingUser && (
-            <EditUserModal
-                user={editingUser}
+            <CreateUserWizard
+                userToEdit={editingUser}
                 onCancel={() => setEditingUser(null)}
                 onSuccess={handleSuccess}
             />

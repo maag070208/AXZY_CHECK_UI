@@ -47,7 +47,7 @@ const RoundsPage = () => {
     const handleOpenStartModal = async () => {
         const res = await getUsers();
         if (res.success && res.data) {
-             const onlyGuards = res.data.filter((u: any) => u.role === 'GUARD' || u.role === 'SHIFT_GUARD');
+             const onlyGuards = res.data.filter((u: any) => u.role === 'GUARD' || u.role === 'SHIFT_GUARD' || u.role === 'MANTENIMIENTO');
              setGuards(onlyGuards);
         }
         setIsStartModalOpen(true);
@@ -255,7 +255,7 @@ const RoundsPage = () => {
                                 </option>
                             ))}
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">Solo se muestran usuarios con rol GUARD o SHIFT_GUARD.</p>
+                        <p className="text-xs text-gray-500 mt-1">Solo se muestran usuarios con rol GUARD, SHIFT_GUARD o MANTENIMIENTO.</p>
                     </div>
 
                     <div className="flex justify-end gap-3 mt-6">

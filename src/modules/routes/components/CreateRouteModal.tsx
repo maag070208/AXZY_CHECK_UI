@@ -72,7 +72,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
         }
         
         if (usersRes.success && usersRes.data) {
-            const guards = usersRes.data.filter(u => u.role === 'GUARD' || u.role === 'SHIFT_GUARD' && u.active);
+            const guards = usersRes.data.filter(u => u.role === 'GUARD' || u.role === 'SHIFT_GUARD' || u.role === 'MANTENIMIENTO' && u.active);
             setAllGuards(guards);
             
             // Should usually only do this for NEW forms, but we handle in effect above.
