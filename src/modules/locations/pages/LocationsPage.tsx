@@ -1,5 +1,5 @@
 import { AppState } from "@app/core/store/store";
-import { ITButton, ITDialog, ITLoader, ITTable } from "axzy_ui_system";
+import { ITButton, ITDialog, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { FaCar, FaCheckCircle, FaEdit, FaPlus, FaQrcode, FaTrash } from "react-icons/fa";
@@ -135,7 +135,7 @@ const LocationsPage = () => {
       <div className="flex justify-between items-center mb-8">
         <div>
            <h1 className="text-3xl font-bold text-[#1b1b1f] tracking-tight">Ubicaciones</h1>
-           <p className="text-[#54634d] text-sm mt-1">Gestión de cajones y pasillos</p>
+           <p className="text-[#54634d] text-sm mt-1">Gestión de ubicaciones</p>
         </div>
         {user?.role !== "OPERATOR" && (
             <button 
@@ -162,9 +162,9 @@ const LocationsPage = () => {
                         <div className="font-bold text-[#1b1b1f]">{row.name}</div>
                     )
                 },
-                { key: "aisle", label: "Pasillo", type: "string", sortable: true },
-                { key: "spot", label: "Cajón", type: "string", sortable: true },
-                { key: "number", label: "Número", type: "string", sortable: true },
+                { key: "aisle", label: "Sección", type: "string", sortable: true },
+                { key: "spot", label: "# Consecutivo", type: "string", sortable: true },
+                { key: "number", label: "Referencia", type: "string", sortable: true },
                 {
                     key: "status",
                     label: "Estado",

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getRoundDetail, IRoundDetail } from "../services/RoundsService";
-import { ITLoader, ITBadget } from "axzy_ui_system";
+import { ITLoader, ITBadget } from "@axzydev/axzy_ui_system";
 import { FaArrowLeft, FaPlay, FaCheckCircle, FaQrcode, FaExclamationTriangle, FaMapMarkerAlt, FaClock, FaStopwatch, FaRoute, FaMapMarkedAlt } from "react-icons/fa";
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { getRoutesList } from "../../routes/services/RoutesService";

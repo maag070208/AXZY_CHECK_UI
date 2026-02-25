@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getKardex, KardexEntry } from "../services/KardexService";
-import { ITButton, ITLoader, ITBadget, ITTable } from "axzy_ui_system";
+import { ITButton, ITLoader, ITBadget, ITTable } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { FaMapMarkerAlt, FaUser, FaFileAlt, FaLayerGroup, FaEye, FaSync } from "react-icons/fa";
 import { translateScanType } from "@app/core/utils/status.utils";

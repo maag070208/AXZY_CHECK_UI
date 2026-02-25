@@ -1,7 +1,7 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ITInput, ITButton, ITLoader } from "axzy_ui_system";
+import { ITInput, ITButton, ITLoader } from "@axzydev/axzy_ui_system";
 import { resetPassword, User } from "../services/UserService";
 
 interface Props {

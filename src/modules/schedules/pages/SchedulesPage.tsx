@@ -1,4 +1,4 @@
-import { ITButton, ITDialog, ITInput, ITLoader, ITTable } from "axzy_ui_system";
+import { ITButton, ITDialog, ITInput, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";

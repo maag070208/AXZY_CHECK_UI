@@ -3,7 +3,7 @@ import { AppDispatch } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import Logo from "@assets/logo.png";
 import { IAuthLogin } from "@core/types/auth.types";
-import { ITCard } from "axzy_ui_system";
+import { ITCard } from "@axzydev/axzy_ui_system";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import LoginFormComponent from "../components/LoginForm";

@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITLoader, ITTable } from "axzy_ui_system";
+import { ITBadget, ITButton, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { CreateRouteModal } from "../components/CreateRouteModal";

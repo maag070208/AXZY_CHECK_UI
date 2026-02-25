@@ -4,7 +4,7 @@ import {
   FieldConfig,
   ITButton,
   ITFormBuilder,
-} from "axzy_ui_system";
+} from "@axzydev/axzy_ui_system";
 import { Form, Formik } from "formik";
 
 import { useState } from "react";

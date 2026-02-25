@@ -1,41 +1,41 @@
 import { ITBadget, ITButton, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaUserShield, FaSync } from "react-icons/fa";
-import { getIncidents, Incident, resolveIncident } from "../services/IncidentService";
+import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaUserShield, FaSync, FaWrench } from "react-icons/fa";
+import { getMaintenances, Maintenance, resolveMaintenance } from "../services/MaintenanceService";
 import { MediaCarousel } from "@core/components/MediaCarousel";
 
-const IncidentsPage = () => {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
+const MaintenancesPage = () => {
+  const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewingIncident, setViewingIncident] = useState<Incident | null>(null);
+  const [viewingMaintenance, setViewingMaintenance] = useState<Maintenance | null>(null);
   const [resolvingId, setResolvingId] = useState<number | null>(null);
 
-  const fetchIncidents = async () => {
+  const fetchMaintenances = async () => {
     setLoading(true);
-    const res = await getIncidents();
+    const res = await getMaintenances();
     if (res.success && res.data) {
-        setIncidents(res.data);
+        setMaintenances(res.data);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchIncidents();
+    fetchMaintenances();
   }, []);
 
   const handleResolve = async (id: number) => {
-      if (confirm('¿Estás seguro de marcar esta incidencia como atendida?')) {
+      if (confirm('¿Estás seguro de marcar este reporte de mantenimiento como atendido?')) {
           setResolvingId(id);
-          const res = await resolveIncident(id);
+          const res = await resolveMaintenance(id);
           setResolvingId(null);
           if (res.success) {
-              fetchIncidents();
-              if (viewingIncident?.id === id) {
-                  setViewingIncident(null); // Close modal if open
+              fetchMaintenances();
+              if (viewingMaintenance?.id === id) {
+                  setViewingMaintenance(null); // Close modal if open
               }
           } else {
-              alert("Error al resolver incidencia");
+              alert("Error al resolver mantenimiento");
           }
       }
   };
@@ -46,12 +46,12 @@ const IncidentsPage = () => {
     <div className="p-6 bg-[#f6fbf4] min-h-screen">
       <div className="flex justify-between items-center mb-8">
         <div>
-           <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Incidencias</h1>
-           <p className="text-slate-500 text-sm mt-1">Gestión y seguimiento de reportes de seguridad</p>
+           <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Mantenimientos</h1>
+           <p className="text-slate-500 text-sm mt-1">Gestión y seguimiento de reportes de mantenimiento</p>
         </div>
         <button 
-            onClick={() => fetchIncidents()}
-            className="flex items-center gap-2 bg-[#065911] text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-[#086f16] transition-colors"
+            onClick={() => fetchMaintenances()}
+            className="flex items-center gap-2 bg-[#065911] text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-[#e65100] transition-colors"
         >
             <FaSync className="text-xs" />
             <span>Actualizar</span>
@@ -60,18 +60,18 @@ const IncidentsPage = () => {
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <ITTable
-            data={incidents as any[]}
+            data={maintenances as any[]}
             columns={[
             { key: "id", label: "ID", type: "number", sortable: true },
             { 
                 key: "title", 
-                label: "Incidencia", 
+                label: "Mantenimiento", 
                 type: "string", 
                 sortable: true,
-                render: (row: Incident) => (
+                render: (row: Maintenance) => (
                     <div className="flex items-start gap-3">
-                        <div className="mt-1 w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0 text-red-500">
-                            <FaExclamationTriangle className="text-xs" />
+                        <div className="mt-1 w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0 text-orange-500">
+                            <FaWrench className="text-xs" />
                         </div>
                         <div>
                             <p className="font-bold text-slate-800 line-clamp-1">{row.title}</p>
@@ -87,7 +87,7 @@ const IncidentsPage = () => {
                 label: "Reportado",
                 type: "string",
                 sortable: true,
-                render: (row: Incident) => (
+                render: (row: Maintenance) => (
                     <div className="flex flex-col text-xs">
                         <span className="font-medium text-slate-700">{dayjs(row.createdAt).format("DD/MM/YYYY")}</span>
                         <span className="text-slate-400">{dayjs(row.createdAt).format("HH:mm")}</span>
@@ -99,7 +99,7 @@ const IncidentsPage = () => {
                 label: "Reportado Por", 
                 type: "string", 
                 sortable: false,
-                render: (row: Incident) => (
+                render: (row: Maintenance) => (
                     <div className="flex items-center gap-2">
                         <FaUserShield className="text-slate-400" />
                         <div className="flex flex-col">
@@ -113,13 +113,13 @@ const IncidentsPage = () => {
                 label: "Estado", 
                 type: "string", 
                 sortable: true,
-                render: (row: Incident) => (
+                render: (row: Maintenance) => (
                     <ITBadget 
-                        color={row.status === 'ATTENDED' ? 'success' : 'danger'} 
+                        color={row.status === 'ATTENDED' ? 'success' : 'warning'} 
                         size="small" 
                         variant="filled"
                     >
-                        {row.status === 'ATTENDED' ? 'Atendida' : 'Pendiente'}
+                        {row.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}
                     </ITBadget>
                 )
             },
@@ -128,7 +128,7 @@ const IncidentsPage = () => {
                 label: "Evidencia", 
                 type: "string", 
                 sortable: false, 
-                render: (row: Incident) => (
+                render: (row: Maintenance) => (
                     <div className="flex items-center gap-1 text-slate-500">
                         {row.media && row.media.length > 0 ? (
                             <>
@@ -145,10 +145,10 @@ const IncidentsPage = () => {
                 key: "actions",
                 label: "Acciones",
                 type: "actions",
-                actions: (row: Incident) => (
+                actions: (row: Maintenance) => (
                     <div className="flex items-center gap-2">
                         <ITButton
-                            onClick={() => setViewingIncident(row)}
+                            onClick={() => setViewingMaintenance(row)}
                             size="small"
                             color='secondary'
                             variant="outlined"
@@ -164,7 +164,7 @@ const IncidentsPage = () => {
                                 color='success'
                                 variant="filled"
                                 className="!p-2"
-                                title="Marcar como atendida"
+                                title="Marcar como atendido"
                                 disabled={resolvingId === row.id}
                             >
                                 {resolvingId === row.id ? <ITLoader size="sm" /> : <FaCheck />}
@@ -180,11 +180,11 @@ const IncidentsPage = () => {
         />
       </div>
 
-    {viewingIncident && (
+    {viewingMaintenance && (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
         <div 
           className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
-          onClick={() => setViewingIncident(null)}
+          onClick={() => setViewingMaintenance(null)}
         />
     
         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-100 animate-in fade-in zoom-in duration-200">
@@ -192,18 +192,18 @@ const IncidentsPage = () => {
           <div className="px-8 py-6 flex justify-between items-center bg-white border-b border-slate-100 z-10">
             <div>
                <div className="flex items-center gap-3 mb-1">
-                  <h3 className="text-2xl font-bold text-slate-800">Detalle de Incidencia</h3>
+                  <h3 className="text-2xl font-bold text-slate-800">Detalle de Mantenimiento</h3>
                   <ITBadget 
-                      color={viewingIncident.status === 'ATTENDED' ? 'success' : 'danger'} 
+                      color={viewingMaintenance.status === 'ATTENDED' ? 'success' : 'warning'} 
                       size="small"
                   >
-                      {viewingIncident.status === 'ATTENDED' ? 'Atendida' : 'Pendiente'}
+                      {viewingMaintenance.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}
                   </ITBadget>
                </div>
-               <p className="text-sm text-slate-500">Reportado el {dayjs(viewingIncident.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
+               <p className="text-sm text-slate-500">Reportado el {dayjs(viewingMaintenance.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
             </div>
             <button 
-              onClick={() => setViewingIncident(null)} 
+              onClick={() => setViewingMaintenance(null)} 
               className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -212,16 +212,15 @@ const IncidentsPage = () => {
           
           <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
-              <div className="lg:col-span-8 space-y-8">
+                            <div className="lg:col-span-8 space-y-8">
                  {/* Descripción */}
                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                     <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                         <span className="w-1 h-4 bg-orange-400 rounded-full block"></span>
-                        {viewingIncident.title}
+                        {viewingMaintenance.title}
                     </h4>
                     <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
-                        {viewingIncident.description || "Sin descripción detallada."}
+                        {viewingMaintenance.description || "Sin descripción detallada."}
                     </p>
                  </div>
 
@@ -229,18 +228,18 @@ const IncidentsPage = () => {
                 <section>
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <span className="w-1 h-4 bg-indigo-500 rounded-full block"></span>
+                        <span className="w-1 h-4 bg-orange-500 rounded-full block"></span>
                         Evidencia
                     </h4>
-                    {viewingIncident.media && viewingIncident.media.length > 0 && 
-                        <span className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
-                            {viewingIncident.media.length} archivos
+                    {viewingMaintenance.media && viewingMaintenance.media.length > 0 && 
+                        <span className="text-xs bg-orange-50 text-orange-600 px-2.5 py-1 rounded-full font-bold">
+                            {viewingMaintenance.media.length} archivos
                         </span>
                     }
                   </div>
     
-                  {viewingIncident.media && viewingIncident.media.length > 0 ? (
-                    <MediaCarousel media={viewingIncident.media} title={viewingIncident.title} />
+                  {viewingMaintenance.media && viewingMaintenance.media.length > 0 ? (
+                    <MediaCarousel media={viewingMaintenance.media} title={viewingMaintenance.title} />
                   ) : (
                     <div className="py-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
                       <FaFileAlt className="text-slate-300 mb-2" />
@@ -257,13 +256,13 @@ const IncidentsPage = () => {
                     
                     <div className="space-y-4">
                         <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500">
+                            <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0 text-orange-500">
                                 <FaUserShield />
                             </div>
                             <div>
                                 <p className="text-xs text-slate-400 font-medium">Reportado por</p>
-                                <p className="text-sm font-bold text-slate-800">{viewingIncident.guard?.name} {viewingIncident.guard?.lastName}</p>
-                                <p className="text-xs text-slate-500">@{viewingIncident.guard?.username}</p>
+                                <p className="text-sm font-bold text-slate-800">{viewingMaintenance.guard?.name} {viewingMaintenance.guard?.lastName}</p>
+                                <p className="text-xs text-slate-500">@{viewingMaintenance.guard?.username}</p>
                             </div>
                         </div>
 
@@ -271,15 +270,15 @@ const IncidentsPage = () => {
 
                         <div className="flex items-start gap-4">
                              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-500">
-                                <FaExclamationTriangle />
+                                <FaWrench />
                             </div>
                             <div>
                                 <p className="text-xs text-slate-400 font-medium">Categoría</p>
-                                <p className="text-sm font-bold text-slate-800">{viewingIncident.category}</p>
+                                <p className="text-sm font-bold text-slate-800">{viewingMaintenance.category}</p>
                             </div>
                         </div>
 
-                        {viewingIncident.status === 'ATTENDED' && viewingIncident.resolvedBy && (
+                        {viewingMaintenance.status === 'ATTENDED' && viewingMaintenance.resolvedBy && (
                             <>
                                 <div className="w-full h-px bg-slate-50"></div>
                                 <div className="flex items-start gap-4">
@@ -288,9 +287,9 @@ const IncidentsPage = () => {
                                     </div>
                                     <div>
                                         <p className="text-xs text-slate-400 font-medium">Atendido por</p>
-                                        <p className="text-sm font-bold text-slate-800">{viewingIncident.resolvedBy.name}</p>
+                                        <p className="text-sm font-bold text-slate-800">{viewingMaintenance.resolvedBy.name}</p>
                                         <p className="text-xs text-slate-500">
-                                            {dayjs(viewingIncident.resolvedAt).format("DD/MM/YYYY HH:mm")}
+                                            {dayjs(viewingMaintenance.resolvedAt).format("DD/MM/YYYY HH:mm")}
                                         </p>
                                     </div>
                                 </div>
@@ -299,16 +298,16 @@ const IncidentsPage = () => {
                     </div>
                  </div>
 
-                 {viewingIncident.status === 'PENDING' && (
+                 {viewingMaintenance.status === 'PENDING' && (
                      <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
                         <h5 className="text-xs font-bold text-orange-800 mb-2">Acciones Pendientes</h5>
-                        <p className="text-xs text-orange-700 mb-3">Esta incidencia requiere atención inmediata.</p>
+                        <p className="text-xs text-orange-700 mb-3">Este mantenimiento requiere atención.</p>
                         <ITButton 
-                            onClick={() => handleResolve(viewingIncident.id)}
+                            onClick={() => handleResolve(viewingMaintenance.id)}
                             color="success"
                             className="w-full justify-center"
                         >
-                            Marcar como Atendida
+                            Marcar como Atendido
                         </ITButton>
                      </div>
                  )}
@@ -323,4 +322,4 @@ const IncidentsPage = () => {
     </div>
   );
 };
-export default IncidentsPage;
+export default MaintenancesPage;

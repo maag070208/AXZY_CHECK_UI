@@ -12,6 +12,7 @@ import store from "../store/store";
 const axiosInstance = axios.create({
   // baseURL: 'http://localhost:4444/api/v1',
   baseURL: 'https://axzycheckapi-production.up.railway.app/api/v1',
+  // baseURL: 'https://glorious-quietude-production-77ab.up.railway.app/api/v1',
   timeout: 30000,
 });
 axiosInstance.interceptors.request.use(

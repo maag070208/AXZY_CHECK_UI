@@ -3,7 +3,7 @@ import { getUsers, User } from "../services/UserService";
 import { CreateUserWizard } from "../components/CreateUserWizard";
 import { EditUserModal } from "../components/EditUserModal";
 import { ChangePasswordModal } from "../components/ChangePasswordModal";
-import { ITButton, ITDialog, ITLoader, ITTable, ITBadget } from "axzy_ui_system";
+import { ITButton, ITDialog, ITLoader, ITTable, ITBadget } from "@axzydev/axzy_ui_system";
 import { FaUser, FaEdit, FaKey, FaClock, FaPlus } from "react-icons/fa";
 
 const UsersPage = () => {

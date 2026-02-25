@@ -1,6 +1,6 @@
 import LoginPage from "@app/modules/auth/pages/LoginPage";
 import RegisterPage from "@app/modules/auth/pages/RegisterPage";
-import { ITLoader } from "axzy_ui_system";
+import { ITLoader } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -12,6 +12,7 @@ import HomePage from "./modules/home/pages/HomePage";
 import LocationsPage from "./modules/locations/pages/LocationsPage";
 import UsersPage from "./modules/users/pages/UsersPage";
 import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
+import MaintenancesPage from "./modules/maintenances/pages/MaintenancesPage";
 import KardexPage from "./modules/kardex/pages/KardexPage";
 import RoundsPage from "./modules/rounds/pages/RoundsPage";
 import RoundDetailPage from "./modules/rounds/pages/RoundDetailPage";
@@ -73,6 +74,7 @@ function App() {
         <Route path="/locations" element={<LocationsPage />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/incidents" element={<IncidentsPage />} />
+        <Route path="/maintenances" element={<MaintenancesPage />} />
         <Route path="/kardex" element={<KardexPage />} />
         <Route path="/schedules" element={<SchedulesPage />} />
         
