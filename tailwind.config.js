@@ -2,8 +2,8 @@
 export default {
   content: [
     "./index.html",
-    "node_modules/axzy_ui_system/**/*.{js,ts,jsx,tsx}",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@axzydev/axzy_ui_system/**/*.{js,ts,jsx,tsx}",
   ],
   safelist: [
     {

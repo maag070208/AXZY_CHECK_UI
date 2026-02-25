@@ -1,4 +1,4 @@
-import { ITBadget } from "axzy_ui_system";
+import { ITBadget } from "@axzydev/axzy_ui_system";
 
 interface Props {
     status: string;

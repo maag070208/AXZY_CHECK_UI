@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ITInput, ITSelect, ITButton } from "axzy_ui_system";
+import { ITInput, ITSelect, ITButton } from "@axzydev/axzy_ui_system";
 import { createUser } from "../services/UserService";
 
 interface Props {

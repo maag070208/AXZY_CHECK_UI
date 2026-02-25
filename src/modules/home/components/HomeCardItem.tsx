@@ -1,4 +1,4 @@
-import { ITCard } from "axzy_ui_system";
+import { ITCard } from "@axzydev/axzy_ui_system";
 
 export const HomeCardItem = ({ item, index }: any) => {
   return (

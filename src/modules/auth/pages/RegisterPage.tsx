@@ -1,6 +1,6 @@
 import Logo from "@assets/logo.png";
 import { IAuthRegister } from "@core/types/auth.types";
-import { ITCard } from "axzy_ui_system";
+import { ITCard } from "@axzydev/axzy_ui_system";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import RegisterForm from "../components/RegisterForm";

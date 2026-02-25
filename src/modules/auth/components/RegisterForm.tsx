@@ -1,4 +1,4 @@
-import { ITButton, ITInput } from "axzy_ui_system";
+import { ITButton, ITInput } from "@axzydev/axzy_ui_system";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getRoutesList } from "../../routes/services/RoutesService";
 import { getRounds, IRound, startRound, endRound } from "../services/RoundsService";
 import { getUsers } from "../../users/services/UserService";
-import { ITBadget, ITButton, ITTable, ITLoader, ITDialog } from "axzy_ui_system";
+import { ITBadget, ITButton, ITTable, ITLoader, ITDialog } from "@axzydev/axzy_ui_system";
 import { FaEye, FaCalendarAlt, FaPlus, FaStop } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { hideToast } from "@app/core/store/toast/toast.slice";
-import { ITToast } from "axzy_ui_system";
+import { ITToast } from "@axzydev/axzy_ui_system";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 

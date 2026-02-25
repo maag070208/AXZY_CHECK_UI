@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ITInput, ITButton } from "axzy_ui_system";
+import { ITInput, ITButton } from "@axzydev/axzy_ui_system";
 
 interface Props {
   onSubmit: (data: { aisle: string; spot: string; number: string; name?: string }) => void;
@@ -28,7 +28,7 @@ export const LocationForm = ({ onSubmit, onCancel, initialData }: Props) => {
   return (
     <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
       <ITInput
-        label="Pasillo"
+        label="Sección"
         name="aisle"
         value={formik.values.aisle}
         onChange={formik.handleChange}
@@ -38,7 +38,7 @@ export const LocationForm = ({ onSubmit, onCancel, initialData }: Props) => {
         placeholder="Ej: A"
       />
       <ITInput
-        label="Cajón"
+        label="# Consecutivo"
         name="spot"
         value={formik.values.spot}
         onChange={formik.handleChange}
@@ -48,7 +48,7 @@ export const LocationForm = ({ onSubmit, onCancel, initialData }: Props) => {
         placeholder="Ej: 101"
       />
       <ITInput
-        label="Número"
+        label="Referencia"
         name="number"
         value={formik.values.number}
         onChange={formik.handleChange}
