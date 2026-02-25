@@ -51,7 +51,7 @@ const MaintenancesPage = () => {
         </div>
         <button 
             onClick={() => fetchMaintenances()}
-            className="flex items-center gap-2 bg-[#065911] text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-[#e65100] transition-colors"
+            className="flex items-center gap-2 bg-[#065911] text-white px-4 py-2 rounded-xl font-medium shadow-sm  transition-colors"
         >
             <FaSync className="text-xs" />
             <span>Actualizar</span>

@@ -8,7 +8,7 @@ export interface User {
   name: string;
   lastName: string;
   username: string;
-  role: "ADMIN" | "OPERATOR" | "GUARD" | "SHIFT_GUARD" | "USER";
+  role: "ADMIN" | "OPERATOR" | "GUARD" | "SHIFT_GUARD" | "USER" | "MANTENIMIENTO";
   active: boolean;
   shiftStart?: string; // HH:mm
   shiftEnd?: string;   // HH:mm
@@ -32,6 +32,7 @@ export interface UpdateUserDto {
     name?: string;
     lastName?: string;
     username?: string;
+    role?: string;
     shiftStart?: string;
     shiftEnd?: string;
     scheduleId?: number;
