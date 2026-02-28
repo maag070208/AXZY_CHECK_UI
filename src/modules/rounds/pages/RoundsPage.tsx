@@ -5,12 +5,15 @@ import { getUsers } from "../../users/services/UserService";
 import { ITBadget, ITButton, ITTable, ITLoader, ITDialog } from "@axzydev/axzy_ui_system";
 import { FaEye, FaCalendarAlt, FaPlus, FaStop } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 
 const RoundsPage = () => {
     const [rounds, setRounds] = useState<IRound[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState<string>("");
+    const dispatch = useDispatch();
     
     // Config IDs Map
     const [routesMap, setRoutesMap] = useState<Record<number, string>>({});
@@ -21,6 +24,9 @@ const RoundsPage = () => {
     const [isStartModalOpen, setIsStartModalOpen] = useState(false);
     const [guards, setGuards] = useState<any[]>([]);
     const [selectedGuard, setSelectedGuard] = useState<string>("");
+    
+    // End Round Confirmation Modal State
+    const [roundToFinishId, setRoundToFinishId] = useState<number | null>(null);
 
     // Fetch Routes to build Map
     useEffect(() => {
@@ -60,33 +66,39 @@ const RoundsPage = () => {
         try {
             const res = await startRound(Number(selectedGuard));
             if (res.success) {
-                alert("Ronda iniciada correctamente");
+                dispatch(showToast({ message: "Ronda iniciada correctamente", type: "success" }));
                 setIsStartModalOpen(false);
                 setSelectedGuard("");
                 fetchRounds();
             } else {
                  const msg = res.messages?.join("\n") || "Error al iniciar ronda";
-                 alert(msg);
+                 dispatch(showToast({ message: msg, type: "error" }));
             }
         } catch (e) {
             console.error(e);
-            alert("Error de conexión");
+            dispatch(showToast({ message: "Error de conexión", type: "error" }));
         }
     };
 
-    const handleEndRound = async (roundId: number) => {
-        if (!window.confirm("¿Seguro que deseas FINALIZAR esta ronda manualmente? Esta acción no se puede deshacer.")) return;
+    const handleEndRound = (roundId: number) => {
+        setRoundToFinishId(roundId);
+    };
+
+    const confirmEndRound = async () => {
+        if (!roundToFinishId) return;
 
         try {
-            const res = await endRound(roundId);
+            const res = await endRound(roundToFinishId);
+            setRoundToFinishId(null);
             if (res.success) {
-                alert("Ronda finalizada correctamente");
+                dispatch(showToast({ message: "Ronda finalizada correctamente", type: "success" }));
                 fetchRounds();
             } else {
-                alert(res.messages?.join("\n") || "Error al finalizar ronda");
+                dispatch(showToast({ message: res.messages?.join("\n") || "Error al finalizar ronda", type: "error" }));
             }
         } catch (e) {
-            alert("Error al finalizar ronda");
+            setRoundToFinishId(null);
+            dispatch(showToast({ message: "Error al finalizar ronda", type: "error" }));
         }
     };
 
@@ -274,6 +286,27 @@ const RoundsPage = () => {
                         >
                             Iniciar Ronda
                         </button>
+                    </div>
+                </div>
+            </ITDialog>
+
+            {/* End Round Confirmation Modal */}
+            <ITDialog
+                isOpen={!!roundToFinishId}
+                onClose={() => setRoundToFinishId(null)}
+                title="Confirmar Finalización"
+            >
+                <div className="p-6">
+                    <p className="text-[#1b1b1f] text-base mb-6">
+                        ¿Seguro que deseas FINALIZAR esta ronda manualmente? Esta acción no se puede deshacer.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <ITButton variant="outlined" color="secondary" onClick={() => setRoundToFinishId(null)}>
+                            Cancelar
+                        </ITButton>
+                        <ITButton variant="solid" color="danger" onClick={confirmEndRound}>
+                            Finalizar Ronda
+                        </ITButton>
                     </div>
                 </div>
             </ITDialog>

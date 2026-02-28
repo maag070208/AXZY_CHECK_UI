@@ -4,6 +4,8 @@ import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 import { createRoute, ILocationCreate, updateRoute } from "../services/RoutesService";
 import { getLocations, Location } from "../../locations/service/locations.service";
 import { getUsers, User } from "../../users/services/UserService";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 interface CreateRouteModalProps {
     isOpen: boolean;
@@ -13,6 +15,7 @@ interface CreateRouteModalProps {
 }
 
 export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: CreateRouteModalProps) => {
+    const dispatch = useDispatch();
     const [title, setTitle] = useState("");
     const [addedLocations, setAddedLocations] = useState<ILocationCreate[]>([]);
     const [selectedGuards, setSelectedGuards] = useState<number[]>([]);
@@ -88,7 +91,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
         
         // Find existing
         if (addedLocations.find(l => l.locationId === locIdNum)) {
-            alert("La ubicación ya está en la lista");
+            dispatch(showToast({ message: "La ubicación ya está en la lista", type: "warning" }));
             return;
         }
 
@@ -145,11 +148,11 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
 
     const handleSave = async () => {
         if (!title.trim()) {
-            alert("Ingresa un nombre para la ruta");
+            dispatch(showToast({ message: "Ingresa un nombre para la ruta", type: "warning" }));
             return;
         }
         if (addedLocations.length === 0) {
-            alert("Agrega al menos una ubicación");
+            dispatch(showToast({ message: "Agrega al menos una ubicación", type: "warning" }));
             return;
         }
 
@@ -169,15 +172,15 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
             }
 
             if (res.success) {
-                alert("Guardado correctamente");
+                dispatch(showToast({ message: "Guardado correctamente", type: "success" }));
                 onSuccess();
                 onClose();
             } else {
-                alert("Error al guardar: " + (res.messages?.join(", ") || ""));
+                dispatch(showToast({ message: "Error al guardar: " + (res.messages?.join(", ") || ""), type: "error" }));
             }
         } catch (e) {
             console.error(e);
-            alert("Error de conexión");
+            dispatch(showToast({ message: "Error de conexión", type: "error" }));
         } finally {
             setLoading(false);
         }

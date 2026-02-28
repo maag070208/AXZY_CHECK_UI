@@ -3,6 +3,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ITInput, ITButton, ITLoader } from "@axzydev/axzy_ui_system";
 import { resetPassword, User } from "../services/UserService";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 interface Props {
   user: User;
@@ -12,6 +14,7 @@ interface Props {
 
 export const ChangePasswordModal: React.FC<Props> = ({ user, onCancel, onSuccess }) => {
   const [loading, setLoading] = React.useState(false);
+  const dispatch = useDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -30,15 +33,26 @@ export const ChangePasswordModal: React.FC<Props> = ({ user, onCancel, onSuccess
       setLoading(false);
 
       if (res.success) {
+        dispatch(showToast({ message: "Contraseña cambiada correctamente", type: "success" }));
         onSuccess();
       } else {
-        alert("Error al cambiar contraseña");
+        dispatch(showToast({ message: "Error al cambiar contraseña", type: "error" }));
       }
     },
   });
 
   return (
-    <div className="flex flex-col gap-6 p-4">
+    <div className="flex flex-col gap-4 p-4">
+      {/* Title Header */}
+      <div className="mb-4 px-4 text-center mt-2">
+          <h2 className="text-2xl font-bold text-slate-800">
+              Cambiar Contraseña
+          </h2>
+          <p className="text-sm text-slate-500 mt-1">
+              Asigna una nueva contraseña de acceso
+          </p>
+      </div>
+
       {loading && <ITLoader />}
       
       <div className="bg-orange-50 p-4 rounded-lg border border-orange-100">

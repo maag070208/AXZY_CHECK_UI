@@ -1,15 +1,19 @@
-import { ITBadget, ITButton, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITLoader, ITTable, ITDialog } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaUserShield, FaSync } from "react-icons/fa";
 import { getIncidents, Incident, resolveIncident } from "../services/IncidentService";
 import { MediaCarousel } from "@core/components/MediaCarousel";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 const IncidentsPage = () => {
+  const dispatch = useDispatch();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewingIncident, setViewingIncident] = useState<Incident | null>(null);
   const [resolvingId, setResolvingId] = useState<number | null>(null);
+  const [incidentToResolveId, setIncidentToResolveId] = useState<number | null>(null);
 
   const fetchIncidents = async () => {
     setLoading(true);
@@ -24,19 +28,25 @@ const IncidentsPage = () => {
     fetchIncidents();
   }, []);
 
-  const handleResolve = async (id: number) => {
-      if (confirm('¿Estás seguro de marcar esta incidencia como atendida?')) {
-          setResolvingId(id);
-          const res = await resolveIncident(id);
-          setResolvingId(null);
-          if (res.success) {
-              fetchIncidents();
-              if (viewingIncident?.id === id) {
-                  setViewingIncident(null); // Close modal if open
-              }
-          } else {
-              alert("Error al resolver incidencia");
+  const handleResolve = (id: number) => {
+      setIncidentToResolveId(id);
+  };
+
+  const confirmResolve = async () => {
+      if (!incidentToResolveId) return;
+      
+      setResolvingId(incidentToResolveId);
+      const res = await resolveIncident(incidentToResolveId);
+      setResolvingId(null);
+      setIncidentToResolveId(null);
+      
+      if (res.success) {
+          fetchIncidents();
+          if (viewingIncident?.id === incidentToResolveId) {
+              setViewingIncident(null); // Close modal if open
           }
+      } else {
+          dispatch(showToast({ message: "Error al resolver incidencia", type: "error" }));
       }
   };
 
@@ -319,6 +329,23 @@ const IncidentsPage = () => {
         </div>
       </div>
     )}
+
+      {/* Confirm Resolve Dialog */}
+      <ITDialog isOpen={!!incidentToResolveId} onClose={() => setIncidentToResolveId(null)} title="Confirmar Atención">
+        <div className="p-6">
+            <p className="text-[#1b1b1f] text-base mb-6">
+                ¿Estás seguro de que deseas marcar esta incidencia como atendida?
+            </p>
+            <div className="flex justify-end gap-3">
+                <ITButton variant="outlined" color="secondary" onClick={() => setIncidentToResolveId(null)}>
+                    Cancelar
+                </ITButton>
+                <ITButton variant="solid" color="success" onClick={confirmResolve}>
+                    Confirmar
+                </ITButton>
+            </div>
+        </div>
+      </ITDialog>
 
     </div>
   );

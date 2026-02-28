@@ -3,7 +3,8 @@ import { ITButton, ITDialog, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { FaCar, FaCheckCircle, FaEdit, FaPlus, FaQrcode, FaTrash } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 import { LocationForm } from "../components/LocationForm";
 import { createLocation, deleteLocation, getLocations, Location, updateLocation } from "../service/locations.service";
 
@@ -11,11 +12,13 @@ const LocationsPage = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const dispatch = useDispatch();
   const user = useSelector((state: AppState) => state.auth);
 
   /* Filters/Modals State */
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [viewingLocation, setViewingLocation] = useState<Location | null>(null);
+  const [locationToDelete, setLocationToDelete] = useState<Location | null>(null);
 
   const fetchLocations = async () => {
     setLoading(true);
@@ -44,14 +47,23 @@ const LocationsPage = () => {
       fetchLocations();
   };
 
-  const handleDelete = async (location: Location) => {
-      if (confirm(`¿Estás seguro de eliminar la zona ${location.name}?`)) {
-          try {
-              await deleteLocation(location.id);
-              fetchLocations();
-          } catch (e: any) {
-              alert(e.message || "Error al eliminar");
+  const handleDelete = (location: Location) => {
+      setLocationToDelete(location);
+  };
+
+  const confirmDelete = async () => {
+      if (!locationToDelete) return;
+      try {
+          const res = await deleteLocation(locationToDelete.id);
+          setLocationToDelete(null);
+          if (res && res.success) {
+               dispatch(showToast({ message: "Ubicación eliminada correctamente", type: "success" }));
+               fetchLocations();
+          } else {
+               dispatch(showToast({ message: res?.messages?.join(", ") || "Error al eliminar", type: "error" }));
           }
+      } catch (e: any) {
+          dispatch(showToast({ message: e.message || "Error al eliminar", type: "error" }));
       }
   };
 
@@ -68,7 +80,7 @@ const LocationsPage = () => {
           // Open print window
           const printWindow = window.open('', '_blank');
           if (!printWindow) {
-              alert("Por favor habilita los pop-ups para imprimir.");
+              dispatch(showToast({ message: "Por favor habilita los pop-ups para imprimir.", type: "warning" }));
               return;
           }
 
@@ -124,7 +136,7 @@ const LocationsPage = () => {
 
       } catch (error) {
           console.error("Error generating QR", error);
-          alert("Error al generar el código QR");
+          dispatch(showToast({ message: "Error al generar el código QR", type: "error" }));
       }
   };
 
@@ -278,6 +290,23 @@ const LocationsPage = () => {
             )}
             <div className="mt-6 flex justify-end">
                 <ITButton color="secondary" onClick={() => setViewingLocation(null)}>Cerrar</ITButton>
+            </div>
+        </div>
+      </ITDialog>
+
+      {/* Delete Confirmation Modal */}
+      <ITDialog isOpen={!!locationToDelete} onClose={() => setLocationToDelete(null)} title="Confirmar Eliminación">
+        <div className="p-6">
+            <p className="text-[#1b1b1f] text-base mb-6">
+                ¿Estás seguro de que deseas eliminar la zona <span className="font-bold text-red-600">{locationToDelete?.name}</span>? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+                <ITButton variant="outlined" color="secondary" onClick={() => setLocationToDelete(null)}>
+                    Cancelar
+                </ITButton>
+                <ITButton variant="solid" className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={confirmDelete}>
+                    Eliminar
+                </ITButton>
             </div>
         </div>
       </ITDialog>

@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { useEffect, useState } from "react";
-import { FaChild, FaListAlt, FaExclamationTriangle, FaBook } from "react-icons/fa";
+import { FaChild, FaListAlt, FaExclamationTriangle, FaBook, FaWrench, FaClock, FaRoute } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
@@ -36,6 +36,18 @@ const HomePage = () => {
         icon: <FaBook className="text-white" />,
         action: () => navigate("/kardex"),
       },
+      {
+        title: "Mantenimiento",
+        description: "Reportes de mantenimiento",
+        icon: <FaWrench className="text-white" />,
+        action: () => navigate("/maintenances"),
+      },
+      {
+        title: "Rondas",
+        description: "Registro y control de rondas",
+        icon: <FaClock className="text-white" />,
+        action: () => navigate("/rounds"),
+      },
     ];
 
     if (user.role === "ADMIN") {
@@ -51,6 +63,12 @@ const HomePage = () => {
               description: "Configurar turnos y horarios",
               icon: <FaListAlt className="text-white" />,
               action: () => navigate("/schedules"),
+            },
+            {
+              title: "Rutas",
+              description: "Configuración de rutas de rondas",
+              icon: <FaRoute className="text-white" />,
+              action: () => navigate("/routes"),
             }
         );
     }

@@ -1,15 +1,19 @@
-import { ITBadget, ITButton, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITLoader, ITTable, ITDialog } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaUserShield, FaSync, FaWrench } from "react-icons/fa";
 import { getMaintenances, Maintenance, resolveMaintenance } from "../services/MaintenanceService";
 import { MediaCarousel } from "@core/components/MediaCarousel";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 const MaintenancesPage = () => {
+  const dispatch = useDispatch();
   const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewingMaintenance, setViewingMaintenance] = useState<Maintenance | null>(null);
   const [resolvingId, setResolvingId] = useState<number | null>(null);
+  const [maintenanceToResolveId, setMaintenanceToResolveId] = useState<number | null>(null);
 
   const fetchMaintenances = async () => {
     setLoading(true);
@@ -24,19 +28,25 @@ const MaintenancesPage = () => {
     fetchMaintenances();
   }, []);
 
-  const handleResolve = async (id: number) => {
-      if (confirm('¿Estás seguro de marcar este reporte de mantenimiento como atendido?')) {
-          setResolvingId(id);
-          const res = await resolveMaintenance(id);
-          setResolvingId(null);
-          if (res.success) {
-              fetchMaintenances();
-              if (viewingMaintenance?.id === id) {
-                  setViewingMaintenance(null); // Close modal if open
-              }
-          } else {
-              alert("Error al resolver mantenimiento");
+  const handleResolve = (id: number) => {
+      setMaintenanceToResolveId(id);
+  };
+
+  const confirmResolve = async () => {
+      if (!maintenanceToResolveId) return;
+      
+      setResolvingId(maintenanceToResolveId);
+      const res = await resolveMaintenance(maintenanceToResolveId);
+      setResolvingId(null);
+      setMaintenanceToResolveId(null);
+      
+      if (res.success) {
+          fetchMaintenances();
+          if (viewingMaintenance?.id === maintenanceToResolveId) {
+              setViewingMaintenance(null); // Close modal if open
           }
+      } else {
+          dispatch(showToast({ message: "Error al resolver mantenimiento", type: "error" }));
       }
   };
 
@@ -318,6 +328,23 @@ const MaintenancesPage = () => {
         </div>
       </div>
     )}
+
+      {/* Confirm Resolve Dialog */}
+      <ITDialog isOpen={!!maintenanceToResolveId} onClose={() => setMaintenanceToResolveId(null)} title="Confirmar Atención">
+        <div className="p-6">
+            <p className="text-[#1b1b1f] text-base mb-6">
+                ¿Estás seguro de marcar este reporte de mantenimiento como atendido?
+            </p>
+            <div className="flex justify-end gap-3">
+                <ITButton variant="outlined" color="secondary" onClick={() => setMaintenanceToResolveId(null)}>
+                    Cancelar
+                </ITButton>
+                <ITButton variant="solid" color="success" onClick={confirmResolve}>
+                    Confirmar
+                </ITButton>
+            </div>
+        </div>
+      </ITDialog>
 
     </div>
   );

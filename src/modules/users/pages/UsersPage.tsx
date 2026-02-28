@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { getUsers, User } from "../services/UserService";
+import { getUsers, User, deleteUser } from "../services/UserService";
 import { CreateUserWizard } from "../components/CreateUserWizard";
 import { ChangePasswordModal } from "../components/ChangePasswordModal";
 import { ITButton, ITDialog, ITLoader, ITTable, ITBadget } from "@axzydev/axzy_ui_system";
-import { FaUser, FaEdit, FaKey, FaClock, FaPlus } from "react-icons/fa";
+import { FaUser, FaEdit, FaKey, FaClock, FaPlus, FaTrash } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 const UsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -13,6 +15,8 @@ const UsersPage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [changingPasswordUser, setChangingPasswordUser] = useState<User | null>(null);
+  const [userToDeleteId, setUserToDeleteId] = useState<number | null>(null);
+  const dispatch = useDispatch();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -43,6 +47,18 @@ const UsersPage = () => {
     setEditingUser(null);
     setChangingPasswordUser(null);
     fetchUsers();
+  };
+
+  const confirmDelete = async () => {
+    if (!userToDeleteId) return;
+    const res = await deleteUser(userToDeleteId);
+    setUserToDeleteId(null);
+    if (res.success) {
+      dispatch(showToast({ message: "Usuario eliminado", type: "success" }));
+      fetchUsers();
+    } else {
+      dispatch(showToast({ message: "Error al eliminar usuario", type: "error" }));
+    }
   };
 
   if (loading) return <div className="flex justify-center p-10"><ITLoader /></div>;
@@ -160,6 +176,16 @@ const UsersPage = () => {
                         >
                             <FaKey />
                         </ITButton>
+                        <ITButton
+                            onClick={() => setUserToDeleteId(row.id)}
+                            size="small"
+                            color="danger"
+                            variant="outlined"
+                            className="!p-2"
+                            title="Eliminar usuario"
+                        >
+                            <FaTrash />
+                        </ITButton>
                     </div>
                 )
             }
@@ -203,9 +229,7 @@ const UsersPage = () => {
       <ITDialog
         isOpen={!!changingPasswordUser}
         onClose={() => setChangingPasswordUser(null)}
-        title="Cambiar Contraseña"
         className="!w-full !max-w-lg"
-        useFormHeader={true}
       >
         {changingPasswordUser && (
             <ChangePasswordModal
@@ -214,6 +238,23 @@ const UsersPage = () => {
                 onSuccess={handleSuccess}
             />
         )}
+      </ITDialog>
+
+      {/* Delete Confirmation Modal */}
+      <ITDialog isOpen={!!userToDeleteId} onClose={() => setUserToDeleteId(null)} title="Confirmar Eliminación">
+        <div className="p-6">
+            <p className="text-[#1b1b1f] text-base mb-6">
+                ¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+                <ITButton variant="outlined" color="secondary" onClick={() => setUserToDeleteId(null)}>
+                    Cancelar
+                </ITButton>
+                <ITButton variant="solid" className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={confirmDelete}>
+                    Eliminar
+                </ITButton>
+            </div>
+        </div>
       </ITDialog>
 
     </div>
