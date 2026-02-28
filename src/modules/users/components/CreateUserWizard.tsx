@@ -3,6 +3,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ITInput, ITSelect, ITButton } from "@axzydev/axzy_ui_system";
 import { createUser, updateUser, User } from "../services/UserService";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 interface Props {
   userToEdit?: User;
@@ -16,6 +18,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSuccess }) => {
   const isEditing = !!userToEdit;
+  const dispatch = useDispatch();
   const [currentStep, setCurrentStep] = useState(0);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [showPassword, setShowPassword] = useState(false);
@@ -78,9 +81,10 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
       }
 
       if (res.success) {
+        dispatch(showToast({ message: isEditing ? "Usuario editado correctamente" : "Usuario creado correctamente", type: "success" }));
         onSuccess();
       } else {
-        alert(isEditing ? "Error al editar usuario" : "Error al crear usuario");
+        dispatch(showToast({ message: isEditing ? "Error al editar usuario" : "Error al crear usuario", type: "error" }));
       }
     },
   });

@@ -5,10 +5,13 @@ import { ITLoader, ITBadget } from "@axzydev/axzy_ui_system";
 import { FaArrowLeft, FaPlay, FaCheckCircle, FaQrcode, FaExclamationTriangle, FaMapMarkerAlt, FaClock, FaStopwatch, FaRoute, FaMapMarkedAlt } from "react-icons/fa";
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { getRoutesList } from "../../routes/services/RoutesService";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 const RoundDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [data, setData] = useState<IRoundDetail | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -135,7 +138,7 @@ const RoundDetailPage = () => {
             .sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
         if (scansWithCoords.length === 0) {
-            alert("No hay puntos con coordenadas GPS para trazar una ruta.");
+            dispatch(showToast({ message: "No hay puntos con coordenadas GPS para trazar una ruta.", type: "warning" }));
             return;
         }
 

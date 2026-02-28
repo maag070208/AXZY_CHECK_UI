@@ -1,15 +1,17 @@
 import { ITButton, ITDialog, ITInput, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { Schedule, createSchedule, deleteSchedule, getSchedules, updateSchedule } from "../SchedulesService";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 const SchedulesPage = () => {
+  const dispatch = useDispatch();
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  const [scheduleToDeleteId, setScheduleToDeleteId] = useState<number | null>(null);
 
   // Form State
   const [name, setName] = useState("");
@@ -61,27 +63,24 @@ const SchedulesPage = () => {
       loadSchedules();
       closeModal();
     } catch (error) {
-      alert("Error saving schedule");
+      dispatch(showToast({ message: "Error saving schedule", type: "error" }));
     }
   };
 
   const handleDelete = (id: number) => {
-    confirmAlert({
-      title: "Eliminar Horario",
-      message: "¿Estás seguro de eliminar este horario?",
-      buttons: [
-        {
-          label: "Sí",
-          onClick: async () => {
-            await deleteSchedule(id);
-            loadSchedules();
-          },
-        },
-        {
-          label: "No",
-        },
-      ],
-    });
+    setScheduleToDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!scheduleToDeleteId) return;
+    try {
+      await deleteSchedule(scheduleToDeleteId);
+      setScheduleToDeleteId(null);
+      loadSchedules();
+      dispatch(showToast({ message: "Horario eliminado correctamente", type: "success" }));
+    } catch (error) {
+       dispatch(showToast({ message: "Error al eliminar el horario", type: "error" }));
+    }
   };
 
   return (
@@ -220,6 +219,23 @@ const SchedulesPage = () => {
               Guardar
             </button>
           </div>
+        </div>
+      </ITDialog>
+
+      {/* Delete Confirmation Modal */}
+      <ITDialog isOpen={!!scheduleToDeleteId} onClose={() => setScheduleToDeleteId(null)} title="Confirmar Eliminación">
+        <div className="p-6">
+            <p className="text-[#1b1b1f] text-base mb-6">
+                ¿Estás seguro de eliminar este horario? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+                <ITButton variant="outlined" color="secondary" onClick={() => setScheduleToDeleteId(null)}>
+                    Cancelar
+                </ITButton>
+                <ITButton variant="solid" className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={confirmDelete}>
+                    Eliminar
+                </ITButton>
+            </div>
         </div>
       </ITDialog>
     </div>

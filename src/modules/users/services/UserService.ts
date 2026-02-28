@@ -1,4 +1,4 @@
-import { get, post, put } from "@app/core/axios/axios";
+import { get, post, put, remove } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
 import { Schedule } from "../../schedules/SchedulesService";
@@ -82,4 +82,8 @@ export const changePassword = async (id: number, data: ChangePasswordDto): Promi
 
 export const resetPassword = async (id: number, password: string): Promise<TResult<boolean>> => {
     return await put<boolean>(`/users/${id}/reset-password`, { newPassword: password });
+};
+
+export const deleteUser = async (id: number): Promise<TResult<boolean>> => {
+    return await remove<boolean>(`/users/${id}`);
 };

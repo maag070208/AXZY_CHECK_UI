@@ -1,14 +1,18 @@
-import { ITBadget, ITButton, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITLoader, ITTable, ITDialog } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { CreateRouteModal } from "../components/CreateRouteModal";
 import { deleteRoute, getRoutesList } from "../services/RoutesService";
+import { useDispatch } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 const RoutesPage = () => {
   const [routes, setRoutes] = useState<any[]>([]);
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editConfig, setEditConfig] = useState<any>(null);
+  const [routeToDeleteId, setRouteToDeleteId] = useState<number | null>(null);
 
   const fetchRoutes = async () => {
     setLoading(true);
@@ -23,15 +27,19 @@ const RoutesPage = () => {
     fetchRoutes();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    if (confirm("¿Estás seguro de eliminar esta ruta?")) {
-      const res = await deleteRoute(id);
-      if (res.success) {
-        alert("Ruta eliminada");
-        fetchRoutes();
-      } else {
-        alert("Error al eliminar");
-      }
+  const handleDelete = (id: number) => {
+    setRouteToDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!routeToDeleteId) return;
+    const res = await deleteRoute(routeToDeleteId);
+    setRouteToDeleteId(null);
+    if (res.success) {
+      dispatch(showToast({ message: "Ruta eliminada", type: "success" }));
+      fetchRoutes();
+    } else {
+      dispatch(showToast({ message: "Error al eliminar", type: "error" }));
     }
   };
 
@@ -157,6 +165,23 @@ const RoutesPage = () => {
         onSuccess={fetchRoutes}
         editConfig={editConfig}
       />
+
+      {/* Confirm Delete Dialog */}
+      <ITDialog isOpen={!!routeToDeleteId} onClose={() => setRouteToDeleteId(null)} title="Confirmar Eliminación">
+        <div className="p-6">
+            <p className="text-[#1b1b1f] text-base mb-6">
+                ¿Estás seguro de eliminar esta ruta? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+                <ITButton variant="outlined" color="secondary" onClick={() => setRouteToDeleteId(null)}>
+                    Cancelar
+                </ITButton>
+                <ITButton variant="solid" className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={confirmDelete}>
+                    Eliminar
+                </ITButton>
+            </div>
+        </div>
+      </ITDialog>
     </div>
   );
 };
