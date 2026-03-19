@@ -56,25 +56,28 @@ const HomePage = () => {
       },
     ];
 
-    if (user.role === "ADMIN") {
+    cards.push(
+        {
+          title: "Horarios",
+          description: "Configurar turnos y horarios",
+          icon: <FaListAlt className="text-white" />,
+          action: () => navigate("/schedules"),
+        },
+        {
+          title: "Rutas",
+          description: "Configuración de rutas de recorridos",
+          icon: <FaRoute className="text-white" />,
+          action: () => navigate("/routes"),
+        }
+    );
+
+    if (user.role === "ADMIN" || user.role === "LIDER") {
         cards.push(
             {
               title: "Usuarios",
               description: "Administrar usuarios del sistema",
               icon: <FaChild className="text-white" />,
               action: () => navigate("/users"),
-            },
-            {
-              title: "Horarios",
-              description: "Configurar turnos y horarios",
-              icon: <FaListAlt className="text-white" />,
-              action: () => navigate("/schedules"),
-            },
-            {
-              title: "Rutas",
-              description: "Configuración de rutas de recorridos",
-              icon: <FaRoute className="text-white" />,
-              action: () => navigate("/routes"),
             }
         );
     }
