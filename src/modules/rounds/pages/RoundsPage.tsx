@@ -18,10 +18,18 @@ import {
   IRound,
   startRound,
 } from "../services/RoundsService";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import tz from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(tz);
 
 const RoundsPage = () => {
-  const now = new Date();
-  const [selectedDate, setSelectedDate] = useState<any>([now, now]);
+  const [selectedDate, setSelectedDate] = useState<any>([
+    dayjs().tz("America/Tijuana").toDate(),
+    dayjs().tz("America/Tijuana").toDate(),
+  ]);
   const [refreshKey, setRefreshKey] = useState(0);
   const dispatch = useDispatch();
 
@@ -32,10 +40,9 @@ const RoundsPage = () => {
     if (Array.isArray(selectedDate) && selectedDate[0] && selectedDate[1]) {
       // Usamos ISO para que el backend reciba strings limpios
       filters.date = [
-        new Date(selectedDate[0]).toISOString(),
-        new Date(selectedDate[1]).toISOString(),
+        dayjs(selectedDate[0]).tz("America/Tijuana").startOf("day").format(),
+        dayjs(selectedDate[1]).tz("America/Tijuana").endOf("day").format(),
       ];
-      console.log('--- FILTROS PREPARADOS ---', filters.date);
     }
 
     return filters;
