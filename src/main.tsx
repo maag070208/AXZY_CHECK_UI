@@ -8,9 +8,13 @@ import ToastProvider from "./providers/toast.provider.tsx";
 import React from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { ITThemeProvider } from "@axzydev/axzy_ui_system";
 import { theme } from "./theme/theme.ts";
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.locale("es");
 
 

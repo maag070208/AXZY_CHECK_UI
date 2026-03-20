@@ -8,7 +8,7 @@ import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { getUsers } from "../../users/services/UserService";
 
 const KardexPage = () => {
-    const today = useMemo(() => new Date(), []);
+    const today = useMemo(() => dayjs().tz("America/Tijuana").toDate(), []);
     const [selectedDate, setSelectedDate] = useState<any>([today, today]);
     const [refreshKey, setRefreshKey] = useState(0);
     const [guards, setGuards] = useState<any[]>([]);
@@ -32,9 +32,9 @@ const KardexPage = () => {
         const filters: any = { refreshKey };
         if (Array.isArray(selectedDate) && selectedDate[0] && selectedDate[1]) {
             filters.date = [
-                new Date(selectedDate[0]).toISOString(),
-                new Date(selectedDate[1]).toISOString()
-            ];
+                   dayjs(selectedDate[0]).tz("America/Tijuana").startOf("day").format(),
+                   dayjs(selectedDate[1]).tz("America/Tijuana").endOf("day").format(),
+                 ];
         }
         return filters;
     }, [selectedDate, refreshKey]);
