@@ -75,6 +75,20 @@ const RoundDetailPage = () => {
             previousTime = current;
         });
 
+        // Computed expected points
+        const expectedLocs = data.round.recurringConfiguration?.recurringLocations || [];
+        const missingLocs = expectedLocs.filter((l: any) => !visitedLocations.has(String(l.location.id)));
+        
+        missingLocs.forEach((loc: any) => {
+            mapNodes.push({
+                type: 'POINT',
+                label: loc.location.name,
+                status: data.round.status === 'COMPLETED' ? 'MISSING' : 'PENDING',
+                timeDiff: '--',
+                diffMs: 0
+            });
+        });
+
         // End Node
         if (data.round.endTime) {
             const current = new Date(data.round.endTime);
@@ -97,6 +111,7 @@ const RoundDetailPage = () => {
             duration: `${durationMinutes}m ${durationSeconds}s`,
             totalScans: validScansCount,
             totalRawScans: scans.length,
+            expectedScans: expectedLocs.length,
             mapNodes,
             avgTime: `${avgMins}m ${avgSecs}s`
         };
@@ -217,9 +232,12 @@ const RoundDetailPage = () => {
                                     <FaQrcode size={20} />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Puntos Cubiertos</p>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                        Puntos {metrics.expectedScans > 0 ? 'Cubiertos' : 'Válidos'}
+                                    </p>
                                     <p className="text-xl font-bold text-slate-800">
-                                        {metrics.totalScans} <span className="text-xs text-slate-400 font-normal">/ {metrics.totalRawScans}</span>
+                                        {metrics.totalScans} 
+                                        <span className="text-xs text-slate-400 font-normal"> / {metrics.expectedScans > 0 ? metrics.expectedScans : metrics.totalRawScans}</span>
                                     </p>
                                 </div>
                             </div>
@@ -268,18 +286,33 @@ const RoundDetailPage = () => {
                                                 ${node.status === 'SUCCESS' ? 'bg-green-500 border-green-200 text-white' : ''}
                                                 ${node.status === 'DUPLICATE' ? 'bg-red-500 border-red-200 text-white' : ''}
                                                 ${node.status === 'INCOMPLETE' ? 'bg-orange-500 border-orange-200 text-white' : ''}
+                                                ${node.status === 'MISSING' ? 'bg-red-50 border-red-200 text-red-500 border-dashed' : ''}
+                                                ${node.status === 'PENDING' ? 'bg-slate-50 border-slate-200 text-slate-400 border-dashed' : ''}
                                             `}>
                                                 {node.status === 'START' && <FaPlay className="text-xs ml-0.5" />}
                                                 {node.status === 'END' && <FaCheckCircle className="text-xs" />}
                                                 {node.status === 'SUCCESS' && <FaCheckCircle className="text-sm" />}
                                                 {node.status === 'DUPLICATE' && <span className="font-bold text-lg">!</span>}
                                                 {node.status === 'INCOMPLETE' && <FaExclamationTriangle className="text-xs" />}
+                                                {node.status === 'MISSING' && <span className="font-bold text-sm">?</span>}
+                                                {node.status === 'PENDING' && <FaClock className="text-xs" />}
                                             </div>
                                             
-                                            <p className={`text-center text-xs font-bold mt-3 leading-tight ${node.status === 'DUPLICATE' ? 'text-red-600' : 'text-slate-600'}`}>
+                                            <p className={`text-center text-xs font-bold mt-3 leading-tight ${
+                                                node.status === 'DUPLICATE' ? 'text-red-600' : 
+                                                node.status === 'MISSING' ? 'text-red-500' :
+                                                node.status === 'PENDING' ? 'text-slate-400' :
+                                                'text-slate-600'
+                                            }`}>
                                                 {node.label}
                                             </p>
                                             
+                                            {node.status === 'MISSING' && (
+                                                <span className="text-[9px] font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded mt-1">FALTANTE</span>
+                                            )}
+                                            {node.status === 'PENDING' && (
+                                                <span className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded mt-1">PENDIENTE</span>
+                                            )}
                                             {node.status === 'DUPLICATE' && (
                                                 <span className="text-[9px] text-red-500 font-bold mt-1 bg-red-50 px-1 rounded">REPETIDO</span>
                                             )}

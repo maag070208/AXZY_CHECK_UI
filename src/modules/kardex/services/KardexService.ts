@@ -1,4 +1,5 @@
-import { get } from "@app/core/axios/axios";
+import { get, post } from "@app/core/axios/axios";
+import { ITDataTableFetchParams, ITDataTableResponse } from "@axzydev/axzy_ui_system";
 import { TResult } from "@app/core/types/TResult";
 
 export interface KardexFilter {
@@ -52,4 +53,15 @@ export const getKardex = async (filters: KardexFilter): Promise<TResult<KardexEn
     }
 
     return await get<KardexEntry[]>(`/kardex${query}`);
+};
+
+export const getPaginatedKardex = async (params: ITDataTableFetchParams): Promise<ITDataTableResponse<KardexEntry>> => {
+    const res = await post<any>("/kardex/datatable", params);
+    if (res.success && res.data) {
+        return {
+            data: res.data.data || [],
+            total: res.data.total || 0,
+        };
+    }
+    return { data: [], total: 0 };
 };

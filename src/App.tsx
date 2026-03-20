@@ -18,6 +18,7 @@ import RoundsPage from "./modules/rounds/pages/RoundsPage";
 import RoundDetailPage from "./modules/rounds/pages/RoundDetailPage";
 import SchedulesPage from "./modules/schedules/pages/SchedulesPage";
 import RoutesPage from "./modules/routes/pages/RoutesPage";
+import GuardsPage from "./modules/guards/pages/GuardsPage";
 
 
 function App() {
@@ -70,6 +71,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<HomePage />} />
+        <Route path="/guards" element={<GuardsPage />} />
         
         <Route path="/locations" element={<LocationsPage />} />
         <Route path="/users" element={<UsersPage />} />
@@ -81,6 +83,7 @@ function App() {
         <Route path="/rounds" element={<RoundsPage />} />
         <Route path="/rounds/:id" element={<RoundDetailPage />} />
         <Route path="/routes" element={<RoutesPage />} />
+        <Route path="/guards" element={<GuardsPage />} />
 
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />

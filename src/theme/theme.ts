@@ -8,12 +8,12 @@ export const theme: ITThemeConfig = {
       200: "#99d3ab",
       300: "#66bd81",
       400: "#33a757",
-      500: "#0f7a2a",
-      600: "#0c6523",
-      700: "#09501b",
-      800: "#073b14",
+      500: "#1f8a3a",
+      600: "#18702f",
+      700: "#115724",
+      800: "#0b3d18",
       900: "#065911", // BASE
-      950: "#042d09",
+      950: "#032d08",
     },
 
     success: {
@@ -87,8 +87,32 @@ export const theme: ITThemeConfig = {
     },
   },
 
+  calendar: {
+    backgroundColor: "#ffffff",
+    borderColor: "#e5e7eb",
+
+    header: {
+      textColor: "#065911",
+      hoverBackground: "#e6f4ea",
+    },
+
+    days: {
+      textColor: "#111827",
+      weekendColor: "#065911",
+      outsideMonthColor: "#9ca3af",
+    },
+
+    selection: {
+      selectedColor: "#ffffff",
+      selectedBackground: "#065911",
+      rangeBackground: "#cce9d5",
+      todayBackground: "#e6f4ea",
+      todayColor: "#065911",
+    },
+  },
+
   layout: {
-    backgroundColor: "#0f172a", // fondo general (slate-900)
+    backgroundColor: "#f9fafb", // gris claro para mejor contraste
     contentPadding: "1.5rem",
   },
 };

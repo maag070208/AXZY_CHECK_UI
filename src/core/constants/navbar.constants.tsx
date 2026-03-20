@@ -10,6 +10,7 @@ import {
   FaMapMarkedAlt,
   FaSearchLocation,
   FaWrench,
+  FaUserShield,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -68,7 +69,7 @@ export const useNavigationItems = (): any[] => {
     },
     {
       id: "rounds",
-      label: "Rondas",
+      label: "Historial de recorridos",
       action: () => navigate("/rounds"),
       isActive: isRouteActive("/rounds"),
       icon: <FaClock  />,
@@ -79,6 +80,13 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/routes"),
       isActive: isRouteActive("/routes"),
       icon: <FaMapMarkedAlt  />,
+    },
+    {
+      id: "guards",
+      label: "Guardias",
+      action: () => navigate("/guards"),
+      isActive: isRouteActive("/guards"),
+      icon: <FaUserShield />,
     },
     {
       id: 'schedule',
