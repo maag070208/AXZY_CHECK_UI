@@ -1,14 +1,18 @@
 import { ITBadget, ITButton, ITLoader, ITTable, ITDialog } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaUserShield, FaSync } from "react-icons/fa";
-import { getIncidents, Incident, resolveIncident } from "../services/IncidentService";
+import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaUserShield, FaSync, FaTrash } from "react-icons/fa";
+import { deleteIncident, deleteIncidentMedia, getIncidents, Incident, resolveIncident } from "../services/IncidentService";
 import { MediaCarousel } from "@core/components/MediaCarousel";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "@app/core/store/toast/toast.slice";
+import { AppState } from "@app/core/store/store";
 
 const IncidentsPage = () => {
   const dispatch = useDispatch();
+  const role = useSelector((state: AppState) => state.auth.role);
+  const isAdmin = role === 'ADMIN';
+
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewingIncident, setViewingIncident] = useState<Incident | null>(null);
@@ -48,6 +52,34 @@ const IncidentsPage = () => {
       } else {
           dispatch(showToast({ message: "Error al resolver incidencia", type: "error" }));
       }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("¿Deseas eliminar esta incidencia permanentemente?")) return;
+    const res = await deleteIncident(id);
+    if (res.success) {
+        dispatch(showToast({ message: "Incidencia eliminada", type: "success" }));
+        fetchIncidents();
+    }
+  };
+
+  const handleDeleteMedia = async (item: any) => {
+    if (!viewingIncident) return;
+    const key = item.key || item.url.split('/').pop();
+    if (!key) return;
+
+    const res = await deleteIncidentMedia(viewingIncident.id, key);
+    if (res.success) {
+        dispatch(showToast({ message: "Archivo eliminado", type: "success" }));
+        setViewingIncident(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                media: prev.media?.filter((m: any) => (m.key || m.url.split('/').pop()) !== key)
+            };
+        });
+        fetchIncidents(); // Refresh list to update count
+    }
   };
 
   if (loading) return <div className="flex justify-center p-10"><ITLoader /></div>;
@@ -180,6 +212,18 @@ const IncidentsPage = () => {
                                 {resolvingId === row.id ? <ITLoader size="sm" /> : <FaCheck />}
                             </ITButton>
                         )}
+                        {isAdmin && (
+                            <ITButton
+                                onClick={() => handleDelete(row.id)}
+                                size="small"
+                                color='danger'
+                                variant="outlined"
+                                className="!p-2 text-red-500 hover:!bg-red-50"
+                                title="Eliminar incidencia"
+                            >
+                                <FaTrash />
+                            </ITButton>
+                        )}
                     </div>
                 )
             }
@@ -250,7 +294,12 @@ const IncidentsPage = () => {
                   </div>
     
                   {viewingIncident.media && viewingIncident.media.length > 0 ? (
-                    <MediaCarousel media={viewingIncident.media} title={viewingIncident.title} />
+                    <MediaCarousel 
+                        media={viewingIncident.media} 
+                        title={viewingIncident.title} 
+                        showDelete={isAdmin}
+                        onDelete={handleDeleteMedia}
+                    />
                   ) : (
                     <div className="py-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
                       <FaFileAlt className="text-slate-300 mb-2" />

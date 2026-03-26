@@ -1,17 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getPaginatedKardex, KardexEntry } from "../services/KardexService";
+import { deleteKardexEntry, deleteKardexMedia, getPaginatedKardex, KardexEntry } from "../services/KardexService";
 import { ITButton, ITBadget, ITDataTable, ITDatePicker } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
-import { FaMapMarkerAlt, FaUser, FaFileAlt, FaLayerGroup, FaEye, FaSync } from "react-icons/fa";
+import { FaMapMarkerAlt, FaUser, FaFileAlt, FaLayerGroup, FaEye, FaSync, FaTrash } from "react-icons/fa";
 import { translateScanType } from "@app/core/utils/status.utils";
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { getUsers } from "../../users/services/UserService";
+import { GoogleMapComponent } from "../../../core/components/GoogleMapComponent";
+import { useDispatch, useSelector } from "react-redux";
+import { showToast } from "@app/core/store/toast/toast.slice";
 
 const KardexPage = () => {
     const today = useMemo(() => dayjs().tz("America/Tijuana").toDate(), []);
     const [selectedDate, setSelectedDate] = useState<any>([today, today]);
     const [refreshKey, setRefreshKey] = useState(0);
     const [guards, setGuards] = useState<any[]>([]);
+    const dispatch = useDispatch();
     
     /* State for viewing details */
     const [viewingEntry, setViewingEntry] = useState<KardexEntry | null>(null);
@@ -42,6 +46,34 @@ const KardexPage = () => {
     const memoizedFetch = useCallback((params: any) => {
         return getPaginatedKardex(params);
     }, []);
+
+    const handleDelete = async (row: any) => {
+        if (!window.confirm("¿Deseas eliminar este registro permanentemente?")) return;
+        const res = await deleteKardexEntry(row.id);
+        if (res.success) {
+            dispatch(showToast({ message: "Registro eliminado", type: "success" }));
+            setRefreshKey(prev => prev + 1);
+        }
+    };
+
+    const handleDeleteMedia = async (item: any) => {
+        if (!viewingEntry) return;
+        const key = item.key || item.url.split('/').pop();
+        if (!key) return;
+
+        const res = await deleteKardexMedia(viewingEntry.id, key);
+        if (res.success) {
+            dispatch(showToast({ message: "Archivo eliminado", type: "success" }));
+            setViewingEntry(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    media: prev.media?.filter((m: any) => (m.key || m.url.split('/').pop()) !== key)
+                };
+            });
+            setRefreshKey(prev => prev + 1);
+        }
+    };
 
     const columns = useMemo(() => [
         { key: "id", label: "ID", type: "number", sortable: true },
@@ -121,18 +153,20 @@ const KardexPage = () => {
             label: "Acciones",
             type: "actions",
             actions: (row: any) => (
-                <ITButton
-                    onClick={() => setViewingEntry(row)}
-                    size="small"
-                    color='secondary'
-                    variant="outlined"
-                    className="!p-2"
-                >
-                <FaEye />
-                </ITButton>
+                <div className="flex items-center gap-2">
+                    <ITButton
+                        onClick={() => setViewingEntry(row)}
+                        size="small"
+                        color='secondary'
+                        variant="outlined"
+                        className="!p-2"
+                    >
+                        <FaEye />
+                    </ITButton>
+                </div>
             )
         }
-    ], [guards]);
+    ], [guards, handleDelete]);
 
   return (
     <div className="p-6 bg-[#f6fbf4] min-h-screen">
@@ -234,7 +268,11 @@ const KardexPage = () => {
                     </div>
       
                     {viewingEntry.media && viewingEntry.media.length > 0 ? (
-                      <MediaCarousel media={viewingEntry.media as any} title="Evidencia" />
+                      <MediaCarousel 
+                        media={viewingEntry.media as any} 
+                        title="Evidencia" 
+                        onDelete={handleDeleteMedia}
+                      />
                     ) : (
                       <div className="py-12 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
                         <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
@@ -291,6 +329,25 @@ const KardexPage = () => {
                 </div>
       
                 <div className="lg:col-span-4 space-y-6">
+                   {viewingEntry.latitude && viewingEntry.longitude ? (
+                       <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+                           <h5 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4 flex items-center gap-2">
+                               <FaMapMarkerAlt className="text-indigo-400" />
+                               Ubicación de Escaneo
+                           </h5>
+                           <GoogleMapComponent 
+                               lat={Number(viewingEntry.latitude)} 
+                               lng={Number(viewingEntry.longitude)} 
+                               height="200px"
+                           />
+                           <div className="mt-3">
+                               <p className="text-[10px] text-slate-400 font-medium italic">
+                                   GPS: {viewingEntry.latitude.toFixed(6)}, {viewingEntry.longitude.toFixed(6)}
+                               </p>
+                           </div>
+                       </div>
+                   ) : null}
+
                    <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
                       <h5 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</h5>
                       <div className="space-y-4">

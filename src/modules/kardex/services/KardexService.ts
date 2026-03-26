@@ -1,4 +1,4 @@
-import { get, post } from "@app/core/axios/axios";
+import { get, post, remove } from "@app/core/axios/axios";
 import { ITDataTableFetchParams, ITDataTableResponse } from "@axzydev/axzy_ui_system";
 import { TResult } from "@app/core/types/TResult";
 
@@ -15,7 +15,7 @@ export interface KardexEntry {
     locationId: number;
     timestamp: string;
     notes?: string;
-    media?: { url: string; type: 'IMAGE' | 'VIDEO'; description?: string }[];
+    media?: { url: string; type: 'IMAGE' | 'VIDEO'; description?: string; key?: string }[];
     latitude?: number;
     longitude?: number;
     scanType: 'ASSIGNMENT' | 'RECURRING' | 'FREE';
@@ -64,4 +64,12 @@ export const getPaginatedKardex = async (params: ITDataTableFetchParams): Promis
         };
     }
     return { data: [], total: 0 };
+};
+
+export const deleteKardexEntry = async (id: number): Promise<TResult<boolean>> => {
+    return await remove<boolean>(`/kardex/${id}`);
+};
+
+export const deleteKardexMedia = async (id: number, key: string): Promise<TResult<boolean>> => {
+    return await remove<boolean>(`/kardex/${id}/media?key=${key}`);
 };

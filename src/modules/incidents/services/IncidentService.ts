@@ -1,4 +1,4 @@
-import { get, post, put } from "@app/core/axios/axios";
+import { get, post, put, remove } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
 export interface Incident {
@@ -9,7 +9,7 @@ export interface Incident {
   status: "PENDING" | "ATTENDED";
   createdAt: string;
   resolvedAt?: string;
-  media?: { type: string; url: string; key?: string }[];
+  media?: { type: 'IMAGE' | 'VIDEO'; url: string; key?: string }[];
   guard?: { 
       id: number;
       name: string; 
@@ -62,4 +62,12 @@ export const createIncident = async (data: CreateIncidentDto): Promise<TResult<I
 
 export const resolveIncident = async (id: number): Promise<TResult<Incident>> => {
     return await put<Incident>(`/incidents/${id}/resolve`, {});
+};
+
+export const deleteIncident = async (id: number): Promise<TResult<boolean>> => {
+    return await remove<boolean>(`/incidents/${id}`);
+};
+
+export const deleteIncidentMedia = async (id: number, key: string): Promise<TResult<boolean>> => {
+    return await remove<boolean>(`/incidents/${id}/media?key=${key}`);
 };
