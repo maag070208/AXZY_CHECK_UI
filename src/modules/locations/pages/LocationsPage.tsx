@@ -1,0 +1,361 @@
+import { AppState } from "@app/core/store/store";
+import { showToast } from "@app/core/store/toast/toast.slice";
+import { ITButton, ITDataTable, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
+import QRCode from "qrcode";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaCar, FaEdit, FaPlus, FaQrcode, FaSync, FaTimes, FaTrash } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { LocationForm } from "../components/LocationForm";
+import { createLocation, deleteLocation, getPaginatedLocations, Location, updateLocation } from "../service/locations.service";
+
+const LocationsPage = () => {
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Debounce search to trigger refresh
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRefreshKey(prev => prev + 1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+  const dispatch = useDispatch();
+  const user = useSelector((state: AppState) => state.auth);
+
+  /* Filters/Modals State */
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [viewingLocation, setViewingLocation] = useState<Location | null>(null);
+  const [locationToDelete, setLocationToDelete] = useState<Location | null>(null);
+
+  const memoizedFetch = useCallback((params: any) => {
+    return getPaginatedLocations(params);
+  }, []);
+
+  const externalFilters = useMemo(() => {
+    return { name: searchTerm };
+  }, [searchTerm]);
+
+  const handleCreate = async (data: { aisle: string; spot: string; number: string }) => {
+    await createLocation(data);
+    setIsModalOpen(false);
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleEdit = async (data: { aisle: string; spot: string; number: string }) => {
+      if (!editingLocation) return;
+      const name = `${data.aisle}-${data.spot}-${data.number}`;
+      await updateLocation(editingLocation.id, { ...data, name });
+      setEditingLocation(null);
+      setRefreshKey(prev => prev + 1);
+  };
+
+  const handleDelete = (location: Location) => {
+      setLocationToDelete(location);
+  };
+
+  const confirmDelete = async () => {
+      if (!locationToDelete) return;
+      try {
+          const res = await deleteLocation(locationToDelete.id);
+          setLocationToDelete(null);
+          if (res && res.success) {
+               dispatch(showToast({ message: "Ubicación eliminada correctamente", type: "success" }));
+               setRefreshKey(prev => prev + 1);
+          } else {
+               dispatch(showToast({ message: res?.messages?.join(", ") || "Error al eliminar", type: "error" }));
+          }
+      } catch (e: any) {
+          dispatch(showToast({ message: e.message || "Error al eliminar", type: "error" }));
+      }
+  };
+
+  const handlePrintQR = async (location: Location) => {
+      try {
+          // Generate QR Code
+          // We can encode the ID or a specific JSON structure depending on what the scanner expects.
+          // For now, assuming simply the ID or Name is sufficient.
+          const qrDataUrl = await QRCode.toDataURL(JSON.stringify({
+              id: location.id,
+              type: 'LOCATION'
+          }), { width: 300 });
+
+          // Open print window
+          const printWindow = window.open('', '_blank');
+          if (!printWindow) {
+              dispatch(showToast({ message: "Por favor habilita los pop-ups para imprimir.", type: "warning" }));
+              return;
+          }
+
+          printWindow.document.write(`
+              <html>
+                  <head>
+                      <style>
+                          body {
+                              display: flex;
+                              flex-direction: column;
+                              align-items: center;
+                              justify-content: center;
+                              height: 100vh;
+                              margin: 0;
+                              font-family: Arial, sans-serif;
+                          }
+                          .container {
+                              text-align: center;
+                              border: 2px solid #000;
+                              padding: 40px;
+                              border-radius: 20px;
+                          }
+                          img {
+                              margin-bottom: 20px;
+                          }
+                          h1 {
+                              font-size: 32px;
+                              margin: 0;
+                          }
+                          p {
+                              font-size: 18px;
+                              color: #555;
+                          }
+                      </style>
+                  </head>
+                  <body>
+                      <div class="container">
+                          <img src="${qrDataUrl}" alt="QR Code" />
+                          <h1>${location.name}</h1>
+                      </div>
+                      <script>
+                          window.onload = function() {
+                              window.print();
+                              window.onafterprint = function() {
+                                  window.close();
+                              }
+                          }
+                      </script>
+                  </body>
+              </html>
+          `);
+          printWindow.document.close();
+
+      } catch (error) {
+          console.error("Error generating QR", error);
+          dispatch(showToast({ message: "Error al generar el código QR", type: "error" }));
+      }
+  };
+
+  const columns = useMemo(() => [
+      { 
+          key: "id", 
+          label: "ID", 
+          type: "number", 
+          sortable: true,
+          render: (row: any) => (
+              <div className="font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded inline-block text-xs">
+                  {row.id}
+              </div>
+          )
+      },
+      { 
+          key: "name", 
+          label: "Ubicación", 
+          type: "string", 
+          sortable: true,
+          render: (row: Location) => (
+              <div className="font-bold text-slate-800">{row.name}</div>
+          )
+      },
+      { 
+          key: "aisle", 
+          label: "Sección", 
+          type: "string", 
+          sortable: true,
+          render: (row: any) => <div className="text-slate-600 font-medium">{row.aisle}</div>
+      },
+      { 
+          key: "spot", 
+          label: "# Consecutivo", 
+          type: "string", 
+          sortable: true,
+          render: (row: any) => <div className="text-slate-500">{row.spot}</div>
+      },
+      { 
+          key: "number", 
+          label: "Referencia", 
+          type: "string", 
+          sortable: true,
+          render: (row: any) => <div className="text-xs text-slate-400 italic">{row.number}</div>
+      },
+      {
+          key: "actions",
+          label: "Acciones",
+          type: "actions",
+          actions: (row: Location) => (
+              <div className="flex items-center gap-2">
+                  <ITButton
+                      onClick={() => handlePrintQR(row)}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      className="!p-2"
+                      title="Imprimir QR"
+                  >
+                      <FaQrcode />
+                  </ITButton>
+                   {user?.role !== "OPERATOR" && (
+                       <>
+                          <ITButton
+                              onClick={() => setEditingLocation(row)}
+                              size="small"
+                              variant="ghost"
+                              className="!p-2 text-slate-400 hover:text-slate-600"
+                              title="Editar"
+                          >
+                              <FaEdit />
+                          </ITButton>
+                          <ITButton
+                              onClick={() => handleDelete(row)}
+                              size="small"
+                              variant="ghost"
+                              className="!p-2 text-red-300 hover:text-red-500"
+                              title="Eliminar"
+                          >
+                              <FaTrash />
+                          </ITButton>
+                       </>
+                   )}
+              </div>
+          )
+      }
+  ], [user]);
+
+  return (
+    <div className="p-6 bg-[#f8fafc] min-h-screen">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+           <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Ubicaciones</h1>
+           <p className="text-slate-500 text-sm mt-1">Gestión de zonas y puntos de control</p>
+        </div>
+        <div className="flex items-center gap-3">
+            <div className="w-64 relative">
+                <ITInput
+                    placeholder="Buscar por nombre..."
+                    name="search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onBlur={() => {}}
+                    className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
+                />
+                {searchTerm && (
+                    <button 
+                        onClick={() => setSearchTerm("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                        title="Limpiar búsqueda"
+                    >
+                        <FaTimes size={14} />
+                    </button>
+                )}
+            </div>
+            <ITButton
+                onClick={() => setRefreshKey(prev => prev + 1)}
+                color="secondary"
+                variant="outlined"
+                className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
+                size="small"
+                title="Actualizar tabla"
+            >
+                <FaSync className={`text-xs text-slate-500`} />
+                <span className="text-xs font-bold text-slate-500">Actualizar</span>
+            </ITButton>
+            {user?.role !== "OPERATOR" && (
+                <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 h-[42px] rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:scale-105 transition-all"
+                >
+                    <FaPlus className="text-xs" />
+                    <span>Nueva Ubicación</span>
+                </button>
+            )}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <ITDataTable
+            key={refreshKey}
+            columns={columns as any}
+            fetchData={memoizedFetch as any}
+            externalFilters={externalFilters}
+            defaultItemsPerPage={10}
+        />
+      </div>
+
+      {/* Create Modal */}
+      <ITDialog isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Locación">
+        <LocationForm onSubmit={handleCreate} onCancel={() => setIsModalOpen(false)} />
+      </ITDialog>
+
+      {/* Edit Modal */}
+      <ITDialog isOpen={!!editingLocation} onClose={() => setEditingLocation(null)} title="Editar Locación">
+        {editingLocation && (
+            <LocationForm 
+                initialData={editingLocation}
+                onSubmit={handleEdit} 
+                onCancel={() => setEditingLocation(null)} 
+            />
+        )}
+      </ITDialog>
+
+        {/* View Cars Modal */}
+      <ITDialog 
+        isOpen={!!viewingLocation} 
+        onClose={() => setViewingLocation(null)} 
+        title={`Autos en ${viewingLocation?.name}`}
+        className="max-w-3xl w-full"
+      >
+        <div className="p-4">
+            {viewingLocation?.entries && viewingLocation.entries.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+                    {viewingLocation.entries.map((entry: any) => (
+                        <div key={entry.id} className="border rounded-lg p-3 flex gap-3 items-center bg-gray-50 border-[#e1e4d5]">
+                            <div className="bg-[#f1f6eb] p-2.5 rounded-full text-[#065911]">
+                                <FaCar />
+                            </div>
+                            <div>
+                                <p className="font-bold text-[#1b1b1f]">{entry.brand} {entry.model}</p>
+                                <p className="text-sm text-[#54634d]">Placas: <span className="font-mono font-bold">{entry.plates}</span></p>
+                                <p className="text-xs text-gray-500">Color: {entry.color}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-10 text-gray-500">
+                    <p>No hay vehículos en esta zona.</p>
+                </div>
+            )}
+            <div className="mt-6 flex justify-end">
+                <ITButton color="secondary" onClick={() => setViewingLocation(null)}>Cerrar</ITButton>
+            </div>
+        </div>
+      </ITDialog>
+
+      {/* Delete Confirmation Modal */}
+      <ITDialog isOpen={!!locationToDelete} onClose={() => setLocationToDelete(null)} title="Confirmar Eliminación">
+        <div className="p-6">
+            <p className="text-[#1b1b1f] text-base mb-6">
+                ¿Estás seguro de que deseas eliminar la zona <span className="font-bold text-red-600">{locationToDelete?.name}</span>? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+                <ITButton variant="outlined" color="secondary" onClick={() => setLocationToDelete(null)}>
+                    Cancelar
+                </ITButton>
+                <ITButton variant="solid" className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={confirmDelete}>
+                    Eliminar
+                </ITButton>
+            </div>
+        </div>
+      </ITDialog>
+    </div>
+  );
+};
+
+export default LocationsPage;

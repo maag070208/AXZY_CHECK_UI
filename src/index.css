@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.scroll-sync {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.scroll-sync::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-sync::-webkit-scrollbar-track {
+  background: #f7fafc;
+}
+
+.scroll-sync::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 4px;
+}
+
+body {
+  background-color: #f6fbf4;
+}

@@ -1,0 +1,67 @@
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { ITInput, ITButton } from "@axzydev/axzy_ui_system";
+
+interface Props {
+  onSubmit: (data: { aisle: string; spot: string; number: string; name?: string }) => void;
+  onCancel: () => void;
+  initialData?: { aisle: string; spot: string; number: string; name: string };
+}
+
+export const LocationForm = ({ onSubmit, onCancel, initialData }: Props) => {
+  const formik = useFormik({
+    initialValues: {
+      aisle: initialData?.aisle || "",
+      spot: initialData?.spot || "",
+      number: initialData?.number || "",
+    },
+    validationSchema: Yup.object({
+      aisle: Yup.string().required("El pasillo es requerido"),
+      spot: Yup.string().required("El cajón es requerido"),
+      number: Yup.string().required("El número es requerido"),
+    }),
+    onSubmit: (values) => {
+      onSubmit(values);
+    },
+  });
+
+  return (
+    <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
+      <ITInput
+        label="Sección"
+        name="aisle"
+        value={formik.values.aisle}
+        onChange={formik.handleChange}
+        onBlur={() => {}}
+        error={formik.errors.aisle}
+        touched={formik.touched.aisle}
+        placeholder="Ej: A, SECC-1"
+      />
+      <ITInput
+        label="# Consecutivo"
+        name="spot"
+        value={formik.values.spot}
+        onChange={formik.handleChange}
+        onBlur={() => {}}
+        error={formik.errors.spot}
+        touched={formik.touched.spot}
+        placeholder="Ej: 101, B2"
+      />
+      <ITInput
+        label="Referencia / Calle"
+        name="number"
+        value={formik.values.number}
+        onChange={formik.handleChange}
+        onBlur={() => {}}
+        error={formik.errors.number}
+        touched={formik.touched.number}
+        placeholder="Ej: Calle Principal 123"
+      />
+      
+      <div className="flex justify-end gap-2 mt-4">
+        <ITButton color="secondary" onClick={onCancel} type="button">Cancelar</ITButton>
+        <ITButton type="submit">Guardar</ITButton>
+      </div>
+    </form>
+  );
+};
