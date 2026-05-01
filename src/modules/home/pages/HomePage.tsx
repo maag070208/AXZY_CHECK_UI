@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { useEffect, useState } from "react";
-import { FaAddressBook, FaBook, FaBuilding, FaChartBar, FaChild, FaClock, FaExclamationTriangle, FaIdCard, FaListAlt, FaRoute, FaTable, FaThLarge, FaUserShield, FaWrench } from "react-icons/fa";
+import { FaBook, FaChartBar, FaChild, FaClock, FaExclamationTriangle, FaListAlt, FaRoute, FaTable, FaThLarge, FaUserShield, FaWrench } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
@@ -29,24 +29,24 @@ const HomePage = () => {
         icon: <FaListAlt className="text-white" />,
         action: () => navigate("/locations"),
       },
-      {
-        title: "Propiedades",
-        description: "Catálogo de casas y departamentos",
-        icon: <FaBuilding className="text-white" />,
-        action: () => navigate("/properties"),
-      },
-      {
-        title: "Residentes",
-        description: "Directorio y expedientes de vecinos",
-        icon: <FaAddressBook className="text-white" />,
-        action: () => navigate("/residents"),
-      },
-      {
-        title: "Invitaciones",
-        description: "Control de accesos y pases QR",
-        icon: <FaIdCard className="text-white" />,
-        action: () => navigate("/invitations"),
-      },
+      // {
+      //   title: "Propiedades",
+      //   description: "Catálogo de casas y departamentos",
+      //   icon: <FaBuilding className="text-white" />,
+      //   action: () => navigate("/properties"),
+      // },
+      // {
+      //   title: "Residentes",
+      //   description: "Directorio y expedientes de vecinos",
+      //   icon: <FaAddressBook className="text-white" />,
+      //   action: () => navigate("/residents"),
+      // },
+      // {
+      //   title: "Invitaciones",
+      //   description: "Control de accesos y pases QR",
+      //   icon: <FaIdCard className="text-white" />,
+      //   action: () => navigate("/invitations"),
+      // },
       {
         title: "Recorridos",
         description: "Supervisión de rondas en tiempo real",
