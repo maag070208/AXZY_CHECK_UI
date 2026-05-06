@@ -1,4 +1,5 @@
-import { get, post, put, remove } from "@app/core/axios/axios";
+import { axiosInstance, get, post, put, remove } from "@app/core/axios/axios";
+import { Zone } from "./zones.service";
 
 export interface Location {
   id: number;
@@ -7,18 +8,35 @@ export interface Location {
   number: string;
   name: string;
   isOccupied: boolean;
-  entries?: any[]; // For count
+  zoneId?: number;
+  zone?: Zone;
+  entries?: any[];
 }
 
 export const getLocations = async () => {
   return await get<Location[]>("/locations");
 };
 
-export const createLocation = async (data: { aisle: string; spot: string; number: string; name?: string }) => {
+export const createLocation = async (data: {
+  aisle: string;
+  spot: string;
+  number: string;
+  name?: string;
+  zoneId?: number;
+}) => {
   return await post<Location>("/locations", data);
 };
 
-export const updateLocation = async (id: number, data: { aisle: string; spot: string; number: string; name: string }) => {
+export const updateLocation = async (
+  id: number,
+  data: {
+    aisle: string;
+    spot: string;
+    number: string;
+    name: string;
+    zoneId?: number;
+  },
+) => {
   return await put<Location>(`/locations/${id}`, data);
 };
 
@@ -35,4 +53,15 @@ export const getPaginatedLocations = async (params: any) => {
     };
   }
   return { data: [], total: 0 };
+};
+
+export const getBulkQRPDF = async (ids: number[]) => {
+  const response = await axiosInstance.post(
+    "/locations/bulk-qr-pdf",
+    { ids },
+    {
+      responseType: "blob",
+    },
+  );
+  return response.data;
 };

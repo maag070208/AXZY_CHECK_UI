@@ -1,10 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { decodeToken, isExpired } from "react-jwt";
+import { IDecodedToken } from "@app/core/types/auth.types";
 
 interface AuthState {
   id: number | null;
   name: string | null;
-  email: string | null;
+  lastName: string | null;
+  username: string | null;
   role: string | null;
   token: string | null;
 }
@@ -12,7 +14,8 @@ interface AuthState {
 const initialState: AuthState = {
   id: null,
   name: null,
-  email: null,
+  lastName: null,
+  username: null,
   role: null,
   token: null,
 };
@@ -24,33 +27,26 @@ const authSlice = createSlice({
     isAuthenticated: (state) => !!state.token,
   },
   reducers: {
-    setAuth: (state, action) => {
+    setAuth: (state, action: PayloadAction<string>) => {
       const token = action.payload;
-      const decoded: any = decodeToken(token);
+      const decoded = decodeToken<IDecodedToken>(token);
       const expired = isExpired(token);
+
       if (!decoded || expired) {
-        state.id = null;
-        state.name = null;
-        state.email = null;
-        state.role = null;
-        state.token = null;
+        Object.assign(state, initialState);
         return;
       }
 
-      // ✅ JWT simple y directo
-      state.id = decoded.id ?? null;
-      state.name = decoded.name ?? "Usuario";
-      state.email = decoded.email ?? null;
-      state.role = decoded.role ?? null;
+      state.id = decoded.id;
+      state.name = decoded.name;
+      state.lastName = decoded.lastName;
+      state.username = decoded.username;
+      state.role = decoded.role;
       state.token = token;
     },
 
     logout: (state) => {
-      state.id = null;
-      state.name = null;
-      state.email = null;
-      state.role = null;
-      state.token = null;
+      Object.assign(state, initialState);
     },
   },
 });

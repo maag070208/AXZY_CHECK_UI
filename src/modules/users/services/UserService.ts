@@ -103,3 +103,7 @@ export const resetPassword = async (id: number, password: string): Promise<TResu
 export const deleteUser = async (id: number): Promise<TResult<boolean>> => {
     return await remove<boolean>(`/users/${id}`);
 };
+
+export const getRoles = async (): Promise<TResult<any[]>> => {
+    return await get<any[]>("/users/roles");
+};

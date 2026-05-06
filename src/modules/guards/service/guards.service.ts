@@ -20,7 +20,7 @@ export const getActiveAssignments = async (guardId: number) => {
 };
 
 export const getAllAssignmentsByGuard = async (guardId: number) => {
-    return await get<Assignment[]>(`/assignments/all?guardId=${guardId}`);
+    return await get<Assignment[]>(`/assignments?guardId=${guardId}`);
 };
 
 export const updateAssignmentStatus = async (id: number, status: string) => {

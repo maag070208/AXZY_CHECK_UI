@@ -7,7 +7,14 @@ import {
   ITDialog,
 } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaClock, FaEye, FaStop, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
+import {
+  FaClock,
+  FaEye,
+  FaStop,
+  FaSync,
+  FaTimesCircle,
+  FaUser,
+} from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getRoutesList } from "../../routes/services/RoutesService";
@@ -37,7 +44,7 @@ const RoundsPage = () => {
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
-      setRefreshKey(prev => prev + 1);
+      setRefreshKey((prev) => prev + 1);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
@@ -55,11 +62,11 @@ const RoundsPage = () => {
     }
 
     if (searchTerm && searchTerm.trim().length > 0) {
-        filters.search = searchTerm.trim();
+      filters.search = searchTerm.trim();
     }
 
-    if (statusFilter && statusFilter !== 'ALL') {
-        filters.status = statusFilter;
+    if (statusFilter && statusFilter !== "ALL") {
+      filters.status = statusFilter;
     }
 
     return filters;
@@ -67,7 +74,7 @@ const RoundsPage = () => {
 
   // Envolvemos el fetch para ver qué se manda exactamente
   const memoizedFetch = useCallback((params: any) => {
-    console.log('--- PARÁMETROS ENVIADOS A LA API ---', params);
+    console.log("--- PARÁMETROS ENVIADOS A LA API ---", params);
     return getPaginatedRounds(params);
   }, []);
 
@@ -96,14 +103,15 @@ const RoundsPage = () => {
     getUsers().then((res) => {
       if (res.success && res.data) {
         const onlyGuards = res.data.filter((u: any) => {
-            const roleName = typeof u.role === 'object' ? u.role.name : u.role;
-            return roleName === "GUARD" || roleName === "SHIFT" || roleName === "MAINT";
+          const roleName = typeof u.role === "object" ? u.role.name : u.role;
+          return (
+            roleName === "GUARD" || roleName === "SHIFT" || roleName === "MAINT"
+          );
         });
         setGuards(onlyGuards);
       }
     });
   }, []);
-
 
   const handleEndRound = (roundId: number) => {
     setRoundToFinishId(roundId);
@@ -126,7 +134,7 @@ const RoundsPage = () => {
       } else {
         dispatch(
           showToast({
-            message: res.messages?.join("\n") || "Error al finalizar ronda",
+            message: "Error al finalizar ronda",
             type: "error",
           }),
         );
@@ -256,82 +264,90 @@ const RoundsPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-            <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Buscar Guardia</label>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[240px] shadow-sm focus-within:border-emerald-500/50 transition-all">
-                    <FaUser className="text-slate-300 text-xs mr-2" />
-                    <input 
-                        type="text"
-                        placeholder="Nombre o usuario..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full placeholder:text-slate-300 placeholder:font-normal"
-                    />
-                    {searchTerm.length > 0 && (
-                        <button 
-                            onClick={() => setSearchTerm("")}
-                            className="text-slate-300 hover:text-red-400 transition-all"
-                            title="Limpiar búsqueda"
-                        >
-                            <FaTimesCircle className="text-xs" />
-                        </button>
-                    )}
-                </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase ml-1">
+              Buscar Guardia
+            </label>
+            <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[240px] shadow-sm focus-within:border-emerald-500/50 transition-all">
+              <FaUser className="text-slate-300 text-xs mr-2" />
+              <input
+                type="text"
+                placeholder="Nombre o usuario..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full placeholder:text-slate-300 placeholder:font-normal"
+              />
+              {searchTerm.length > 0 && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="text-slate-300 hover:text-red-400 transition-all"
+                  title="Limpiar búsqueda"
+                >
+                  <FaTimesCircle className="text-xs" />
+                </button>
+              )}
             </div>
+          </div>
 
-            <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Estado</label>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[150px] shadow-sm">
-                    <select 
-                        value={statusFilter}
-                        onChange={(e) => {
-                            setStatusFilter(e.target.value);
-                            setRefreshKey(prev => prev + 1);
-                        }}
-                        className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full"
-                    >
-                        <option value="ALL">Todos</option>
-                        <option value="IN_PROGRESS">En curso</option>
-                        <option value="COMPLETED">Finalizadas</option>
-                    </select>
-                </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase ml-1">
+              Estado
+            </label>
+            <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[150px] shadow-sm">
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setRefreshKey((prev) => prev + 1);
+                }}
+                className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full"
+              >
+                <option value="ALL">Todos</option>
+                <option value="IN_PROGRESS">En curso</option>
+                <option value="COMPLETED">Finalizadas</option>
+              </select>
             </div>
+          </div>
 
-            <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Periodo</label>
-                <div className="flex items-center gap-3">
-          <ITDatePicker
-            label=""
-            name="date"
-            value={selectedDate as any}
-            range
-            onChange={(e) => {
-              const val = e.target.value as any;
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase ml-1">
+              Periodo
+            </label>
+            <div className="flex items-center gap-3">
+              <ITDatePicker
+                label=""
+                name="date"
+                value={selectedDate as any}
+                range
+                onChange={(e) => {
+                  const val = e.target.value as any;
 
-              if (Array.isArray(val)) {
-                // El DatePicker regresa strings ISO, los convertimos a Date para la UI
-                const parsedDates = val.map((d) => (d ? new Date(d) : null));
-                setSelectedDate(parsedDates);
-                
-                // Si el rango se completó (dos fechas seleccionadas), refrescamos la tabla
-                if (parsedDates[0] && parsedDates[1]) {
-                    setRefreshKey(prev => prev + 1);
-                }
-              } else if (val) {
-                // Caso un solo día o string ISO directo
-                const date = new Date(val);
-                setSelectedDate([date, date]);
-                setRefreshKey(prev => prev + 1);
-              } else {
-                // Caso limpiar filtro
-                setSelectedDate(null);
-                setRefreshKey(prev => prev + 1);
-              }
-            }}
-            className="text-sm text-slate-600 outline-none font-medium"
-          />
-          <ITButton
-                onClick={() => setRefreshKey(prev => prev + 1)}
+                  if (Array.isArray(val)) {
+                    // El DatePicker regresa strings ISO, los convertimos a Date para la UI
+                    const parsedDates = val.map((d) =>
+                      d ? new Date(d) : null,
+                    );
+                    setSelectedDate(parsedDates);
+
+                    // Si el rango se completó (dos fechas seleccionadas), refrescamos la tabla
+                    if (parsedDates[0] && parsedDates[1]) {
+                      setRefreshKey((prev) => prev + 1);
+                    }
+                  } else if (val) {
+                    // Caso un solo día o string ISO directo
+                    const date = new Date(val);
+                    setSelectedDate([date, date]);
+                    setRefreshKey((prev) => prev + 1);
+                  } else {
+                    // Caso limpiar filtro
+                    setSelectedDate(null);
+                    setRefreshKey((prev) => prev + 1);
+                  }
+                }}
+                className="text-sm text-slate-600 outline-none font-medium"
+              />
+              <ITButton
+                onClick={() => setRefreshKey((prev) => prev + 1)}
                 color="secondary"
                 variant="outlined"
                 className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
@@ -339,10 +355,12 @@ const RoundsPage = () => {
                 title="Actualizar tabla"
               >
                 <FaSync className={`text-xs text-slate-500`} />
-                <span className="text-xs font-bold text-slate-600">Refrescar</span>
-          </ITButton>
-                </div>
+                <span className="text-xs font-bold text-slate-600">
+                  Refrescar
+                </span>
+              </ITButton>
             </div>
+          </div>
         </div>
       </div>
 
@@ -355,7 +373,6 @@ const RoundsPage = () => {
           defaultItemsPerPage={10}
         />
       </div>
-
 
       {/* End Round Confirmation Modal */}
       <ITDialog

@@ -10,6 +10,7 @@ import { setAuth } from "./core/store/auth/auth.slice";
 import HomePage from "./modules/home/pages/HomePage";
 
 import LocationsPage from "./modules/locations/pages/LocationsPage";
+import ZonesPage from "./modules/locations/pages/ZonesPage";
 import PropertiesPage from "./modules/properties/pages/PropertiesPage";
 
 import ResidentsPage from "./modules/residents/pages/ResidentsPage";
@@ -79,6 +80,7 @@ function App() {
         <Route path="/guards" element={<GuardsPage />} />
         
         <Route path="/locations" element={<LocationsPage />} />
+        <Route path="/zones" element={<ZonesPage />} />
         <Route path="/properties" element={<PropertiesPage />} />
         <Route path="/properties/:id" element={<PropertyDetailPage />} />
 

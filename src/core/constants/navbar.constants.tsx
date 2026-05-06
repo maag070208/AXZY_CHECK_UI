@@ -46,6 +46,13 @@ export const useNavigationItems = (): any[] => {
       isActive: isRouteActive("/locations"),
       icon: <FaSearchLocation  />,
     },
+    {
+      id: "zones",
+      label: "Zonas",
+      action: () => navigate("/zones"),
+      isActive: isRouteActive("/zones"),
+      icon: <FaMapMarkedAlt />,
+    },
     // {
     //   id: "properties",
     //   label: "Propiedades",

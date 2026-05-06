@@ -25,10 +25,10 @@ const LoginPage = () => {
       return null;
     });
     if (response) {
-      if(!response.success){
+      if (!response.success) {
         dispatch(
           showToast({
-            message: response.message,
+            message: response.error || "Error al iniciar sesión",
             type: "error",
             position: "top-right",
           })

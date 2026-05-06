@@ -59,7 +59,7 @@ export const getPaginatedKardex = async (params: ITDataTableFetchParams): Promis
     const res = await post<any>("/kardex/datatable", params);
     if (res.success && res.data) {
         return {
-            data: res.data.data || [],
+            data: res.data.rows || [],
             total: res.data.total || 0,
         };
     }
