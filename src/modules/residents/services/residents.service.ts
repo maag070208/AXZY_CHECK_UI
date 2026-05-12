@@ -3,8 +3,8 @@ import { ITDataTableFetchParams, ITDataTableResponse } from "@axzydev/axzy_ui_sy
 import { Property } from "@modules/properties/service/properties.service";
 
 export interface ResidentProfile {
-    id: number;
-    userId: number;
+    id: string;
+    userId: string;
     firstName?: string;
     fatherLastName?: string;
     motherLastName?: string;
@@ -18,7 +18,7 @@ export interface ResidentProfile {
 }
 
 export interface ResidentUser {
-    id: number;
+    id: string;
     name: string;
     lastName?: string;
     username: string;
@@ -36,15 +36,15 @@ export const createResident = async (data: any) => {
     return await post<ResidentUser>("/residents", data);
 };
 
-export const updateResident = async (id: number, data: any) => {
+export const updateResident = async (id: string, data: any) => {
     return await put<ResidentUser>(`/residents/${id}`, data);
 };
 
-export const deleteResident = async (id: number) => {
+export const deleteResident = async (id: string) => {
     return await remove(`/residents/${id}`);
 };
 
-export const getResidentById = async (id: number) => {
+export const getResidentById = async (id: string) => {
     return await get<ResidentUser>(`/residents/${id}`);
 };
 
@@ -76,8 +76,8 @@ export const uploadResidentImage = async (file: File): Promise<string | null> =>
 
 // CONTACTS SERVICE
 export interface ResidentContact {
-    id: number;
-    userId: number;
+    id: string;
+    userId: string;
     name: string;
     phone?: string;
     email?: string;
@@ -94,10 +94,10 @@ export const createResidentContact = async (residentId: number, data: any) => {
     return await post<ResidentContact>(`/residents/${residentId}/contacts`, data);
 };
 
-export const updateResidentContact = async (id: number, data: any) => {
+export const updateResidentContact = async (id: string, data: any) => {
     return await put<ResidentContact>(`/residents/contacts/${id}`, data);
 };
 
-export const deleteResidentContact = async (id: number) => {
+export const deleteResidentContact = async (id: string) => {
     return await remove(`/residents/contacts/${id}`);
 };

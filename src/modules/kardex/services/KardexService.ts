@@ -10,9 +10,9 @@ export interface KardexFilter {
 }
 
 export interface KardexEntry {
-    id: number;
-    userId: number;
-    locationId: number;
+    id: string;
+    userId: string;
+    locationId: string;
     timestamp: string;
     notes?: string;
     media?: { url: string; type: 'IMAGE' | 'VIDEO'; description?: string; key?: string }[];
@@ -21,21 +21,21 @@ export interface KardexEntry {
     scanType: 'ASSIGNMENT' | 'RECURRING' | 'FREE';
     assignmentId?: number | null;
     user: {
-        id: number;
+        id: string;
         name: string;
         lastName?: string;
         username: string;
         role: string;
     };
     location: {
-        id: number;
+        id: string;
         name: string;
         aisle: string;
         spot: string;
         number: string;
     };
     assignment?: {
-        id: number;
+        id: string;
         status: string;
     } | null;
 }
@@ -66,10 +66,10 @@ export const getPaginatedKardex = async (params: ITDataTableFetchParams): Promis
     return { data: [], total: 0 };
 };
 
-export const deleteKardexEntry = async (id: number): Promise<TResult<boolean>> => {
+export const deleteKardexEntry = async (id: string): Promise<TResult<boolean>> => {
     return await remove<boolean>(`/kardex/${id}`);
 };
 
-export const deleteKardexMedia = async (id: number, key: string): Promise<TResult<boolean>> => {
+export const deleteKardexMedia = async (id: string, key: string): Promise<TResult<boolean>> => {
     return await remove<boolean>(`/kardex/${id}/media?key=${key}`);
 };

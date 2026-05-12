@@ -1,156 +1,195 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ITInput, ITButton } from "@axzydev/axzy_ui_system";
-import { useEffect, useState } from "react";
+import { ITInput, ITButton, ITSelect } from "@axzydev/axzy_ui_system";
+import { useEffect, useRef, useState } from "react";
 import { getZones, Zone } from "../service/zones.service";
+import {
+  getRecurring,
+  RecurringConfiguration,
+} from "../../recurring/service/recurring.service";
 
-interface Props {
-  onSubmit: (data: { aisle: string; spot: string; number: string; name?: string; zoneId?: number }) => void;
-  onCancel: () => void;
-  onSaveAndContinue?: (data: { aisle: string; spot: string; number: string; name?: string; zoneId?: number }) => void;
-  initialData?: { aisle: string; spot: string; number: string; name: string; zoneId?: number };
+interface LocationFormData {
+  name: string;
+  zoneId: string;
+  recurringConfigurationId: string;
+  active: boolean;
 }
 
-export const LocationForm = ({ onSubmit, onCancel, initialData, onSaveAndContinue }: Props) => {
+interface Props {
+  onSubmit: (data: LocationFormData) => void;
+  onCancel: () => void;
+  onSaveAndNew?: (data: LocationFormData) => Promise<void>;
+  initialData?: {
+    name: string;
+    zoneId?: string;
+    recurringConfigurationId?: string;
+    active?: boolean;
+  };
+}
+
+export const LocationForm = ({
+  onSubmit,
+  onCancel,
+  initialData,
+  onSaveAndNew,
+}: Props) => {
   const [zones, setZones] = useState<Zone[]>([]);
+  const [recurrentes, setRecurrentes] = useState<RecurringConfiguration[]>([]);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const fetchZones = async () => {
-      const res = await getZones();
-      if (res.success) {
-        setZones(res.data || []);
-      }
+    const fetchData = async () => {
+      const [zonesRes, recurRes] = await Promise.all([
+        getZones(),
+        getRecurring(),
+      ]);
+      if (zonesRes.success) setZones(zonesRes.data || []);
+      if (recurRes.success) setRecurrentes(recurRes.data || []);
     };
-    fetchZones();
+    fetchData();
   }, []);
 
-  const formik = useFormik({
+  const formik = useFormik<LocationFormData>({
     initialValues: {
-      aisle: initialData?.aisle || "",
-      spot: initialData?.spot || "",
-      number: initialData?.number || "",
+      name: initialData?.name || "",
       zoneId: initialData?.zoneId || "",
+      recurringConfigurationId: initialData?.recurringConfigurationId || "",
+      active: initialData?.active ?? true,
     },
     validationSchema: Yup.object({
-      aisle: Yup.string().required("Requerido"),
-      spot: Yup.string().required("Requerido"),
-      number: Yup.string().required("Requerido"),
+      name: Yup.string().required("El nombre es requerido"),
       zoneId: Yup.string().required("Zona requerida"),
+      recurringConfigurationId: Yup.string().required("Recurrente requerido"),
+      active: Yup.boolean().required("Estatus requerido"),
     }),
     onSubmit: (values) => {
-      onSubmit({ ...values, zoneId: Number(values.zoneId) });
+      onSubmit(values);
     },
   });
 
-  const handleSaveAndContinue = async () => {
+  const handleSaveAndNew = async () => {
     const errors = await formik.validateForm();
     if (Object.keys(errors).length === 0) {
-      const values = { ...formik.values, zoneId: Number(formik.values.zoneId) };
-      if (onSaveAndContinue) {
-        onSaveAndContinue(values);
-        
-        // Auto-increment logic for next item
-        const currentSpot = parseInt(values.spot);
-        if (!isNaN(currentSpot)) {
-            formik.setFieldValue("spot", (currentSpot + 1).toString());
-        } else {
-            formik.setFieldValue("spot", "");
-        }
-        formik.setFieldTouched("spot", false);
+      if (onSaveAndNew) {
+        await onSaveAndNew(formik.values);
+        formik.setFieldValue("name", "");
+        formik.setFieldTouched("name", false);
+        setTimeout(() => {
+          nameInputRef.current?.focus();
+        }, 100);
       }
     } else {
       formik.setTouched({
-        aisle: true,
-        spot: true,
-        number: true,
+        name: true,
         zoneId: true,
+        recurringConfigurationId: true,
+        active: true,
       });
     }
   };
 
   return (
-    <form onSubmit={formik.handleSubmit} className="flex flex-col gap-5 p-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Zona</label>
-          <select
-            name="zoneId"
-            value={formik.values.zoneId}
+    <form onSubmit={formik.handleSubmit} className="flex flex-col gap-6 p-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ITSelect
+          label="Zona"
+          name="zoneId"
+          value={formik.values.zoneId}
+          onChange={formik.handleChange}
+          error={formik.errors.zoneId}
+          touched={formik.touched.zoneId}
+          options={zones.map((z) => ({ label: z.name, value: z.id }))}
+        />
+
+        <ITSelect
+          label="Recurrente"
+          name="recurringConfigurationId"
+          value={formik.values.recurringConfigurationId}
+          onChange={formik.handleChange}
+          error={formik.errors.recurringConfigurationId}
+          touched={formik.touched.recurringConfigurationId}
+          options={recurrentes.map((r) => ({ label: r.title, value: r.id }))}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <ITInput
+            label="Nombre de la Locación"
+            name="name"
+            ref={nameInputRef}
+            value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            className={`h-[42px] px-3 rounded-xl border ${
-              formik.errors.zoneId && formik.touched.zoneId ? "border-red-500 bg-red-50" : "border-slate-200"
-            } bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all`}
-          >
-            <option value="">Selecciona una zona...</option>
-            {zones.map((z) => (
-              <option key={z.id} value={z.id}>
-                {z.name}
-              </option>
-            ))}
-          </select>
-          {formik.errors.zoneId && formik.touched.zoneId && (
-            <span className="text-[10px] text-red-500 font-bold ml-1">{formik.errors.zoneId}</span>
-          )}
+            error={formik.errors.name}
+            touched={formik.touched.name}
+            placeholder="Ej: Acceso Principal, Bodega 1..."
+            className="!py-2 !h-[42px] !rounded-xl"
+          />
         </div>
-
-        <ITInput
-          label="Sección / Pasillo"
-          name="aisle"
-          value={formik.values.aisle}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.errors.aisle}
-          touched={formik.touched.aisle}
-          placeholder="Ej: A, SECC-1"
-          className="!py-2 !h-[42px] !rounded-xl"
-        />
+        <div>
+          <ITSelect
+            label="Estatus"
+            name="active"
+            value={formik.values.active ? "true" : "false"}
+            onChange={(e) =>
+              formik.setFieldValue("active", e.target.value === "true")
+            }
+            error={formik.errors.active as any}
+            touched={formik.touched.active}
+            options={[
+              { label: "Activo", value: "true" },
+              { label: "Inactivo", value: "false" },
+            ]}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ITInput
-          label="# Consecutivo / Cajón"
-          name="spot"
-          value={formik.values.spot}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.errors.spot}
-          touched={formik.touched.spot}
-          placeholder="Ej: 101, B2"
-          className="!py-2 !h-[42px] !rounded-xl"
-        />
-        <ITInput
-          label="Referencia / Calle"
-          name="number"
-          value={formik.values.number}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.errors.number}
-          touched={formik.touched.number}
-          placeholder="Ej: Calle Principal 123"
-          className="!py-2 !h-[42px] !rounded-xl"
-        />
+      {/* Preview Section */}
+      <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex flex-col gap-1">
+        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
+          Vista previa del nombre completo
+        </span>
+        <p className="text-sm font-semibold text-emerald-800">
+          {(() => {
+            const zoneName =
+              zones.find((z) => z.id === formik.values.zoneId)?.name ||
+              "Sin Zona";
+            const recurringName =
+              recurrentes.find(
+                (r) => r.id === formik.values.recurringConfigurationId,
+              )?.title || "Sin Recurrente";
+            const pureName = formik.values.name || "Nombre";
+            return `${zoneName} - ${recurringName} - ${pureName}`;
+          })()}
+        </p>
       </div>
-      
+
       <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100">
-        <ITButton variant="outlined" color="secondary" onClick={onCancel} type="button" className="!rounded-xl px-6">
-            Cancelar
-        </ITButton>
+        <ITButton
+          variant="outlined"
+          color="secondary"
+          onClick={onCancel}
+          type="button"
+          label="Cancelar"
+        />
         <div className="flex gap-3">
-          {onSaveAndContinue && !initialData && (
-             <ITButton 
-                variant="outlined" 
-                color="primary" 
-                onClick={handleSaveAndContinue} 
-                type="button"
-                className="!rounded-xl px-6 !border-emerald-200 !text-emerald-600 hover:!bg-emerald-50"
-             >
-                Guardar y Continuar
-             </ITButton>
+          {onSaveAndNew && !initialData && (
+            <ITButton
+              variant="outlined"
+              color="primary"
+              onClick={handleSaveAndNew}
+              type="button"
+              className="!border-emerald-200 !text-emerald-600 hover:!bg-emerald-50"
+              label="Guardar y Nuevo"
+            />
           )}
-          <ITButton type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 !rounded-xl px-8 shadow-lg shadow-emerald-100">
-              {initialData ? 'Actualizar' : 'Guardar y Cerrar'}
-          </ITButton>
+          <ITButton
+            type="submit"
+            color="primary"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-100"
+            label={initialData ? "Actualizar" : "Guardar"}
+          />
         </div>
       </div>
     </form>

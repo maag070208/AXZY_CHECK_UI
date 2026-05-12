@@ -12,8 +12,10 @@ import * as Yup from "yup";
 
 const LoginFormComponent = ({
   onSubmit,
+  loading,
 }: {
   onSubmit: (values: IAuthLogin) => void;
+  loading?: boolean;
 }) => {
   const initialValues = {
     username: "",
@@ -29,25 +31,20 @@ const LoginFormComponent = ({
       type: "text",
       required: true,
       column: 12,
-      minLength: 3,
-      maxLength: 20,
-      validation: Yup.string()
-        .required("Este campo es requerido"),
-      rightIcon: <FaUserAlt />,
+      validation: Yup.string().required("Este campo es requerido"),
+      rightIcon: <FaUserAlt className="text-slate-400" />,
     },
     {
       name: "password",
       label: "Contraseña",
       type: showPassword ? "text" : "password",
       required: true,
-      minLength: 4,
-      maxLength: 20,
       column: 12,
       validation: Yup.string().required("Este campo es requerido"),
       rightIcon: !showPassword ? (
-        <FaLock onClick={() => setShowPassword(!showPassword)} />
+        <FaLock className="text-slate-400 cursor-pointer" onClick={() => setShowPassword(!showPassword)} />
       ) : (
-        <FaLockOpen onClick={() => setShowPassword(!showPassword)} />
+        <FaLockOpen className="text-slate-400 cursor-pointer" onClick={() => setShowPassword(!showPassword)} />
       ),
     },
   ];
@@ -71,16 +68,16 @@ const LoginFormComponent = ({
         <Form onSubmit={handleSubmit} className="w-full">
           <ITFormBuilder
             fields={fields}
-            columns={2}
+            columns={1}
             handleChange={handleChange}
             handleBlur={handleBlur}
             values={values}
             touched={touched}
             errors={errors}
           />
-          <div className="mt-4">
-            <ITButton disabled={!isValid} className="w-full" type="submit">
-              Iniciar Sesión
+          <div className="mt-6">
+            <ITButton disabled={!isValid || loading} className="w-full" type="submit">
+              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </ITButton>
           </div>
         </Form>

@@ -2,17 +2,17 @@ import { get, post, put, remove } from "@app/core/axios/axios";
 import { ITDataTableFetchParams, ITDataTableResponse } from "@axzydev/axzy_ui_system";
 
 export interface Property {
-    id: number;
+    id: string;
     identifier: string;
     name: string;
     typeId: number;
-    type?: { id: number, name: string, value: string };
+    type?: { id: string, name: string, value: string };
     mainStreet: string;
     betweenStreets?: string;
     latitude?: number;
     longitude?: number;
     statusId: number;
-    status?: { id: number, name: string, value: string };
+    status?: { id: string, name: string, value: string };
     active: boolean;
 }
 
@@ -24,15 +24,15 @@ export const createProperty = async (data: any) => {
     return await post<Property>("/properties", data);
 };
 
-export const updateProperty = async (id: number, data: any) => {
+export const updateProperty = async (id: string, data: any) => {
     return await put<Property>(`/properties/${id}`, data);
 };
 
-export const deleteProperty = async (id: number) => {
+export const deleteProperty = async (id: string) => {
     return await remove(`/properties/${id}`);
 };
 
-export const getPropertyById = async (id: number) => {
+export const getPropertyById = async (id: string) => {
     return await get<Property>(`/properties/${id}`);
 };
 

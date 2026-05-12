@@ -23,9 +23,9 @@ export interface AssignmentTask {
 }
 
 export interface Assignment {
-    id: number;
-    guardId: number;
-    locationId: number;
+    id: string;
+    guardId: string;
+    locationId: string;
     assignedBy: number;
     notes?: string;
     status: AssignmentStatus;
@@ -38,8 +38,8 @@ export interface Assignment {
 }
 
 export interface CreateAssignmentDTO {
-    guardId: number;
-    locationId: number;
+    guardId: string;
+    locationId: string;
     assignedBy: number;
     notes?: string;
     tasks?: { description: string; reqPhoto: boolean }[];

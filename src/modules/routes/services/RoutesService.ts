@@ -7,7 +7,7 @@ export interface ITaskCreate {
 }
 
 export interface ILocationCreate {
-    locationId: number;
+    locationId: string;
     locationName?: string;
     tasks: ITaskCreate[];
 }
@@ -37,11 +37,11 @@ export const createRoute = async (data: IRecurringConfigCreate): Promise<TResult
     return await post<any>('/recurring', data);
 };
 
-export const updateRoute = async (id: number, data: IRecurringConfigCreate): Promise<TResult<any>> => {
+export const updateRoute = async (id: string, data: IRecurringConfigCreate): Promise<TResult<any>> => {
     return await put<any>(`/recurring/${id}`, data);
 };
 
-export const deleteRoute = async (id: number): Promise<TResult<any>> => {
+export const deleteRoute = async (id: string): Promise<TResult<any>> => {
     return await remove<any>(`/recurring/${id}`);
 };
 

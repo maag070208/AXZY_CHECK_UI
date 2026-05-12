@@ -2,28 +2,28 @@ import { get, post, put } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
 export interface IRound {
-  id: number;
-  guardId: number;
+  id: string;
+  guardId: string;
   startTime: string;
   endTime?: string | null;
   status: "IN_PROGRESS" | "COMPLETED";
   recurringConfigurationId: number;
   recurringConfiguration?: {
-      id: number;
+      id: string;
       title: string;
       startTime?: string;
       endTime?: string;
       recurringLocations?: Array<{
-         id: number;
-         locationId: number;
+         id: string;
+         locationId: string;
          location: {
-           id: number;
+           id: string;
            name: string;
          }
       }>;
   };
   guard: {
-    id: number;
+    id: string;
     name: string;
     lastName: string | null;
   };
@@ -34,7 +34,7 @@ export interface IRoundEvent {
   timestamp: string;
   description: string;
   guard?: {
-    id: number;
+    id: string;
     name: string;
     lastName: string | null;
   };
@@ -69,7 +69,7 @@ export const getRounds = async (date?: string, guardId?: number): Promise<TResul
   return await get<IRound[]>(`/rounds?${params.toString()}`);
 };
 
-export const getRoundDetail = async (id: number): Promise<TResult<IRoundDetail>> => {
+export const getRoundDetail = async (id: string): Promise<TResult<IRoundDetail>> => {
   return await get<IRoundDetail>(`/rounds/${id}`);
 };
 
@@ -84,12 +84,12 @@ export const getPaginatedRounds = async (params: ITDataTableFetchParams): Promis
   return { data: [], total: 0 };
 };
 
-export const startRound = async (guardId: number): Promise<TResult<IRound>> => {
+export const startRound = async (guardId: string): Promise<TResult<IRound>> => {
     // We import post from axios/axios but let's assume it was already imported or I need to add it.
     // Checking imports... only 'get' is imported. I need to update imports too.
     return await post<IRound>("/rounds/start", { guardId });
 };
 
-export const endRound = async (id: number): Promise<TResult<IRound>> => {
+export const endRound = async (id: string): Promise<TResult<IRound>> => {
     return await put<IRound>(`/rounds/${id}/end`, {});
 };

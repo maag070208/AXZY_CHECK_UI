@@ -13,6 +13,15 @@ import {
   FaShieldAlt,
   FaClipboardCheck,
   FaClock,
+  FaToggleOff,
+  FaToggleOn,
+  FaArrowLeft,
+  FaArrowRight,
+  FaSave,
+  FaUserCheck,
+  FaIdCard,
+  FaKey,
+  FaUserTag,
 } from "react-icons/fa";
 
 interface Props {
@@ -50,6 +59,7 @@ export const CreateUserWizard: React.FC<Props> = ({
       confirmPassword: "",
       roleId: userToEdit?.roleId ? String(userToEdit.roleId) : "",
       scheduleId: userToEdit?.scheduleId ? String(userToEdit.scheduleId) : "",
+      active: userToEdit?.active ?? true,
     },
     validationSchema: Yup.object({
       name: Yup.string().required("El nombre es requerido"),
@@ -81,6 +91,7 @@ export const CreateUserWizard: React.FC<Props> = ({
           ),
         otherwise: () => Yup.string().notRequired(),
       }),
+      active: Yup.boolean().required(),
     }),
     onSubmit: async (values) => {
       try {
@@ -90,10 +101,9 @@ export const CreateUserWizard: React.FC<Props> = ({
             name: values.name,
             lastName: values.lastName,
             username: values.username,
-            roleId: Number(values.roleId),
-            scheduleId: values.scheduleId
-              ? Number(values.scheduleId)
-              : undefined,
+            roleId: values.roleId,
+            scheduleId: values.scheduleId || undefined,
+            active: values.active,
           });
         } else {
           res = await createUser({
@@ -101,10 +111,9 @@ export const CreateUserWizard: React.FC<Props> = ({
             lastName: values.lastName,
             username: values.username,
             password: values.password,
-            roleId: Number(values.roleId),
-            scheduleId: values.scheduleId
-              ? Number(values.scheduleId)
-              : undefined,
+            roleId: values.roleId,
+            scheduleId: values.scheduleId || undefined,
+            active: values.active,
           });
         }
 
@@ -127,7 +136,6 @@ export const CreateUserWizard: React.FC<Props> = ({
           );
         }
       } catch (error: any) {
-        // Axios service throws the TResult directly on error
         const message = error?.error || "Ocurrió un error inesperado";
         dispatch(showToast({ message, type: "error" }));
       }
@@ -151,53 +159,74 @@ export const CreateUserWizard: React.FC<Props> = ({
       label: "Identidad",
       icon: <FaUser />,
       content: (
-        <div className="flex flex-col gap-6 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ITInput
-              label="Nombre(s)"
-              name="name"
-              value={formik.values.name}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.errors.name}
-              touched={formik.touched.name}
-              placeholder="Ej. Roberto"
-            />
-            <ITInput
-              label="Apellidos"
-              name="lastName"
-              value={formik.values.lastName}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.errors.lastName}
-              touched={formik.touched.lastName}
-              placeholder="Ej. Garcia Lopez"
-            />
-          </div>
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
-              <FaUser size={18} />
+        <div className="space-y-6">
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-100">
+                <FaIdCard className="text-white text-xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">
+                  Información Personal
+                </h3>
+                <p className="text-sm text-slate-500">
+                  Datos básicos del usuario
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-slate-700">
-                Identificador de Usuario
-              </h4>
-              <p className="text-xs text-slate-400 mb-4">
-                Este será el alias único con el que el usuario se identificará
-                en el sistema.
-              </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <ITInput
-                label=""
-                name="username"
-                value={formik.values.username}
+                label="Nombre(s)"
+                name="name"
+                value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.errors.username}
-                touched={formik.touched.username}
-                placeholder="Ej. rgarcia"
-                className="!bg-white"
+                error={formik.errors.name}
+                touched={formik.touched.name}
+                placeholder="Ej. Roberto"
+                className="!rounded-xl border-slate-200 focus:border-emerald-400"
+              />
+              <ITInput
+                label="Apellidos"
+                name="lastName"
+                value={formik.values.lastName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.errors.lastName}
+                touched={formik.touched.lastName}
+                placeholder="Ej. García López"
+                className="!rounded-xl border-slate-200 focus:border-emerald-400"
               />
             </div>
+          </div>
+
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center shadow-lg shadow-slate-200">
+                <FaUserCheck className="text-white text-xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">
+                  Credenciales de Acceso
+                </h3>
+                <p className="text-sm text-slate-500">
+                  Nombre de usuario único para el sistema
+                </p>
+              </div>
+            </div>
+
+            <ITInput
+              label="Nombre de usuario"
+              name="username"
+              value={formik.values.username}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.errors.username}
+              touched={formik.touched.username}
+              placeholder="Ej. rgarcia"
+              className="!rounded-xl border-slate-200 focus:border-slate-400"
+            />
           </div>
         </div>
       ),
@@ -206,25 +235,100 @@ export const CreateUserWizard: React.FC<Props> = ({
       label: "Acceso y Rol",
       icon: <FaShieldAlt />,
       content: (
-        <div className="flex flex-col gap-6 p-6">
-          <div className="space-y-4">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">
-              Configuración de Seguridad
-            </label>
-            <ITSelect
-              label="Rol Administrativo"
-              name="roleId"
-              value={formik.values.roleId}
-              onChange={formik.handleChange}
-              options={roleOptions}
-              error={formik.errors.roleId}
-              touched={formik.touched.roleId}
-            />
+        <div className="space-y-6">
+          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center shadow-lg">
+                <FaUserTag className="text-white text-xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">
+                  Configuración de Seguridad
+                </h3>
+                <p className="text-sm text-slate-500">
+                  Rol y permisos del usuario
+                </p>
+              </div>
+            </div>
 
-            {!isEditing && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-emerald-50/30 p-5 rounded-2xl border border-emerald-100/50">
+            <div className="space-y-6">
+              <ITSelect
+                label="Rol del usuario"
+                name="roleId"
+                value={formik.values.roleId}
+                onChange={formik.handleChange}
+                options={roleOptions}
+                error={formik.errors.roleId}
+                touched={formik.touched.roleId}
+                className="rounded-xl"
+              />
+
+              <div className="bg-white rounded-xl border border-slate-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`p-3 rounded-xl transition-all duration-300 ${formik.values.active ? "bg-emerald-100" : "bg-red-100"}`}
+                    >
+                      {formik.values.active ? (
+                        <FaToggleOn className="text-emerald-600 text-2xl" />
+                      ) : (
+                        <FaToggleOff className="text-red-600 text-2xl" />
+                      )}
+                    </div>
+                    <div>
+                      <p
+                        className={`font-bold ${formik.values.active ? "text-emerald-700" : "text-red-700"}`}
+                      >
+                        {formik.values.active
+                          ? "Cuenta Activa"
+                          : "Cuenta Inactiva"}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {formik.values.active
+                          ? "El usuario puede acceder al sistema"
+                          : "Acceso restringido al sistema"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      formik.setFieldValue("active", !formik.values.active)
+                    }
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                      formik.values.active ? "bg-emerald-500" : "bg-slate-300"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-300 ${
+                        formik.values.active ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {!isEditing && (
+            <div className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-100">
+                  <FaKey className="text-white text-xl" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">
+                    Contraseña Temporal
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    Configuración inicial de acceso
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <ITInput
-                  label="Contraseña Temporal"
+                  label="Nueva contraseña"
                   name="password"
                   type="password"
                   value={formik.values.password}
@@ -233,10 +337,10 @@ export const CreateUserWizard: React.FC<Props> = ({
                   error={formik.errors.password}
                   touched={formik.touched.password}
                   placeholder="Mínimo 6 caracteres"
-                  className="!bg-white"
+                  className="!rounded-xl"
                 />
                 <ITInput
-                  label="Confirmar Contraseña"
+                  label="Confirmar contraseña"
                   name="confirmPassword"
                   type="password"
                   value={formik.values.confirmPassword}
@@ -245,22 +349,30 @@ export const CreateUserWizard: React.FC<Props> = ({
                   error={formik.errors.confirmPassword}
                   touched={formik.touched.confirmPassword}
                   placeholder="Repite la contraseña"
-                  className="!bg-white"
+                  className="!rounded-xl"
                 />
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {isOperationalRole && (
-            <div className="space-y-4 pt-4 border-t border-slate-100">
-              <div className="flex items-center gap-2 mb-1">
-                <FaClock className="text-emerald-500" />
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-tight">
-                  Horario Laboral
-                </label>
+            <div className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 rounded-xl bg-teal-600 flex items-center justify-center shadow-lg">
+                  <FaClock className="text-white text-xl" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">
+                    Horario Laboral
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    Turno asignado al personal operativo
+                  </p>
+                </div>
               </div>
+
               <ITSelect
-                label=""
+                label="Seleccionar horario"
                 name="scheduleId"
                 value={formik.values.scheduleId}
                 onChange={formik.handleChange}
@@ -270,6 +382,7 @@ export const CreateUserWizard: React.FC<Props> = ({
                 }))}
                 error={formik.errors.scheduleId}
                 touched={formik.touched.scheduleId}
+                className="!rounded-xl"
               />
             </div>
           )}
@@ -280,71 +393,101 @@ export const CreateUserWizard: React.FC<Props> = ({
       label: "Confirmación",
       icon: <FaClipboardCheck />,
       content: (
-        <div className="flex flex-col gap-6 p-6">
-          <div className="bg-[#F8FAFC] rounded-3xl p-8 border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-10 opacity-5">
-              <FaClipboardCheck size={120} />
+        <div className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
+          <div className="bg-white rounded-xl">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg">
+                <FaClipboardCheck className="text-white text-xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">
+                  Revisar y Confirmar
+                </h3>
+                <p className="text-sm text-slate-500">
+                  Verifica que toda la información sea correcta
+                </p>
+              </div>
             </div>
-
-            <h3 className="text-xl font-black text-slate-800 mb-6">
-              Resumen del Perfil
-            </h3>
 
             <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-emerald-600 font-black text-lg">
-                  {formik.values.name.charAt(0)}
-                  {formik.values.lastName.charAt(0)}
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    Nombre Completo
+              <div className="bg-gray-50 rounded-xl p-6">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xl font-bold border-2 border-white shadow-md">
+                    {formik.values.name.charAt(0)}
+                    {formik.values.lastName.charAt(0)}
                   </div>
-                  <div className="text-lg font-bold text-slate-700">
-                    {formik.values.name} {formik.values.lastName}
+                  <div>
+                    <p className="text-xs text-slate-400 uppercase tracking-wide">
+                      Nombre completo
+                    </p>
+                    <p className="text-xl font-bold text-slate-800">
+                      {formik.values.name} {formik.values.lastName}
+                    </p>
                   </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-6 pt-6 border-t border-gray-200">
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                      Usuario
+                    </p>
+                    <p className="text-base font-semibold text-gray-700">
+                      @{formik.values.username}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                      Rol
+                    </p>
+                    <p className="text-base font-semibold text-gray-700">
+                      {roles.find((r) => String(r.id) === formik.values.roleId)
+                        ?.value || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                      Estado
+                    </p>
+                    <span
+                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${
+                        formik.values.active
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full ${formik.values.active ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}
+                      ></span>
+                      {formik.values.active ? "ACTIVO" : "INACTIVO"}
+                    </span>
+                  </div>
+                </div>
+
+                {isOperationalRole && (
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
+                      Horario asignado
+                    </p>
+                    <div className="flex items-center gap-3 p-3 bg-teal-50 rounded-lg">
+                      <FaClock className="text-teal-600" />
+                      <span className="font-semibold text-gray-700">
+                        {schedules.find(
+                          (s) => String(s.id) === formik.values.scheduleId,
+                        )?.name || "Sin seleccionar"}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-8 pt-4 border-t border-slate-100/50">
-                <div>
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                    Usuario
-                  </div>
-                  <div className="text-sm font-bold text-slate-600">
-                    @{formik.values.username}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                    Rol
-                  </div>
-                  <div className="text-sm font-bold text-slate-600">
-                    {roles.find((r) => String(r.id) === formik.values.roleId)
-                      ?.value || "N/A"}
-                  </div>
-                </div>
+              <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                <p className="text-xs text-emerald-700 text-center font-medium">
+                  ⚡ Al confirmar, el usuario recibirá acceso inmediato según
+                  los permisos de su rol
+                </p>
               </div>
-
-              {isOperationalRole && (
-                <div className="pt-4 border-t border-slate-100/50">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                    Turno Asignado
-                  </div>
-                  <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                    <FaClock className="text-emerald-500" />
-                    {schedules.find(
-                      (s) => String(s.id) === formik.values.scheduleId,
-                    )?.name || "Sin seleccionar"}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 text-center font-medium">
-            Al confirmar, el usuario tendrá acceso inmediato según los permisos
-            de su rol.
-          </p>
         </div>
       ),
     },
@@ -407,98 +550,102 @@ export const CreateUserWizard: React.FC<Props> = ({
   };
 
   return (
-    <div className="w-full">
-      {/* Stepper Header (Exactly like Resident) */}
-      <div className="flex justify-between mb-10 px-6 mt-6 relative">
-        {/* Progress Line Background */}
-        <div
-          className="absolute top-5 left-0 w-full h-[2px] bg-slate-100 -z-0 mx-auto px-12"
-          style={{ width: "calc(100% - 4rem)", left: "2rem" }}
-        />
-
-        {/* Active Progress Line */}
-        <div
-          className="absolute top-5 left-0 h-[2px] bg-emerald-500 transition-all duration-500 ease-in-out -z-0"
-          style={{
-            width: `calc(${(currentStep / (steps.length - 1)) * 100}% - ${currentStep === 0 ? "0px" : "2rem"})`,
-            left: "2rem",
-          }}
-        />
-
-        {steps.map((step, index) => (
-          <div
-            key={index}
-            className="flex flex-col items-center flex-1 relative z-10"
-          >
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
-                index === currentStep
-                  ? "border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-100 scale-110"
-                  : index < currentStep
-                    ? "border-emerald-500 bg-emerald-500 text-white"
-                    : "border-slate-200 bg-white text-slate-400"
-              }`}
-            >
-              {index < currentStep ? (
-                <FaCheck className="text-xs" />
-              ) : (
-                index + 1
-              )}
-            </div>
-            <div className="absolute -bottom-7 w-max">
-              <span
-                className={`text-[10px] uppercase tracking-wider font-bold transition-colors duration-300 ${index === currentStep ? "text-emerald-700" : "text-slate-400"}`}
+    <div className="w-[600px] mx-auto">
+      {/* Stepper Header */}
+      <div className="relative mb-12 px-10">
+        <div className="flex justify-between items-center relative z-10">
+          {steps.map((step, index) => (
+            <div key={index} className="flex flex-col items-center flex-1">
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-500 relative z-10 ${
+                  index === currentStep
+                    ? "bg-emerald-600 text-white shadow-lg shadow-emerald-100 scale-110"
+                    : index < currentStep
+                      ? "bg-emerald-500 text-white shadow-md"
+                      : "bg-white border-2 border-slate-200 text-slate-400"
+                }`}
               >
-                {step.label}
-              </span>
+                {index < currentStep ? (
+                  <FaCheck className="text-base" />
+                ) : (
+                  index + 1
+                )}
+              </div>
+              <div className="absolute top-14">
+                <div className="flex flex-col items-center gap-1">
+                  <div
+                    className={`text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${
+                      index === currentStep ? "text-emerald-600" : "text-slate-400"
+                    }`}
+                  >
+                    {step.label}
+                  </div>
+                  <div
+                    className={`w-12 h-1 rounded-full transition-all duration-300 ${
+                      index <= currentStep
+                        ? "bg-emerald-500"
+                        : "bg-slate-100"
+                    }`}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* Progress Bar Background */}
+        <div className="absolute top-5 left-0 right-0 h-1 bg-slate-100 rounded-full mx-16">
+          <div
+            className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+            style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+          />
+        </div>
       </div>
 
       {/* Step Content */}
-      <div className="min-h-[300px] mt-10">{steps[currentStep].content}</div>
+      <div className="mt-2 mb-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+        {steps[currentStep].content}
+      </div>
 
-      {/* Navigation Buttons (Exactly like Resident) */}
-      <div className="flex justify-between px-4 pt-6 pb-2 border-t border-slate-100 mt-4 rounded-b-xl">
-        <div>
-          {currentStep === 0 ? (
-            <ITButton
-              type="button"
-              color="secondary"
-              variant="outlined"
-              onClick={onCancel}
-            >
-              Cancelar
-            </ITButton>
-          ) : (
-            <ITButton
-              type="button"
-              color="secondary"
-              variant="outlined"
-              onClick={handleBack}
-            >
-              Atrás
-            </ITButton>
-          )}
-        </div>
+      {/* Navigation Buttons */}
+      <div className="flex justify-between items-center pt-6 border-t border-gray-200">
+        <ITButton
+          type="button"
+          onClick={currentStep === 0 ? onCancel : handleBack}
+          variant="ghost"
+          className="group flex items-center gap-2 px-6 py-3 !rounded-xl font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-all duration-300"
+        >
+          <div className="flex items-center gap-2">
+            <FaArrowLeft className="text-sm group-hover:transform group-hover:-translate-x-1 transition-transform" />
+            <span>{currentStep === 0 ? "Cancelar" : "Atrás"}</span>
+          </div>
+        </ITButton>
+
         <ITButton
           type="button"
           onClick={handleNext}
           disabled={formik.isSubmitting}
-          className={
-            currentStep === steps.length - 1
-              ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-              : "bg-emerald-600 hover:bg-emerald-700 text-white"
-          }
+          className="group !px-8 !py-3 !rounded-xl font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {currentStep === steps.length - 1
-            ? formik.isSubmitting
-              ? "Guardando..."
-              : isEditing
-                ? "Guardar Cambios"
-                : "Confirmar Registro"
-            : "Siguiente"}
+          <div className="flex items-center gap-2">
+            {currentStep === steps.length - 1 ? (
+              <>
+                {formik.isSubmitting ? (
+                  "Guardando..."
+                ) : (
+                  <>
+                    <FaSave className="text-lg" />
+                    <span>{isEditing ? "Guardar Cambios" : "Confirmar Registro"}</span>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <span>Siguiente</span>
+                <FaArrowRight className="text-sm group-hover:transform group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
+          </div>
         </ITButton>
       </div>
     </div>

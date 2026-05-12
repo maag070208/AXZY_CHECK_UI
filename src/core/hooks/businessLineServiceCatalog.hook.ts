@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getCatalogBusinessLineServiceOptions } from "../services/CatalogService";
 import { ICatalogItem } from "../types/catalog.types";
 
-export const useBusinessLineServiceCatalog = (id: number) => {
+export const useBusinessLineServiceCatalog = (id: string) => {
   const [data, setData] = useState<ICatalogItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

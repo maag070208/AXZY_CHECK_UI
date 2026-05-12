@@ -1,25 +1,32 @@
 import { get, post, put, remove } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
-import { Schedule } from "../../schedules/SchedulesService";
+export interface Schedule {
+  id: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface UserRole {
+  id: string;
+  name: string;
+  value: string;
+}
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   lastName: string;
   username: string;
-  roleId: number;
-  role: {
-    id: number;
-    name: string;
-    value: string;
-  };
+  roleId: string;
+  role: UserRole;
   active: boolean;
-  shiftStart?: string; // HH:mm
-  shiftEnd?: string;   // HH:mm
+  shiftStart?: string;
+  shiftEnd?: string;
   isLoggedIn?: boolean;
   schedule?: Schedule;
-  scheduleId?: number;
+  scheduleId?: string;
 }
 
 export interface CreateUserDto {
@@ -27,83 +34,80 @@ export interface CreateUserDto {
   lastName: string;
   username: string;
   password?: string;
-  roleId: number;
-  shiftStart?: string;
-  shiftEnd?: string;
-  scheduleId?: number;
+  roleId: string;
+  scheduleId?: string;
 }
 
 export interface UpdateUserDto {
-    name?: string;
-    lastName?: string;
-    username?: string;
-    roleId?: number;
-    shiftStart?: string;
-    shiftEnd?: string;
-    scheduleId?: number;
+  name?: string;
+  lastName?: string;
+  username?: string;
+  roleId?: string;
+  scheduleId?: string;
 }
 
 export interface ChangePasswordDto {
-    oldPassword?: string; // Optional if admin resets it? API checks oldPassword. Wait, for admin usage usually we don't need old password.
-    // API: changePassword controller checks oldPassword. This means it's a "User changes own password" flow.
-    // But for "Admin resets password", usually we don't need old.
-    // Let's re-read API controller.
-    // export const changePassword = async (req: Request, res: Response) => { ... const { oldPassword, newPassword } = req.body; ... const isValid = await comparePassword(oldPassword, user.password); ... }
-    // It enforces old password. So this is strictly for "My Profile" or similar.
-    // Is there an admin endpoint to reset? 
-    // `updateUserProfile` only takes { name, lastName, username, shiftStart, shiftEnd }.
-    // It seems there is NO Admin Reset Password endpoint currently visible in the controller I read.
-    // `createUser` hashes password.
-    // `updateUser` service method is used by `updateUserProfile` and `changePassword`.
-    // I might need to implement a new endpoint/method for Admin to reset password without old password if that's a requirement.
-    // The user said "agregar las acciones que tenemos como en la checkapp". CheckApp usually has edit/password.
-    // If I can't reset password without old password, I can't make a "Reset Password" button for Admin.
-    // HOWEVER, I can modify the API if needed? The user said "revisa todo y la API". 
-    // I'll stick to what is there for now or check if I can add a `resetPassword` endpoint. 
-    // For now, I'll add the method as is.
-    newPassword: string;
+  oldPassword?: string;
+  newPassword: string;
 }
 
+/**
+ * Fetch all users (simple list)
+ */
 export const getUsers = async (): Promise<TResult<User[]>> => {
   return await get<User[]>("/users");
 };
 
-export const getPaginatedUsers = async (params: any): Promise<{ data: User[], total: number }> => {
-  const res = await post<{ rows: User[], total: number }>("/users/datatable", params);
-  if (res.success && res.data) {
-      return {
-          data: res.data.rows || [],
-          total: res.data.total || 0
-      };
-  }
-  return { data: [], total: 0 };
+/**
+ * Fetch users with pagination and filters
+ */
+export const getPaginatedUsers = async (params: {
+  page: number;
+  limit: number;
+  search?: string;
+  filters?: Record<string, any>;
+}): Promise<TResult<{ rows: User[]; total: number }>> => {
+  return await post<{ rows: User[]; total: number }>("/users/datatable", params);
 };
 
+/**
+ * Create a new user
+ */
 export const createUser = async (data: CreateUserDto): Promise<TResult<User>> => {
-    return await post<User>("/users", data);
+  return await post<User>("/users", data);
 };
 
-export const updateUser = async (id: number, data: UpdateUserDto): Promise<TResult<User>> => {
-    return await put<User>(`/users/${id}`, data);
+/**
+ * Update user profile
+ */
+export const updateUser = async (id: string, data: UpdateUserDto): Promise<TResult<User>> => {
+  return await put<User>(`/users/${id}`, data);
 };
 
-/* 
-   NOTE: The current API requires oldPassword for changePassword. 
-   If this is intended for Admin use, we might need a different endpoint.
-   For now, we map what exists.
-*/
-export const changePassword = async (id: number, data: ChangePasswordDto): Promise<TResult<boolean>> => {
-    return await put<boolean>(`/users/${id}/password`, data);
+/**
+ * Change own password (requires old password)
+ */
+export const changePassword = async (id: string, data: ChangePasswordDto): Promise<TResult<void>> => {
+  return await put<void>(`/users/${id}/password`, data);
 };
 
-export const resetPassword = async (id: number, password: string): Promise<TResult<boolean>> => {
-    return await put<boolean>(`/users/${id}/reset-password`, { newPassword: password });
+/**
+ * Admin reset password (no old password required)
+ */
+export const resetPassword = async (id: string, password: string): Promise<TResult<void>> => {
+  return await put<void>(`/users/${id}/reset-password`, { newPassword: password });
 };
 
-export const deleteUser = async (id: number): Promise<TResult<boolean>> => {
-    return await remove<boolean>(`/users/${id}`);
+/**
+ * Delete (Soft or Hard) a user
+ */
+export const deleteUser = async (id: string): Promise<TResult<void>> => {
+  return await remove<void>(`/users/${id}`);
 };
 
-export const getRoles = async (): Promise<TResult<any[]>> => {
-    return await get<any[]>("/users/roles");
+/**
+ * Get available roles for selection
+ */
+export const getRoles = async (): Promise<TResult<UserRole[]>> => {
+  return await get<UserRole[]>("/users/roles");
 };

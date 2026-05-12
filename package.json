@@ -5,8 +5,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5002 --strictPort",
-    "server": "vite preview --port 5002 --strictPort",
+    "dev": "vite --port 5000 --strictPort",
+    "server": "vite preview --port 5000 --strictPort",
     "start": "yarn run build && yarn run server",
     "build": "tsc -b && vite build --mode development",
     "build:prod": "tsc -b && vite build --mode production",

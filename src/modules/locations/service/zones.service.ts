@@ -2,7 +2,7 @@ import { get, post, put, remove } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
 export interface Zone {
-  id: number;
+  id: string;
   name: string;
   active: boolean;
   _count?: {
@@ -18,10 +18,10 @@ export const createZone = async (data: { name: string }): Promise<TResult<Zone>>
   return await post<Zone>("/zones", data);
 };
 
-export const updateZone = async (id: number, data: { name: string; active?: boolean }): Promise<TResult<Zone>> => {
+export const updateZone = async (id: string, data: { name: string; active?: boolean }): Promise<TResult<Zone>> => {
   return await put<Zone>(`/zones/${id}`, data);
 };
 
-export const deleteZone = async (id: number): Promise<TResult<boolean>> => {
+export const deleteZone = async (id: string): Promise<TResult<boolean>> => {
   return await remove<boolean>(`/zones/${id}`);
 };

@@ -1,5 +1,6 @@
-export interface TResult<T> {
+export type TResult<T> = {
   success: boolean;
-  data: T;
+  data?: T;
   error?: string;
-}
+  meta?: { total: number; page: number; limit: number };
+};

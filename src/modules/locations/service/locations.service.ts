@@ -1,61 +1,68 @@
 import { axiosInstance, get, post, put, remove } from "@app/core/axios/axios";
+import { TResult } from "@app/core/types/TResult";
 import { Zone } from "./zones.service";
 
 export interface Location {
-  id: number;
-  aisle: string;
-  spot: string;
-  number: string;
+  id: string;
+  spot?: string;
+  number?: string;
   name: string;
+  fullName: string;
   isOccupied: boolean;
-  zoneId?: number;
+  active: boolean;
+  zoneId?: string;
   zone?: Zone;
-  entries?: any[];
+  recurringConfigurationId?: string;
+  recurringConfiguration?: { id: string; title: string };
 }
 
-export const getLocations = async () => {
+export interface LocationDataTable {
+  rows: Location[];
+  total: number;
+}
+
+export const getLocations = async (): Promise<TResult<Location[]>> => {
   return await get<Location[]>("/locations");
 };
 
 export const createLocation = async (data: {
-  aisle: string;
-  spot: string;
-  number: string;
-  name?: string;
-  zoneId?: number;
-}) => {
+  spot?: string;
+  number?: string;
+  name: string;
+  zoneId?: string;
+  recurringConfigurationId?: string;
+}): Promise<TResult<Location>> => {
   return await post<Location>("/locations", data);
 };
 
 export const updateLocation = async (
-  id: number,
+  id: string,
   data: {
-    aisle: string;
-    spot: string;
-    number: string;
-    name: string;
-    zoneId?: number;
+    spot?: string;
+    number?: string;
+    name?: string;
+    zoneId?: string;
+    recurringConfigurationId?: string;
+    isOccupied?: boolean;
   },
-) => {
+): Promise<TResult<Location>> => {
   return await put<Location>(`/locations/${id}`, data);
 };
 
-export const deleteLocation = async (id: number) => {
-  return await remove(`/locations/${id}`);
+export const deleteLocation = async (id: string): Promise<TResult<void>> => {
+  return await remove<void>(`/locations/${id}`);
 };
 
-export const getPaginatedLocations = async (params: any) => {
-  const res = await post<any>("/locations/datatable", params);
-  if (res.success && res.data) {
-    return {
-      data: res.data.rows || [],
-      total: res.data.total || 0,
-    };
-  }
-  return { data: [], total: 0 };
+export const getPaginatedLocations = async (params: {
+  page: number;
+  limit: number;
+  search?: string;
+  filters?: any;
+}): Promise<TResult<LocationDataTable>> => {
+  return await post<LocationDataTable>("/locations/datatable", params);
 };
 
-export const getBulkQRPDF = async (ids: number[]) => {
+export const getBulkQRPDF = async (ids: string[]): Promise<Blob> => {
   const response = await axiosInstance.post(
     "/locations/bulk-qr-pdf",
     { ids },

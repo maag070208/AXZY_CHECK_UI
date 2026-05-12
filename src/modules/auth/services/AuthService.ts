@@ -6,6 +6,6 @@ export const login = async (data: IAuthLogin): Promise<TResult<string>> => {
   return await post<string>("/users/login", data);
 };
 
-export const register = async (data: IAuthRegister): Promise<TResult<any>> => {
-    return await post<any>("/users", data);
+export const register = async (data: IAuthRegister): Promise<TResult<void>> => {
+    return await post<void>("/users", data);
 };

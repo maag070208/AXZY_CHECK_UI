@@ -11,7 +11,7 @@ export type CatalogOptionsType =
     | 'invitation_status';
 
 export interface ICatalogItem {
-    id: number | string;
+    id: string | string;
     name: string;
     value: string;
 }

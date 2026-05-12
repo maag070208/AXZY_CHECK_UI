@@ -70,6 +70,7 @@ export const ChangePasswordModal: React.FC<Props> = ({ user, onCancel, onSuccess
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
         error={formik.errors.newPassword}
+        touched={formik.touched.newPassword}
       />
       <ITInput
         label="Confirmar Contraseña"
@@ -79,11 +80,12 @@ export const ChangePasswordModal: React.FC<Props> = ({ user, onCancel, onSuccess
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
         error={formik.errors.confirmPassword}
+        touched={formik.touched.confirmPassword}
       />
 
       <div className="flex justify-end gap-3 mt-4">
-        <ITButton variant="outlined" color="secondary" onClick={onCancel}>Cancelar</ITButton>
-        <ITButton onClick={formik.submitForm} disabled={loading} color="warning">Cambiar Contraseña</ITButton>
+        <ITButton variant="outlined" color="secondary" onClick={onCancel} label="Cancelar" />
+        <ITButton onClick={() => formik.handleSubmit()} disabled={loading} color="warning" label="Cambiar Contraseña" />
       </div>
     </div>
   );

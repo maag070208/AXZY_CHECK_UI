@@ -10,7 +10,7 @@ export const getCatalogOptions = async (key: CatalogOptionsType) => {
     }
 };
 
-export const getCatalogBusinessLineServiceOptions = async (id: number) => {
+export const getCatalogBusinessLineServiceOptions = async (id: string) => {
     try {
         const res = await get<any>(`/catalog/business-line-service/${id}`);
         return res;

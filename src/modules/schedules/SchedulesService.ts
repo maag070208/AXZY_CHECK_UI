@@ -1,7 +1,7 @@
 import { get, post, put, remove } from "../../core/axios/axios";
 
 export interface Schedule {
-  id: number;
+  id: string;
   name: string;
   startTime: string;
   endTime: string;
@@ -29,12 +29,17 @@ export const createSchedule = async (schedule: Partial<Schedule>) => {
   return data.data;
 };
 
-export const updateSchedule = async (id: number, schedule: Partial<Schedule>) => {
+export const updateSchedule = async (id: string, schedule: Partial<Schedule>) => {
   const data = await put<Schedule>(`/schedules/${id}`, schedule);
   return data.data;
 };
 
-export const deleteSchedule = async (id: number) => {
+export const deleteSchedule = async (id: string) => {
   const data = await remove<boolean>(`/schedules/${id}`);
   return data.data;
+};
+
+export const getScheduleUsers = async (id: string): Promise<any[]> => {
+    const res = await get<any[]>(`/schedules/${id}/users`);
+    return res.success ? res.data || [] : [];
 };

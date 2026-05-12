@@ -52,7 +52,13 @@ axiosInstance.interceptors.response.use(
 );
 
 const handleError = <T>(error: any): TResult<T> => {
-  throw (error.response.data)
+  if (error.response?.data) {
+    throw error.response.data;
+  }
+  throw {
+    success: false,
+    error: "Error de conexión con el servidor",
+  } as TResult<T>;
 };
 
 export const post = async <T>(

@@ -9,11 +9,11 @@ export interface IAuthRegister {
   username: string;
   email?: string;
   password: string;
-  roleId: number;
+  roleId: string;
 }
 
 export interface IDecodedToken {
-  id: number;
+  id: string;
   name: string;
   lastName: string;
   username: string;

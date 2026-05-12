@@ -3,7 +3,7 @@ import { decodeToken, isExpired } from "react-jwt";
 import { IDecodedToken } from "@app/core/types/auth.types";
 
 interface AuthState {
-  id: number | null;
+  id: string | null;
   name: string | null;
   lastName: string | null;
   username: string | null;

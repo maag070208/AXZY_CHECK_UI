@@ -2,13 +2,13 @@ import { get, post, put, remove } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
 export interface Incident {
-  id: number;
+  id: string;
   title: string;
   description: string;
   categoryId?: number;
   typeId?: number;
-  category?: { id: number; name: string; value: string };
-  type?: { id: number; name: string; value: string };
+  category?: { id: string; name: string; value: string };
+  type?: { id: string; name: string; value: string };
   status: "PENDING" | "ATTENDED";
   createdAt: string;
   resolvedAt?: string;
@@ -16,13 +16,13 @@ export interface Incident {
   longitude?: number;
   media?: { type: 'IMAGE' | 'VIDEO'; url: string; key?: string }[];
   guard?: { 
-      id: number;
+      id: string;
       name: string; 
       lastName: string;
       username: string;
   };
   resolvedBy?: {
-      id: number;
+      id: string;
       name: string;
       lastName: string;
       username: string;
@@ -66,15 +66,15 @@ export const createIncident = async (data: CreateIncidentDto): Promise<TResult<I
     return await post<Incident>('/incidents', data);
 };
 
-export const resolveIncident = async (id: number): Promise<TResult<Incident>> => {
+export const resolveIncident = async (id: string): Promise<TResult<Incident>> => {
     return await put<Incident>(`/incidents/${id}/resolve`, {});
 };
 
-export const deleteIncident = async (id: number): Promise<TResult<boolean>> => {
+export const deleteIncident = async (id: string): Promise<TResult<boolean>> => {
     return await remove<boolean>(`/incidents/${id}`);
 };
 
-export const deleteIncidentMedia = async (id: number, key: string): Promise<TResult<boolean>> => {
+export const deleteIncidentMedia = async (id: string, key: string): Promise<TResult<boolean>> => {
     return await remove<boolean>(`/incidents/${id}/media?key=${key}`);
 };
 

@@ -2,7 +2,7 @@ import { get, post, put, remove } from "@app/core/axios/axios";
 import { TResult } from "@app/core/types/TResult";
 
 export interface Maintenance {
-  id: number;
+  id: string;
   title: string;
   description: string;
   category: string;
@@ -13,13 +13,13 @@ export interface Maintenance {
   longitude?: number;
   media?: { type: "IMAGE" | "VIDEO"; url: string; key?: string }[];
   guard?: { 
-      id: number;
+      id: string;
       name: string; 
       lastName: string;
       username: string;
   };
   resolvedBy?: {
-      id: number;
+      id: string;
       name: string;
       lastName: string;
       username: string;
@@ -72,11 +72,11 @@ export const createMaintenance = async (data: CreateMaintenanceDto): Promise<TRe
     return await post<Maintenance>('/maintenance', data);
 };
 
-export const resolveMaintenance = async (id: number, userId?: number): Promise<TResult<Maintenance>> => {
+export const resolveMaintenance = async (id: string, userId?: number): Promise<TResult<Maintenance>> => {
     return await put<Maintenance>(`/maintenance/${id}/resolve`, { userId });
 };
 
-export const deleteMaintenance = async (id: number): Promise<TResult<boolean>> => {
+export const deleteMaintenance = async (id: string): Promise<TResult<boolean>> => {
     return await remove<boolean>(`/maintenance/${id}`);
 };
 

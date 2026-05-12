@@ -16,14 +16,14 @@ export interface IGuardStats {
 }
 
 export interface ITopPerformance {
-    guardId: number;
+    guardId: string;
     name: string;
     lastName: string;
     totalScans: number;
 }
 
 export interface IGuardWorkload {
-    guardId: number;
+    guardId: string;
     name: string;
     lastName: string;
     role: string;
@@ -36,7 +36,7 @@ export interface IGuardWorkload {
 }
 
 export interface IGuardDetail {
-    guardId: number;
+    guardId: string;
     name: string;
     lastName: string;
     role: string;
@@ -50,9 +50,8 @@ export interface IGuardDetail {
 export interface IMissedPoint {
     roundId: number;
     startTime: string;
-    locationId: number;
+    locationId: string;
     locationName: string;
-    aisle: string;
 }
 
 export interface IIncompleteRound {
@@ -84,7 +83,7 @@ export const getDetailedReport = async (filters: IGuardReportFilters): Promise<T
     return get<IGuardDetail[]>("/reports/guards/detail", { params: filters });
 };
 
-export const getGuardDetailBreakdown = async (guardId: number, filters: IGuardReportFilters): Promise<TResult<IGuardDetailBreakdown>> => {
+export const getGuardDetailBreakdown = async (guardId: string, filters: IGuardReportFilters): Promise<TResult<IGuardDetailBreakdown>> => {
     return get<IGuardDetailBreakdown>(`/reports/guards/detail-breakdown/${guardId}`, { params: filters });
 };
 

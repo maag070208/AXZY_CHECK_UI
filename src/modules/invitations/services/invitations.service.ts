@@ -1,7 +1,7 @@
 import { post, put } from "@app/core/axios/axios";
 
 export interface Invitation {
-  id: number;
+  id: string;
   code: string;
   guestName: string;
   propertyId: number;
@@ -10,12 +10,12 @@ export interface Invitation {
   validUntil: string;
   status: "PENDING" | "ENTERED" | "EXITED" | "EXPIRED" | "CANCELLED";
   typeId: number;
-  type?: { id: number; name: string; value: string };
+  type?: { id: string; name: string; value: string };
   notes?: string;
   entryTime?: string;
   exitTime?: string;
-  property?: { id: number; identifier: string; name: string };
-  createdBy?: { id: number; name: string; lastName: string };
+  property?: { id: string; identifier: string; name: string };
+  createdBy?: { id: string; name: string; lastName: string };
 }
 
 export const getPaginatedInvitations = async (params: any) => {
@@ -49,7 +49,7 @@ export const createInvitation = async (data: any) => {
   }
 };
 
-export const updateInvitationStatus = async (id: number, status: string) => {
+export const updateInvitationStatus = async (id: string, status: string) => {
   try {
     const result = await put<any>(`/invitations/${id}/status`, { status });
     return {
