@@ -6,14 +6,19 @@ import { MediaCarousel } from "@core/components/MediaCarousel";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilter, FaSync, FaTimes, FaTrash, FaUserShield, FaWrench } from "react-icons/fa";
+import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilter, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield, FaWrench } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import { deleteMaintenance, deleteMaintenanceMedia, getPaginatedMaintenances, Maintenance, resolveMaintenance } from "../services/MaintenanceService";
+import MaintenanceCreateForm from "../components/MaintenanceCreateForm";
 
 const MaintenancesPage = () => {
   const dispatch = useDispatch();
   const auth = useSelector((state: AppState) => state.auth);
   const isAdmin = auth.role === 'ADMIN';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCategoryId = searchParams.get('categoryId');
+  const initialTypeId = searchParams.get('typeId');
 
   const [refreshKey, setRefreshKey] = useState(0);
   const [viewingMaintenance, setViewingMaintenance] = useState<Maintenance | null>(null);
@@ -21,11 +26,34 @@ const MaintenancesPage = () => {
   const [maintenanceToResolveId, setMaintenanceToResolveId] = useState<number | null>(null);
   const [maintenanceToDelete, setMaintenanceToDelete] = useState<Maintenance | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(initialCategoryId ? Number(initialCategoryId) : null);
+  const [typeFilter, setTypeFilter] = useState<number | null>(initialTypeId ? Number(initialTypeId) : null);
 
   const { data: guardsCatalog, loading: loadingGuards } = useCatalog('guard');
+  const { data: categoriesCatalog } = useCatalog('incident_category');
+  const { data: typesCatalog } = useCatalog('incident_type');
+
+  const maintenanceTypeIds = useMemo(() =>
+    categoriesCatalog
+      .filter(c => c.type === 'MAINTENANCE')
+      .map(c => Number(c.id)),
+    [categoriesCatalog]
+  );
+
+  const maintenanceTypes = useMemo(() =>
+    typesCatalog.filter(t => maintenanceTypeIds.includes(Number(t.categoryId))),
+    [typesCatalog, maintenanceTypeIds]
+  );
+
+  const maintenanceCategoriesOnly = useMemo(
+    () => categoriesCatalog.filter(c => c.type === 'MAINTENANCE'),
+    [categoriesCatalog]
+  );
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Debounce search
   useEffect(() => {
@@ -33,14 +61,38 @@ const MaintenancesPage = () => {
         setRefreshKey(prev => prev + 1);
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, categoryFilter, typeFilter]);
 
   const externalFilters = useMemo(() => {
     const f: Record<string, string | number> = {};
     if (searchTerm && searchTerm.trim().length > 0) f.search = searchTerm.trim();
     if (statusFilter && statusFilter !== 'ALL') f.status = statusFilter;
+    if (categoryFilter !== null) f.categoryId = categoryFilter;
+    if (typeFilter !== null) f.typeId = typeFilter;
     return f;
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, categoryFilter, typeFilter]);
+
+  const clearCatalogFilters = () => {
+    setCategoryFilter(null);
+    setTypeFilter(null);
+    if (searchParams.get('categoryId') || searchParams.get('typeId')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('categoryId');
+      next.delete('typeId');
+      setSearchParams(next, { replace: true });
+    }
+  };
+
+  const activeCatalogLabel = useMemo(() => {
+    if (categoryFilter === null) return null;
+    const cat = maintenanceCategoriesOnly.find(c => Number(c.id) === categoryFilter);
+    if (!cat) return null;
+    if (typeFilter !== null) {
+      const t = maintenanceTypes.find(t => Number(t.id) === typeFilter);
+      return t ? `${cat.value} · ${t.value}` : cat.value;
+    }
+    return cat.value;
+  }, [categoryFilter, typeFilter, maintenanceCategoriesOnly, maintenanceTypes]);
 
   const memoizedFetch = useCallback((params: Record<string, unknown>) => {
     return getPaginatedMaintenances(params);
@@ -243,6 +295,21 @@ const MaintenancesPage = () => {
 
   return (
     <div className="p-6 bg-[#f8fafc] min-h-screen">
+      {activeCatalogLabel && (
+        <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3">
+          <FaTag className="text-emerald-600" />
+          <span className="text-sm">
+            Filtrando por catálogo: <strong>{activeCatalogLabel}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={clearCatalogFilters}
+            className="ml-auto flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900"
+          >
+            <FaTimes size={12} /> Quitar filtro
+          </button>
+        </div>
+      )}
       <div className="flex justify-between items-center mb-8">
         <div>
            <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
@@ -293,6 +360,19 @@ const MaintenancesPage = () => {
                 <FaSync className="text-xs text-slate-500" />
                 <span className="text-xs font-bold text-slate-500">Refrescar</span>
             </ITButton>
+            {isAdmin && (
+                <ITButton 
+                    onClick={() => setShowCreateModal(true)}
+                    color="primary"
+                    variant="filled"
+                    className="h-[42px] px-4 !rounded-xl transition-all flex items-center gap-2"
+                    size="small"
+                    title="Nuevo reporte"
+                >
+                    <FaPlus className="text-xs" />
+                    <span className="text-xs font-bold">Nuevo Reporte</span>
+                </ITButton>
+            )}
         </div>
       </div>
 
@@ -521,6 +601,17 @@ const MaintenancesPage = () => {
             </div>
         </div>
       </ITDialog>
+
+      {/* Create Maintenance Modal */}
+      <MaintenanceCreateForm
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          setShowCreateModal(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+        typesCatalog={maintenanceTypes}
+      />
 
     </div>
   );

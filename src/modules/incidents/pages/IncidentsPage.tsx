@@ -1,19 +1,24 @@
-import { ITBadget, ITButton, ITLoader, ITDataTable, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
-import dayjs from "dayjs";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaUserShield, FaSync, FaTrash, FaTimes, FaFilter } from "react-icons/fa";
-import { deleteIncident, deleteIncidentMedia, getPaginatedIncidents, Incident, resolveIncident } from "../services/IncidentService";
-import { MediaCarousel } from "@core/components/MediaCarousel";
-import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
-import { useDispatch, useSelector } from "react-redux";
-import { showToast } from "@app/core/store/toast/toast.slice";
 import { AppState } from "@app/core/store/store";
+import { showToast } from "@app/core/store/toast/toast.slice";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
+import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
+import { MediaCarousel } from "@core/components/MediaCarousel";
+import dayjs from "dayjs";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaFilter, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import IncidentCreateForm from "../components/IncidentCreateForm";
+import { deleteIncident, deleteIncidentMedia, getPaginatedIncidents, Incident, resolveIncident } from "../services/IncidentService";
 
 const IncidentsPage = () => {
   const dispatch = useDispatch();
   const auth = useSelector((state: AppState) => state.auth);
   const isAdmin = auth.role === 'ADMIN';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCategoryId = searchParams.get('categoryId');
+  const initialTypeId = searchParams.get('typeId');
 
   const [refreshKey, setRefreshKey] = useState(0);
   const [viewingIncident, setViewingIncident] = useState<Incident | null>(null);
@@ -21,11 +26,29 @@ const IncidentsPage = () => {
   const [incidentToResolveId, setIncidentToResolveId] = useState<number | null>(null);
   const [incidentToDelete, setIncidentToDelete] = useState<Incident | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(initialCategoryId ? Number(initialCategoryId) : null);
+  const [typeFilter, setTypeFilter] = useState<number | null>(initialTypeId ? Number(initialTypeId) : null);
 
   const { data: guardsCatalog, loading: loadingGuards } = useCatalog('guard');
+  const { data: categoriesCatalog } = useCatalog('incident_category');
+  const { data: typesCatalog } = useCatalog('incident_type');
+
+  const incidentTypeIds = useMemo(() =>
+    categoriesCatalog
+      .filter(c => c.type === 'INCIDENT')
+      .map(c => Number(c.id)),
+    [categoriesCatalog]
+  );
+
+  const incidentTypes = useMemo(() =>
+    typesCatalog.filter(t => incidentTypeIds.includes(Number(t.categoryId))),
+    [typesCatalog, incidentTypeIds]
+  );
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     console.log('[IncidentsPage] guardsCatalog updated:', guardsCatalog);
@@ -37,14 +60,38 @@ const IncidentsPage = () => {
         setRefreshKey(prev => prev + 1);
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, categoryFilter, typeFilter]);
 
   const externalFilters = useMemo(() => {
     const f: Record<string, string | number> = {};
     if (searchTerm && searchTerm.trim().length > 0) f.search = searchTerm.trim();
     if (statusFilter && statusFilter !== 'ALL') f.status = statusFilter;
+    if (categoryFilter !== null) f.categoryId = categoryFilter;
+    if (typeFilter !== null) f.typeId = typeFilter;
     return f;
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, categoryFilter, typeFilter]);
+
+  const clearCatalogFilters = () => {
+    setCategoryFilter(null);
+    setTypeFilter(null);
+    if (searchParams.get('categoryId') || searchParams.get('typeId')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('categoryId');
+      next.delete('typeId');
+      setSearchParams(next, { replace: true });
+    }
+  };
+
+  const activeCatalogLabel = useMemo(() => {
+    if (categoryFilter === null) return null;
+    const cat = categoriesCatalog.find(c => Number(c.id) === categoryFilter);
+    if (!cat) return null;
+    if (typeFilter !== null) {
+      const t = typesCatalog.find(t => Number(t.id) === typeFilter);
+      return t ? `${cat.value} · ${t.value}` : cat.value;
+    }
+    return cat.value;
+  }, [categoryFilter, typeFilter, categoriesCatalog, typesCatalog]);
 
   const memoizedFetch = useCallback((params: Record<string, unknown>) => {
     return getPaginatedIncidents(params);
@@ -252,6 +299,21 @@ const IncidentsPage = () => {
 
   return (
     <div className="p-6 bg-[#f8fafc] min-h-screen">
+      {activeCatalogLabel && (
+        <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3">
+          <FaTag className="text-emerald-600" />
+          <span className="text-sm">
+            Filtrando por catálogo: <strong>{activeCatalogLabel}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={clearCatalogFilters}
+            className="ml-auto flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900"
+          >
+            <FaTimes size={12} /> Quitar filtro
+          </button>
+        </div>
+      )}
       <div className="flex justify-between items-center mb-8">
         <div>
            <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
@@ -302,6 +364,19 @@ const IncidentsPage = () => {
                 <FaSync className="text-xs text-slate-500" />
                 <span className="text-xs font-bold text-slate-500">Refrescar</span>
             </ITButton>
+            {isAdmin && (
+                <ITButton 
+                    onClick={() => setShowCreateModal(true)}
+                    color="primary"
+                    variant="filled"
+                    className="h-[42px] px-4 !rounded-xl transition-all flex items-center gap-2"
+                    size="small"
+                    title="Nuevo reporte"
+                >
+                    <FaPlus className="text-xs" />
+                    <span className="text-xs font-bold">Nuevo Reporte</span>
+                </ITButton>
+            )}
         </div>
       </div>
 
@@ -533,6 +608,17 @@ const IncidentsPage = () => {
             </div>
         </div>
       </ITDialog>
+
+      {/* Create Incident Modal */}
+      <IncidentCreateForm
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          setShowCreateModal(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+        typesCatalog={incidentTypes}
+      />
 
     </div>
   );

@@ -14,4 +14,8 @@ export interface ICatalogItem {
     id: number | string;
     name: string;
     value: string;
+    categoryId?: number;
+    color?: string;
+    icon?: string;
+    type?: string;
 }

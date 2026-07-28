@@ -9,6 +9,7 @@ import {
   FaListAlt,
   FaMapMarkedAlt,
   FaSearchLocation,
+  FaTags,
   FaUserShield,
   FaWrench
 } from "react-icons/fa";
@@ -125,6 +126,16 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/users"),
       isActive: isRouteActive("/users"),
       icon: <FaChild  />,
+    });
+  }
+
+  if (user?.role === "ADMIN") {
+    baseItems.push({
+      id: "catalogs",
+      label: "Catálogos",
+      action: () => navigate("/catalogs"),
+      isActive: isRouteActive("/catalogs"),
+      icon: <FaTags />,
     });
   }
 

@@ -17,6 +17,7 @@ import InvitationsPage from "./modules/invitations/pages/InvitationsPage";
 import UsersPage from "./modules/users/pages/UsersPage";
 import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
 import MaintenancesPage from "./modules/maintenances/pages/MaintenancesPage";
+import CatalogsPage from "./modules/catalogs/pages/CatalogsPage";
 import KardexPage from "./modules/kardex/pages/KardexPage";
 import RoundsPage from "./modules/rounds/pages/RoundsPage";
 import RoundDetailPage from "./modules/rounds/pages/RoundDetailPage";
@@ -24,6 +25,7 @@ import SchedulesPage from "./modules/schedules/pages/SchedulesPage";
 import RoutesPage from "./modules/routes/pages/RoutesPage";
 import GuardsPage from "./modules/guards/pages/GuardsPage";
 import PropertyDetailPage from "./modules/properties/pages/PropertyDetailPage";
+import AssignmentsPage from "./modules/assignments/pages/AssignmentsPage";
 
 
 function App() {
@@ -87,12 +89,14 @@ function App() {
         <Route path="/users" element={<UsersPage />} />
         <Route path="/incidents" element={<IncidentsPage />} />
         <Route path="/maintenances" element={<MaintenancesPage />} />
+        <Route path="/catalogs" element={<CatalogsPage />} />
         <Route path="/kardex" element={<KardexPage />} />
         <Route path="/schedules" element={<SchedulesPage />} />
         
         <Route path="/rounds" element={<RoundsPage />} />
         <Route path="/rounds/:id" element={<RoundDetailPage />} />
         <Route path="/routes" element={<RoutesPage />} />
+        <Route path="/assignments" element={<AssignmentsPage />} />
         <Route path="/guards" element={<GuardsPage />} />
 
       </Route>

@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaStop, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getRoutesList } from "../../routes/services/RoutesService";
 import { getUsers } from "../../users/services/UserService";
 import {
@@ -25,12 +25,18 @@ dayjs.extend(utc);
 dayjs.extend(tz);
 
 const RoundsPage = () => {
-  const [selectedDate, setSelectedDate] = useState<any>([
-    dayjs().tz("America/Tijuana").toDate(),
-    dayjs().tz("America/Tijuana").toDate(),
-  ]);
+  const [searchParams] = useSearchParams();
+  const initialStatus = searchParams.get('status') || 'ALL';
+  const hasFilterFromUrl = searchParams.get('status') !== null;
+
+  const [selectedDate, setSelectedDate] = useState<any>(
+    hasFilterFromUrl ? null : [
+      dayjs().tz("America/Tijuana").toDate(),
+      dayjs().tz("America/Tijuana").toDate(),
+    ]
+  );
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [refreshKey, setRefreshKey] = useState(0);
   const dispatch = useDispatch();
 

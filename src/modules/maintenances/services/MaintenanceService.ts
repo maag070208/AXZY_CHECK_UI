@@ -26,11 +26,20 @@ export interface Maintenance {
   };
 }
 
+export interface MaintenanceMediaItem {
+  type: 'IMAGE' | 'VIDEO';
+  url: string;
+  key?: string;
+}
+
 export interface CreateMaintenanceDto {
   title: string;
-  category: string;
+  categoryId: number;
+  typeId: number;
   description: string;
-  media: any[];
+  media: MaintenanceMediaItem[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export const getPaginatedMaintenances = async (params: Record<string, unknown>): Promise<{ data: Maintenance[], total: number }> => {
@@ -82,4 +91,23 @@ export const deleteMaintenance = async (id: number): Promise<TResult<boolean>> =
 
 export const deleteMaintenanceMedia = async (maintenanceId: number, key: string): Promise<TResult<boolean>> => {
     return await remove<boolean>(`/maintenance/${maintenanceId}/media?key=${key}`);
+};
+
+export const uploadMaintenanceFile = async (file: File): Promise<MaintenanceMediaItem | null> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("location", "maintenance");
+
+    const res = await post<{ url: string; type: string; key: string }>("/uploads", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+
+    if (res.success && res.data?.url) {
+        return {
+            url: res.data.url,
+            type: (res.data.type === 'VIDEO' ? 'VIDEO' : 'IMAGE') as 'IMAGE' | 'VIDEO',
+            key: res.data.key,
+        };
+    }
+    return null;
 };

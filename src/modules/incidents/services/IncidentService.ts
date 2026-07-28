@@ -14,7 +14,7 @@ export interface Incident {
   resolvedAt?: string;
   latitude?: number;
   longitude?: number;
-  media?: { type: 'IMAGE' | 'VIDEO'; url: string; key?: string }[];
+  media?: IncidentMediaItem[];
   guard?: { 
       id: number;
       name: string; 
@@ -29,12 +29,20 @@ export interface Incident {
   };
 }
 
+export interface IncidentMediaItem {
+  type: 'IMAGE' | 'VIDEO';
+  url: string;
+  key?: string;
+}
+
 export interface CreateIncidentDto {
   title: string;
   categoryId: number;
   typeId: number;
   description: string;
-  media: any[];
+  media: IncidentMediaItem[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export const getIncidents = async (filters?: {
@@ -87,4 +95,23 @@ export const getPaginatedIncidents = async (params: any): Promise<{ data: Incide
         };
     }
     return { data: [], total: 0 };
+};
+
+export const uploadIncidentFile = async (file: File): Promise<IncidentMediaItem | null> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("location", "incident");
+
+    const res = await post<{ url: string; type: string; key: string }>("/uploads", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+
+    if (res.success && res.data?.url) {
+        return {
+            url: res.data.url,
+            type: (res.data.type === 'VIDEO' ? 'VIDEO' : 'IMAGE') as 'IMAGE' | 'VIDEO',
+            key: res.data.key,
+        };
+    }
+    return null;
 };

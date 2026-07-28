@@ -63,6 +63,9 @@ export const GoogleMapComponent = ({
                     defaultZoom={zoom}
                     gestureHandling={'greedy'}
                     disableDefaultUI={false}
+                    streetViewControl={false}
+                    fullscreenControl={false}
+                    mapTypeControl={false}
                     onClick={handleMapClick}
                     mapId="bf3fcca21542f575"
                 >

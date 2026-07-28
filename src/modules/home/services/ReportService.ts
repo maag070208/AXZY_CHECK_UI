@@ -91,3 +91,42 @@ export const getGuardDetailBreakdown = async (guardId: number, filters: IGuardRe
 export const getWorkloadComparison = async (filters: IGuardReportFilters): Promise<TResult<IGuardWorkload[]>> => {
     return get<IGuardWorkload[]>("/reports/guards/workload", { params: filters });
 };
+
+export interface IDashboardMetrics {
+  totalProperties: number;
+  totalLocations: number;
+  totalGuards: number;
+  totalUsers: number;
+  activeRounds: number;
+  pendingIncidents: number;
+  pendingMaintenance: number;
+  activeAssignments: number;
+  activeRoutes: number;
+  recentActivity: {
+    id: number;
+    guardName: string;
+    locationName: string;
+    timestamp: string;
+    scanType: string;
+  }[];
+}
+
+export const getDashboardMetrics = async (): Promise<TResult<IDashboardMetrics>> => {
+  return get<IDashboardMetrics>("/dashboard");
+};
+
+export interface ICompletedRoundToday {
+  id: number;
+  guardName: string;
+  routeName: string;
+  startTime: string;
+  endTime: string | null;
+  durationMinutes: number;
+  totalLocations: number;
+  scannedLocations: number;
+  missedLocations: number;
+}
+
+export const getCompletedRoundsToday = async (): Promise<TResult<ICompletedRoundToday[]>> => {
+  return get<ICompletedRoundToday[]>("/dashboard/completed-rounds-today");
+};
