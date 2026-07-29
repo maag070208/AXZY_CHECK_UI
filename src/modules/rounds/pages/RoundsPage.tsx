@@ -17,6 +17,7 @@ import {
   getPaginatedRounds,
   IRound,
 } from "../services/RoundsService";
+import { getCompletionBadge } from "../utils/completion-badge";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import tz from "dayjs/plugin/timezone";
@@ -199,19 +200,65 @@ const RoundsPage = () => {
         ),
       },
       {
-        key: "status",
-        label: "Estado",
+        key: "completion",
+        label: "Cumplimiento",
         type: "string",
-        sortable: true,
-        render: (row: IRound) => (
-          <ITBadget
-            color={row.status === "COMPLETED" ? "secondary" : "warning"}
-            variant="filled"
-            size="small"
-          >
-            {row.status === "COMPLETED" ? "FINALIZADA" : "EN CURSO"}
-          </ITBadget>
-        ),
+        sortable: false,
+        render: (row: IRound) => {
+          const badge = getCompletionBadge(row);
+          const Icon = badge.icon;
+          return (
+            <div className="flex flex-col gap-1.5 min-w-[180px]">
+              <ITBadget
+                color={badge.color}
+                variant={badge.variant}
+                size="small"
+              >
+                <div className="flex items-center gap-1.5">
+                  <Icon className="text-[10px]" />
+                  <span className="text-[10px] font-black tracking-wide">
+                    {badge.label}
+                    {badge.showBar && ` · ${badge.pct}%`}
+                  </span>
+                </div>
+              </ITBadget>
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`relative inline-flex h-2 w-2 rounded-full ${
+                    badge.isActive ? "bg-emerald-500" : "bg-slate-400"
+                  }`}
+                >
+                  {badge.isActive && (
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                  )}
+                </span>
+                <span
+                  className={`text-[10px] font-black tracking-wider ${
+                    badge.isActive ? "text-emerald-600" : "text-slate-500"
+                  }`}
+                >
+                  {badge.roundStatusLabel}
+                </span>
+              </div>
+              {badge.showBar && (
+                <>
+                  <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${badge.pct}%`,
+                        backgroundColor: badge.barColor,
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">
+                    {badge.completed} / {badge.expected} puntos
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        },
       },
       {
         key: "actions",
