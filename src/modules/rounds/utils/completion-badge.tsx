@@ -3,7 +3,6 @@ import {
   FaClock,
   FaExclamationCircle,
   FaQuestionCircle,
-  type IconType,
 } from "react-icons/fa";
 import type { IRound } from "../services/RoundsService";
 
@@ -19,7 +18,7 @@ export interface CompletionBadge {
   label: string;
   color: CompletionBadgeColor;
   variant: CompletionBadgeVariant;
-  icon: IconType;
+  icon: any;
   pct: number;
   completed: number;
   expected: number;

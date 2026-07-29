@@ -211,7 +211,6 @@ const RoundsPage = () => {
             <div className="flex flex-col gap-1.5 min-w-[180px]">
               <ITBadget
                 color={badge.color}
-                variant={badge.variant}
                 size="small"
               >
                 <div className="flex items-center gap-1.5">
