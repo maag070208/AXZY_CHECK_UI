@@ -6,6 +6,8 @@ import {
   FaClock,
   FaComments,
   FaExclamationTriangle,
+  FaGlassCheers,
+  FaUserClock,
   FaHome,
   FaListAlt,
   FaMapMarkedAlt,
@@ -77,6 +79,13 @@ export const useNavigationItems = (): any[] => {
       icon: <FaExclamationTriangle  />, 
     },
     {
+      id: "club",
+      label: "Casa Club",
+      action: () => navigate("/club"),
+      isActive: isRouteActive("/club"),
+      icon: <FaGlassCheers  />, 
+    },
+    {
       id: "maintenances",
       label: "Mantenimientos",
       action: () => navigate("/maintenances"),
@@ -134,6 +143,16 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/users"),
       isActive: isRouteActive("/users"),
       icon: <FaChild  />,
+    });
+  }
+
+  if (user?.role === "ADMIN" || user?.role === "SHIFT") {
+    baseItems.push({
+      id: "shift-check",
+      label: "Verificación de Turno",
+      action: () => navigate("/shift-check"),
+      isActive: isRouteActive("/shift-check"),
+      icon: <FaUserClock />,
     });
   }
 

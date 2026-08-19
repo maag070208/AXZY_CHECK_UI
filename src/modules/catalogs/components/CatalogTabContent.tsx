@@ -12,6 +12,8 @@ import {
     deleteType,
     getCategories,
     getTypes,
+    hardDeleteCategory,
+    hardDeleteType,
 } from '../services/CatalogManagementService';
 import CategoryFormDialog from './CategoryFormDialog';
 import TypeFormDialog from './TypeFormDialog';
@@ -44,6 +46,8 @@ const CatalogTabContent = ({ type }: CatalogTabContentProps) => {
     const [pendingDeleteType, setPendingDeleteType] = useState<IncidentType | null>(null);
     const [pendingReactivateCategory, setPendingReactivateCategory] = useState<IncidentCategory | null>(null);
     const [pendingReactivateType, setPendingReactivateType] = useState<IncidentType | null>(null);
+    const [pendingHardDeleteCategory, setPendingHardDeleteCategory] = useState<IncidentCategory | null>(null);
+    const [pendingHardDeleteType, setPendingHardDeleteType] = useState<IncidentType | null>(null);
 
     // Para el filtro "inactivas" necesitamos pedirle a la API también las inactivas.
     const includeInactive = visibility !== 'activas';
@@ -111,7 +115,7 @@ const CatalogTabContent = ({ type }: CatalogTabContentProps) => {
         return all;
     };
 
-    const recordsBasePath = type === 'INCIDENT' ? '/incidents' : '/maintenance';
+    const recordsBasePath = type === 'INCIDENT' ? '/incidents' : type === 'MAINTENANCE' ? '/maintenance' : '/club';
 
     const goToRecords = (categoryId: number, typeId?: number) => {
         const params = new URLSearchParams();
@@ -191,6 +195,32 @@ const CatalogTabContent = ({ type }: CatalogTabContentProps) => {
             loadData();
         } else {
             dispatch(showToast({ message: res.messages?.[0] ?? 'Error al reactivar', type: 'error' }));
+        }
+    };
+
+    const confirmHardDeleteCategory = async () => {
+        if (!pendingHardDeleteCategory) return;
+        const res = await hardDeleteCategory(pendingHardDeleteCategory.id);
+        setPendingHardDeleteCategory(null);
+        if (res.success) {
+            dispatch(showToast({ message: 'Categoría eliminada definitivamente', type: 'success' }));
+            invalidate();
+            loadData();
+        } else {
+            dispatch(showToast({ message: res.messages?.[0] ?? 'Error al eliminar', type: 'error' }));
+        }
+    };
+
+    const confirmHardDeleteType = async () => {
+        if (!pendingHardDeleteType) return;
+        const res = await hardDeleteType(pendingHardDeleteType.id);
+        setPendingHardDeleteType(null);
+        if (res.success) {
+            dispatch(showToast({ message: 'Tipo eliminado definitivamente', type: 'success' }));
+            invalidate();
+            loadData();
+        } else {
+            dispatch(showToast({ message: res.messages?.[0] ?? 'Error al eliminar', type: 'error' }));
         }
     };
 
@@ -303,7 +333,7 @@ const CatalogTabContent = ({ type }: CatalogTabContentProps) => {
                                                 size="small"
                                                 variant="ghost"
                                                 className="!p-2 text-slate-400 hover:text-emerald-600"
-                                                title={`Ver registros de ${type === 'INCIDENT' ? 'incidencias' : 'mantenimiento'}`}
+                                                title={`Ver registros de ${type === 'INCIDENT' ? 'incidencias' : type === 'MAINTENANCE' ? 'mantenimiento' : 'casa club'}`}
                                             >
                                                 <FaExternalLinkAlt size={12} />
                                             </ITButton>
@@ -327,15 +357,26 @@ const CatalogTabContent = ({ type }: CatalogTabContentProps) => {
                                                     <FaTrash />
                                                 </ITButton>
                                             ) : (
-                                                <ITButton
-                                                    onClick={() => setPendingReactivateCategory(cat)}
-                                                    size="small"
-                                                    variant="ghost"
-                                                    className="!p-2 text-emerald-400 hover:text-emerald-600"
-                                                    title="Reactivar categoría"
-                                                >
-                                                    <FaPowerOff />
-                                                </ITButton>
+                                                <>
+                                                    <ITButton
+                                                        onClick={() => setPendingReactivateCategory(cat)}
+                                                        size="small"
+                                                        variant="ghost"
+                                                        className="!p-2 text-emerald-400 hover:text-emerald-600"
+                                                        title="Reactivar categoría"
+                                                    >
+                                                        <FaPowerOff />
+                                                    </ITButton>
+                                                    <ITButton
+                                                        onClick={() => setPendingHardDeleteCategory(cat)}
+                                                        size="small"
+                                                        variant="ghost"
+                                                        className="!p-2 text-red-400 hover:text-red-600"
+                                                        title="Eliminar definitivamente"
+                                                    >
+                                                        <FaTrash />
+                                                    </ITButton>
+                                                </>
                                             )}
                                         </div>
                                     </div>
@@ -388,15 +429,26 @@ const CatalogTabContent = ({ type }: CatalogTabContentProps) => {
                                                                     <FaTrash size={12} />
                                                                 </ITButton>
                                                             ) : (
-                                                                <ITButton
-                                                                    onClick={() => setPendingReactivateType(t)}
-                                                                    size="small"
-                                                                    variant="ghost"
-                                                                    className="!p-1.5 text-emerald-300 hover:text-emerald-500"
-                                                                    title="Reactivar tipo"
-                                                                >
-                                                                    <FaPowerOff size={12} />
-                                                                </ITButton>
+                                                                <>
+                                                                    <ITButton
+                                                                        onClick={() => setPendingReactivateType(t)}
+                                                                        size="small"
+                                                                        variant="ghost"
+                                                                        className="!p-1.5 text-emerald-300 hover:text-emerald-500"
+                                                                        title="Reactivar tipo"
+                                                                    >
+                                                                        <FaPowerOff size={12} />
+                                                                    </ITButton>
+                                                                    <ITButton
+                                                                        onClick={() => setPendingHardDeleteType(t)}
+                                                                        size="small"
+                                                                        variant="ghost"
+                                                                        className="!p-1.5 text-red-400 hover:text-red-600"
+                                                                        title="Eliminar definitivamente"
+                                                                    >
+                                                                        <FaTrash size={12} />
+                                                                    </ITButton>
+                                                                </>
                                                             )}
                                                         </div>
                                                     </li>
@@ -478,6 +530,28 @@ const CatalogTabContent = ({ type }: CatalogTabContentProps) => {
                 message={`¿Reactivar el tipo "${pendingReactivateType?.value}"?`}
                 confirmLabel="Reactivar"
                 variant="success"
+            />
+
+            <ConfirmDialog
+                open={!!pendingHardDeleteCategory}
+                onClose={() => setPendingHardDeleteCategory(null)}
+                onConfirm={confirmHardDeleteCategory}
+                title="Eliminar categoría definitivamente"
+                message={`¿Eliminar físicamente la categoría "${pendingHardDeleteCategory?.value}" y todos sus tipos? Esta acción es irreversible. No se puede ejecutar si tiene registros asociados.`}
+                confirmLabel="Eliminar definitivamente"
+                variant="danger"
+                className="!max-w-md"
+            />
+
+            <ConfirmDialog
+                open={!!pendingHardDeleteType}
+                onClose={() => setPendingHardDeleteType(null)}
+                onConfirm={confirmHardDeleteType}
+                title="Eliminar tipo definitivamente"
+                message={`¿Eliminar físicamente el tipo "${pendingHardDeleteType?.value}"? Esta acción es irreversible. No se puede ejecutar si tiene registros asociados.`}
+                confirmLabel="Eliminar definitivamente"
+                variant="danger"
+                className="!max-w-md"
             />
         </div>
     );

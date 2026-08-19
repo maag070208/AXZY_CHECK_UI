@@ -8,6 +8,8 @@ export type CatalogOptionsType =
     | 'guard'
     | 'incident_category'
     | 'incident_type'
+    | 'club_category'
+    | 'club_type'
     | 'invitation_status';
 
 export interface ICatalogItem {

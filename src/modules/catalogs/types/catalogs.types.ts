@@ -1,4 +1,4 @@
-export type CatalogType = 'INCIDENT' | 'MAINTENANCE';
+export type CatalogType = 'INCIDENT' | 'MAINTENANCE' | 'CASA_CLUB';
 
 export interface IncidentCategory {
     id: number;

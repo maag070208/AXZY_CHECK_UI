@@ -16,6 +16,8 @@ import ResidentsPage from "./modules/residents/pages/ResidentsPage";
 import InvitationsPage from "./modules/invitations/pages/InvitationsPage";
 import UsersPage from "./modules/users/pages/UsersPage";
 import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
+import ClubPage from "./modules/club/pages/ClubPage";
+import ShiftCheckPage from "./modules/shift-check/pages/ShiftCheckPage";
 import MaintenancesPage from "./modules/maintenances/pages/MaintenancesPage";
 import CatalogsPage from "./modules/catalogs/pages/CatalogsPage";
 import KardexPage from "./modules/kardex/pages/KardexPage";
@@ -89,6 +91,8 @@ function App() {
         <Route path="/invitations" element={<InvitationsPage />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/incidents" element={<IncidentsPage />} />
+        <Route path="/club" element={<ClubPage />} />
+        <Route path="/shift-check" element={<ShiftCheckPage />} />
         <Route path="/maintenances" element={<MaintenancesPage />} />
         <Route path="/catalogs" element={<CatalogsPage />} />
         <Route path="/kardex" element={<KardexPage />} />

@@ -1,8 +1,8 @@
-import { FaShieldAlt, FaTools, FaWrench, FaCogs } from 'react-icons/fa';
+import { FaShieldAlt, FaTools, FaWrench, FaCogs, FaGlassCheers } from 'react-icons/fa';
 import { ComponentType } from 'react';
 
 export interface CatalogTabConfig {
-    key: 'INCIDENT' | 'MAINTENANCE';
+    key: 'INCIDENT' | 'MAINTENANCE' | 'CASA_CLUB';
     label: string;
     description: string;
     icon: ComponentType;
@@ -20,6 +20,12 @@ export const CATALOG_TABS: CatalogTabConfig[] = [
         label: 'Mantenimiento',
         description: 'Administra las categorías y tipos para solicitudes de mantenimiento.',
         icon: FaTools,
+    },
+    {
+        key: 'CASA_CLUB',
+        label: 'Casa Club',
+        description: 'Administra las categorías y tipos para reportes de casa club.',
+        icon: FaGlassCheers,
     },
 ];
 
@@ -50,6 +56,7 @@ export const ICON_PRESETS = [
 export const TAB_ICONS = {
     INCIDENT: FaShieldAlt,
     MAINTENANCE: FaWrench,
+    CASA_CLUB: FaGlassCheers,
 } as const;
 
 export const TAB_FALLBACK_ICON = FaCogs;

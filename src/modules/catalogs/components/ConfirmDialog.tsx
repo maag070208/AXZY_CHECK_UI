@@ -9,6 +9,7 @@ interface ConfirmDialogProps {
     confirmLabel?: string;
     cancelLabel?: string;
     variant?: 'danger' | 'success' | 'primary';
+    className?: string;
 }
 
 const VARIANT_CLASSES: Record<NonNullable<ConfirmDialogProps['variant']>, string> = {
@@ -26,11 +27,12 @@ const ConfirmDialog = ({
     confirmLabel = 'Confirmar',
     cancelLabel = 'Cancelar',
     variant = 'primary',
+    className,
 }: ConfirmDialogProps) => {
     if (!open) return null;
 
     return (
-        <ITDialog isOpen={open} onClose={onClose} title={title}>
+        <ITDialog isOpen={open} onClose={onClose} title={title} className={className}>
             <div className="p-2 flex flex-col gap-5">
                 <p className="text-slate-700">{message}</p>
                 <div className="flex justify-end gap-2">

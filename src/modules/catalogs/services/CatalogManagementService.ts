@@ -49,6 +49,13 @@ export const deleteCategory = async (id: number): Promise<TResult<IncidentCatego
     return await remove<IncidentCategory>(`/catalog/incident-categories/${id}`);
 };
 
+/**
+ * Borrado físico de una categoría. Sólo permitido si está desactivada y sin registros.
+ */
+export const hardDeleteCategory = async (id: number): Promise<TResult<IncidentCategory>> => {
+    return await remove<IncidentCategory>(`/catalog/incident-categories/${id}/hard`);
+};
+
 export const activateCategory = async (id: number): Promise<TResult<IncidentCategory>> => {
     return await patch<IncidentCategory>(`/catalog/incident-categories/${id}/activate`, {});
 };
@@ -89,6 +96,13 @@ export const updateType = async (
 
 export const deleteType = async (id: number): Promise<TResult<IncidentType>> => {
     return await remove<IncidentType>(`/catalog/incident-types/${id}`);
+};
+
+/**
+ * Borrado físico de un tipo. Sólo permitido si está desactivado y sin registros.
+ */
+export const hardDeleteType = async (id: number): Promise<TResult<IncidentType>> => {
+    return await remove<IncidentType>(`/catalog/incident-types/${id}/hard`);
 };
 
 export const activateType = async (id: number): Promise<TResult<IncidentType>> => {

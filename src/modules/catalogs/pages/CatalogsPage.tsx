@@ -4,7 +4,7 @@ import { CATALOG_TABS } from '../constants/catalogs.constants';
 import CatalogTabContent from '../components/CatalogTabContent';
 
 const CatalogsPage = () => {
-    const [activeTab, setActiveTab] = useState<'INCIDENT' | 'MAINTENANCE'>('INCIDENT');
+    const [activeTab, setActiveTab] = useState<'INCIDENT' | 'MAINTENANCE' | 'CASA_CLUB'>('INCIDENT');
 
     return (
         <div className="p-6 bg-[#f8fafc] min-h-screen">
