@@ -42,7 +42,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen overflow-y-hidden">
+    <div className="flex flex-col justify-center items-center h-screen overflow-y-hidden">
       <ITCard
         contentClassName="w-full"
         className="w-3/4 md:2-2/6 lg:w-2/6 flex justify-center items-center border-slate-200 shadow-slate-400"
@@ -52,6 +52,19 @@ const LoginPage = () => {
           <LoginFormComponent onSubmit={handleSubmit} />
         </div>
       </ITCard>
+      <div className="mt-4 text-xs text-slate-500 flex gap-3">
+        <span>v{import.meta.env.VITE_APP_VERSION}</span>
+        <span>•</span>
+        <span
+          className={`font-semibold ${
+            import.meta.env.VITE_APP_ENV === "PROD"
+              ? "text-emerald-600"
+              : "text-amber-600"
+          }`}
+        >
+          {import.meta.env.VITE_APP_ENV}
+        </span>
+      </div>
     </div>
   );
 };

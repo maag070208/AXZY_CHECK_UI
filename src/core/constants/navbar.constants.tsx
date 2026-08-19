@@ -4,6 +4,7 @@ import {
   FaBook,
   FaChild,
   FaClock,
+  FaComments,
   FaExclamationTriangle,
   FaHome,
   FaListAlt,
@@ -109,6 +110,13 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/guards"),
       isActive: isRouteActive("/guards"),
       icon: <FaUserShield />,
+    },
+    {
+      id: "novedades",
+      label: "Novedades",
+      action: () => navigate("/novedades"),
+      isActive: isRouteActive("/novedades"),
+      icon: <FaComments />,
     },
     {
       id: 'schedule',

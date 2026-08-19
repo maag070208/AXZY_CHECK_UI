@@ -26,6 +26,7 @@ import RoutesPage from "./modules/routes/pages/RoutesPage";
 import GuardsPage from "./modules/guards/pages/GuardsPage";
 import PropertyDetailPage from "./modules/properties/pages/PropertyDetailPage";
 import AssignmentsPage from "./modules/assignments/pages/AssignmentsPage";
+import NovedadesPage from "./modules/novedades/pages/NovedadesPage";
 
 
 function App() {
@@ -98,6 +99,7 @@ function App() {
         <Route path="/routes" element={<RoutesPage />} />
         <Route path="/assignments" element={<AssignmentsPage />} />
         <Route path="/guards" element={<GuardsPage />} />
+        <Route path="/novedades" element={<NovedadesPage />} />
 
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />

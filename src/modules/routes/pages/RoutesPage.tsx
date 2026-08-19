@@ -1,9 +1,10 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { ITButton, ITDataTable, ITDialog } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaEdit, FaPlus, FaRoute, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
+import { FaEdit, FaPlus, FaPrint, FaRoute, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { CreateRouteModal } from "../components/CreateRouteModal";
+import PrintQrModal from "../components/PrintQrModal";
 import { deleteRoute, getPaginatedRoutes } from "../services/RoutesService";
 
 const RoutesPage = () => {
@@ -12,6 +13,7 @@ const RoutesPage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editConfig, setEditConfig] = useState<any>(null);
   const [routeToDeleteId, setRouteToDeleteId] = useState<number | null>(null);
+  const [printRoute, setPrintRoute] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Debounce search
@@ -184,6 +186,16 @@ const RoutesPage = () => {
               actions: (row: any) => (
                 <div className="flex items-center gap-2">
                   <ITButton 
+                    onClick={() => setPrintRoute(row)}
+                    variant="outlined" 
+                    color="secondary"
+                    size="small" 
+                    className="!rounded-xl !p-2 !border-slate-200"
+                    title="Imprimir QR"
+                  >
+                    <FaPrint size={14} className="text-slate-500" />
+                  </ITButton>
+                  <ITButton 
                     onClick={() => handleEdit(row)}
                     variant="outlined" 
                     color="secondary"
@@ -215,6 +227,12 @@ const RoutesPage = () => {
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={refreshTable}
         editConfig={editConfig}
+      />
+
+      <PrintQrModal
+        isOpen={!!printRoute}
+        onClose={() => setPrintRoute(null)}
+        route={printRoute}
       />
 
       {/* Confirm Delete Dialog */}

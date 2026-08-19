@@ -6,11 +6,12 @@ import { MediaCarousel } from "@core/components/MediaCarousel";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilter, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield, FaWrench } from "react-icons/fa";
+import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilePdf, FaFilter, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield, FaWrench } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { deleteMaintenance, deleteMaintenanceMedia, getPaginatedMaintenances, Maintenance, resolveMaintenance } from "../services/MaintenanceService";
 import MaintenanceCreateForm from "../components/MaintenanceCreateForm";
+import MaintenanceReportModal from "../components/MaintenanceReportModal";
 
 const MaintenancesPage = () => {
   const dispatch = useDispatch();
@@ -54,6 +55,7 @@ const MaintenancesPage = () => {
   );
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // Debounce search
   useEffect(() => {
@@ -349,7 +351,18 @@ const MaintenancesPage = () => {
                     <option value="ATTENDED">Atendidos</option>
                 </select>
             </div>
-            <ITButton 
+            <ITButton
+                onClick={() => setShowReportModal(true)}
+                color="primary"
+                variant="outlined"
+                className="h-[42px] px-4 !rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-all flex items-center gap-2"
+                size="small"
+                title="Generar reporte PDF de mantenimientos"
+            >
+                <FaFilePdf className="text-sm" />
+                <span className="text-xs font-bold">Generar Reporte PDF</span>
+            </ITButton>
+            <ITButton
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
@@ -613,8 +626,13 @@ const MaintenancesPage = () => {
         typesCatalog={maintenanceTypes}
       />
 
+      {/* Report PDF Modal */}
+      <MaintenanceReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+      />
+
     </div>
   );
 };
-
 export default MaintenancesPage;

@@ -111,3 +111,69 @@ export const uploadMaintenanceFile = async (file: File): Promise<MaintenanceMedi
     }
     return null;
 };
+
+export interface MaintenancePdfFilters {
+    startDate: Date;
+    endDate: Date;
+    ids?: number[];
+    includeImages?: boolean;
+    includeLocation?: boolean;
+}
+
+/**
+ * Solicita al backend el PDF de mantenimientos filtrados por rango y,
+ * opcionalmente, por IDs seleccionados. La respuesta se descarga
+ * automáticamente en el navegador.
+ */
+export const downloadMaintenancesPdf = async (filters: MaintenancePdfFilters): Promise<TResult<boolean>> => {
+    const params: string[] = [
+        `startDate=${filters.startDate.toISOString()}`,
+        `endDate=${filters.endDate.toISOString()}`,
+        `includeImages=${filters.includeImages === false ? "false" : "true"}`,
+        `includeLocation=${filters.includeLocation === false ? "false" : "true"}`,
+    ];
+    if (filters.ids && filters.ids.length > 0) {
+        params.push(`ids=${filters.ids.join(",")}`);
+    }
+
+    const url = `/maintenance/report/pdf?${params.join("&")}`;
+
+    try {
+        const { axiosInstance } = await import("@app/core/axios/axios");
+        const response = await axiosInstance.get(url, {
+            responseType: "blob",
+            headers: { Accept: "application/pdf" },
+        });
+
+        const blob = response.data as Blob;
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        const filename = `reporte-mantenimientos-${new Date().toISOString().slice(0, 10)}.pdf`;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        return { data: true, success: true, message: "ok", messages: [], ex: null };
+    } catch (error: unknown) {
+        const e = error as { response?: { data?: Blob }; message?: string };
+        let serverMessage = "Error al generar el PDF";
+        if (e.response?.data instanceof Blob) {
+            try {
+                const text = await e.response.data.text();
+                const parsed = JSON.parse(text) as { messages?: string[] };
+                if (parsed.messages && parsed.messages.length > 0) {
+                    serverMessage = parsed.messages.join(", ");
+                }
+            } catch {
+                serverMessage = e.message ?? serverMessage;
+            }
+        } else if (e.message) {
+            serverMessage = e.message;
+        }
+
+        return { data: false, success: false, message: serverMessage, messages: [serverMessage], ex: null };
+    }
+};
