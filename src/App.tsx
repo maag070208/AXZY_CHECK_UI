@@ -18,6 +18,9 @@ import UsersPage from "./modules/users/pages/UsersPage";
 import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
 import ClubPage from "./modules/club/pages/ClubPage";
 import ShiftCheckPage from "./modules/shift-check/pages/ShiftCheckPage";
+import ShiftCheckCapturePage from "./modules/shift-check/pages/ShiftCheckCapturePage";
+import UniformCheckPage from "./modules/uniform-check/pages/UniformCheckPage";
+import UniformCheckCapturePage from "./modules/uniform-check/pages/UniformCheckCapturePage";
 import MaintenancesPage from "./modules/maintenances/pages/MaintenancesPage";
 import CatalogsPage from "./modules/catalogs/pages/CatalogsPage";
 import KardexPage from "./modules/kardex/pages/KardexPage";
@@ -93,6 +96,9 @@ function App() {
         <Route path="/incidents" element={<IncidentsPage />} />
         <Route path="/club" element={<ClubPage />} />
         <Route path="/shift-check" element={<ShiftCheckPage />} />
+        <Route path="/shift-check/capture" element={<ShiftCheckCapturePage />} />
+        <Route path="/uniform-check" element={<UniformCheckPage />} />
+        <Route path="/uniform-check/capture" element={<UniformCheckCapturePage />} />
         <Route path="/maintenances" element={<MaintenancesPage />} />
         <Route path="/catalogs" element={<CatalogsPage />} />
         <Route path="/kardex" element={<KardexPage />} />

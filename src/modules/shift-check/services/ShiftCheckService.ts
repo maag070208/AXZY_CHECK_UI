@@ -12,9 +12,11 @@ export interface ShiftCheck {
   delayMinutes: number;
   isLate: boolean;
   isAbsent: boolean;
-  uniformCheck: Record<string, { value: boolean; note?: string | null }> | null;
   handoverItems: Record<string, { value: boolean; note?: string | null }> | null;
   observations: string | null;
+  credentialsCount: number | null;
+  tarjetonesCount: number | null;
+  novedadesCaseta: string | null;
   status: "DRAFT" | "COMPLETED" | "SIGNED";
   createdById: number;
   signedById: number | null;
@@ -25,6 +27,9 @@ export interface ShiftCheck {
   updatedAt: string;
   user?: { id: number; name: string; lastName?: string; username: string };
   createdBy?: { id: number; name: string; lastName?: string };
+  signedBy?: { id: number; name: string; lastName?: string | null } | null;
+  deliveredBy?: { id: number; name: string; lastName?: string | null } | null;
+  receivedBy?: { id: number; name: string; lastName?: string | null } | null;
 }
 
 export interface CreateShiftCheckDto {
@@ -33,15 +38,18 @@ export interface CreateShiftCheckDto {
   shiftType: "MATUTINO" | "NOCTURNO";
   actualEntryAt?: string | null;
   isAbsent?: boolean;
-  uniformCheck?: Record<string, { value: boolean; note?: string | null }> | null;
   handoverItems?: Record<string, { value: boolean; note?: string | null }> | null;
   observations?: string | null;
+  replacedById?: number | null;
+  coverageStart?: string | null;
+  coverageEnd?: string | null;
+  credentialsCount?: number | null;
+  tarjetonesCount?: number | null;
+  novedadesCaseta?: string | null;
   clientRef?: string;
 }
 
 export interface SignShiftCheckDto {
-  deliveredUsername: string;
-  deliveredPassword: string;
   receivedUsername: string;
   receivedPassword: string;
 }

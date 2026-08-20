@@ -13,6 +13,7 @@ import {
   FaMapMarkedAlt,
   FaSearchLocation,
   FaTags,
+  FaTshirt,
   FaUserShield,
   FaWrench
 } from "react-icons/fa";
@@ -153,6 +154,16 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/shift-check"),
       isActive: isRouteActive("/shift-check"),
       icon: <FaUserClock />,
+    });
+  }
+
+  if (user?.role === "ADMIN" || user?.role === "SHIFT") {
+    baseItems.push({
+      id: "uniform-check",
+      label: "Uniforme y Aseo",
+      action: () => navigate("/uniform-check"),
+      isActive: isRouteActive("/uniform-check"),
+      icon: <FaTshirt />,
     });
   }
 

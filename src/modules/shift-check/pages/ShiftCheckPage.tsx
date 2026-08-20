@@ -1,9 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { FaCheck, FaFilter, FaSync } from "react-icons/fa";
+import { FaCheck, FaFilter, FaPlus, FaSync } from "react-icons/fa";
 import dayjs from "dayjs";
 import {
   getPaginatedShiftChecks,
@@ -13,6 +14,7 @@ import {
 
 const ShiftCheckPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const auth = useSelector((state: AppState) => state.auth);
   const isAdminOrShift = auth.role === "ADMIN" || auth.role === "SHIFT";
 
@@ -20,8 +22,6 @@ const ShiftCheckPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [signingId, setSigningId] = useState<string | null>(null);
-  const [deliveredUsername, setDeliveredUsername] = useState("");
-  const [deliveredPassword, setDeliveredPassword] = useState("");
   const [receivedUsername, setReceivedUsername] = useState("");
   const [receivedPassword, setReceivedPassword] = useState("");
 
@@ -45,14 +45,10 @@ const ShiftCheckPage = () => {
   const confirmSign = async () => {
     if (!signingId) return;
     const res = await signShiftCheck(signingId, {
-      deliveredUsername,
-      deliveredPassword,
       receivedUsername,
       receivedPassword,
     });
     setSigningId(null);
-    setDeliveredUsername("");
-    setDeliveredPassword("");
     setReceivedUsername("");
     setReceivedPassword("");
     if (res.success) {
@@ -133,7 +129,7 @@ const ShiftCheckPage = () => {
               color="success"
               variant="filled"
               className="!p-2"
-              title="Firmar (RF-05)"
+              title="Firmar"
               disabled={row.status === "SIGNED"}
               onClick={() => setSigningId(row.id)}
             >
@@ -187,6 +183,18 @@ const ShiftCheckPage = () => {
             <FaSync className="text-xs text-slate-500" />
             <span className="text-xs font-bold text-slate-500 ml-2">Refrescar</span>
           </ITButton>
+          {isAdminOrShift && (
+            <ITButton
+              onClick={() => navigate("/shift-check/capture")}
+              color="primary"
+              variant="filled"
+              className="h-[42px] px-4 !rounded-xl flex items-center gap-2 ml-2"
+              size="small"
+            >
+              <FaPlus />
+              <span className="text-xs font-bold">Nueva verificación</span>
+            </ITButton>
+          )}
         </div>
       </div>
 
@@ -210,29 +218,14 @@ const ShiftCheckPage = () => {
       <ITDialog
         isOpen={!!signingId}
         onClose={() => setSigningId(null)}
-        title="Firma (Opción A: username + password)"
+        title="Firma (username + password del receptor)"
         className="!max-w-lg"
       >
         <div className="p-4 space-y-3">
           <p className="text-xs text-slate-500">
-            Se validarán las credenciales del que ENTREGA y del que RECIBE contra <code>User.password</code> (bcrypt).
+            Se validarán las credenciales del que RECIBE contra <code>User.password</code> (bcrypt).
           </p>
           <div className="grid grid-cols-2 gap-3">
-            <ITInput
-              name="deliveredUsername"
-              placeholder="Username ENTREGADOR"
-              value={deliveredUsername}
-              onChange={(e: any) => setDeliveredUsername(e.target.value)}
-              onBlur={() => {}}
-            />
-            <ITInput
-              name="deliveredPassword"
-              type="password"
-              placeholder="Password ENTREGADOR"
-              value={deliveredPassword}
-              onChange={(e: any) => setDeliveredPassword(e.target.value)}
-              onBlur={() => {}}
-            />
             <ITInput
               name="receivedUsername"
               placeholder="Username RECEPTOR"
