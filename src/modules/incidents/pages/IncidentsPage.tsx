@@ -1,19 +1,25 @@
-import { ITBadget, ITButton, ITLoader, ITDataTable, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
-import dayjs from "dayjs";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaUserShield, FaSync, FaTrash, FaTimes, FaFilter } from "react-icons/fa";
-import { deleteIncident, deleteIncidentMedia, getPaginatedIncidents, Incident, resolveIncident } from "../services/IncidentService";
-import { MediaCarousel } from "@core/components/MediaCarousel";
-import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
-import { useDispatch, useSelector } from "react-redux";
-import { showToast } from "@app/core/store/toast/toast.slice";
 import { AppState } from "@app/core/store/store";
+import { showToast } from "@app/core/store/toast/toast.slice";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
+import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
+import { MediaCarousel } from "@core/components/MediaCarousel";
+import dayjs from "dayjs";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaFilePdf, FaFilter, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import IncidentCreateForm from "../components/IncidentCreateForm";
+import IncidentReportModal from "../components/IncidentReportModal";
+import { deleteIncident, deleteIncidentMedia, getPaginatedIncidents, Incident, resolveIncident } from "../services/IncidentService";
 
 const IncidentsPage = () => {
   const dispatch = useDispatch();
   const auth = useSelector((state: AppState) => state.auth);
   const isAdmin = auth.role === 'ADMIN';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCategoryId = searchParams.get('categoryId');
+  const initialTypeId = searchParams.get('typeId');
 
   const [refreshKey, setRefreshKey] = useState(0);
   const [viewingIncident, setViewingIncident] = useState<Incident | null>(null);
@@ -21,11 +27,30 @@ const IncidentsPage = () => {
   const [incidentToResolveId, setIncidentToResolveId] = useState<number | null>(null);
   const [incidentToDelete, setIncidentToDelete] = useState<Incident | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(initialCategoryId ? Number(initialCategoryId) : null);
+  const [typeFilter, setTypeFilter] = useState<number | null>(initialTypeId ? Number(initialTypeId) : null);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const { data: guardsCatalog, loading: loadingGuards } = useCatalog('guard');
+  const { data: categoriesCatalog } = useCatalog('incident_category');
+  const { data: typesCatalog } = useCatalog('incident_type');
+
+  const incidentTypeIds = useMemo(() =>
+    categoriesCatalog
+      .filter(c => c.type === 'INCIDENT')
+      .map(c => Number(c.id)),
+    [categoriesCatalog]
+  );
+
+  const incidentTypes = useMemo(() =>
+    typesCatalog.filter(t => incidentTypeIds.includes(Number(t.categoryId))),
+    [typesCatalog, incidentTypeIds]
+  );
 
   useEffect(() => {
     console.log('[IncidentsPage] guardsCatalog updated:', guardsCatalog);
@@ -37,14 +62,38 @@ const IncidentsPage = () => {
         setRefreshKey(prev => prev + 1);
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, categoryFilter, typeFilter]);
 
   const externalFilters = useMemo(() => {
     const f: Record<string, string | number> = {};
     if (searchTerm && searchTerm.trim().length > 0) f.search = searchTerm.trim();
     if (statusFilter && statusFilter !== 'ALL') f.status = statusFilter;
+    if (categoryFilter !== null) f.categoryId = categoryFilter;
+    if (typeFilter !== null) f.typeId = typeFilter;
     return f;
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, categoryFilter, typeFilter]);
+
+  const clearCatalogFilters = () => {
+    setCategoryFilter(null);
+    setTypeFilter(null);
+    if (searchParams.get('categoryId') || searchParams.get('typeId')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('categoryId');
+      next.delete('typeId');
+      setSearchParams(next, { replace: true });
+    }
+  };
+
+  const activeCatalogLabel = useMemo(() => {
+    if (categoryFilter === null) return null;
+    const cat = categoriesCatalog.find(c => Number(c.id) === categoryFilter);
+    if (!cat) return null;
+    if (typeFilter !== null) {
+      const t = typesCatalog.find(t => Number(t.id) === typeFilter);
+      return t ? `${cat.value} · ${t.value}` : cat.value;
+    }
+    return cat.value;
+  }, [categoryFilter, typeFilter, categoriesCatalog, typesCatalog]);
 
   const memoizedFetch = useCallback((params: Record<string, unknown>) => {
     return getPaginatedIncidents(params);
@@ -56,12 +105,12 @@ const IncidentsPage = () => {
 
   const confirmResolve = async () => {
       if (!incidentToResolveId) return;
-      
+
       setResolvingId(incidentToResolveId);
       const res = await resolveIncident(incidentToResolveId);
       setResolvingId(null);
       setIncidentToResolveId(null);
-      
+
       if (res.success) {
           setRefreshKey(prev => prev + 1);
           if (viewingIncident?.id === incidentToResolveId) {
@@ -78,12 +127,12 @@ const IncidentsPage = () => {
 
   const confirmDelete = async () => {
     if (!incidentToDelete) return;
-    
+
     setDeletingId(incidentToDelete.id);
     const res = await deleteIncident(incidentToDelete.id);
     setDeletingId(null);
     setIncidentToDelete(null);
-    
+
     if (res.success) {
         dispatch(showToast({ message: "Incidencia eliminada exitosamente", type: "success" }));
         setRefreshKey(prev => prev + 1);
@@ -113,10 +162,10 @@ const IncidentsPage = () => {
 
   const columns = useMemo(() => [
     { key: "id", label: "ID", type: "number", sortable: true },
-    { 
-        key: "title", 
-        label: "Incidencia", 
-        type: "string", 
+    {
+        key: "title",
+        label: "Incidencia",
+        type: "string",
         sortable: true,
         render: (row: Incident) => (
             <div className="flex items-start gap-3">
@@ -151,10 +200,10 @@ const IncidentsPage = () => {
             </div>
         )
     },
-    { 
-        key: "guardId", 
-        label: "Reportado Por", 
-        type: "string", 
+    {
+        key: "guardId",
+        label: "Reportado Por",
+        type: "string",
         sortable: false,
         filter: "catalog",
         catalogOptions: {
@@ -170,26 +219,26 @@ const IncidentsPage = () => {
             </div>
         )
     },
-    { 
-        key: "status", 
-        label: "Estado", 
-        type: "string", 
+    {
+        key: "status",
+        label: "Estado",
+        type: "string",
         sortable: true,
         render: (row: Incident) => (
-            <ITBadget 
-                color={row.status === 'ATTENDED' ? 'success' : 'danger'} 
-                size="small" 
+            <ITBadget
+                color={row.status === 'ATTENDED' ? 'success' : 'danger'}
+                size="small"
                 variant="filled"
             >
                 {row.status === 'ATTENDED' ? 'Atendida' : 'Pendiente'}
             </ITBadget>
         )
     },
-    { 
-        key: "media", 
-        label: "Evidencia", 
-        type: "string", 
-        sortable: false, 
+    {
+        key: "media",
+        label: "Evidencia",
+        type: "string",
+        sortable: false,
         render: (row: Incident) => (
             <div className="flex items-center gap-1 text-slate-500">
                 {row.media && row.media.length > 0 ? (
@@ -252,6 +301,21 @@ const IncidentsPage = () => {
 
   return (
     <div className="p-6 bg-[#f8fafc] min-h-screen">
+      {activeCatalogLabel && (
+        <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3">
+          <FaTag className="text-emerald-600" />
+          <span className="text-sm">
+            Filtrando por catálogo: <strong>{activeCatalogLabel}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={clearCatalogFilters}
+            className="ml-auto flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900"
+          >
+            <FaTimes size={12} /> Quitar filtro
+          </button>
+        </div>
+      )}
       <div className="flex justify-between items-center mb-8">
         <div>
            <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
@@ -271,7 +335,7 @@ const IncidentsPage = () => {
                     className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                 />
                 {searchTerm && (
-                    <button 
+                    <button
                         onClick={() => setSearchTerm("")}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
                     >
@@ -281,7 +345,7 @@ const IncidentsPage = () => {
             </div>
             <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
                 <FaFilter className="text-slate-400 text-xs mr-2" />
-                <select 
+                <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="bg-transparent text-sm font-medium text-slate-700 outline-none min-w-[120px]"
@@ -291,7 +355,18 @@ const IncidentsPage = () => {
                     <option value="ATTENDED">Atendidas</option>
                 </select>
             </div>
-            <ITButton 
+            <ITButton
+                onClick={() => setShowReportModal(true)}
+                color="primary"
+                variant="outlined"
+                className="h-[42px] px-4 !rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-all flex items-center gap-2"
+                size="small"
+                title="Generar reporte PDF de incidencias"
+            >
+                <FaFilePdf className="text-sm" />
+                <span className="text-xs font-bold">Generar Reporte PDF</span>
+            </ITButton>
+            <ITButton
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
@@ -302,6 +377,19 @@ const IncidentsPage = () => {
                 <FaSync className="text-xs text-slate-500" />
                 <span className="text-xs font-bold text-slate-500">Refrescar</span>
             </ITButton>
+            {isAdmin && (
+                <ITButton
+                    onClick={() => setShowCreateModal(true)}
+                    color="primary"
+                    variant="filled"
+                    className="h-[42px] px-4 !rounded-xl transition-all flex items-center gap-2"
+                    size="small"
+                    title="Nuevo reporte"
+                >
+                    <FaPlus className="text-xs" />
+                    <span className="text-xs font-bold">Nuevo Reporte</span>
+                </ITButton>
+            )}
         </div>
       </div>
 
@@ -318,19 +406,19 @@ const IncidentsPage = () => {
 
     {viewingIncident && (
       <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 pt-12 sm:pt-20">
-        <div 
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
+        <div
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
           onClick={() => setViewingIncident(null)}
         />
-    
+
         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-100 animate-in fade-in zoom-in duration-200">
-          
+
           <div className="px-8 py-6 flex justify-between items-center bg-white border-b border-slate-100 z-10">
             <div>
                <div className="flex items-center gap-3 mb-1">
                   <h3 className="text-2xl font-bold text-slate-800">Detalle de Incidencia</h3>
-                  <ITBadget 
-                      color={viewingIncident.status === 'ATTENDED' ? 'success' : 'danger'} 
+                  <ITBadget
+                      color={viewingIncident.status === 'ATTENDED' ? 'success' : 'danger'}
                       size="small"
                   >
                       {viewingIncident.status === 'ATTENDED' ? 'Atendida' : 'Pendiente'}
@@ -338,17 +426,17 @@ const IncidentsPage = () => {
                </div>
                <p className="text-sm text-slate-500">Reportado el {dayjs(viewingIncident.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
             </div>
-            <button 
-              onClick={() => setViewingIncident(null)} 
+            <button
+              onClick={() => setViewingIncident(null)}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-          
+
           <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
+
               <div className="lg:col-span-8 space-y-8">
                  {/* Descripción */}
                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
@@ -368,17 +456,17 @@ const IncidentsPage = () => {
                         <span className="w-1 h-4 bg-indigo-500 rounded-full block"></span>
                         Evidencia
                     </h4>
-                    {viewingIncident.media && viewingIncident.media.length > 0 && 
+                    {viewingIncident.media && viewingIncident.media.length > 0 &&
                         <span className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
                             {viewingIncident.media.length} archivos
                         </span>
                     }
                   </div>
-    
+
                   {viewingIncident.media && viewingIncident.media.length > 0 ? (
-                    <MediaCarousel 
-                        media={viewingIncident.media} 
-                        title={viewingIncident.title} 
+                    <MediaCarousel
+                        media={viewingIncident.media}
+                        title={viewingIncident.title}
                         showDelete={isAdmin}
                         onDelete={handleDeleteMedia}
                     />
@@ -389,7 +477,7 @@ const IncidentsPage = () => {
                     </div>
                   )}
                 </section>
-                
+
                 {/* Location Section */}
                 {viewingIncident.latitude && viewingIncident.longitude && (
                    <section>
@@ -399,20 +487,20 @@ const IncidentsPage = () => {
                            Ubicación Reportada
                        </h4>
                      </div>
-                     <GoogleMapComponent 
-                         lat={viewingIncident.latitude} 
-                         lng={viewingIncident.longitude} 
-                         height="300px" 
+                     <GoogleMapComponent
+                         lat={viewingIncident.latitude}
+                         lng={viewingIncident.longitude}
+                         height="300px"
                      />
                    </section>
                 )}
               </div>
-    
+
               <div className="lg:col-span-4 space-y-6">
                  {/* Metadata Cards */}
                  <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
                     <h5 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</h5>
-                    
+
                     <div className="space-y-4">
                         <div className="flex items-start gap-4">
                             <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500">
@@ -466,7 +554,7 @@ const IncidentsPage = () => {
                      <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
                         <h5 className="text-xs font-bold text-orange-800 mb-2">Acciones Pendientes</h5>
                         <p className="text-xs text-orange-700 mb-3">Esta incidencia requiere atención inmediata.</p>
-                        <ITButton 
+                        <ITButton
                             onClick={() => handleResolve(viewingIncident.id)}
                             variant='filled'
                             color="success"
@@ -485,9 +573,9 @@ const IncidentsPage = () => {
     )}
 
       {/* Confirm Resolve Dialog */}
-      <ITDialog 
-        isOpen={!!incidentToResolveId} 
-        onClose={() => setIncidentToResolveId(null)} 
+      <ITDialog
+        isOpen={!!incidentToResolveId}
+        onClose={() => setIncidentToResolveId(null)}
         title="Confirmar Resolución"
       >
         <div className="p-8 text-center">
@@ -510,9 +598,9 @@ const IncidentsPage = () => {
       </ITDialog>
 
       {/* Confirm Delete Dialog */}
-      <ITDialog 
-        isOpen={!!incidentToDelete} 
-        onClose={() => setIncidentToDelete(null)} 
+      <ITDialog
+        isOpen={!!incidentToDelete}
+        onClose={() => setIncidentToDelete(null)}
         title="Eliminar Incidencia"
       >
         <div className="p-8 text-center">
@@ -533,6 +621,24 @@ const IncidentsPage = () => {
             </div>
         </div>
       </ITDialog>
+
+      {/* Create Incident Modal */}
+      <IncidentCreateForm
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          setShowCreateModal(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+        categoriesCatalog={categoriesCatalog.filter(c => c.type === 'INCIDENT')}
+        typesCatalog={incidentTypes}
+      />
+
+      {/* Report PDF Modal */}
+      <IncidentReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+      />
 
     </div>
   );

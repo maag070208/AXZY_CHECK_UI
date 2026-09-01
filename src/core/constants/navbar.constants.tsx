@@ -5,6 +5,7 @@ import {
   FaChild,
   FaClock,
   FaExclamationTriangle,
+  FaGlassCheers,
   FaHome,
   FaListAlt,
   FaMapMarkedAlt,
@@ -69,10 +70,17 @@ export const useNavigationItems = (): any[] => {
     // },
     {
       id: "incidents",
-      label: "Incidencias",
+      label: "Reportes",
       action: () => navigate("/incidents"),
       isActive: isRouteActive("/incidents"),
       icon: <FaExclamationTriangle  />, 
+    },
+    {
+      id: "club",
+      label: "Casa Club",
+      action: () => navigate("/club"),
+      isActive: isRouteActive("/club"),
+      icon: <FaGlassCheers  />, 
     },
     {
       id: "maintenances",

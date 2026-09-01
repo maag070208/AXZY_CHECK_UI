@@ -8,10 +8,16 @@ export type CatalogOptionsType =
     | 'guard'
     | 'incident_category'
     | 'incident_type'
+    | 'club_category'
+    | 'club_type'
     | 'invitation_status';
 
 export interface ICatalogItem {
     id: number | string;
     name: string;
     value: string;
+    type?: string;
+    categoryId?: number | string;
+    color?: string;
+    icon?: string;
 }
