@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITInput, ITSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -163,11 +163,11 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
         <div className="flex flex-col gap-6 p-6">
             <div className="space-y-4">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Configuración de Seguridad</label>
-                <ITSelect
+                <ITSearchSelect
                     label="Rol Administrativo"
                     name="roleId"
                     value={formik.values.roleId}
-                    onChange={formik.handleChange}
+                    onChange={(val) => formik.setFieldValue("roleId", val)}
                     options={roleOptions}
                     error={formik.errors.roleId}
                     touched={formik.touched.roleId}
@@ -209,11 +209,11 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
                         <FaClock className="text-emerald-500" />
                         <label className="text-xs font-bold text-slate-700 uppercase tracking-tight">Horario Laboral</label>
                     </div>
-                    <ITSelect
+                    <ITSearchSelect
                         label=""
                         name="scheduleId"
                         value={formik.values.scheduleId}
-                        onChange={formik.handleChange}
+                        onChange={(val) => formik.setFieldValue("scheduleId", val)}
                         options={schedules.map(s => ({ label: `${s.name} (${s.startTime} - ${s.endTime})`, value: String(s.id) }))}
                         error={formik.errors.scheduleId}
                         touched={formik.touched.scheduleId}

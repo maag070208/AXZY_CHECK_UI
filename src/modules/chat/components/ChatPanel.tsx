@@ -77,7 +77,7 @@ export const ChatPanel = ({ variant = "page" }: ChatPanelProps) => {
 
     return () => {
       clearInterval(pollTimer);
-      client?.close();
+      (client?.close() as unknown as Promise<void> | void)?.catch?.(() => {});
     };
   }, [loadMessages]);
 

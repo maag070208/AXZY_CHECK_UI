@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITCard, ITDatePicker, ITSelect } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITCard, ITDatePicker, ITSearchSelect } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -172,7 +172,7 @@ const GuardTrackingPage = () => {
       : Math.round((summary.totalScans / (summary.totalScans + summary.missedScans)) * 100)
     : null;
 
-  const guardOptions = guards.map((g) => ({ id: String(g.id), value: `${g.name} ${g.lastName ?? ""}` }));
+  const guardOptions = guards.map((g) => ({ label: `${g.name} ${g.lastName ?? ""}`, value: String(g.id) }));
   const selectedGuard = guards.find((g) => g.id === selectedGuardId) ?? null;
   const selectedRound = rounds.find((r) => r.id === selectedRoundId) ?? null;
   const isLiveGuard = liveActiveRounds.some((r) => r.guard.id === selectedGuardId);
@@ -180,9 +180,10 @@ const GuardTrackingPage = () => {
   return (
     <div className="bg-[#f8fafc] min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-3">
-            <FaUserShield className="text-emerald-600" /> Seguimiento de Guardia
+          <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+            <FaUserShield className="text-[#065911]" /> Seguimiento de Guardia
           </h1>
           <p className="text-slate-500 text-sm mt-1">
             {selectedGuard
@@ -195,6 +196,7 @@ const GuardTrackingPage = () => {
             )}
           </p>
         </div>
+      </div>
 
         {/* Accesos rápidos: quién está en ronda ahora mismo */}
         {liveActiveRounds.length > 0 && (
@@ -219,32 +221,37 @@ const GuardTrackingPage = () => {
         )}
 
         {/* Filtros */}
-        <ITCard className="shadow-sm border-none bg-white rounded-2xl p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-          <div className="flex-1 min-w-[220px]">
-            <ITSelect
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <ITSearchSelect
               name="guard"
               placeholder="Selecciona un guardia..."
               options={guardOptions}
-              labelField="value"
-              valueField="id"
               value={selectedGuardId ? String(selectedGuardId) : ""}
-              onChange={(e: any) => setSelectedGuardId(e.target.value ? Number(e.target.value) : null)}
+              onChange={(val) => setSelectedGuardId(val ? Number(val) : null)}
+              className="w-full sm:w-72"
             />
+            <ITDatePicker
+              name="range"
+              value={dateRange}
+              range
+              onChange={(e: any) => setDateRange(e.target.value)}
+              className="w-full sm:w-72"
+            />
+            <ITButton
+              onClick={() => {
+                loadSummary();
+                loadRounds();
+              }}
+              size="small"
+              variant="filled"
+              color="primary"
+              className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center flex-shrink-0"
+            >
+              <FaSync className={loadingSummary || loadingRounds ? "animate-spin" : ""} />
+            </ITButton>
           </div>
-          <ITDatePicker name="range" value={dateRange} range onChange={(e: any) => setDateRange(e.target.value)} />
-          <ITButton
-            onClick={() => {
-              loadSummary();
-              loadRounds();
-            }}
-            size="small"
-            variant="filled"
-            color="primary"
-            className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center flex-shrink-0"
-          >
-            <FaSync className={loadingSummary || loadingRounds ? "animate-spin" : ""} />
-          </ITButton>
-        </ITCard>
+        </div>
 
         {!selectedGuardId && (
           <div className="bg-white border border-dashed border-slate-200 rounded-3xl py-20 text-center text-slate-400 text-sm">

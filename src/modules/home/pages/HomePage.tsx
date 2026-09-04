@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { useEffect, useState } from "react";
-import { FaBook, FaChild, FaClock, FaExclamationTriangle, FaListAlt, FaRoute, FaUserShield, FaWrench } from "react-icons/fa";
+import { FaBook, FaClock, FaExclamationTriangle, FaListAlt, FaRoute, FaUserShield, FaWrench } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
@@ -31,63 +31,60 @@ const HomePage = () => {
         description: "Espacios de estacionamiento y locales",
         icon: <FaListAlt className="text-white" />,
         action: () => navigate("/locations"),
+        roles: ["ADMIN", "SHIFT"],
       },
       {
         title: "Recorridos",
         description: "Supervisión de rondas en tiempo real",
         icon: <FaClock className="text-white" />,
         action: () => navigate("/rounds"),
+        roles: ["ADMIN", "SHIFT"],
       },
       {
         title: "Rutas",
         description: "Configuración de rutas de vigilancia",
         icon: <FaRoute className="text-white" />,
         action: () => navigate("/routes"),
+        roles: ["ADMIN", "SHIFT"],
       },
       {
         title: "Incidencias",
         description: "Reportes de novedades y emergencias",
         icon: <FaExclamationTriangle className="text-white" />,
         action: () => navigate("/incidents"),
+        roles: ["ADMIN", "SHIFT"],
       },
       {
         title: "Mantenimiento",
         description: "Gestión de reportes técnicos",
         icon: <FaWrench className="text-white" />,
         action: () => navigate("/maintenances"),
+        roles: ["ADMIN", "MAINT"],
       },
       {
         title: "Kardex",
         description: "Historial de movimientos y bitácora",
         icon: <FaBook className="text-white" />,
         action: () => navigate("/kardex"),
+        roles: ["ADMIN", "SHIFT"],
       },
       {
         title: "Guardias",
         description: "Gestión de personal operativo",
         icon: <FaUserShield className="text-white" />,
         action: () => navigate("/guards"),
+        roles: ["ADMIN", "SHIFT"],
       },
       {
         title: "Horarios",
         description: "Configuración de turnos y roles",
         icon: <FaListAlt className="text-white" />,
         action: () => navigate("/schedules"),
+        roles: ["ADMIN"],
       }
     ];
 
-    if (user.role === "ADMIN" || user.role === "LIDER") {
-        cards.push(
-            {
-              title: "Usuarios",
-              description: "Administrar usuarios del sistema",
-              icon: <FaChild className="text-white" />,
-              action: () => navigate("/users"),
-            }
-        );
-    }
-
-    setHomeCardItem(cards);
+    setHomeCardItem(cards.filter((card) => (user.role ? card.roles.includes(user.role) : false)));
   }, [user, showLiveDashboard]);
 
   return (

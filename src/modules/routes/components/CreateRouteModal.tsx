@@ -173,7 +173,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
             isOpen={isOpen} 
             onClose={onClose} 
             title={editConfig ? "Ajustar Parámetros de Ruta" : "Configurar Nueva Ruta"}
-            className="!w-full !max-w-6xl !rounded-3xl"
+            className="!w-full !max-w-6xl !rounded-3xl !overflow-visible"
         >
             <div className="flex flex-col lg:flex-row gap-10 max-h-[75vh] overflow-hidden p-1">
                 

@@ -1,4 +1,4 @@
-import { ITButton, ITDatePicker, ITInput, ITSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDatePicker, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useEffect, useState } from "react";
@@ -77,21 +77,21 @@ export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
                 />
 
                 <div className="grid grid-cols-2 gap-4">
-                    <ITSelect
+                    <ITSearchSelect
                         label="Destino (Propiedad)"
                         name="propertyId"
                         value={formik.values.propertyId}
-                        onChange={formik.handleChange}
+                        onChange={(val) => formik.setFieldValue("propertyId", val)}
                         options={[{label: "Seleccionar propiedad...", value: ""}, ...properties]}
                         error={formik.errors.propertyId}
                         touched={formik.touched.propertyId}
                     />
 
-                    <ITSelect
+                    <ITSearchSelect
                         label="Tipo de Acceso"
                         name="typeId"
                         value={formik.values.typeId}
-                        onChange={formik.handleChange}
+                        onChange={(val) => formik.setFieldValue("typeId", val)}
                         options={invitationTypeOptions}
                         error={formik.errors.typeId}
                         touched={formik.touched.typeId}

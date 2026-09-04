@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { PrivateRoutes } from "./core/routes/PrivateRoutes";
+import { RoleRoute } from "./core/routes/RoleRoute";
 import { setAuth } from "./core/store/auth/auth.slice";
 import HomePage from "./modules/home/pages/HomePage";
 
@@ -29,7 +30,9 @@ import CatalogsPage from "./modules/catalogs/pages/CatalogsPage";
 import GuardTrackingPage from "./modules/guard-tracking/pages/GuardTrackingPage";
 import ChatPage from "./modules/chat/pages/ChatPage";
 import ShiftHandoverPage from "./modules/shift-handover/pages/ShiftHandoverPage";
+import NewShiftHandoverPage from "./modules/shift-handover/pages/NewShiftHandoverPage";
 import UniformPage from "./modules/uniform/pages/UniformPage";
+import NewUniformCheckPage from "./modules/uniform/pages/NewUniformCheckPage";
 
 
 function App() {
@@ -82,30 +85,31 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<HomePage />} />
-        <Route path="/guards" element={<GuardsPage />} />
-        
-        <Route path="/locations" element={<LocationsPage />} />
+        <Route path="/guards" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><GuardsPage /></RoleRoute>} />
+
+        <Route path="/locations" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><LocationsPage /></RoleRoute>} />
         <Route path="/properties" element={<PropertiesPage />} />
         <Route path="/properties/:id" element={<PropertyDetailPage />} />
 
         <Route path="/residents" element={<ResidentsPage />} />
         <Route path="/invitations" element={<InvitationsPage />} />
-        <Route path="/users" element={<UsersPage />} />
-        <Route path="/incidents" element={<IncidentsPage />} />
-        <Route path="/club" element={<ClubPage />} />
-        <Route path="/maintenances" element={<MaintenancesPage />} />
-        <Route path="/kardex" element={<KardexPage />} />
-        <Route path="/schedules" element={<SchedulesPage />} />
-        
-        <Route path="/rounds" element={<RoundsPage />} />
-        <Route path="/rounds/:id" element={<RoundDetailPage />} />
-        <Route path="/routes" element={<RoutesPage />} />
-        <Route path="/guards" element={<GuardsPage />} />
-        <Route path="/catalogs" element={<CatalogsPage />} />
-        <Route path="/guard-tracking" element={<GuardTrackingPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/shift-handover" element={<ShiftHandoverPage />} />
-        <Route path="/uniform" element={<UniformPage />} />
+        <Route path="/users" element={<RoleRoute roles={["ADMIN"]}><UsersPage /></RoleRoute>} />
+        <Route path="/incidents" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><IncidentsPage /></RoleRoute>} />
+        <Route path="/club" element={<RoleRoute roles={["ADMIN", "SHIFT", "GUARD", "MAINT"]}><ClubPage /></RoleRoute>} />
+        <Route path="/maintenances" element={<RoleRoute roles={["ADMIN", "MAINT"]}><MaintenancesPage /></RoleRoute>} />
+        <Route path="/kardex" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><KardexPage /></RoleRoute>} />
+        <Route path="/schedules" element={<RoleRoute roles={["ADMIN"]}><SchedulesPage /></RoleRoute>} />
+
+        <Route path="/rounds" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><RoundsPage /></RoleRoute>} />
+        <Route path="/rounds/:id" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><RoundDetailPage /></RoleRoute>} />
+        <Route path="/routes" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><RoutesPage /></RoleRoute>} />
+        <Route path="/catalogs" element={<RoleRoute roles={["ADMIN"]}><CatalogsPage /></RoleRoute>} />
+        <Route path="/guard-tracking" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><GuardTrackingPage /></RoleRoute>} />
+        <Route path="/chat" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><ChatPage /></RoleRoute>} />
+        <Route path="/shift-handover" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><ShiftHandoverPage /></RoleRoute>} />
+        <Route path="/shift-handover/nuevo" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><NewShiftHandoverPage /></RoleRoute>} />
+        <Route path="/uniform" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><UniformPage /></RoleRoute>} />
+        <Route path="/uniform/nuevo" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><NewUniformCheckPage /></RoleRoute>} />
 
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />

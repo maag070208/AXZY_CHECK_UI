@@ -69,7 +69,7 @@ export const useLiveDashboard = () => {
     return () => {
       clearInterval(pollTimer);
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      if (client) client.close();
+      if (client) (client.close() as unknown as Promise<void> | void)?.catch?.(() => {});
       ablyRef.current = null;
     };
   }, [fetchNow, scheduleRefresh]);

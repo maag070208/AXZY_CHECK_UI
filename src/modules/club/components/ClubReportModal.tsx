@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITDatePicker, ITLoader, ITSelect } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDatePicker, ITLoader, ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { AppState } from "@app/core/store/store";
 import dayjs from "dayjs";
@@ -281,12 +281,10 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
                                 <FaFilter className="text-sky-500" /> Estado
                             </label>
-                            <ITSelect
+                            <ITSearchSelect
                                 name="statusFilter"
                                 value={statusFilter}
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                    setStatusFilter(e.target.value as StatusFilter)
-                                }
+                                onChange={(val) => setStatusFilter(val as StatusFilter)}
                                 options={[
                                     { value: "ALL", label: "Todos los estados" },
                                     { value: "PENDING", label: "Solo pendientes" },

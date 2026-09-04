@@ -1,4 +1,4 @@
-import { ITButton, ITInput, ITSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Property } from "../service/properties.service";
@@ -81,11 +81,11 @@ export const PropertyForm = ({ initialData, onSubmit, onCancel }: PropertyFormPr
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <ITSelect
+                <ITSearchSelect
                     label="Tipo de Propiedad"
                     name="typeId"
                     value={String(formik.values.typeId)}
-                    onChange={formik.handleChange}
+                    onChange={(val) => formik.setFieldValue("typeId", val)}
                     options={propertyTypeOptions}
                     error={formik.errors.typeId}
                     touched={formik.touched.typeId}
@@ -112,11 +112,11 @@ export const PropertyForm = ({ initialData, onSubmit, onCancel }: PropertyFormPr
                 placeholder="Ej. Entre Madero y Juarez"
             />
 
-            <ITSelect
+            <ITSearchSelect
                 label="Estado de Ocupación"
                 name="statusId"
                 value={String(formik.values.statusId)}
-                onChange={formik.handleChange}
+                onChange={(val) => formik.setFieldValue("statusId", val)}
                 options={propertyStatusOptions}
                 error={formik.errors.statusId}
                 touched={formik.touched.statusId}
