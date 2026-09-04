@@ -12,8 +12,8 @@ import {
   FaUserShield,
   FaWifi,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { AnalyticsTab } from "../../home/components/tabs/AnalyticsTab";
-import { OperationalDetailTab } from "../../home/components/tabs/OperationalDetailTab";
 import { useLiveDashboard } from "../hooks/useLiveDashboard";
 import { LiveGuardsMap } from "../components/LiveGuardsMap";
 import type { ILiveActiveRound, ILiveAlert, ILiveGuardOnShift } from "../services/DashboardService";
@@ -42,13 +42,14 @@ const formatElapsed = (minutes: number) => {
 /**
  * Dashboard administrativo en vivo — reemplaza el Home de WEB para
  * ADMIN/SHIFT. Complementa (no repite) el análisis histórico que ya
- * existía (AnalyticsTab / OperationalDetailTab, integrados aquí abajo
+ * existía (AnalyticsTab, integrado aquí abajo
  * como secciones): esto es una sola foto de "qué está pasando ahora
  * mismo" — rondas activas y su avance, quién está de turno y qué
  * necesita atención — para no tener que adivinar qué onda con los
  * guardias.
  */
 export const LiveOpsDashboard = () => {
+  const navigate = useNavigate();
   const { data, loading, error, refetch } = useLiveDashboard();
 
   const staleRoundIds = new Set((data?.activeRounds ?? []).filter((r) => r.stale).map((r) => r.roundId));
@@ -144,7 +145,7 @@ export const LiveOpsDashboard = () => {
           ) : (
             <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
               {data.activeRounds.map((round) => (
-                <ActiveRoundRow key={round.roundId} round={round} />
+                <ActiveRoundRow key={round.roundId} round={round} onClick={() => navigate(`/guard-tracking?guardId=${round.guard.id}`)} />
               ))}
             </div>
           )}
@@ -166,7 +167,7 @@ export const LiveOpsDashboard = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {data.guardsOnShift.map((guard) => (
-              <GuardOnShiftCard key={guard.guardId} guard={guard} />
+              <GuardOnShiftCard key={guard.guardId} guard={guard} onClick={() => navigate(`/guard-tracking?guardId=${guard.guardId}`)} />
             ))}
           </div>
         )}
@@ -179,14 +180,6 @@ export const LiveOpsDashboard = () => {
           <p className="text-slate-400 text-xs mt-1">Histórico por rango de fechas.</p>
         </div>
         <AnalyticsTab />
-      </div>
-
-      <div className="pt-4 border-t border-slate-100 space-y-8">
-        <div>
-          <h2 className="text-xl font-black text-slate-800 tracking-tight">Detalle Operativo</h2>
-          <p className="text-slate-400 text-xs mt-1">Rendimiento por persona, histórico por rango de fechas.</p>
-        </div>
-        <OperationalDetailTab />
       </div>
     </div>
   );
@@ -235,8 +228,11 @@ const AlertRow = ({ alert }: { alert: ILiveAlert }) => {
   );
 };
 
-const ActiveRoundRow = ({ round }: { round: ILiveActiveRound }) => (
-  <div className={`rounded-2xl border p-4 ${round.stale ? "bg-red-50/50 border-red-100" : "bg-slate-50/60 border-slate-100"}`}>
+const ActiveRoundRow = ({ round, onClick }: { round: ILiveActiveRound; onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className={`w-full text-left rounded-2xl border p-4 transition-colors hover:bg-slate-100/80 ${round.stale ? "bg-red-50/50 border-red-100" : "bg-slate-50/60 border-slate-100"}`}
+  >
     <div className="flex items-center justify-between mb-2">
       <div>
         <p className="font-black text-slate-800 text-sm uppercase">
@@ -263,13 +259,16 @@ const ActiveRoundRow = ({ round }: { round: ILiveActiveRound }) => (
       </span>
       <span>{round.lastScan ? `${round.lastScan.locationName} · ${timeAgo(round.lastScan.timestamp)}` : "Sin escaneos aún"}</span>
     </div>
-  </div>
+  </button>
 );
 
-const GuardOnShiftCard = ({ guard }: { guard: ILiveGuardOnShift }) => {
+const GuardOnShiftCard = ({ guard, onClick }: { guard: ILiveGuardOnShift; onClick: () => void }) => {
   const initials = `${guard.name.charAt(0)}${guard.lastName?.charAt(0) ?? ""}`.toUpperCase();
   return (
-    <div className="flex items-center gap-3 bg-slate-50/60 border border-slate-100 rounded-2xl px-4 py-3">
+    <button
+      onClick={onClick}
+      className="w-full text-left flex items-center gap-3 bg-slate-50/60 border border-slate-100 rounded-2xl px-4 py-3 transition-colors hover:bg-slate-100/80"
+    >
       <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs flex-shrink-0">
         {initials}
       </div>
@@ -294,6 +293,6 @@ const GuardOnShiftCard = ({ guard }: { guard: ILiveGuardOnShift }) => {
           </span>
         )}
       </div>
-    </div>
+    </button>
   );
 };

@@ -26,6 +26,7 @@ import RoutesPage from "./modules/routes/pages/RoutesPage";
 import GuardsPage from "./modules/guards/pages/GuardsPage";
 import PropertyDetailPage from "./modules/properties/pages/PropertyDetailPage";
 import CatalogsPage from "./modules/catalogs/pages/CatalogsPage";
+import GuardTrackingPage from "./modules/guard-tracking/pages/GuardTrackingPage";
 import ChatPage from "./modules/chat/pages/ChatPage";
 import ShiftHandoverPage from "./modules/shift-handover/pages/ShiftHandoverPage";
 import UniformPage from "./modules/uniform/pages/UniformPage";
@@ -101,6 +102,7 @@ function App() {
         <Route path="/routes" element={<RoutesPage />} />
         <Route path="/guards" element={<GuardsPage />} />
         <Route path="/catalogs" element={<CatalogsPage />} />
+        <Route path="/guard-tracking" element={<GuardTrackingPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/shift-handover" element={<ShiftHandoverPage />} />
         <Route path="/uniform" element={<UniformPage />} />

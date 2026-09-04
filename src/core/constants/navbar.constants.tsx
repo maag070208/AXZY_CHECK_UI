@@ -14,6 +14,7 @@ import {
   FaSearchLocation,
   FaSwatchbook,
   FaTshirt,
+  FaUserClock,
   FaUserShield,
   FaWrench
 } from "react-icons/fa";
@@ -155,6 +156,18 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/uniform"),
       isActive: isRouteActive("/uniform"),
       icon: <FaTshirt />,
+    });
+  }
+
+  // Reemplaza a la vieja pestaña "Detalle Operativo": mismo público que el
+  // dashboard en vivo del Home (ADMIN/SHIFT supervisan guardias día a día).
+  if (user?.role === "ADMIN" || user?.role === "SHIFT") {
+    baseItems.push({
+      id: "guard-tracking",
+      label: "Seguimiento",
+      action: () => navigate("/guard-tracking"),
+      isActive: isRouteActive("/guard-tracking"),
+      icon: <FaUserClock />,
     });
   }
 
