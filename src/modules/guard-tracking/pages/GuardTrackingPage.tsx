@@ -14,6 +14,7 @@ import { useSearchParams } from "react-router-dom";
 import { getUsers, User } from "../../users/services/UserService";
 import * as ReportService from "../../home/services/ReportService";
 import { getPaginatedRounds, getRoundDetail, IRound, IRoundDetail } from "../../rounds/services/RoundsService";
+import { getLiveDashboard, ILiveActiveRound } from "../../dashboard/services/DashboardService";
 import { RoundRouteMap, RoutePoint } from "../components/RoundRouteMap";
 
 const ROLE_TRANSLATIONS: Record<string, string> = {
@@ -22,11 +23,25 @@ const ROLE_TRANSLATIONS: Record<string, string> = {
   MAINT: "Mantenimiento",
 };
 
+const Skeleton = ({ className = "" }: { className?: string }) => (
+  <div className={`animate-pulse bg-slate-100 rounded-xl ${className}`} />
+);
+
+const LiveDot = () => (
+  <span className="relative flex h-2 w-2">
+    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+  </span>
+);
+
 /**
- * "Seguimiento de Guardia" — reemplaza la vieja "Detalle Operativo": en vez
- * de una tabla con un modal de historial, eliges un guardia y ves de
- * frente su resumen del periodo, sus rondas, y al elegir una ronda el
- * mapa con los puntos escaneados EN ORDEN y cuánto tardó entre cada uno.
+ * "Seguimiento de Guardia" — reemplaza la vieja "Detalle Operativo".
+ *
+ * UX: al elegir un guardia, la ronda activa (o si no hay, la más reciente)
+ * se selecciona SOLA — el mapa y la línea de tiempo siempre están visibles
+ * a la derecha (arriba en móvil) en vez de esconderse hasta que el usuario
+ * haga clic en una fila. Arriba hay accesos rápidos a los guardias que
+ * están en ronda AHORA MISMO (mismo dato que el dashboard en vivo).
  */
 const GuardTrackingPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,6 +52,8 @@ const GuardTrackingPage = () => {
     initialGuardId ? Number(initialGuardId) : null,
   );
   const [dateRange, setDateRange] = useState<any>([dayjs().startOf("month").toDate(), dayjs().toDate()]);
+
+  const [liveActiveRounds, setLiveActiveRounds] = useState<ILiveActiveRound[]>([]);
 
   const [summary, setSummary] = useState<ReportService.IGuardDetail | null>(null);
   const [breakdown, setBreakdown] = useState<ReportService.IGuardDetailBreakdown | null>(null);
@@ -55,6 +72,9 @@ const GuardTrackingPage = () => {
         const onlyGuards = res.data.filter((u) => ["GUARD", "SHIFT", "MAINT"].includes(u.role?.name));
         setGuards(onlyGuards);
       }
+    });
+    getLiveDashboard().then((res) => {
+      if (res.success && res.data) setLiveActiveRounds(res.data.activeRounds);
     });
   }, []);
 
@@ -111,6 +131,15 @@ const GuardTrackingPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGuardId, dateRange]);
 
+  // Auto-selección: la ronda EN CURSO tiene prioridad; si no hay ninguna
+  // activa, cae a la más reciente del periodo. Así el mapa siempre se ve
+  // sin necesidad de hacer clic.
+  useEffect(() => {
+    if (loadingRounds || selectedRoundId !== null || rounds.length === 0) return;
+    const active = rounds.find((r) => r.status === "IN_PROGRESS");
+    setSelectedRoundId(active ? active.id : rounds[0].id);
+  }, [rounds, loadingRounds, selectedRoundId]);
+
   useEffect(() => {
     if (!selectedRoundId) return;
     setLoadingRoundDetail(true);
@@ -145,10 +174,12 @@ const GuardTrackingPage = () => {
 
   const guardOptions = guards.map((g) => ({ id: String(g.id), value: `${g.name} ${g.lastName ?? ""}` }));
   const selectedGuard = guards.find((g) => g.id === selectedGuardId) ?? null;
+  const selectedRound = rounds.find((r) => r.id === selectedRoundId) ?? null;
+  const isLiveGuard = liveActiveRounds.some((r) => r.guard.id === selectedGuardId);
 
   return (
     <div className="bg-[#f8fafc] min-h-screen p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-6">
         <div>
           <h1 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-3">
             <FaUserShield className="text-emerald-600" /> Seguimiento de Guardia
@@ -157,8 +188,35 @@ const GuardTrackingPage = () => {
             {selectedGuard
               ? `${selectedGuard.name} ${selectedGuard.lastName ?? ""} · ${ROLE_TRANSLATIONS[selectedGuard.role?.name] ?? selectedGuard.role?.name}`
               : "Elige un guardia para ver su resumen del periodo, sus rondas, y el mapa de cada una."}
+            {isLiveGuard && (
+              <span className="inline-flex items-center gap-1.5 ml-2 text-emerald-600 font-bold">
+                <LiveDot /> en ronda ahora
+              </span>
+            )}
           </p>
         </div>
+
+        {/* Accesos rápidos: quién está en ronda ahora mismo */}
+        {liveActiveRounds.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+              <LiveDot /> En ronda ahora:
+            </span>
+            {liveActiveRounds.map((r) => (
+              <button
+                key={r.roundId}
+                onClick={() => setSelectedGuardId(r.guard.id)}
+                className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all ${
+                  selectedGuardId === r.guard.id
+                    ? "bg-emerald-600 text-white border-emerald-600"
+                    : "bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                }`}
+              >
+                {r.guard.name} {r.guard.lastName ?? ""}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Filtros */}
         <ITCard className="shadow-sm border-none bg-white rounded-2xl p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
@@ -198,10 +256,16 @@ const GuardTrackingPage = () => {
           <>
             {/* Resumen del periodo */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <SummaryCard title="Rondas" value={summary?.totalRounds} icon={<FaRoute />} color="emerald" />
-              <SummaryCard title="Escaneos" value={summary?.totalScans} icon={<FaMapMarkerAlt />} color="sky" />
-              <SummaryCard title="Omitidos" value={summary?.missedScans} icon={<FaExclamationCircle />} color="red" />
-              <SummaryCard title="Cumplimiento" value={compliance !== null ? `${compliance}%` : "---"} icon={<FaCheckCircle />} color="indigo" />
+              <SummaryCard title="Rondas" value={summary?.totalRounds} icon={<FaRoute />} color="emerald" loading={loadingSummary && !summary} />
+              <SummaryCard title="Escaneos" value={summary?.totalScans} icon={<FaMapMarkerAlt />} color="sky" loading={loadingSummary && !summary} />
+              <SummaryCard title="Omitidos" value={summary?.missedScans} icon={<FaExclamationCircle />} color="red" loading={loadingSummary && !summary} />
+              <SummaryCard
+                title="Cumplimiento"
+                value={compliance !== null ? `${compliance}%` : "---"}
+                icon={<FaCheckCircle />}
+                color="indigo"
+                loading={loadingSummary && !summary}
+              />
             </div>
 
             {breakdown && breakdown.incompleteRounds.length > 0 && (
@@ -217,85 +281,123 @@ const GuardTrackingPage = () => {
               </ITCard>
             )}
 
-            {/* Lista de rondas */}
-            <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
-              <h3 className="text-lg font-bold text-slate-800 mb-4">Rondas del Periodo</h3>
-              {loadingRounds ? (
-                <p className="text-sm text-slate-400 py-6 text-center">Cargando...</p>
-              ) : rounds.length === 0 ? (
-                <p className="text-sm text-slate-400 py-6 text-center">Sin rondas en este rango de fechas.</p>
-              ) : (
-                <div className="space-y-2">
-                  {rounds.map((round) => (
-                    <button
-                      key={round.id}
-                      onClick={() => setSelectedRoundId(round.id)}
-                      className={`w-full text-left flex items-center justify-between gap-3 rounded-2xl border px-5 py-3.5 transition-all ${
-                        selectedRoundId === round.id
-                          ? "bg-emerald-50 border-emerald-200"
-                          : "bg-slate-50/60 border-slate-100 hover:bg-slate-50"
-                      }`}
-                    >
-                      <div>
-                        <p className="text-sm font-black text-slate-700">
-                          {dayjs(round.startTime).format("DD [de] MMM, YYYY · HH:mm")}
-                        </p>
-                        <p className="text-[11px] text-slate-400 font-medium">
-                          {round.recurringConfiguration?.title ?? "Sin ruta"}
-                        </p>
-                      </div>
+            {/* Rondas (izquierda en desktop) + Detalle de la ronda con mapa (derecha, siempre visible) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 order-1 lg:order-2 lg:sticky lg:top-6">
+                <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-slate-800">Mapa y Línea de Tiempo</h3>
+                    {selectedRound && (
                       <ITBadget
-                        color={round.status === "IN_PROGRESS" ? "primary" : "secondary"}
+                        color={selectedRound.status === "IN_PROGRESS" ? "primary" : "secondary"}
                         variant="outlined"
                         size="small"
                         className="!rounded-lg !text-[9px] whitespace-nowrap flex-shrink-0"
                       >
-                        {round.status === "IN_PROGRESS" ? "En curso" : "Completada"}
+                        {selectedRound.status === "IN_PROGRESS" ? "En curso" : "Completada"} ·{" "}
+                        {dayjs(selectedRound.startTime).format("DD/MM HH:mm")}
                       </ITBadget>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </ITCard>
+                    )}
+                  </div>
 
-            {/* Detalle de la ronda seleccionada */}
-            {selectedRoundId && (
-              <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
-                <h3 className="text-lg font-bold text-slate-800 mb-4">Detalle de la Ronda</h3>
-                {loadingRoundDetail ? (
-                  <p className="text-sm text-slate-400 py-10 text-center">Cargando detalle...</p>
-                ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div className="lg:col-span-7">
-                      <RoundRouteMap points={routePoints} />
+                  {loadingRounds ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-[380px] w-full" />
                     </div>
-                    <div className="lg:col-span-5 max-h-[420px] overflow-y-auto pr-1 space-y-2">
-                      {roundDetail?.timeline.map((event, i) => {
-                        const prev = i > 0 ? roundDetail.timeline[i - 1] : null;
-                        const deltaMin = prev
-                          ? Math.round((new Date(event.timestamp).getTime() - new Date(prev.timestamp).getTime()) / 60000)
-                          : 0;
-                        return (
-                          <div key={i} className="flex items-start gap-3 bg-slate-50/60 border border-slate-100 rounded-xl px-4 py-2.5">
-                            <div className="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-[10px] font-black flex-shrink-0 mt-0.5">
-                              {event.type === "SCAN" ? i : event.type === "START" ? "▶" : "■"}
+                  ) : !selectedRoundId ? (
+                    <div className="flex items-center justify-center h-[380px] bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm">
+                      Este guardia no tiene rondas en el periodo seleccionado.
+                    </div>
+                  ) : loadingRoundDetail ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-[380px] w-full" />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <RoundRouteMap points={routePoints} />
+                      <div className="max-h-[320px] overflow-y-auto pr-1 space-y-2">
+                        {roundDetail?.timeline.map((event, i) => {
+                          const prev = i > 0 ? roundDetail.timeline[i - 1] : null;
+                          const deltaMin = prev
+                            ? Math.round((new Date(event.timestamp).getTime() - new Date(prev.timestamp).getTime()) / 60000)
+                            : 0;
+                          return (
+                            <div key={i} className="flex items-start gap-3 bg-slate-50/60 border border-slate-100 rounded-xl px-4 py-2.5">
+                              <div className="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-[10px] font-black flex-shrink-0 mt-0.5">
+                                {event.type === "SCAN" ? i : event.type === "START" ? "▶" : "■"}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-slate-700 truncate">{event.description}</p>
+                                <p className="text-[10px] text-slate-400 flex items-center gap-2">
+                                  <FaClock className="text-slate-300" />
+                                  {dayjs(event.timestamp).format("HH:mm:ss")}
+                                  {i > 0 && <span className="text-sky-500 font-bold">+{deltaMin} min</span>}
+                                </p>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-bold text-slate-700 truncate">{event.description}</p>
-                              <p className="text-[10px] text-slate-400 flex items-center gap-2">
-                                <FaClock className="text-slate-300" />
-                                {dayjs(event.timestamp).format("HH:mm:ss")}
-                                {i > 0 && <span className="text-sky-500 font-bold">+{deltaMin} min</span>}
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </ITCard>
+              </div>
+
+              <div className="lg:col-span-5 order-2 lg:order-1">
+                <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4">Rondas del Periodo</h3>
+                  {loadingRounds ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-16 w-full" />
+                      <Skeleton className="h-16 w-full" />
+                      <Skeleton className="h-16 w-full" />
+                    </div>
+                  ) : rounds.length === 0 ? (
+                    <p className="text-sm text-slate-400 py-6 text-center">Sin rondas en este rango de fechas.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1">
+                      {rounds.map((round) => {
+                        const isActive = round.status === "IN_PROGRESS";
+                        const isSelected = selectedRoundId === round.id;
+                        return (
+                          <button
+                            key={round.id}
+                            onClick={() => setSelectedRoundId(round.id)}
+                            className={`w-full text-left flex items-center justify-between gap-3 rounded-2xl border px-5 py-3.5 transition-all ${
+                              isSelected
+                                ? isActive
+                                  ? "bg-emerald-50 border-emerald-300 ring-2 ring-emerald-100"
+                                  : "bg-sky-50 border-sky-200"
+                                : isActive
+                                  ? "bg-emerald-50/40 border-emerald-100 hover:bg-emerald-50"
+                                  : "bg-slate-50/60 border-slate-100 hover:bg-slate-50"
+                            }`}
+                          >
+                            <div>
+                              <p className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                {isActive && <LiveDot />}
+                                {dayjs(round.startTime).format("DD [de] MMM, YYYY · HH:mm")}
+                              </p>
+                              <p className="text-[11px] text-slate-400 font-medium">
+                                {round.recurringConfiguration?.title ?? "Sin ruta"}
                               </p>
                             </div>
-                          </div>
+                            <ITBadget
+                              color={isActive ? "primary" : "secondary"}
+                              variant="outlined"
+                              size="small"
+                              className="!rounded-lg !text-[9px] whitespace-nowrap flex-shrink-0"
+                            >
+                              {isActive ? "En curso" : "Completada"}
+                            </ITBadget>
+                          </button>
                         );
                       })}
                     </div>
-                  </div>
-                )}
-              </ITCard>
-            )}
+                  )}
+                </ITCard>
+              </div>
+            </div>
           </>
         )}
       </div>
@@ -303,7 +405,19 @@ const GuardTrackingPage = () => {
   );
 };
 
-const SummaryCard = ({ title, value, icon, color }: { title: string; value?: number | string; icon: React.ReactNode; color: string }) => {
+const SummaryCard = ({
+  title,
+  value,
+  icon,
+  color,
+  loading,
+}: {
+  title: string;
+  value?: number | string;
+  icon: React.ReactNode;
+  color: string;
+  loading?: boolean;
+}) => {
   const colorClasses: Record<string, string> = {
     emerald: "bg-emerald-50 text-emerald-600",
     sky: "bg-sky-50 text-sky-600",
@@ -314,7 +428,7 @@ const SummaryCard = ({ title, value, icon, color }: { title: string; value?: num
     <ITCard className="p-5 shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl">
       <div className={`w-10 h-10 rounded-xl ${colorClasses[color]} flex items-center justify-center mb-3 text-base`}>{icon}</div>
       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{title}</p>
-      <h4 className="text-2xl font-black text-slate-800">{value ?? 0}</h4>
+      {loading ? <Skeleton className="h-7 w-14" /> : <h4 className="text-2xl font-black text-slate-800">{value ?? 0}</h4>}
     </ITCard>
   );
 };

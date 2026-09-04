@@ -39,18 +39,25 @@ const formatElapsed = (minutes: number) => {
   return `${h}h ${m}min`;
 };
 
+/** Pulse placeholder shown only on the very first load (loading && !data yet) —
+ * así la página se lee como "cargando" en vez de saltar directo a estados
+ * vacíos que se ven idénticos a "ya revisé y no hay nada". */
+const Skeleton = ({ className = "" }: { className?: string }) => (
+  <div className={`animate-pulse bg-slate-100 rounded-xl ${className}`} />
+);
+
 /**
  * Dashboard administrativo en vivo — reemplaza el Home de WEB para
  * ADMIN/SHIFT. Complementa (no repite) el análisis histórico que ya
- * existía (AnalyticsTab, integrado aquí abajo
- * como secciones): esto es una sola foto de "qué está pasando ahora
- * mismo" — rondas activas y su avance, quién está de turno y qué
- * necesita atención — para no tener que adivinar qué onda con los
- * guardias.
+ * existía (AnalyticsTab, integrado aquí abajo como sección): esto es una
+ * sola foto de "qué está pasando ahora mismo" — rondas activas y su
+ * avance, quién está de turno y qué necesita atención — para no tener
+ * que adivinar qué onda con los guardias.
  */
 export const LiveOpsDashboard = () => {
   const navigate = useNavigate();
   const { data, loading, error, refetch } = useLiveDashboard();
+  const isFirstLoad = loading && !data;
 
   const staleRoundIds = new Set((data?.activeRounds ?? []).filter((r) => r.stale).map((r) => r.roundId));
 
@@ -77,6 +84,10 @@ export const LiveOpsDashboard = () => {
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full uppercase tracking-widest">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
             <FaWifi /> En vivo
           </span>
           {data && (
@@ -98,15 +109,15 @@ export const LiveOpsDashboard = () => {
 
       {/* KPI strip */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KpiCard title="Rondas Activas" value={data?.kpis.activeRoundsCount} icon={<FaRoute />} color="emerald" loading={loading} />
-        <KpiCard title="Guardias en Turno" value={data?.kpis.guardsOnShiftCount} icon={<FaUserShield />} color="indigo" loading={loading} />
-        <KpiCard title="Incidencias Abiertas" value={data?.kpis.openIncidentsCount} icon={<FaExclamationTriangle />} color="orange" loading={loading} />
+        <KpiCard title="Rondas Activas" value={data?.kpis.activeRoundsCount} icon={<FaRoute />} color="emerald" loading={isFirstLoad} />
+        <KpiCard title="Guardias en Turno" value={data?.kpis.guardsOnShiftCount} icon={<FaUserShield />} color="indigo" loading={isFirstLoad} />
+        <KpiCard title="Incidencias Abiertas" value={data?.kpis.openIncidentsCount} icon={<FaExclamationTriangle />} color="orange" loading={isFirstLoad} />
         <KpiCard
           title="Cobertura de Rutas"
           value={data ? `${data.kpis.routesCovered}/${data.kpis.routesTotal}` : undefined}
           icon={<FaMapMarkedAlt />}
           color="sky"
-          loading={loading}
+          loading={isFirstLoad}
         />
       </div>
 
@@ -118,7 +129,12 @@ export const LiveOpsDashboard = () => {
             <ITBadget color="danger" variant="filled" size="small" className="!rounded-full">{data.alerts.length}</ITBadget>
           )}
         </h3>
-        {!data || data.alerts.length === 0 ? (
+        {isFirstLoad ? (
+          <div className="space-y-2">
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
+          </div>
+        ) : !data || data.alerts.length === 0 ? (
           <div className="flex items-center gap-3 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-4 text-sm font-bold">
             <FaCheckCircle /> Todo en orden — sin alertas activas.
           </div>
@@ -140,7 +156,12 @@ export const LiveOpsDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <ITCard className="lg:col-span-7 shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
           <h3 className="text-lg font-bold text-slate-800 mb-4">Rondas Activas</h3>
-          {!data || data.activeRounds.length === 0 ? (
+          {isFirstLoad ? (
+            <div className="space-y-3">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          ) : !data || data.activeRounds.length === 0 ? (
             <p className="text-sm text-slate-400 py-8 text-center">Nadie tiene una ronda activa en este momento.</p>
           ) : (
             <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
@@ -155,14 +176,20 @@ export const LiveOpsDashboard = () => {
           <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
             <FaMapMarkedAlt className="text-sky-500" /> Última Ubicación Conocida
           </h3>
-          <LiveGuardsMap points={mapPoints} height="380px" />
+          {isFirstLoad ? <Skeleton className="h-[380px] w-full" /> : <LiveGuardsMap points={mapPoints} height="380px" />}
         </ITCard>
       </div>
 
       {/* Guardias en turno */}
       <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
         <h3 className="text-lg font-bold text-slate-800 mb-4">Guardias en Turno</h3>
-        {!data || data.guardsOnShift.length === 0 ? (
+        {isFirstLoad ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        ) : !data || data.guardsOnShift.length === 0 ? (
           <p className="text-sm text-slate-400 py-8 text-center">No hay guardias con sesión iniciada en este momento.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -201,11 +228,10 @@ const KpiCard = ({ title, value, icon, color, loading }: { title: string; value?
   return (
     <ITCard className="p-6 shadow-lg shadow-slate-100/50 border-none bg-white rounded-3xl relative overflow-hidden group">
       <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${circleClasses[color]} group-hover:scale-110 transition-transform duration-500`} />
-      {loading && !value && <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center animate-pulse" />}
       <div className="relative z-10">
         <div className={`w-12 h-12 rounded-2xl ${colorClasses[color]} flex items-center justify-center mb-4 text-xl shadow-sm`}>{icon}</div>
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{title}</p>
-        <h4 className="text-3xl font-black text-slate-800">{value ?? 0}</h4>
+        {loading ? <Skeleton className="h-8 w-16" /> : <h4 className="text-3xl font-black text-slate-800">{value ?? 0}</h4>}
       </div>
     </ITCard>
   );
