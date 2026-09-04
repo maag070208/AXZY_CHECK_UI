@@ -130,7 +130,7 @@ export const ChatPanel = ({ variant = "page" }: ChatPanelProps) => {
       )}
 
       <div
-        className={compact ? "flex-1 overflow-y-auto px-3 py-3 space-y-2" : "flex-1 overflow-y-auto p-6 space-y-3"}
+        className={compact ? "flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2" : "flex-1 min-h-0 overflow-y-auto p-6 space-y-3"}
         style={!compact ? { maxHeight: "60vh" } : undefined}
       >
         {messages.map((msg) => {

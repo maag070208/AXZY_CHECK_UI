@@ -24,9 +24,16 @@ const DEFAULT_CENTER = { lat: 32.4608, lng: -116.9247 };
  * separate small component built on the same @vis.gl/react-google-maps
  * dependency rather than bending that one to a second, unrelated shape.
  */
-export const LiveGuardsMap = ({ points, height = '360px', className = '' }: LiveGuardsMapProps) => {
+export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className = '' }: LiveGuardsMapProps) => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBEcey4scuaufZ6TD4oOZZKjO';
   const [activePoint, setActivePoint] = useState<LiveMapPoint | null>(null);
+
+  // Es común que dos guardias escaneen el MISMO punto de control (misma
+  // caseta, por ejemplo) casi al mismo tiempo — sus últimas ubicaciones caen
+  // en coordenadas idénticas o casi idénticas y un pin queda tapando al
+  // otro por completo ("solo se ve el de 1"). Los separamos visualmente sin
+  // perder a ninguno.
+  const points = spreadOverlappingPoints(rawPoints);
 
   if (!apiKey) {
     return (
@@ -84,6 +91,58 @@ export const LiveGuardsMap = ({ points, height = '360px', className = '' }: Live
       </APIProvider>
     </div>
   );
+};
+
+const OVERLAP_THRESHOLD_METERS = 12;
+const OFFSET_RADIUS_METERS = 10;
+
+const distanceMeters = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+  const R = 6371000;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+};
+
+/**
+ * Agrupa puntos que caen prácticamente en el mismo lugar (mismo punto de
+ * control) y los reparte en un pequeño círculo alrededor de esa ubicación,
+ * para que cada guardia tenga su propio pin visible y clickeable en vez de
+ * quedar uno tapado detrás del otro.
+ */
+const spreadOverlappingPoints = <T extends { lat: number; lng: number }>(points: T[]): T[] => {
+  const used = new Array(points.length).fill(false);
+  const result: T[] = [];
+
+  for (let i = 0; i < points.length; i++) {
+    if (used[i]) continue;
+    const cluster = [i];
+    used[i] = true;
+    for (let j = i + 1; j < points.length; j++) {
+      if (used[j]) continue;
+      if (distanceMeters(points[i], points[j]) <= OVERLAP_THRESHOLD_METERS) {
+        cluster.push(j);
+        used[j] = true;
+      }
+    }
+
+    if (cluster.length === 1) {
+      result.push(points[i]);
+      continue;
+    }
+
+    cluster.forEach((idx, k) => {
+      const angle = (2 * Math.PI * k) / cluster.length;
+      const dLat = (OFFSET_RADIUS_METERS * Math.sin(angle)) / 111320;
+      const dLng =
+        (OFFSET_RADIUS_METERS * Math.cos(angle)) / (111320 * Math.cos((points[idx].lat * Math.PI) / 180));
+      result.push({ ...points[idx], lat: points[idx].lat + dLat, lng: points[idx].lng + dLng });
+    });
+  }
+
+  return result;
 };
 
 /** Fits the viewport to every point whenever the set of points changes. */

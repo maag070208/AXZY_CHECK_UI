@@ -210,8 +210,13 @@ export const LiveOpsDashboard = () => {
           <AnalyticsTab />
         </div>
 
-        {/* Chat del equipo — fijo mientras se navega el resto del dashboard */}
-        <div className="xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] h-[480px]">
+        {/* Chat del equipo — fijo mientras se navega el resto del dashboard.
+            Altura fija (no 100vh) a propósito: 100vh no descuenta la barra
+            superior del layout, así que el panel quedaba más alto que la
+            pantalla visible y había que hacer scroll de toda la página para
+            alcanzar el input. Con una altura fija razonable, el chat entero
+            (mensajes + input) siempre cabe sin scrollear la página. */}
+        <div className="xl:sticky xl:top-4 h-[560px]">
           <ChatPanel variant="sidebar" />
         </div>
       </div>
