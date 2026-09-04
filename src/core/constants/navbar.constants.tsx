@@ -4,12 +4,16 @@ import {
   FaBook,
   FaChild,
   FaClock,
+  FaComments,
   FaExclamationTriangle,
   FaGlassCheers,
   FaHome,
+  FaLayerGroup,
   FaListAlt,
   FaMapMarkedAlt,
   FaSearchLocation,
+  FaSwatchbook,
+  FaTshirt,
   FaUserShield,
   FaWrench
 } from "react-icons/fa";
@@ -126,6 +130,34 @@ export const useNavigationItems = (): any[] => {
     }
   ];
 
+  // "4.1 Chat grupal" y "4.2 Entrega de turno" — visibles para quienes
+  // coordinan operación desde WEB.
+  if (user?.role === "ADMIN" || user?.role === "SHIFT") {
+    baseItems.push({
+      id: "chat",
+      label: "Chat",
+      action: () => navigate("/chat"),
+      isActive: isRouteActive("/chat"),
+      icon: <FaComments />,
+    });
+
+    baseItems.push({
+      id: "shift-handover",
+      label: "Entrega de Turno",
+      action: () => navigate("/shift-handover"),
+      isActive: isRouteActive("/shift-handover"),
+      icon: <FaSwatchbook />,
+    });
+
+    baseItems.push({
+      id: "uniform",
+      label: "Uniforme",
+      action: () => navigate("/uniform"),
+      isActive: isRouteActive("/uniform"),
+      icon: <FaTshirt />,
+    });
+  }
+
   if (user?.role === "ADMIN" || user?.role === "LIDER") {
     baseItems.push({
       id: "users",
@@ -133,6 +165,16 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/users"),
       isActive: isRouteActive("/users"),
       icon: <FaChild  />,
+    });
+
+    // "3. CRUD de administración de catálogos" — solo ADMIN gestiona los
+    // catálogos de Incidencias / Mantenimiento / Casa Club.
+    baseItems.push({
+      id: "catalogs",
+      label: "Catálogos",
+      action: () => navigate("/catalogs"),
+      isActive: isRouteActive("/catalogs"),
+      icon: <FaLayerGroup />,
     });
   }
 

@@ -1,0 +1,167 @@
+import { AppState } from "@app/core/store/store";
+import { showToast } from "@app/core/store/toast/toast.slice";
+import { ITButton } from "@axzydev/axzy_ui_system";
+import * as Ably from "ably";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { FaComments, FaPaperPlane } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { ChatMessage, getMessages, getRealtimeToken, sendMessage } from "../services/ChatService";
+
+const POLL_INTERVAL_MS = 10000;
+const ABLY_CHAT_CHANNEL = "chat:team";
+
+/**
+ * "4.1 Chat grupal" — canal de mensajería del equipo operativo (ADMIN, GUARD,
+ * SHIFT, MAINT). Postgres es la fuente de verdad (persistido vía REST);
+ * Ably es solo una mejora en vivo — si no conecta, la página sigue
+ * funcionando por polling cada 10s.
+ */
+const ChatPage = () => {
+  const dispatch = useDispatch();
+  const currentUserId = useSelector((state: AppState) => state.auth.id);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
+  const listEndRef = useRef<HTMLDivElement | null>(null);
+  const ablyRef = useRef<Ably.Realtime | null>(null);
+
+  const loadMessages = useCallback(async () => {
+    const res = await getMessages();
+    if (res.success && res.data) {
+      // API returns newest-first; render oldest-first.
+      setMessages([...res.data].reverse());
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMessages();
+
+    // Polling fallback — always on, cheap, and guarantees the chat works
+    // even if Ably never connects.
+    const pollTimer = setInterval(loadMessages, POLL_INTERVAL_MS);
+
+    // Best-effort realtime: if Ably can't authenticate (not configured on the
+    // API, network blocked, etc.) we just keep relying on the poll above.
+    let client: Ably.Realtime | null = null;
+    try {
+      client = new Ably.Realtime({
+        authCallback: async (_tokenParams, callback) => {
+          try {
+            const res = await getRealtimeToken();
+            if (res.success && res.data) {
+              callback(null, res.data);
+            } else {
+              callback("No se pudo obtener el token de tiempo real", null);
+            }
+          } catch (error) {
+            callback(error as Ably.ErrorInfo, null);
+          }
+        },
+      });
+      ablyRef.current = client;
+      const channel = client.channels.get(ABLY_CHAT_CHANNEL);
+      channel.subscribe("new-message", (msg) => {
+        const incoming = msg.data as ChatMessage;
+        setMessages((prev) => (prev.some((m) => m.id === incoming.id) ? prev : [...prev, incoming]));
+      });
+    } catch (error) {
+      console.warn("[Chat] Ably no disponible, usando solo polling.", error);
+    }
+
+    return () => {
+      clearInterval(pollTimer);
+      client?.close();
+    };
+  }, [loadMessages]);
+
+  useEffect(() => {
+    listEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
+
+  const handleSend = async () => {
+    const trimmed = draft.trim();
+    if (!trimmed || sending) return;
+
+    setSending(true);
+    try {
+      const res = await sendMessage(trimmed);
+      if (res.success && res.data) {
+        setMessages((prev) => [...prev, res.data as ChatMessage]);
+        setDraft("");
+      } else {
+        dispatch(showToast({ message: res.messages?.[0] || "No se pudo enviar", type: "error" }));
+      }
+    } catch (error) {
+      const result = error as { messages?: string[] };
+      dispatch(showToast({ message: result?.messages?.[0] || "Error de conexión", type: "error" }));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="p-6 bg-[#f8fafc] min-h-screen flex flex-col">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+          <FaComments className="text-[#065911]" />
+          Chat del equipo
+        </h1>
+        <p className="text-slate-500 text-sm mt-1">
+          Canal grupal para administración, guardias, jefe de guardias y mantenimiento.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6 space-y-3" style={{ maxHeight: "60vh" }}>
+          {messages.map((msg) => {
+            const isOwn = msg.user.id === currentUserId;
+            return (
+              <div key={msg.id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
+                    isOwn ? "bg-[#065911] text-white" : "bg-slate-100 text-slate-800"
+                  }`}
+                >
+                  {!isOwn && (
+                    <p className="text-[10px] font-bold uppercase opacity-70 mb-0.5">
+                      {msg.user.name} {msg.user.lastName || ""}
+                    </p>
+                  )}
+                  <p className="text-sm">{msg.message}</p>
+                  <p className={`text-[10px] mt-1 ${isOwn ? "text-emerald-100" : "text-slate-400"}`}>
+                    {new Date(msg.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+          {messages.length === 0 && <p className="text-sm text-slate-400">Todavía no hay mensajes.</p>}
+          <div ref={listEndRef} />
+        </div>
+
+        <div className="border-t border-slate-100 p-4 flex items-center gap-3">
+          <input
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSend();
+            }}
+            placeholder="Escribe un mensaje..."
+            className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#065911] outline-none text-sm"
+          />
+          <ITButton
+            onClick={handleSend}
+            disabled={sending || !draft.trim()}
+            color="primary"
+            className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c] !px-5 !py-2.5"
+          >
+            <FaPaperPlane size={14} />
+          </ITButton>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatPage;

@@ -25,6 +25,10 @@ import SchedulesPage from "./modules/schedules/pages/SchedulesPage";
 import RoutesPage from "./modules/routes/pages/RoutesPage";
 import GuardsPage from "./modules/guards/pages/GuardsPage";
 import PropertyDetailPage from "./modules/properties/pages/PropertyDetailPage";
+import CatalogsPage from "./modules/catalogs/pages/CatalogsPage";
+import ChatPage from "./modules/chat/pages/ChatPage";
+import ShiftHandoverPage from "./modules/shift-handover/pages/ShiftHandoverPage";
+import UniformPage from "./modules/uniform/pages/UniformPage";
 
 
 function App() {
@@ -96,6 +100,10 @@ function App() {
         <Route path="/rounds/:id" element={<RoundDetailPage />} />
         <Route path="/routes" element={<RoutesPage />} />
         <Route path="/guards" element={<GuardsPage />} />
+        <Route path="/catalogs" element={<CatalogsPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/shift-handover" element={<ShiftHandoverPage />} />
+        <Route path="/uniform" element={<UniformPage />} />
 
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />
