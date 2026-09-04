@@ -25,7 +25,7 @@ interface MaintenanceCreateFormProps {
   typesCatalog: ICatalogItem[];
 }
 
-const MaintenanceCreateForm = ({ isOpen, onClose, onSuccess, categoriesCatalog, typesCatalog }: MaintenanceCreateFormProps) => {
+const MaintenanceCreateForm = ({ isOpen, onClose, onSuccess, typesCatalog }: MaintenanceCreateFormProps) => {
   const dispatch = useDispatch();
 
   const [categoryId, setCategoryId] = useState<number | null>(null);
@@ -121,11 +121,9 @@ const MaintenanceCreateForm = ({ isOpen, onClose, onSuccess, categoriesCatalog, 
   };
 
   const handleSubmit = async () => {
-    if (!categoryId) {
-      dispatch(showToast({ message: "Selecciona una categoría", type: "warning" }));
-      return;
-    }
-    if (!typeId) {
+    // categoryId se deriva automáticamente al elegir el tipo (ver ajuste_2
+    // punto 1), asi que basta con validar que haya un tipo seleccionado.
+    if (!typeId || !categoryId) {
       dispatch(showToast({ message: "Selecciona el tipo de mantenimiento", type: "warning" }));
       return;
     }
@@ -193,63 +191,35 @@ const MaintenanceCreateForm = ({ isOpen, onClose, onSuccess, categoriesCatalog, 
 
         <div className="p-6 overflow-y-auto flex-1 bg-white space-y-6">
 
-          {/* 1. Categoría */}
+          {/* 1. Tipo de Mantenimiento — la categoría se deriva automáticamente
+              del tipo elegido (ya no se pide por separado, ver ajuste_2 punto 1). */}
           <div>
             <label className="text-[11px] font-black text-slate-400 uppercase tracking-[1.5px] mb-3 flex items-center gap-2">
-              <span className="w-1 h-3 bg-sky-400 rounded-full"></span>
-              Categoría
+              <span className="w-1 h-3 bg-amber-400 rounded-full"></span>
+              Tipo de Mantenimiento
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {categoriesCatalog.map(cat => {
-                const isSelected = categoryId === Number(cat.id);
+            <div className="flex flex-wrap gap-2">
+              {typesCatalog.map(type => {
+                const isSelected = typeId === Number(type.id);
                 return (
                   <button
-                    key={cat.id}
+                    key={type.id}
                     onClick={() => {
-                      setCategoryId(Number(cat.id));
-                      setTypeId(null);
+                      setTypeId(Number(type.id));
+                      setCategoryId(Number(type.categoryId));
                     }}
-                    className={`flex flex-col items-center justify-center gap-1.5 px-3 py-3 text-xs font-bold rounded-xl border transition-all duration-200 ${
+                    className={`px-4 py-2.5 text-sm font-semibold rounded-xl border transition-all duration-200 ${
                       isSelected
-                        ? 'border-transparent text-white shadow-md scale-[1.02]'
-                        : 'bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50/50'
+                        ? 'bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-200 scale-[1.02]'
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:text-amber-700 hover:bg-amber-50/50'
                     }`}
-                    style={isSelected ? { backgroundColor: cat.color || '#f59e0b' } : undefined}
                   >
-                    {cat.value}
+                    {type.value}
                   </button>
                 );
               })}
             </div>
           </div>
-
-          {/* 2. Tipo de Mantenimiento */}
-          {categoryId && (
-            <div>
-              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[1.5px] mb-3 flex items-center gap-2">
-                <span className="w-1 h-3 bg-amber-400 rounded-full"></span>
-                Tipo de Mantenimiento
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {typesCatalog.filter(t => Number(t.categoryId) === categoryId).map(type => {
-                  const isSelected = typeId === Number(type.id);
-                  return (
-                    <button
-                      key={type.id}
-                      onClick={() => setTypeId(Number(type.id))}
-                      className={`px-4 py-2.5 text-sm font-semibold rounded-xl border transition-all duration-200 ${
-                        isSelected
-                          ? 'bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-200 scale-[1.02]'
-                          : 'bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:text-amber-700 hover:bg-amber-50/50'
-                      }`}
-                    >
-                      {type.value}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* 2. Evidence */}
           <div>
