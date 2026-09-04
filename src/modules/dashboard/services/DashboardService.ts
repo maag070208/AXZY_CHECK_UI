@@ -59,6 +59,8 @@ export interface ILiveAlert {
   severity: "high" | "medium";
   message: string;
   refId?: number;
+  /** Ausente cuando la alerta no tiene un momento puntual que mostrar. */
+  at?: string | null;
 }
 
 export interface ILiveUncoveredRoute {

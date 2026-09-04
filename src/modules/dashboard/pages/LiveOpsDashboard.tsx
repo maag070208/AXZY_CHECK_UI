@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { AnalyticsTab } from "../../home/components/tabs/AnalyticsTab";
+import { ChatPanel } from "../../chat/components/ChatPanel";
 import { useLiveDashboard } from "../hooks/useLiveDashboard";
 import { LiveGuardsMap } from "../components/LiveGuardsMap";
 import type { ILiveActiveRound, ILiveAlert, ILiveGuardOnShift } from "../services/DashboardService";
@@ -23,7 +24,7 @@ const ROLE_TRANSLATIONS: Record<string, string> = {
   SHIFT: "Jefe de Guardias",
 };
 
-const timeAgo = (value: string | null) => {
+const timeAgo = (value: string | null | undefined) => {
   if (!value) return "Sin actividad";
   const minutes = Math.round((Date.now() - new Date(value).getTime()) / 60000);
   if (minutes < 1) return "hace unos segundos";
@@ -48,11 +49,11 @@ const Skeleton = ({ className = "" }: { className?: string }) => (
 
 /**
  * Dashboard administrativo en vivo — reemplaza el Home de WEB para
- * ADMIN/SHIFT. Complementa (no repite) el análisis histórico que ya
- * existía (AnalyticsTab, integrado aquí abajo como sección): esto es una
- * sola foto de "qué está pasando ahora mismo" — rondas activas y su
- * avance, quién está de turno y qué necesita atención — para no tener
- * que adivinar qué onda con los guardias.
+ * ADMIN/SHIFT. Layout partido: columna principal con el estado operativo
+ * (rondas, mapa, alertas, analytics histórico integrado) + columna lateral
+ * fija con el Chat del equipo en vivo, siempre visible mientras se navega
+ * el resto — así no hay que adivinar qué onda con los guardias ni salir de
+ * esta pantalla para coordinar por chat.
  */
 export const LiveOpsDashboard = () => {
   const navigate = useNavigate();
@@ -70,15 +71,15 @@ export const LiveOpsDashboard = () => {
   }));
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-5 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2.5">
             <FaShieldAlt className="text-emerald-600" />
             Monitoreo en Vivo
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs mt-1">
             Qué está pasando ahora mismo con la operación — sin tener que adivinar.
           </p>
         </div>
@@ -95,8 +96,8 @@ export const LiveOpsDashboard = () => {
               Actualizado {dayjs(data.generatedAt).format("HH:mm:ss")}
             </span>
           )}
-          <ITButton onClick={refetch} size="small" variant="filled" color="primary" className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center">
-            <FaSync className={loading ? "animate-spin" : ""} />
+          <ITButton onClick={refetch} size="small" variant="filled" color="primary" className="!rounded-xl !h-9 !w-9 !p-0 flex items-center justify-center">
+            <FaSync className={loading ? "animate-spin" : ""} size={13} />
           </ITButton>
         </div>
       </div>
@@ -107,106 +108,112 @@ export const LiveOpsDashboard = () => {
         </div>
       )}
 
-      {/* KPI strip */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KpiCard title="Rondas Activas" value={data?.kpis.activeRoundsCount} icon={<FaRoute />} color="emerald" loading={isFirstLoad} />
-        <KpiCard title="Guardias en Turno" value={data?.kpis.guardsOnShiftCount} icon={<FaUserShield />} color="indigo" loading={isFirstLoad} />
-        <KpiCard title="Incidencias Abiertas" value={data?.kpis.openIncidentsCount} icon={<FaExclamationTriangle />} color="orange" loading={isFirstLoad} />
-        <KpiCard
-          title="Cobertura de Rutas"
-          value={data ? `${data.kpis.routesCovered}/${data.kpis.routesTotal}` : undefined}
-          icon={<FaMapMarkedAlt />}
-          color="sky"
-          loading={isFirstLoad}
-        />
-      </div>
+      {/* Layout partido: contenido principal + chat fijo a la derecha */}
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
+        <div className="min-w-0 space-y-5">
+          {/* KPI strip */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard title="Rondas Activas" value={data?.kpis.activeRoundsCount} icon={<FaRoute />} color="emerald" loading={isFirstLoad} />
+            <KpiCard title="Guardias en Turno" value={data?.kpis.guardsOnShiftCount} icon={<FaUserShield />} color="indigo" loading={isFirstLoad} />
+            <KpiCard title="Incidencias Abiertas" value={data?.kpis.openIncidentsCount} icon={<FaExclamationTriangle />} color="orange" loading={isFirstLoad} />
+            <KpiCard
+              title="Cobertura de Rutas"
+              value={data ? `${data.kpis.routesCovered}/${data.kpis.routesTotal}` : undefined}
+              icon={<FaMapMarkedAlt />}
+              color="sky"
+              loading={isFirstLoad}
+            />
+          </div>
 
-      {/* Alertas operativas */}
-      <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
-        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <FaExclamationTriangle className="text-amber-500" /> Alertas Operativas
-          {data && data.alerts.length > 0 && (
-            <ITBadget color="danger" variant="filled" size="small" className="!rounded-full">{data.alerts.length}</ITBadget>
-          )}
-        </h3>
-        {isFirstLoad ? (
-          <div className="space-y-2">
-            <Skeleton className="h-14 w-full" />
-            <Skeleton className="h-14 w-full" />
-          </div>
-        ) : !data || data.alerts.length === 0 ? (
-          <div className="flex items-center gap-3 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-4 text-sm font-bold">
-            <FaCheckCircle /> Todo en orden — sin alertas activas.
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {data.alerts.map((alert, i) => (
-              <AlertRow key={i} alert={alert} />
-            ))}
-          </div>
-        )}
-        {data && data.uncoveredRoutes.length > 0 && (
-          <p className="text-[11px] text-slate-400 mt-4">
-            Sin nadie recorriéndolas ahora mismo: {data.uncoveredRoutes.map((r) => r.title).join(", ")}
-          </p>
-        )}
-      </ITCard>
-
-      {/* Rondas activas + Mapa */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <ITCard className="lg:col-span-7 shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">Rondas Activas</h3>
-          {isFirstLoad ? (
-            <div className="space-y-3">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
+          {/* Alertas operativas */}
+          <ITCard className="shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[13px] font-bold text-slate-800 flex items-center gap-2">
+                <FaExclamationTriangle className="text-amber-500" /> Alertas Operativas
+              </h3>
+              {data && data.alerts.length > 0 && (
+                <ITBadget color="danger" variant="filled" size="small" className="!rounded-full">{data.alerts.length}</ITBadget>
+              )}
             </div>
-          ) : !data || data.activeRounds.length === 0 ? (
-            <p className="text-sm text-slate-400 py-8 text-center">Nadie tiene una ronda activa en este momento.</p>
-          ) : (
-            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-              {data.activeRounds.map((round) => (
-                <ActiveRoundRow key={round.roundId} round={round} onClick={() => navigate(`/guard-tracking?guardId=${round.guard.id}`)} />
-              ))}
-            </div>
-          )}
-        </ITCard>
+            {isFirstLoad ? (
+              <div className="space-y-2">
+                <Skeleton className="h-11 w-full" />
+                <Skeleton className="h-11 w-full" />
+              </div>
+            ) : !data || data.alerts.length === 0 ? (
+              <div className="flex items-center gap-3 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-xs font-bold">
+                <FaCheckCircle /> Todo en orden — sin alertas activas.
+              </div>
+            ) : (
+              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                {data.alerts.map((alert, i) => (
+                  <AlertRow key={i} alert={alert} />
+                ))}
+              </div>
+            )}
+            {data && data.uncoveredRoutes.length > 0 && (
+              <p className="text-[10px] text-slate-400 mt-3">
+                Sin nadie recorriéndolas ahora mismo: {data.uncoveredRoutes.map((r) => r.title).join(", ")}
+              </p>
+            )}
+          </ITCard>
 
-        <ITCard className="lg:col-span-5 shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <FaMapMarkedAlt className="text-sky-500" /> Última Ubicación Conocida
-          </h3>
-          {isFirstLoad ? <Skeleton className="h-[380px] w-full" /> : <LiveGuardsMap points={mapPoints} height="380px" />}
-        </ITCard>
-      </div>
+          {/* Rondas activas + Mapa */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <ITCard className="lg:col-span-7 shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl p-5">
+              <h3 className="text-[13px] font-bold text-slate-800 mb-3">Rondas Activas</h3>
+              {isFirstLoad ? (
+                <div className="space-y-2.5">
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              ) : !data || data.activeRounds.length === 0 ? (
+                <p className="text-xs text-slate-400 py-8 text-center">Nadie tiene una ronda activa en este momento.</p>
+              ) : (
+                <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+                  {data.activeRounds.map((round) => (
+                    <ActiveRoundRow key={round.roundId} round={round} onClick={() => navigate(`/guard-tracking?guardId=${round.guard.id}`)} />
+                  ))}
+                </div>
+              )}
+            </ITCard>
 
-      {/* Guardias en turno */}
-      <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
-        <h3 className="text-lg font-bold text-slate-800 mb-4">Guardias en Turno</h3>
-        {isFirstLoad ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
+            <ITCard className="lg:col-span-5 shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl p-5">
+              <h3 className="text-[13px] font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <FaMapMarkedAlt className="text-sky-500" /> Última Ubicación Conocida
+              </h3>
+              {isFirstLoad ? <Skeleton className="h-[300px] w-full" /> : <LiveGuardsMap points={mapPoints} height="300px" />}
+            </ITCard>
           </div>
-        ) : !data || data.guardsOnShift.length === 0 ? (
-          <p className="text-sm text-slate-400 py-8 text-center">No hay guardias con sesión iniciada en este momento.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {data.guardsOnShift.map((guard) => (
-              <GuardOnShiftCard key={guard.guardId} guard={guard} onClick={() => navigate(`/guard-tracking?guardId=${guard.guardId}`)} />
-            ))}
-          </div>
-        )}
-      </ITCard>
 
-      {/* Análisis histórico — integrado como sección, ya no en pestañas */}
-      <div className="pt-4 border-t border-slate-100 space-y-8">
-        <div>
-          <h2 className="text-xl font-black text-slate-800 tracking-tight">Security Analytics</h2>
-          <p className="text-slate-400 text-xs mt-1">Histórico por rango de fechas.</p>
+          {/* Guardias en turno */}
+          <ITCard className="shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl p-5">
+            <h3 className="text-[13px] font-bold text-slate-800 mb-3">Guardias en Turno</h3>
+            {isFirstLoad ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+              </div>
+            ) : !data || data.guardsOnShift.length === 0 ? (
+              <p className="text-xs text-slate-400 py-8 text-center">No hay guardias con sesión iniciada en este momento.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                {data.guardsOnShift.map((guard) => (
+                  <GuardOnShiftCard key={guard.guardId} guard={guard} onClick={() => navigate(`/guard-tracking?guardId=${guard.guardId}`)} />
+                ))}
+              </div>
+            )}
+          </ITCard>
+
+          {/* Análisis histórico — integrado como sección, con su propio encabezado y sub-pestañas */}
+          <AnalyticsTab />
         </div>
-        <AnalyticsTab />
+
+        {/* Chat del equipo — fijo mientras se navega el resto del dashboard */}
+        <div className="xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] h-[480px]">
+          <ChatPanel variant="sidebar" />
+        </div>
       </div>
     </div>
   );
@@ -226,12 +233,12 @@ const KpiCard = ({ title, value, icon, color, loading }: { title: string; value?
     sky: "bg-sky-500/10",
   };
   return (
-    <ITCard className="p-6 shadow-lg shadow-slate-100/50 border-none bg-white rounded-3xl relative overflow-hidden group">
-      <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${circleClasses[color]} group-hover:scale-110 transition-transform duration-500`} />
+    <ITCard className="p-4 shadow-md shadow-slate-100/50 border-none bg-white rounded-2xl relative overflow-hidden group">
+      <div className={`absolute top-0 right-0 w-20 h-20 -mr-6 -mt-6 rounded-full ${circleClasses[color]} group-hover:scale-110 transition-transform duration-500`} />
       <div className="relative z-10">
-        <div className={`w-12 h-12 rounded-2xl ${colorClasses[color]} flex items-center justify-center mb-4 text-xl shadow-sm`}>{icon}</div>
-        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{title}</p>
-        {loading ? <Skeleton className="h-8 w-16" /> : <h4 className="text-3xl font-black text-slate-800">{value ?? 0}</h4>}
+        <div className={`w-9 h-9 rounded-xl ${colorClasses[color]} flex items-center justify-center mb-3 text-base shadow-sm`}>{icon}</div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{title}</p>
+        {loading ? <Skeleton className="h-6 w-14" /> : <h4 className="text-xl font-black text-slate-800">{value ?? 0}</h4>}
       </div>
     </ITCard>
   );
@@ -241,15 +248,13 @@ const AlertRow = ({ alert }: { alert: ILiveAlert }) => {
   const isHigh = alert.severity === "high";
   return (
     <div
-      className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 text-sm font-semibold border ${
-        isHigh ? "bg-red-50 border-red-100 text-red-700" : "bg-amber-50 border-amber-100 text-amber-700"
+      className={`flex items-center gap-2.5 rounded-lg pl-3 pr-3 py-2.5 text-xs font-semibold border-l-4 ${
+        isHigh ? "bg-red-50 border-red-500 text-red-700" : "bg-amber-50 border-amber-500 text-amber-700"
       }`}
     >
-      <FaExclamationTriangle className={isHigh ? "text-red-500" : "text-amber-500"} />
-      <span className="flex-1">{alert.message}</span>
-      <ITBadget color={isHigh ? "danger" : "warning"} variant="outlined" size="small" className="!rounded-lg !text-[9px]">
-        {isHigh ? "Urgente" : "Atención"}
-      </ITBadget>
+      <FaExclamationTriangle className={`${isHigh ? "text-red-500" : "text-amber-500"} flex-shrink-0`} size={11} />
+      <span className="flex-1 min-w-0">{alert.message}</span>
+      {alert.at && <span className="text-[9px] font-bold opacity-60 whitespace-nowrap flex-shrink-0">{timeAgo(alert.at)}</span>}
     </div>
   );
 };
@@ -257,14 +262,14 @@ const AlertRow = ({ alert }: { alert: ILiveAlert }) => {
 const ActiveRoundRow = ({ round, onClick }: { round: ILiveActiveRound; onClick: () => void }) => (
   <button
     onClick={onClick}
-    className={`w-full text-left rounded-2xl border p-4 transition-colors hover:bg-slate-100/80 ${round.stale ? "bg-red-50/50 border-red-100" : "bg-slate-50/60 border-slate-100"}`}
+    className={`w-full text-left rounded-xl border p-3.5 transition-colors hover:bg-slate-100/80 ${round.stale ? "bg-red-50/50 border-red-100" : "bg-slate-50/60 border-slate-100"}`}
   >
     <div className="flex items-center justify-between mb-2">
       <div>
-        <p className="font-black text-slate-800 text-sm uppercase">
+        <p className="font-black text-slate-800 text-xs uppercase">
           {round.guard.name} {round.guard.lastName}
         </p>
-        <p className="text-[11px] text-slate-400 font-medium">{round.routeTitle ?? "Sin ruta asignada"}</p>
+        <p className="text-[10px] text-slate-400 font-medium">{round.routeTitle ?? "Sin ruta asignada"}</p>
       </div>
       {round.stale && (
         <ITBadget color="danger" variant="filled" size="small" className="!rounded-lg !text-[9px]">Estancada</ITBadget>
@@ -278,7 +283,7 @@ const ActiveRoundRow = ({ round, onClick }: { round: ILiveActiveRound; onClick: 
         />
       </div>
     )}
-    <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+    <div className="flex items-center justify-between text-[9px] font-bold text-slate-500 uppercase tracking-tight">
       <span className="flex items-center gap-1"><FaClock className="text-slate-300" /> {formatElapsed(round.elapsedMinutes)}</span>
       <span>
         {round.progressPercent !== null ? `${round.scannedCount}/${round.totalLocations} puntos` : `${round.scannedCount} escaneos`}
@@ -293,16 +298,16 @@ const GuardOnShiftCard = ({ guard, onClick }: { guard: ILiveGuardOnShift; onClic
   return (
     <button
       onClick={onClick}
-      className="w-full text-left flex items-center gap-3 bg-slate-50/60 border border-slate-100 rounded-2xl px-4 py-3 transition-colors hover:bg-slate-100/80"
+      className="w-full text-left flex items-center gap-2.5 bg-slate-50/60 border border-slate-100 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-slate-100/80"
     >
-      <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs flex-shrink-0">
+      <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-[10px] flex-shrink-0">
         {initials}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-black text-slate-700 text-xs uppercase truncate">
+        <p className="font-black text-slate-700 text-[11px] uppercase truncate">
           {guard.name} {guard.lastName}
         </p>
-        <p className="text-[10px] text-slate-400 font-bold uppercase truncate">{ROLE_TRANSLATIONS[guard.role] ?? guard.role}</p>
+        <p className="text-[9px] text-slate-400 font-bold uppercase truncate">{ROLE_TRANSLATIONS[guard.role] ?? guard.role}</p>
       </div>
       <div className="flex flex-col items-end gap-1 flex-shrink-0">
         <ITBadget
