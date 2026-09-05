@@ -4,6 +4,7 @@ import { showToast } from "@app/core/store/toast/toast.slice";
 import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { MediaCarousel } from "@core/components/MediaCarousel";
+import { AgeBadge } from "@core/components/AgeBadge";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaFilePdf, FaFilter, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
@@ -201,6 +202,13 @@ const IncidentsPage = () => {
         )
     },
     {
+        key: "age",
+        label: "Días Abierta",
+        type: "string",
+        sortable: false,
+        render: (row: Incident) => <AgeBadge createdAt={row.createdAt} />
+    },
+    {
         key: "guardId",
         label: "Reportado Por",
         type: "string",
@@ -381,13 +389,10 @@ const IncidentsPage = () => {
                 <ITButton
                     onClick={() => setShowCreateModal(true)}
                     color="primary"
-                    variant="filled"
-                    className="h-[42px] px-4 !rounded-xl transition-all flex items-center gap-2"
-                    size="small"
+                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs flex items-center gap-2 shadow-sm"
                     title="Nuevo reporte"
                 >
-                    <FaPlus className="text-xs" />
-                    <span className="text-xs font-bold">Nuevo Reporte</span>
+                    <FaPlus className="text-xs" /> NUEVO REPORTE
                 </ITButton>
             )}
         </div>
