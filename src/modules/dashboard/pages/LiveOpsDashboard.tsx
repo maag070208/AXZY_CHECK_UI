@@ -24,21 +24,38 @@ const ROLE_TRANSLATIONS: Record<string, string> = {
   SHIFT: "Jefe de Guardias",
 };
 
+const formatDuration = (minutes: number): string => {
+  const total = Math.floor(Math.max(0, minutes));
+  if (total === 0) return "menos de 1 min";
+
+  const HOUR = 60;
+  const DAY = 24 * HOUR;
+  const MONTH = 30 * DAY;
+  const YEAR = 365 * DAY;
+
+  const years = Math.floor(total / YEAR);
+  const months = Math.floor((total % YEAR) / MONTH);
+  const days = Math.floor((total % MONTH) / DAY);
+  const hours = Math.floor((total % DAY) / HOUR);
+  const mins = Math.floor(total % HOUR);
+
+  const parts: string[] = [];
+  if (years > 0) parts.push(`${years} ${years === 1 ? "año" : "años"}`);
+  if (months > 0) parts.push(`${months} ${months === 1 ? "mes" : "meses"}`);
+  if (days > 0) parts.push(`${days} ${days === 1 ? "día" : "días"}`);
+  if (hours > 0) parts.push(`${hours} ${hours === 1 ? "hora" : "horas"}`);
+  if (mins > 0) parts.push(`${mins} min`);
+  return parts.join(" ");
+};
+
 const timeAgo = (value: string | null | undefined) => {
   if (!value) return "Sin actividad";
   const minutes = Math.round((Date.now() - new Date(value).getTime()) / 60000);
   if (minutes < 1) return "hace unos segundos";
-  if (minutes < 60) return `hace ${minutes} min`;
-  const hours = Math.round(minutes / 60);
-  return `hace ${hours} h`;
+  return `hace ${formatDuration(minutes)}`;
 };
 
-const formatElapsed = (minutes: number) => {
-  if (minutes < 60) return `${minutes} min`;
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${h}h ${m}min`;
-};
+const formatElapsed = (minutes: number) => formatDuration(minutes);
 
 /** Pulse placeholder shown only on the very first load (loading && !data yet) —
  * así la página se lee como "cargando" en vez de saltar directo a estados
