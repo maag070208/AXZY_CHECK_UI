@@ -94,7 +94,7 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
             isOpen={isOpen} 
             onClose={onClose} 
             title={`Asignar Tarea Especial: ${guardName}`}
-            className="!max-w-2xl w-full"
+            className="!max-w-2xl w-full !overflow-visible"
         >
             <div className="p-6">
                 <div className="space-y-6">

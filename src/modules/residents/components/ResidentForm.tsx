@@ -1,4 +1,4 @@
-import { ITButton, ITInput, ITSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ResidentUser, uploadResidentImage } from "../services/residents.service";
@@ -159,11 +159,11 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
             label: "Asignación y Acceso",
             content: (
                 <div className="flex flex-col gap-4 p-4">
-                    <ITSelect
+                    <ITSearchSelect
                         label="Propiedad Asignada"
                         name="propertyId"
                         value={formik.values.propertyId}
-                        onChange={formik.handleChange}
+                        onChange={(val) => formik.setFieldValue("propertyId", val)}
                         options={[{label: "Sin propiedad (Asignar después)", value: ""}, ...properties]}
                         error={formik.errors.propertyId}
                         touched={formik.touched.propertyId}

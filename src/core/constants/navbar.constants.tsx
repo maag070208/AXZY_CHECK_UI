@@ -4,12 +4,17 @@ import {
   FaBook,
   FaChild,
   FaClock,
+  FaComments,
   FaExclamationTriangle,
   FaGlassCheers,
   FaHome,
+  FaLayerGroup,
   FaListAlt,
   FaMapMarkedAlt,
   FaSearchLocation,
+  FaSwatchbook,
+  FaTshirt,
+  FaUserClock,
   FaUserShield,
   FaWrench
 } from "react-icons/fa";
@@ -39,6 +44,7 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/home"),
       isActive: isRouteActive("/home"),
       icon: <FaHome  />,
+      roles: ["ADMIN", "SHIFT", "GUARD", "MAINT", "RESDN"],
     },
     {
       id: "locations",
@@ -46,34 +52,15 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/locations"),
       isActive: isRouteActive("/locations"),
       icon: <FaSearchLocation  />,
+      roles: ["ADMIN", "SHIFT"],
     },
-    // {
-    //   id: "properties",
-    //   label: "Propiedades",
-    //   action: () => navigate("/properties"),
-    //   isActive: isRouteActive("/properties"),
-    //   icon: <FaHome />,
-    // },
-    // {
-    //   id: "residents",
-    //   label: "Residentes",
-    //   action: () => navigate("/residents"),
-    //   isActive: isRouteActive("/residents"),
-    //   icon: <FaUsers />,
-    // },
-    // {
-    //   id: "invitations",
-    //   label: "Invitados",
-    //   action: () => navigate("/invitations"),
-    //   isActive: isRouteActive("/invitations"),
-    //   icon: <FaIdBadge />,
-    // },
     {
       id: "incidents",
       label: "Reportes",
       action: () => navigate("/incidents"),
       isActive: isRouteActive("/incidents"),
       icon: <FaExclamationTriangle  />, 
+      roles: ["ADMIN", "SHIFT"],
     },
     {
       id: "club",
@@ -81,6 +68,7 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/club"),
       isActive: isRouteActive("/club"),
       icon: <FaGlassCheers  />, 
+      roles: ["ADMIN", "SHIFT", "GUARD", "MAINT"],
     },
     {
       id: "maintenances",
@@ -88,6 +76,7 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/maintenances"),
       isActive: isRouteActive("/maintenances"),
       icon: <FaWrench  />, 
+      roles: ["ADMIN", "MAINT"],
     },
     {
       id: "kardex",
@@ -95,6 +84,7 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/kardex"),
       isActive: isRouteActive("/kardex"),
       icon: <FaBook  />,
+      roles: ["ADMIN", "SHIFT"],
     },
     {
       id: "rounds",
@@ -102,6 +92,7 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/rounds"),
       isActive: isRouteActive("/rounds"),
       icon: <FaClock  />,
+      roles: ["ADMIN", "SHIFT"],
     },
     {
       id: "routes",
@@ -109,6 +100,7 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/routes"),
       isActive: isRouteActive("/routes"),
       icon: <FaMapMarkedAlt  />,
+      roles: ["ADMIN", "SHIFT"],
     },
     {
       id: "guards",
@@ -116,27 +108,67 @@ export const useNavigationItems = (): any[] => {
       action: () => navigate("/guards"),
       isActive: isRouteActive("/guards"),
       icon: <FaUserShield />,
+      roles: ["ADMIN", "SHIFT"],
     },
     {
-      id: 'schedule',
-      label: 'Horarios',
-       action: () => navigate("/schedules"),
-      isActive: isRouteActive("/schedules"),
-      icon: <FaListAlt  />,
-    }
-  ];
-
-  if (user?.role === "ADMIN" || user?.role === "LIDER") {
-    baseItems.push({
+      id: "chat",
+      label: "Chat",
+      action: () => navigate("/chat"),
+      isActive: isRouteActive("/chat"),
+      icon: <FaComments />,
+      roles: ["ADMIN", "SHIFT"],
+    },
+    {
+      id: "shift-handover",
+      label: "Entrega de Turno",
+      action: () => navigate("/shift-handover"),
+      isActive: isRouteActive("/shift-handover"),
+      icon: <FaSwatchbook />,
+      roles: ["ADMIN", "SHIFT"],
+    },
+    {
+      id: "uniform",
+      label: "Uniforme",
+      action: () => navigate("/uniform"),
+      isActive: isRouteActive("/uniform"),
+      icon: <FaTshirt />,
+      roles: ["ADMIN", "SHIFT"],
+    },
+    {
+      id: "guard-tracking",
+      label: "Seguimiento",
+      action: () => navigate("/guard-tracking"),
+      isActive: isRouteActive("/guard-tracking"),
+      icon: <FaUserClock />,
+      roles: ["ADMIN", "SHIFT"],
+    },
+    {
       id: "users",
       label: "Usuarios",
       action: () => navigate("/users"),
       isActive: isRouteActive("/users"),
       icon: <FaChild  />,
-    });
-  }
+      roles: ["ADMIN"],
+    },
+    {
+      id: "catalogs",
+      label: "Catálogos",
+      action: () => navigate("/catalogs"),
+      isActive: isRouteActive("/catalogs"),
+      icon: <FaLayerGroup />,
+      roles: ["ADMIN"],
+    },
+    {
+      id: "schedule",
+      label: "Horarios",
+      action: () => navigate("/schedules"),
+      isActive: isRouteActive("/schedules"),
+      icon: <FaListAlt  />,
+      roles: ["ADMIN"],
+    }
+  ];
 
-  return baseItems;
+  return baseItems.filter((item) => (user?.role ? item.roles.includes(user.role) : false));
 };
 
 // ------------- NAVBAR (legacy) -----------------

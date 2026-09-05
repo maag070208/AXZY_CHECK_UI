@@ -98,13 +98,13 @@ const UsersPage = () => {
                         <FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
                         <span className="text-xs font-bold text-slate-500">Actualizar</span>
                     </ITButton>
-                    <button 
+                    <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 h-[42px] rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:scale-105 transition-all"
+                        color="primary"
+                        className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs flex items-center gap-2 shadow-sm"
                     >
-                        <FaPlus className="text-xs" />
-                        <span>Nuevo Usuario</span>
-                    </button>
+                        <FaPlus className="text-xs" /> NUEVO USUARIO
+                    </ITButton>
                 </div>
             </div>
 

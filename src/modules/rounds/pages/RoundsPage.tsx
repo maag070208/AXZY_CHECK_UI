@@ -24,6 +24,23 @@ import tz from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(tz);
 
+/** Umbrales de "Desempeño" del historial de recorridos: qué tanto de la
+ *  ruta cubrió el guardia (0-33% MALO, 33-67% MEDIO, 67-99% ALTO, 100%
+ *  EXCELENTE) — calculado por la API en `progressStatus`. */
+const PROGRESS_BADGE_COLOR: Record<string, "danger" | "warning" | "primary" | "success"> = {
+  MALO: "danger",
+  MEDIO: "warning",
+  ALTO: "primary",
+  EXCELENTE: "success",
+};
+
+const PROGRESS_BAR_COLOR: Record<string, string> = {
+  MALO: "bg-red-500",
+  MEDIO: "bg-amber-500",
+  ALTO: "bg-sky-500",
+  EXCELENTE: "bg-emerald-500",
+};
+
 const RoundsPage = () => {
   const [selectedDate, setSelectedDate] = useState<any>([
     dayjs().tz("America/Tijuana").toDate(),
@@ -206,6 +223,43 @@ const RoundsPage = () => {
             {row.status === "COMPLETED" ? "FINALIZADA" : "EN CURSO"}
           </ITBadget>
         ),
+      },
+      {
+        key: "progressPercent",
+        label: "Avance",
+        type: "string",
+        render: (row: IRound) => {
+          if (row.totalLocations == null || row.progressPercent == null) {
+            return <span className="text-xs text-slate-300">—</span>;
+          }
+          return (
+            <div className="min-w-[120px]">
+              <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 mb-1">
+                <span>{row.scannedCount}/{row.totalLocations} puntos</span>
+                <span>{row.progressPercent}%</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${PROGRESS_BAR_COLOR[row.progressStatus ?? "MALO"]}`}
+                  style={{ width: `${row.progressPercent}%` }}
+                />
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        key: "progressStatus",
+        label: "Desempeño",
+        type: "string",
+        render: (row: IRound) =>
+          row.progressStatus ? (
+            <ITBadget color={PROGRESS_BADGE_COLOR[row.progressStatus]} variant="filled" size="small">
+              {row.progressStatus}
+            </ITBadget>
+          ) : (
+            <span className="text-xs text-slate-300">—</span>
+          ),
       },
       {
         key: "actions",

@@ -21,6 +21,7 @@
     "@vis.gl/react-google-maps": "^1.7.1",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
+    "ably": "^2.6.5",
     "chart.js": "^4.5.1",
     "dayjs": "^1.11.19",
     "dotenv": "^16.4.7",

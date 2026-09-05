@@ -27,6 +27,12 @@ export interface IRound {
     name: string;
     lastName: string | null;
   };
+  /** Avance real de la ronda (cuántos puntos de la ruta escaneó el guardia),
+   *  calculado por la API tanto para rondas en curso como ya finalizadas. */
+  scannedCount?: number;
+  totalLocations?: number | null;
+  progressPercent?: number | null;
+  progressStatus?: "MALO" | "MEDIO" | "ALTO" | "EXCELENTE" | null;
 }
 
 export interface IRoundEvent {
