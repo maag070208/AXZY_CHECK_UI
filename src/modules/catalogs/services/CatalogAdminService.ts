@@ -51,14 +51,6 @@ export const deleteCategory = async (id: number): Promise<TResult<any>> => {
   return await remove<any>(`/catalog-admin/categories/${id}`);
 };
 
-export const reorderCategories = async (ids: number[]): Promise<TResult<boolean>> => {
-  return await put<boolean>("/catalog-admin/categories/reorder", { ids });
-};
-
-export const pinCategory = async (id: number): Promise<TResult<CatalogCategory>> => {
-  return await put<CatalogCategory>(`/catalog-admin/categories/${id}/pin`, {});
-};
-
 // Types ---------------------------------------------------------------------
 
 export const getTypes = async (categoryId: number): Promise<TResult<CatalogType[]>> => {
@@ -82,12 +74,4 @@ export const updateType = async (
 
 export const deleteType = async (id: number): Promise<TResult<any>> => {
   return await remove<any>(`/catalog-admin/types/${id}`);
-};
-
-export const reorderTypes = async (ids: number[]): Promise<TResult<boolean>> => {
-  return await put<boolean>("/catalog-admin/types/reorder", { ids });
-};
-
-export const pinType = async (id: number): Promise<TResult<CatalogType>> => {
-  return await put<CatalogType>(`/catalog-admin/types/${id}/pin`, {});
 };

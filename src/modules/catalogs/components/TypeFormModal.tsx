@@ -72,7 +72,7 @@ export const TypeFormModal = ({
   };
 
   return (
-    <ITDialog isOpen={isOpen} onClose={onClose} title={editType ? "Editar tipo" : "Nuevo tipo de incidencia"} className="!overflow-visible">
+    <ITDialog isOpen={isOpen} onClose={onClose} title={editType ? "Editar tipo" : "Nuevo tipo de incidencia"} className="!max-w-md w-full !overflow-visible">
       <div className="p-6 space-y-4">
         <ITInput
           name="name"

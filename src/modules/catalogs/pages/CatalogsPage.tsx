@@ -7,7 +7,6 @@ import {
   FaEdit,
   FaLayerGroup,
   FaPlus,
-  FaThumbtack,
   FaTrash,
 } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -21,10 +20,6 @@ import {
   deleteType,
   getCategories,
   getTypes,
-  pinCategory,
-  pinType,
-  reorderCategories,
-  reorderTypes,
 } from "../services/CatalogAdminService";
 
 const TAB_OPTIONS: { label: string; value: CatalogAdminType }[] = [
@@ -36,13 +31,9 @@ const TAB_OPTIONS: { label: string; value: CatalogAdminType }[] = [
 /**
  * "3. Catálogo de incidencias → CRUD de catálogos". Lets ADMIN manage the
  * three independent type catalogs (Incidencias / Mantenimiento / Casa Club)
- * without depending on a development ticket: create, edit, reorder (with a
- * "fijar al inicio" quick-access pin) and delete categories and their types.
- *
- * Reordering uses ↑ / ↓ buttons rather than drag-and-drop: the design system
- * available here (@axzydev/axzy_ui_system) has no drag-and-drop primitive
- * and the UI skill restricts this app to that library only, so arrows are
- * the dependency-free, accessible equivalent.
+ * without depending on a development ticket: create, edit and delete
+ * categories and their types. Deleting with history soft-disables the record
+ * instead of removing it permanently.
  */
 const CatalogsPage = () => {
   const dispatch = useDispatch();
@@ -59,7 +50,13 @@ const CatalogsPage = () => {
   const [typeModalCategoryId, setTypeModalCategoryId] = useState<number | null>(null);
   const [editType, setEditType] = useState<CatalogType | null>(null);
 
-  const [deleteTarget, setDeleteTarget] = useState<{ kind: "category" | "type"; id: number } | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [deleteTarget, setDeleteTarget] = useState<{
+    kind: "category" | "type";
+    id: number;
+    active: boolean;
+    label: string;
+  } | null>(null);
 
   const loadCategories = useCallback(async (type: CatalogAdminType) => {
     setLoading(true);
@@ -94,23 +91,6 @@ const CatalogsPage = () => {
 
   // ---- Category actions ----
 
-  const moveCategory = async (index: number, direction: -1 | 1) => {
-    const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= categories.length) return;
-    const reordered = [...categories];
-    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
-    setCategories(reordered);
-    await reorderCategories(reordered.map((c) => c.id));
-  };
-
-  const handlePinCategory = async (id: number) => {
-    const res = await pinCategory(id);
-    if (res.success) {
-      dispatch(showToast({ message: "Categoría fijada al inicio", type: "success" }));
-      loadCategories(activeTab);
-    }
-  };
-
   const handleDeleteCategory = async (id: number) => {
     const res = await deleteCategory(id);
     setDeleteTarget(null);
@@ -124,24 +104,6 @@ const CatalogsPage = () => {
 
   // ---- Type actions ----
 
-  const moveType = async (categoryId: number, index: number, direction: -1 | 1) => {
-    const types = typesByCategory[categoryId] || [];
-    const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= types.length) return;
-    const reordered = [...types];
-    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
-    setTypesByCategory((prev) => ({ ...prev, [categoryId]: reordered }));
-    await reorderTypes(reordered.map((t) => t.id));
-  };
-
-  const handlePinType = async (categoryId: number, id: number) => {
-    const res = await pinType(id);
-    if (res.success) {
-      dispatch(showToast({ message: "Tipo fijado al inicio", type: "success" }));
-      loadTypes(categoryId);
-    }
-  };
-
   const handleDeleteType = async (categoryId: number, id: number) => {
     const res = await deleteType(id);
     setDeleteTarget(null);
@@ -153,6 +115,10 @@ const CatalogsPage = () => {
       dispatch(showToast({ message: res.messages?.[0] || "Error al eliminar", type: "error" }));
     }
   };
+
+  const visibleCategories = categories.filter((c) =>
+    statusFilter === "all" ? true : statusFilter === "active" ? c.active : !c.active,
+  );
 
   return (
     <div className="p-6 bg-[#f8fafc] min-h-screen">
@@ -181,8 +147,8 @@ const CatalogsPage = () => {
       </div>
 
       {/* @axzydev/axzy_ui_system has no tabs/filter primitive, so this uses plain
-          ITButton toggles instead (same approach as the ↑/↓ reorder controls below). */}
-      <div className="mb-6 flex gap-2 bg-white p-1.5 rounded-xl border border-slate-100 w-fit">
+          ITButton toggles instead. */}
+      <div className="mb-3 flex flex-wrap gap-2 bg-white p-1.5 rounded-xl border border-slate-100 w-fit">
         {TAB_OPTIONS.map((tab) => (
           <ITButton
             key={tab.value}
@@ -197,13 +163,39 @@ const CatalogsPage = () => {
         ))}
       </div>
 
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Estado:</span>
+        {(
+          [
+            { label: "Todas", value: "all" },
+            { label: "Activas", value: "active" },
+            { label: "Inactivas", value: "inactive" },
+          ] as const
+        ).map((opt) => (
+          <ITButton
+            key={opt.value}
+            onClick={() => setStatusFilter(opt.value)}
+            color={statusFilter === opt.value ? "primary" : "secondary"}
+            variant={statusFilter === opt.value ? "filled" : "outlined"}
+            size="small"
+            className="!rounded-lg !px-3"
+          >
+            {opt.label}
+          </ITButton>
+        ))}
+      </div>
+
       <div className="space-y-3">
         {loading && <p className="text-sm text-slate-400">Cargando...</p>}
-        {!loading && categories.length === 0 && (
-          <p className="text-sm text-slate-400">No hay categorías en este catálogo todavía.</p>
+        {!loading && visibleCategories.length === 0 && (
+          <p className="text-sm text-slate-400">
+            {categories.length === 0
+              ? "No hay categorías en este catálogo todavía."
+              : "No hay categorías con ese estado."}
+          </p>
         )}
 
-        {categories.map((category, index) => (
+        {visibleCategories.map((category) => (
           <div key={category.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4">
               <button
@@ -232,38 +224,6 @@ const CatalogsPage = () => {
 
               <div className="flex items-center gap-1.5">
                 <ITButton
-                  onClick={() => moveCategory(index, -1)}
-                  variant="outlined"
-                  color="secondary"
-                  size="small"
-                  className="!rounded-lg !p-2"
-                  title="Subir"
-                  disabled={index === 0}
-                >
-                  ↑
-                </ITButton>
-                <ITButton
-                  onClick={() => moveCategory(index, 1)}
-                  variant="outlined"
-                  color="secondary"
-                  size="small"
-                  className="!rounded-lg !p-2"
-                  title="Bajar"
-                  disabled={index === categories.length - 1}
-                >
-                  ↓
-                </ITButton>
-                <ITButton
-                  onClick={() => handlePinCategory(category.id)}
-                  variant="outlined"
-                  color="secondary"
-                  size="small"
-                  className="!rounded-lg !p-2"
-                  title="Fijar al inicio (acceso rápido)"
-                >
-                  <FaThumbtack size={12} />
-                </ITButton>
-                <ITButton
                   onClick={() => {
                     setEditCategory(category);
                     setCategoryModalOpen(true);
@@ -277,7 +237,9 @@ const CatalogsPage = () => {
                   <FaEdit size={14} />
                 </ITButton>
                 <ITButton
-                  onClick={() => setDeleteTarget({ kind: "category", id: category.id })}
+                  onClick={() =>
+                    setDeleteTarget({ kind: "category", id: category.id, active: category.active, label: category.value })
+                  }
                   variant="outlined"
                   color="danger"
                   size="small"
@@ -311,7 +273,7 @@ const CatalogsPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  {(typesByCategory[category.id] || []).map((type, typeIndex) => (
+                  {(typesByCategory[category.id] || []).map((type) => (
                     <div
                       key={type.id}
                       className="flex items-center justify-between bg-white rounded-xl border border-slate-100 px-4 py-2.5"
@@ -321,38 +283,6 @@ const CatalogsPage = () => {
                         {!type.active && <ITBadget label="Inactivo" color="danger" variant="filled" />}
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <ITButton
-                          onClick={() => moveType(category.id, typeIndex, -1)}
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                          className="!rounded-lg !p-1.5"
-                          title="Subir"
-                          disabled={typeIndex === 0}
-                        >
-                          ↑
-                        </ITButton>
-                        <ITButton
-                          onClick={() => moveType(category.id, typeIndex, 1)}
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                          className="!rounded-lg !p-1.5"
-                          title="Bajar"
-                          disabled={typeIndex === (typesByCategory[category.id]?.length || 1) - 1}
-                        >
-                          ↓
-                        </ITButton>
-                        <ITButton
-                          onClick={() => handlePinType(category.id, type.id)}
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                          className="!rounded-lg !p-1.5"
-                          title="Fijar al inicio (acceso rápido)"
-                        >
-                          <FaThumbtack size={11} />
-                        </ITButton>
                         <ITButton
                           onClick={() => {
                             setEditType(type);
@@ -368,7 +298,9 @@ const CatalogsPage = () => {
                           <FaEdit size={12} />
                         </ITButton>
                         <ITButton
-                          onClick={() => setDeleteTarget({ kind: "type", id: type.id })}
+                          onClick={() =>
+                            setDeleteTarget({ kind: "type", id: type.id, active: type.active, label: type.value })
+                          }
                           variant="outlined"
                           color="danger"
                           size="small"
@@ -412,11 +344,29 @@ const CatalogsPage = () => {
         />
       )}
 
-      <ITDialog isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Eliminar registro">
+      <ITDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title={deleteTarget?.active ? "Desactivar registro" : "Eliminar permanentemente"}
+        className="!max-w-md w-full"
+      >
         <div className="p-6">
-          <p className="text-slate-600 mb-6 text-sm">
-            Si tiene historial asociado se desactivará en lugar de eliminarse permanentemente. ¿Deseas continuar?
-          </p>
+          {deleteTarget?.active ? (
+            <p className="text-slate-600 mb-6 text-sm">
+              <span className="font-bold text-slate-800">"{deleteTarget.label}"</span> se{" "}
+              <span className="font-bold">desactivará</span>: deja de estar disponible para nuevos registros, pero
+              conserva su historial y puede seguir viéndose aquí. ¿Deseas continuar?
+            </p>
+          ) : (
+            <p className="text-slate-600 mb-6 text-sm">
+              <span className="font-bold text-slate-800">"{deleteTarget?.label}"</span> ya está desactivada. Al
+              confirmar se eliminará{" "}
+              <span className="font-bold text-red-600">permanentemente</span> de la base de datos
+              {deleteTarget?.kind === "category" ? " junto con sus tipos asociados" : ""}, y los registros históricos
+              dejarán de referenciarla. Esta acción <span className="font-bold">no se puede deshacer</span>. ¿Deseas
+              continuar?
+            </p>
+          )}
           <div className="flex justify-end gap-3">
             <ITButton variant="outlined" color="secondary" onClick={() => setDeleteTarget(null)} className="!rounded-lg">
               Cancelar
@@ -433,7 +383,7 @@ const CatalogsPage = () => {
                 }
               }}
             >
-              Eliminar
+              {deleteTarget?.active ? "Desactivar" : "Eliminar permanentemente"}
             </ITButton>
           </div>
         </div>
