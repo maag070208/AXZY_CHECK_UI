@@ -113,7 +113,7 @@ export const LiveOpsDashboard = () => {
               Actualizado {dayjs(data.generatedAt).format("HH:mm:ss")}
             </span>
           )}
-          <ITButton onClick={refetch} size="small" variant="filled" color="primary" className="!rounded-xl !h-9 !w-9 !p-0 flex items-center justify-center">
+          <ITButton onClick={refetch} size="sm" variant="filled" color="primary" className="!rounded-xl !h-9 !w-9 !p-0 flex items-center justify-center">
             <FaSync className={loading ? "animate-spin" : ""} size={13} />
           </ITButton>
         </div>
@@ -149,7 +149,7 @@ export const LiveOpsDashboard = () => {
                 <FaExclamationTriangle className="text-amber-500" /> Alertas Operativas
               </h3>
               {data && data.alerts.length > 0 && (
-                <ITBadget color="danger" variant="filled" size="small" className="!rounded-full">{data.alerts.length}</ITBadget>
+                <ITBadget color="danger" variant="filled" size="sm" className="!rounded-full">{data.alerts.length}</ITBadget>
               )}
             </div>
             {isFirstLoad ? (
@@ -294,7 +294,7 @@ const ActiveRoundRow = ({ round, onClick }: { round: ILiveActiveRound; onClick: 
         <p className="text-[10px] text-slate-400 font-medium">{round.routeTitle ?? "Sin ruta asignada"}</p>
       </div>
       {round.stale && (
-        <ITBadget color="danger" variant="filled" size="small" className="!rounded-lg !text-[9px]">Estancada</ITBadget>
+        <ITBadget color="danger" variant="filled" size="sm" className="!rounded-lg !text-[9px]">Estancada</ITBadget>
       )}
     </div>
     {round.progressPercent !== null && (
@@ -335,7 +335,7 @@ const GuardOnShiftCard = ({ guard, onClick }: { guard: ILiveGuardOnShift; onClic
         <ITBadget
           color={guard.status === "ON_ROUND" ? "primary" : "secondary"}
           variant="outlined"
-          size="small"
+          size="sm"
           className="!rounded-lg !text-[8px] whitespace-nowrap"
         >
           {guard.status === "ON_ROUND" ? "En ronda" : "Inactivo"}

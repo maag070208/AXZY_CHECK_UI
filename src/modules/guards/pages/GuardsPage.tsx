@@ -164,7 +164,7 @@ const GuardsPage = () => {
                                     {/* <div className="mt-1">
                                         <ITBadget 
                                             color={row.isLoggedIn ? "success" : "secondary"} 
-                                            size="small" 
+                                            size="sm" 
                                             variant="filled" 
                                             className="!px-2 !py-0.5 !rounded-md"
                                         >
@@ -184,7 +184,7 @@ const GuardsPage = () => {
                                 <div className="flex items-center gap-2">
                                     <ITButton 
                                         onClick={() => handleViewAssignments(row)} 
-                                        size="small" 
+                                        size="sm" 
                                         variant="outlined" 
                                         className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 !rounded-lg"
                                         title="Ver Tareas"
@@ -193,7 +193,7 @@ const GuardsPage = () => {
                                     </ITButton>
                                     <ITButton 
                                         onClick={() => handleOpenAssignment(row)} 
-                                        size="small" 
+                                        size="sm" 
                                         variant="outlined" 
                                         color="secondary"
                                         title="Asignar Tarea"

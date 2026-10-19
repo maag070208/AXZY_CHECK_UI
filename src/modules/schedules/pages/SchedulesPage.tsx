@@ -204,7 +204,7 @@ const SchedulesPage = () => {
                 <div className="flex gap-2">
                   <ITButton 
                       onClick={() => openModal(row)} 
-                      size="small"
+                      size="sm"
                       color="primary"
                       variant="outlined"
                       title="Editar"
@@ -213,7 +213,7 @@ const SchedulesPage = () => {
                   </ITButton>
                   <ITButton 
                       onClick={() => handleDelete(row.id)} 
-                      size="small"
+                      size="sm"
                       color="danger"
                       variant="outlined"
                       title="Eliminar"

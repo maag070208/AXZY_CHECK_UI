@@ -155,7 +155,7 @@ const CatalogsPage = () => {
             onClick={() => setActiveTab(tab.value)}
             color={activeTab === tab.value ? "primary" : "secondary"}
             variant={activeTab === tab.value ? "filled" : "outlined"}
-            size="small"
+            size="sm"
             className="!rounded-lg !px-4"
           >
             {tab.label}
@@ -177,7 +177,7 @@ const CatalogsPage = () => {
             onClick={() => setStatusFilter(opt.value)}
             color={statusFilter === opt.value ? "primary" : "secondary"}
             variant={statusFilter === opt.value ? "filled" : "outlined"}
-            size="small"
+            size="sm"
             className="!rounded-lg !px-3"
           >
             {opt.label}
@@ -230,7 +230,7 @@ const CatalogsPage = () => {
                   }}
                   variant="outlined"
                   color="secondary"
-                  size="small"
+                  size="sm"
                   className="!rounded-lg !p-2"
                   title="Editar"
                 >
@@ -242,7 +242,7 @@ const CatalogsPage = () => {
                   }
                   variant="outlined"
                   color="danger"
-                  size="small"
+                  size="sm"
                   className="!rounded-lg !p-2 text-red-500 border-red-200"
                   title="Eliminar"
                 >
@@ -263,7 +263,7 @@ const CatalogsPage = () => {
                     }}
                     variant="outlined"
                     color="primary"
-                    size="small"
+                    size="sm"
                     className="!rounded-lg"
                   >
                     <div className="flex items-center gap-1">
@@ -291,7 +291,7 @@ const CatalogsPage = () => {
                           }}
                           variant="outlined"
                           color="secondary"
-                          size="small"
+                          size="sm"
                           className="!rounded-lg !p-1.5"
                           title="Editar"
                         >
@@ -303,7 +303,7 @@ const CatalogsPage = () => {
                           }
                           variant="outlined"
                           color="danger"
-                          size="small"
+                          size="sm"
                           className="!rounded-lg !p-1.5 text-red-500 border-red-200"
                           title="Eliminar"
                         >

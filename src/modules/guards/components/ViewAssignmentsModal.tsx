@@ -236,7 +236,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                                                     <ITBadget 
                                                         color={getStatusColor(selectedAssignment.status)} 
                                                         variant="filled"
-                                                        size="small"
+                                                        size="sm"
                                                         className="!rounded-full !px-3 !py-1 font-bold text-[10px]"
                                                     >
                                                         {statusTranslations[selectedAssignment.status]}
@@ -301,7 +301,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                                                 </p>
                                             </div>
                                         </div>
-                                        <ITBadget color={getStatusColor(assignment.status)} size="small" variant="filled" className="!px-3 !py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
+                                        <ITBadget color={getStatusColor(assignment.status)} size="sm" variant="filled" className="!px-3 !py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
                                             {statusTranslations[assignment.status]}
                                         </ITBadget>
                                     </div>

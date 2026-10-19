@@ -1,11 +1,12 @@
 import federation from "@originjs/vite-plugin-federation";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import tailwindcss from "tailwindcss";
+import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     react(),
     federation({
       name: "host",
@@ -22,11 +23,6 @@ export default defineConfig({
     target: "esnext",
     minify: false,
     cssCodeSplit: false,
-  },
-  css: {
-    postcss: {
-      plugins: [tailwindcss()],
-    },
   },
   resolve: {
     alias: {

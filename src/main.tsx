@@ -13,6 +13,10 @@ import timezone from "dayjs/plugin/timezone";
 import { ITThemeProvider } from "@axzydev/axzy_ui_system";
 import { theme } from "./theme/theme.ts";
 
+if (!localStorage.getItem("it-theme-dark-mode")) {
+  localStorage.setItem("it-theme-dark-mode", "light");
+}
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.locale("es");
@@ -21,7 +25,7 @@ dayjs.locale("es");
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
   <Provider store={store}>
-    <ITThemeProvider theme={theme}>
+    <ITThemeProvider theme={theme} showFab={false}>
     <ToastProvider>
       <HashRouter>
         <App />

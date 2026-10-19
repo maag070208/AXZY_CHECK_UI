@@ -95,7 +95,7 @@ const RoutesPage = () => {
                variant="outlined"
                color="secondary"
                className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-               size="small"
+               size="sm"
                title="Actualizar datos"
             >
               <FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} /> 
@@ -187,7 +187,7 @@ const RoutesPage = () => {
                     onClick={() => handleEdit(row)}
                     variant="outlined" 
                     color="secondary"
-                    size="small" 
+                    size="sm" 
                     className="!rounded-xl !p-2 !border-slate-200"
                     title="Editar"
                   >
@@ -197,7 +197,7 @@ const RoutesPage = () => {
                     onClick={() => handleDelete(row.id)}
                     color="danger" 
                     variant="outlined" 
-                    size="small" 
+                    size="sm" 
                     className="!rounded-xl !p-2 text-red-500 hover:!bg-red-50 border-red-200"
                     title="Eliminar"
                   >

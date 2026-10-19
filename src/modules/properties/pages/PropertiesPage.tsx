@@ -184,7 +184,7 @@ const PropertiesPage = () => {
                 };
                 const status = statusMap[row.status?.name || 'VACNT'] || { label: 'DESCONOCIDO', color: 'secondary' };
                 return (
-                    <ITBadget size="small" variant="filled" color={status.color}>
+                    <ITBadget size="sm" variant="filled" color={status.color}>
                         {status.label}
                     </ITBadget>
                 );
@@ -198,14 +198,14 @@ const PropertiesPage = () => {
                 <div className="flex items-center gap-2">
                     <ITButton 
                         onClick={() => navigate(`/properties/${row.id}`)} 
-                        size="small" 
+                        size="sm" 
                         variant="outlined" 
                         color="secondary" 
                         title="Ver Detalles"
                     >
                         <FaEye />
                     </ITButton>
-                    <ITButton onClick={() => handlePrintQR(row)} size="small" variant="outlined" color="primary" title="Imprimir QR de Ronda">
+                    <ITButton onClick={() => handlePrintQR(row)} size="sm" variant="outlined" color="primary" title="Imprimir QR de Ronda">
                         <FaQrcode />
                     </ITButton>
                     <ITButton 
@@ -216,17 +216,17 @@ const PropertiesPage = () => {
                                 dispatch(showToast({ message: "Propiedad sin coordenadas GPS", type: "warning" }));
                             }
                         }} 
-                        size="small" 
+                        size="sm" 
                         variant="outlined" 
                         color="secondary" 
                         title="Ver en Google Maps"
                     >
                         <FaMapMarkedAlt />
                     </ITButton>
-                    <ITButton onClick={() => setEditingProperty(row)} size="small" variant="ghost" className="text-slate-400 hover:text-slate-600">
+                    <ITButton onClick={() => setEditingProperty(row)} size="sm" variant="ghost" className="text-slate-400 hover:text-slate-600">
                         <FaEdit />
                     </ITButton>
-                    <ITButton onClick={() => setPropertyToDelete(row)} size="small" variant="ghost" className="text-red-300 hover:text-red-500">
+                    <ITButton onClick={() => setPropertyToDelete(row)} size="sm" variant="ghost" className="text-red-300 hover:text-red-500">
                         <FaTrash />
                     </ITButton>
                 </div>
@@ -266,7 +266,7 @@ const PropertiesPage = () => {
                         color="secondary"
                         variant="outlined"
                         className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                        size="small"
+                        size="sm"
                         title="Actualizar tabla"
                     >
                         <FaSync className={`text-xs text-slate-500`} />

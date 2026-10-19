@@ -286,7 +286,7 @@ const RoundDetailPage = () => {
                             <ITBadget 
                                 color={data.round.status === "COMPLETED" ? "success" : "warning"}
                                 variant="filled"
-                                size="medium"
+                                size="md"
                             >
                                 {data.round.status === "COMPLETED" ? "FINALIZADA" : "EN CURSO"}
                             </ITBadget>

@@ -222,7 +222,7 @@ export const ResidentContactsManager = ({
                     <ITButton
                         onClick={() => handleOpenForm()}
                         className="bg-emerald-600 text-white flex items-center gap-2 shadow-lg shadow-emerald-500/20"
-                        size="small"
+                        size="sm"
                     >
                         <FaPlus /> Nuevo Contacto
                     </ITButton>

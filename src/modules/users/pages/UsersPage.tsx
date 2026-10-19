@@ -93,7 +93,7 @@ const UsersPage = () => {
                         color="secondary"
                         variant="outlined"
                         className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                        size="small"
+                        size="sm"
                     >
                         <FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
                         <span className="text-xs font-bold text-slate-500">Actualizar</span>
@@ -202,7 +202,7 @@ const UsersPage = () => {
                                 <div className="flex items-center gap-2">
                                     <ITButton 
                                         onClick={() => setChangingPasswordUser(row)} 
-                                        size="small" 
+                                        size="sm" 
                                         variant="outlined" 
                                         className="border-emerald-200 text-emerald-500 hover:bg-emerald-50"
                                         title="Contraseña"
@@ -211,7 +211,7 @@ const UsersPage = () => {
                                     </ITButton>
                                     <ITButton 
                                         onClick={() => setEditingUser(row)} 
-                                        size="small" 
+                                        size="sm" 
                                         variant="ghost" 
                                         className="text-slate-400 hover:text-slate-600"
                                         title="Editar"
@@ -220,7 +220,7 @@ const UsersPage = () => {
                                     </ITButton>
                                     <ITButton 
                                         onClick={() => setUserToDeleteId(row.id)} 
-                                        size="small" 
+                                        size="sm" 
                                         variant="ghost" 
                                         className="text-red-300 hover:text-red-500"
                                         title="Eliminar"

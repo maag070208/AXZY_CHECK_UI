@@ -410,7 +410,7 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                                         <p className="font-bold text-slate-800 text-sm line-clamp-1">{club.title}</p>
                                                         <ITBadget
                                                             color={club.status === 'ATTENDED' ? 'success' : 'danger'}
-                                                            size="small"
+                                                            size="sm"
                                                             variant="filled"
                                                         >
                                                             {club.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}

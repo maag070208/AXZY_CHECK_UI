@@ -126,7 +126,7 @@ const ShiftHandoverPage = () => {
                 <div className="flex items-center gap-2">
                   <ITButton
                     onClick={() => openDetail(row.id)}
-                    size="small"
+                    size="sm"
                     color="secondary"
                     variant="outlined"
                     className="!p-2"

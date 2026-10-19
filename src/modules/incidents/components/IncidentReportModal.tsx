@@ -410,7 +410,7 @@ const IncidentReportModal = ({ isOpen, onClose }: IncidentReportModalProps) => {
                                                         <p className="font-bold text-slate-800 text-sm line-clamp-1">{incident.title}</p>
                                                         <ITBadget
                                                             color={incident.status === 'ATTENDED' ? 'success' : 'danger'}
-                                                            size="small"
+                                                            size="sm"
                                                             variant="filled"
                                                         >
                                                             {incident.status === 'ATTENDED' ? 'Atendida' : 'Pendiente'}

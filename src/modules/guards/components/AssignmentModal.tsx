@@ -136,7 +136,7 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                             />
                             <ITButton
                                 onClick={addTask}
-                                size="small"
+                                size="sm"
                                 className="!bg-[#065911] !h-[40px] !px-4 !rounded-xl"
                                 disabled={!tempTaskDesc.trim()}
                             >

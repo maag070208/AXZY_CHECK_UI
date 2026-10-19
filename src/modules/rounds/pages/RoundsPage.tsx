@@ -218,7 +218,7 @@ const RoundsPage = () => {
           <ITBadget
             color={row.status === "COMPLETED" ? "secondary" : "warning"}
             variant="filled"
-            size="small"
+            size="sm"
           >
             {row.status === "COMPLETED" ? "FINALIZADA" : "EN CURSO"}
           </ITBadget>
@@ -254,7 +254,7 @@ const RoundsPage = () => {
         type: "string",
         render: (row: IRound) =>
           row.progressStatus ? (
-            <ITBadget color={PROGRESS_BADGE_COLOR[row.progressStatus]} variant="filled" size="small">
+            <ITBadget color={PROGRESS_BADGE_COLOR[row.progressStatus]} variant="filled" size="sm">
               {row.progressStatus}
             </ITBadget>
           ) : (
@@ -269,7 +269,7 @@ const RoundsPage = () => {
           <div className="flex gap-2">
             <ITButton
               onClick={() => navigate(`/rounds/${row.id}`)}
-              size="small"
+              size="sm"
               color="primary"
               variant="outlined"
               className="!p-2"
@@ -281,7 +281,7 @@ const RoundsPage = () => {
             {row.status === "IN_PROGRESS" && (
               <ITButton
                 onClick={() => handleEndRound(row.id)}
-                size="small"
+                size="sm"
                 color="danger"
                 variant="filled"
                 className="!p-2"
@@ -389,7 +389,7 @@ const RoundsPage = () => {
                 color="secondary"
                 variant="outlined"
                 className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                size="small"
+                size="sm"
                 title="Actualizar tabla"
               >
                 <FaSync className={`text-xs text-slate-500`} />

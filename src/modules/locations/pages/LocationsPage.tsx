@@ -193,7 +193,7 @@ const LocationsPage = () => {
               <div className="flex items-center gap-2">
                   <ITButton
                       onClick={() => handlePrintQR(row)}
-                      size="small"
+                      size="sm"
                       variant="outlined"
                       color="primary"
                       className="!p-2"
@@ -205,7 +205,7 @@ const LocationsPage = () => {
                        <>
                           <ITButton
                               onClick={() => setEditingLocation(row)}
-                              size="small"
+                              size="sm"
                               variant="ghost"
                               className="!p-2 text-slate-400 hover:text-slate-600"
                               title="Editar"
@@ -214,7 +214,7 @@ const LocationsPage = () => {
                           </ITButton>
                           <ITButton
                               onClick={() => handleDelete(row)}
-                              size="small"
+                              size="sm"
                               variant="ghost"
                               className="!p-2 text-red-300 hover:text-red-500"
                               title="Eliminar"
@@ -260,7 +260,7 @@ const LocationsPage = () => {
                 color="secondary"
                 variant="outlined"
                 className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                size="small"
+                size="sm"
                 title="Actualizar tabla"
             >
                 <FaSync className={`text-xs text-slate-500`} />

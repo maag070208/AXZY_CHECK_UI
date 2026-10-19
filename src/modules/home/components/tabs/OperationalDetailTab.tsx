@@ -83,7 +83,7 @@ export const OperationalDetailTab = () => {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex justify-end gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-fit ml-auto">
                 <ITDatePicker name="range" value={dateRange} range onChange={(e: any) => setDateRange(e.target.value)} className="!border-none !bg-transparent !shadow-none !p-0 px-2" />
-                <ITButton onClick={fetchData} size="small" variant="filled" color="primary" className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center">
+                <ITButton onClick={fetchData} size="sm" variant="filled" color="primary" className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center">
                     <FaSync className={loading ? 'animate-spin' : ''} />
                 </ITButton>
             </div>
@@ -95,7 +95,7 @@ export const OperationalDetailTab = () => {
                         <p className="text-xs text-slate-400 font-medium mt-1">Monitoreo de rendimiento por personal</p>
                     </div>
                     <div className="flex items-center gap-2">
-                         <ITBadget color="primary" variant="outlined" size="small" className="!px-4 !py-1 !rounded-full font-bold">{detail.length} Personas</ITBadget>
+                         <ITBadget color="primary" variant="outlined" size="sm" className="!px-4 !py-1 !rounded-full font-bold">{detail.length} Personas</ITBadget>
                     </div>
                 </div>
                 
@@ -129,7 +129,7 @@ export const OperationalDetailTab = () => {
                                                 <div>
                                                     <div className="font-black text-slate-700 uppercase text-xs tracking-tight">{item.name} {item.lastName}</div>
                                                     <div className="flex items-center gap-2 mt-1">
-                                                        <ITBadget color={roleColor as any} size="small" variant="filled" className="!text-[8px] !px-1.5 !py-0 !rounded-md font-black uppercase !bg-opacity-10 !text-opacity-90 border-none">
+                                                        <ITBadget color={roleColor as any} size="sm" variant="filled" className="!text-[8px] !px-1.5 !py-0 !rounded-md font-black uppercase !bg-opacity-10 !text-opacity-90 border-none">
                                                             {ROLE_TRANSLATIONS[item.role] || item.role}
                                                         </ITBadget>
                                                         <span className="text-[9px] text-slate-300 font-bold tracking-widest">#{item.guardId}</span>
@@ -175,7 +175,7 @@ export const OperationalDetailTab = () => {
                                         </td>
                                         <td className="px-8 py-6 text-right">
                                             <ITButton 
-                                                size="small" 
+                                                size="sm" 
                                                 variant="filled" 
                                                 color="primary" 
                                                 className="!rounded-2xl !py-2.5 !px-6 !bg-slate-900 group-hover:!bg-emerald-600 transition-all duration-300 shadow-xl shadow-slate-200 group-hover:shadow-emerald-200 flex items-center gap-2 ml-auto"
@@ -216,7 +216,7 @@ export const OperationalDetailTab = () => {
                                             <div className="w-1.5 h-6 bg-orange-500 rounded-full" />
                                             Rondas Incompletas
                                         </div>
-                                        <ITBadget color="warning" variant="filled" size="small" className="!rounded-lg">{breakdown?.incompleteRounds.length || 0}</ITBadget>
+                                        <ITBadget color="warning" variant="filled" size="sm" className="!rounded-lg">{breakdown?.incompleteRounds.length || 0}</ITBadget>
                                     </h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {breakdown?.incompleteRounds.length === 0 ? (
@@ -240,7 +240,7 @@ export const OperationalDetailTab = () => {
                                                                 <p className="text-sm font-black text-slate-800 uppercase">{dayjs(round.startTime).format("DD [de] MMM")}</p>
                                                             </div>
                                                         </div>
-                                                        <ITBadget color="warning" variant="outlined" size="small" className="font-black text-[9px] !rounded-lg border-2">CRÍTICO</ITBadget>
+                                                        <ITBadget color="warning" variant="outlined" size="sm" className="font-black text-[9px] !rounded-lg border-2">CRÍTICO</ITBadget>
                                                     </div>
                                                     
                                                     <div className="space-y-4">
@@ -277,7 +277,7 @@ export const OperationalDetailTab = () => {
                                             <div className="w-1.5 h-6 bg-red-500 rounded-full" />
                                             Bitácora de Omisiones
                                         </div>
-                                        <ITBadget color="danger" variant="filled" size="small" className="!rounded-lg">{breakdown?.missedPoints.length || 0}</ITBadget>
+                                        <ITBadget color="danger" variant="filled" size="sm" className="!rounded-lg">{breakdown?.missedPoints.length || 0}</ITBadget>
                                     </h4>
                                     <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100/30 overflow-hidden">
                                         {breakdown?.missedPoints.length === 0 ? (

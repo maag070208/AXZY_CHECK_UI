@@ -132,7 +132,7 @@ const UniformPage = () => {
                       setDetail(row);
                       setDetailOpen(true);
                     }}
-                    size="small"
+                    size="sm"
                     color="secondary"
                     variant="outlined"
                     className="!p-2"

@@ -196,7 +196,7 @@ const PropertyDetailPage = () => {
                 <div className="flex items-center gap-2">
                     <ITButton 
                         onClick={() => setViewingResident(row)} 
-                        size="small" 
+                        size="sm" 
                         variant="ghost" 
                         className="text-slate-400 hover:text-emerald-600"
                         title="Ver Detalles"
@@ -257,7 +257,7 @@ const PropertyDetailPage = () => {
                         <div>
                             <div className="flex items-center gap-3">
                                 <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Propiedad {property.identifier}</h1>
-                                <ITBadget size="small" variant="filled" color={status.color}>{status.label}</ITBadget>
+                                <ITBadget size="sm" variant="filled" color={status.color}>{status.label}</ITBadget>
                             </div>
                             <p className="text-slate-400 text-sm font-medium">{property.name}</p>
                         </div>
@@ -437,7 +437,7 @@ const PropertyDetailPage = () => {
                                     <FaUserShield size={14} />
                                 </div>
                             </div>
-                            <ITBadget size="medium" variant="filled" color={viewingResident?.role === 'OWNER' ? 'warning' : 'success'}>
+                            <ITBadget size="md" variant="filled" color={viewingResident?.role === 'OWNER' ? 'warning' : 'success'}>
                                 {viewingResident?.role === 'OWNER' ? 'PROPIETARIO' : 'RESIDENTE'}
                             </ITBadget>
                         </div>

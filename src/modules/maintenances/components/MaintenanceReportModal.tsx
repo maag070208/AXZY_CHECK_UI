@@ -415,7 +415,7 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                                         <p className="font-bold text-slate-800 text-sm line-clamp-1">{m.title}</p>
                                                         <ITBadget
                                                             color={m.status === 'ATTENDED' ? 'success' : 'warning'}
-                                                            size="small"
+                                                            size="sm"
                                                             variant="filled"
                                                         >
                                                             {m.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}

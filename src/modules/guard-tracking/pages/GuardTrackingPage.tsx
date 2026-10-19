@@ -243,7 +243,7 @@ const GuardTrackingPage = () => {
                 loadSummary();
                 loadRounds();
               }}
-              size="small"
+              size="sm"
               variant="filled"
               color="primary"
               className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center flex-shrink-0"
@@ -298,7 +298,7 @@ const GuardTrackingPage = () => {
                       <ITBadget
                         color={selectedRound.status === "IN_PROGRESS" ? "primary" : "secondary"}
                         variant="outlined"
-                        size="small"
+                        size="sm"
                         className="!rounded-lg !text-[9px] whitespace-nowrap flex-shrink-0"
                       >
                         {selectedRound.status === "IN_PROGRESS" ? "En curso" : "Completada"} ·{" "}
@@ -392,7 +392,7 @@ const GuardTrackingPage = () => {
                             <ITBadget
                               color={isActive ? "primary" : "secondary"}
                               variant="outlined"
-                              size="small"
+                              size="sm"
                               className="!rounded-lg !text-[9px] whitespace-nowrap flex-shrink-0"
                             >
                               {isActive ? "En curso" : "Completada"}

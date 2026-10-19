@@ -231,7 +231,7 @@ const MaintenancesPage = () => {
         render: (row: Maintenance) => (
             <ITBadget 
                 color={row.status === 'ATTENDED' ? 'success' : 'warning'} 
-                size="small" 
+                size="sm" 
                 variant="filled"
             >
                 {row.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}
@@ -264,7 +264,7 @@ const MaintenancesPage = () => {
             <div className="flex items-center gap-2">
                 <ITButton
                     onClick={() => setViewingMaintenance(row)}
-                    size="small"
+                    size="sm"
                     color='secondary'
                     variant="outlined"
                     className="!p-2"
@@ -275,7 +275,7 @@ const MaintenancesPage = () => {
                 {row.status === 'PENDING' && (
                     <ITButton
                         onClick={() => handleResolve(row.id)}
-                        size="small"
+                        size="sm"
                         color='success'
                         variant="filled"
                         className="!p-2"
@@ -288,7 +288,7 @@ const MaintenancesPage = () => {
                 {isAdmin && (
                     <ITButton
                         onClick={() => handleDelete(row)}
-                        size="small"
+                        size="sm"
                         color='danger'
                         variant="outlined"
                         className="!p-2 text-red-500 hover:!bg-red-50 border-red-200"
@@ -364,7 +364,7 @@ const MaintenancesPage = () => {
                 color="primary"
                 variant="outlined"
                 className="h-[42px] px-4 !rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-all flex items-center gap-2"
-                size="small"
+                size="sm"
                 title="Generar reporte PDF de mantenimientos"
             >
                 <FaFilePdf className="text-sm" />
@@ -375,7 +375,7 @@ const MaintenancesPage = () => {
                 color="secondary"
                 variant="outlined"
                 className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                size="small"
+                size="sm"
                 title="Actualizar datos"
             >
                 <FaSync className="text-xs text-slate-500" />
@@ -420,7 +420,7 @@ const MaintenancesPage = () => {
                   <h3 className="text-2xl font-bold text-slate-800">Detalle de Mantenimiento</h3>
                   <ITBadget 
                       color={viewingMaintenance.status === 'ATTENDED' ? 'success' : 'warning'} 
-                      size="small"
+                      size="sm"
                   >
                       {viewingMaintenance.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}
                   </ITBadget>

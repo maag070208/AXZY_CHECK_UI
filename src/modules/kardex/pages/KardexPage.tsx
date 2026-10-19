@@ -127,7 +127,7 @@ const KardexPage = () => {
             render: (row: any) => (
                 <ITBadget 
                     color={row.scanType === 'ASSIGNMENT' ? 'success' : row.scanType === 'RECURRING' ? 'warning' : 'primary'} 
-                    size="small"
+                    size="sm"
                     variant="filled"
                 >
                     {translateScanType(row.scanType)}
@@ -160,7 +160,7 @@ const KardexPage = () => {
                 <div className="flex items-center gap-2">
                     <ITButton
                         onClick={() => setViewingEntry(row)}
-                        size="small"
+                        size="sm"
                         color='secondary'
                         variant="outlined"
                         className="!p-2"
@@ -239,7 +239,7 @@ const KardexPage = () => {
                         color="secondary"
                         variant="outlined"
                         className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                        size="small"
+                        size="sm"
                         title="Actualizar tabla"
                     >
                         <FaSync className={`text-xs text-slate-500`} />

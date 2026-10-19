@@ -166,7 +166,7 @@ const ResidentsPage = () => {
                 <div className="flex items-center gap-2">
                     <ITButton 
                         onClick={() => setViewingIne(row)} 
-                        size="small" 
+                        size="sm" 
                         variant={row.residentProfile?.ineFrontUrl ? "solid" : "outlined"} 
                         className={row.residentProfile?.ineFrontUrl ? "bg-emerald-500 hover:bg-emerald-600 border-none text-white" : "border-slate-300 text-slate-400 hover:text-slate-500 hover:bg-slate-50"}
                         title="Ver Identificación"
@@ -175,17 +175,17 @@ const ResidentsPage = () => {
                     </ITButton>
                     <ITButton 
                         onClick={() => setManagingContacts(row)} 
-                        size="small" 
+                        size="sm" 
                         variant="outlined" 
                         className="border-emerald-200 text-emerald-500 hover:bg-emerald-50"
                         title="Agenda de Contactos"
                     >
                         <FaAddressBook />
                     </ITButton>
-                    <ITButton onClick={() => setEditingResident(row)} size="small" variant="ghost" className="text-slate-400 hover:text-slate-600">
+                    <ITButton onClick={() => setEditingResident(row)} size="sm" variant="ghost" className="text-slate-400 hover:text-slate-600">
                         <FaEdit />
                     </ITButton>
-                    <ITButton onClick={() => setResidentToDelete(row)} size="small" variant="ghost" className="text-red-300 hover:text-red-500">
+                    <ITButton onClick={() => setResidentToDelete(row)} size="sm" variant="ghost" className="text-red-300 hover:text-red-500">
                         <FaTrash />
                     </ITButton>
                 </div>
@@ -228,7 +228,7 @@ const ResidentsPage = () => {
                         color="secondary"
                         variant="outlined"
                         className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                        size="small"
+                        size="sm"
                         title="Actualizar tabla"
                     >
                         <FaSync className="text-xs text-slate-500" />

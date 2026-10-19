@@ -183,7 +183,7 @@ const InvitationsPage = () => {
                 <div className="flex items-center gap-2">
                     <ITButton 
                         onClick={() => setViewingQr(row)} 
-                        size="small" 
+                        size="sm" 
                         variant="solid" 
                         className="bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow"
                         title="Ver Gafete QR"
@@ -192,10 +192,10 @@ const InvitationsPage = () => {
                     </ITButton>
                     {row.status === 'PENDING' && (
                         <div className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
-                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'ENTERED'}); setCodeInput("AXZ-"); }} size="small" variant="ghost" className="text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50" title="Aprobar Ingreso Escaneando">
+                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'ENTERED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" className="text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50" title="Aprobar Ingreso Escaneando">
                                <FaSignInAlt />
                            </ITButton>
-                           <ITButton onClick={() => setUpdatingStatusOf({inv: row, status: 'CANCELLED'})} size="small" variant="ghost" className="text-red-400 hover:text-red-600" title="Revocar Accesos">
+                           <ITButton onClick={() => setUpdatingStatusOf({inv: row, status: 'CANCELLED'})} size="sm" variant="ghost" className="text-red-400 hover:text-red-600" title="Revocar Accesos">
                                <FaBan />
                            </ITButton>
                         </div>
@@ -203,7 +203,7 @@ const InvitationsPage = () => {
 
                     {row.status === 'ENTERED' && (
                         <div className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
-                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'EXITED'}); setCodeInput("AXZ-"); }} size="small" variant="ghost" className="text-slate-400 hover:text-slate-700 hover:bg-slate-100" title="Aprobar Salida">
+                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'EXITED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" className="text-slate-400 hover:text-slate-700 hover:bg-slate-100" title="Aprobar Salida">
                                <FaSignOutAlt />
                            </ITButton>
                         </div>
@@ -263,7 +263,7 @@ const InvitationsPage = () => {
                         color="secondary"
                         variant="outlined"
                         className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                        size="small"
+                        size="sm"
                         title="Refrescar datos"
                     >
                         <FaSync className={`text-xs text-slate-500`} />

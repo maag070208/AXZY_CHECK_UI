@@ -81,7 +81,7 @@ export const StatusBadge = ({ status, label }: Props) => {
     }
 
     return (
-        <ITBadget color={color} variant="outlined" size="small">
+        <ITBadget color={color} variant="outlined" size="sm">
             {displayLabel}
         </ITBadget>
     );
