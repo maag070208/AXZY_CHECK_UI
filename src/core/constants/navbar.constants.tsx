@@ -1,5 +1,5 @@
 import { AppState } from "@app/core/store/store";
-import LOGO from "@assets/logo.png";
+import LOGO from "@assets/logo.svg";
 import {
   FaBook,
   FaChild,

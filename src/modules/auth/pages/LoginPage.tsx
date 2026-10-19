@@ -1,7 +1,7 @@
 import { setAuth } from "@app/core/store/auth/auth.slice";
 import { AppDispatch } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import Logo from "@assets/logo.png";
+import Logo from "@assets/logo-green.svg";
 import { IAuthLogin } from "@core/types/auth.types";
 import { ITCard } from "@axzydev/axzy_ui_system";
 import { useDispatch } from "react-redux";

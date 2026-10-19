@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Invitation } from "../services/invitations.service";
-import LOGO from "@assets/logo.png";
+import LOGO from "@assets/logo.svg";
 
 interface Props {
   invitation: Invitation;

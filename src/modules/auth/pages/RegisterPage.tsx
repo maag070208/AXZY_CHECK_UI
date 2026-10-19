@@ -1,4 +1,4 @@
-import Logo from "@assets/logo.png";
+import Logo from "@assets/logo-green.svg";
 import { IAuthRegister } from "@core/types/auth.types";
 import { ITCard } from "@axzydev/axzy_ui_system";
 import { useDispatch } from "react-redux";
