@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaEdit, FaPlus, FaRoute, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -59,17 +59,16 @@ const RoutesPage = () => {
   };
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-           <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-              <FaRoute className="text-[#065911]" />
-              Gestión de Rutas
-           </h1>
-           <p className="text-slate-500 text-sm mt-1">Gestión de recorridos y puntos de control (Catálogo de Rondas)</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Gestión de Rutas"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Gestión de Rutas" }]}
+      description="Gestión de recorridos y puntos de control (Catálogo de Rondas)"
+      icon={<FaRoute size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
             <div className="w-64 relative">
                 <input 
                     type="text"
@@ -110,7 +109,8 @@ const RoutesPage = () => {
               <FaPlus className="text-xs" /> AGREGAR RUTA
             </ITButton>
         </div>
-      </div>
+      }
+    >
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
@@ -239,7 +239,7 @@ const RoutesPage = () => {
             </div>
         </div>
       </ITDialog>
-    </div>
+    </ITPage>
   );
 };
 

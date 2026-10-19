@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { ITCard, ITDatePicker, ITButton, ITBadget, ITDialog, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITDatePicker, ITButton, ITBadget, ITDialog, ITLoader } from "@axzydev/axzy_ui_system";
 import { FaSync, FaClock, FaEye, FaExclamationCircle, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import * as ReportService from '../../services/ReportService';
 import dayjs from 'dayjs';
@@ -88,7 +88,7 @@ export const OperationalDetailTab = () => {
                 </ITButton>
             </div>
 
-            <ITCard className="shadow-2xl shadow-slate-200/60 border-none bg-white rounded-[2rem] overflow-hidden relative min-h-[400px]">
+            <div className="shadow-2xl shadow-slate-200/60 border border-slate-100 bg-white rounded-[2rem] overflow-hidden relative min-h-[400px]">
                 <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white">
                     <div>
                         <h3 className="text-xl font-black text-slate-800 tracking-tight">Detalle Operativo</h3>
@@ -191,7 +191,7 @@ export const OperationalDetailTab = () => {
                         </tbody>
                     </table>
                 </div>
-            </ITCard>
+            </div>
 
             {/* DETAIL MODAL - Already redesigned to be consistent */}
             <ITDialog 

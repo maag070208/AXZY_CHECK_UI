@@ -1,4 +1,4 @@
-import { ITButton, ITDataTable, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITInput, ITPage } from "@axzydev/axzy_ui_system";
 import { FaPlus, FaQrcode, FaIdBadge, FaBan, FaSignInAlt, FaSignOutAlt, FaTimes, FaUser, FaMotorcycle, FaSync, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useCallback, useMemo, useState } from "react";
@@ -214,16 +214,16 @@ const InvitationsPage = () => {
     ], []);
 
     return (
-        <div className="p-6 bg-[#f8fafc] min-h-screen">
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                   <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                        <FaIdBadge className="text-emerald-600" />
-                        Directorio de Invitados
-                   </h1>
-                   <p className="text-slate-500 text-sm mt-1">Generación y control de pases de acceso mediante código QR</p>
-                </div>
-                <div className="flex gap-3 items-center">
+        <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Directorio de Invitados"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Directorio de Invitados" }]}
+      description="Generación y control de pases de acceso mediante código QR"
+      icon={<FaIdBadge size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex gap-3 items-center">
                     <div className="w-64 relative">
                         <ITInput
                             placeholder="Buscar código o invitado..."
@@ -277,7 +277,8 @@ const InvitationsPage = () => {
                         <span>Crear Pase</span>
                     </button>
                 </div>
-            </div>
+      }
+    >
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
@@ -440,7 +441,7 @@ const InvitationsPage = () => {
                 </div>
             </ITDialog>
 
-        </div>
+        </ITPage>
     );
 };
 

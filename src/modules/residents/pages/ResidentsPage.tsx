@@ -1,6 +1,6 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { FaAddressBook, FaEdit, FaIdCard, FaPhone, FaPlus, FaSync, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
-import { ITButton, ITDataTable, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITInput, ITPage } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ResidentContactsManager } from "../components/ResidentContactsManager";
@@ -194,16 +194,16 @@ const ResidentsPage = () => {
     ], [propertiesCatalog, loadingProperties]);
 
     return (
-        <div className="p-6 bg-[#f8fafc] min-h-screen">
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                   <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                        <FaUserShield className="text-emerald-600" />
-                        Directorio de Residentes
-                   </h1>
-                   <p className="text-slate-500 text-sm mt-1">Gestión de usuarios vecinales, expedientes y controles de acceso</p>
-                </div>
-                <div className="flex items-center gap-3">
+        <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Directorio de Residentes"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Directorio de Residentes" }]}
+      description="Gestión de usuarios vecinales, expedientes y controles de acceso"
+      icon={<FaUserShield size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
                     <div className="w-64 relative">
                         <ITInput
                             placeholder="Buscar residente..."
@@ -242,7 +242,8 @@ const ResidentsPage = () => {
                         <span>Alta de Residente</span>
                     </button>
                 </div>
-            </div>
+      }
+    >
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
@@ -348,7 +349,7 @@ const ResidentsPage = () => {
                 onClose={() => setManagingContacts(null)}
             />
 
-        </div>
+        </ITPage>
     );
 };
 

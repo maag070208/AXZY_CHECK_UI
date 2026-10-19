@@ -1,3 +1,4 @@
+import { ITPage } from "@axzydev/axzy_ui_system";
 import { FaComments } from "react-icons/fa";
 import { ChatPanel } from "../components/ChatPanel";
 
@@ -7,19 +8,20 @@ import { ChatPanel } from "../components/ChatPanel";
  */
 const ChatPage = () => {
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen flex flex-col">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-          <FaComments className="text-[#065911]" />
-          Chat del equipo
-        </h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Canal grupal para administración, guardias, jefe de guardias y mantenimiento.
-        </p>
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Chat del equipo"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Chat" }]}
+      description="Canal grupal para administración, guardias, jefe de guardias y mantenimiento."
+      icon={<FaComments size={20} />}
+      iconColor="#065911"
+    >
+      {/* Altura fija: el chat hace scroll por dentro y el input siempre queda visible. */}
+      <div className="h-[calc(100vh-17rem)] min-h-[380px] w-full">
+        <ChatPanel variant="page" />
       </div>
-
-      <ChatPanel variant="page" />
-    </div>
+    </ITPage>
   );
 };
 

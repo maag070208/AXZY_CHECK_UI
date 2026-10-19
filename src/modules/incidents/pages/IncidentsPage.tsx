@@ -1,7 +1,7 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader, ITPage } from "@axzydev/axzy_ui_system";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { MediaCarousel } from "@core/components/MediaCarousel";
 import { AgeBadge } from "@core/components/AgeBadge";
@@ -308,31 +308,16 @@ const IncidentsPage = () => {
   ], [isAdmin, resolvingId, deletingId]);
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      {activeCatalogLabel && (
-        <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3">
-          <FaTag className="text-emerald-600" />
-          <span className="text-sm">
-            Filtrando por catálogo: <strong>{activeCatalogLabel}</strong>
-          </span>
-          <button
-            type="button"
-            onClick={clearCatalogFilters}
-            className="ml-auto flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900"
-          >
-            <FaTimes size={12} /> Quitar filtro
-          </button>
-        </div>
-      )}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-           <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-              <FaExclamationTriangle className="text-red-500" />
-              Gestión de Incidencias
-           </h1>
-           <p className="text-slate-500 text-sm mt-1">Seguimiento y resolución de reportes de seguridad en sitio</p>
-        </div>
-        <div className="flex gap-3 items-center">
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Gestión de Incidencias"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Reportes" }, { label: "Gestión de Incidencias" }]}
+      description="Seguimiento y resolución de reportes de seguridad en sitio"
+      icon={<FaExclamationTriangle size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex gap-3 items-center">
             <div className="w-64 relative">
                 <ITInput
                     placeholder="Buscar por título..."
@@ -396,7 +381,24 @@ const IncidentsPage = () => {
                 </ITButton>
             )}
         </div>
-      </div>
+      }
+    >
+      {activeCatalogLabel && (
+        <div className="mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3">
+          <FaTag className="text-emerald-600" />
+          <span className="text-sm">
+            Filtrando por catálogo: <strong>{activeCatalogLabel}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={clearCatalogFilters}
+            className="ml-auto flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900"
+          >
+            <FaTimes size={12} /> Quitar filtro
+          </button>
+        </div>
+      )}
+      
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
@@ -651,7 +653,7 @@ const IncidentsPage = () => {
         onClose={() => setShowReportModal(false)}
       />
 
-    </div>
+    </ITPage>
   );
 };
 export default IncidentsPage;

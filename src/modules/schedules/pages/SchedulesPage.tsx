@@ -1,4 +1,4 @@
-import { ITButton, ITDialog, ITInput, ITTimePicker, ITDataTable } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITInput, ITTimePicker, ITDataTable, ITPage } from "@axzydev/axzy_ui_system";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { FaEdit, FaPlus, FaTrash, FaClock, FaSync, FaSearch, FaTimes } from "react-icons/fa";
 import { Schedule, createSchedule, deleteSchedule, updateSchedule, getPaginatedSchedules } from "../SchedulesService";
@@ -90,17 +90,16 @@ const SchedulesPage = () => {
   };
 
   return (
-    <div className="p-8 bg-white min-h-screen">
-      {/* Header aligned with the provided image */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-        <div>
-            <h1 className="text-2xl font-bold text-[#1e293b] flex items-center gap-2">
-                <FaClock className="text-[#065911]" /> Directorio de Horarios
-            </h1>
-            <p className="text-slate-500 text-sm mt-1 font-medium">Gestión de turnos operativos, entradas, salidas y controles de asistencia</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Directorio de Horarios"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Directorio de Horarios" }]}
+      description="Gestión de turnos operativos, entradas, salidas y controles de asistencia"
+      icon={<FaClock size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
             <div className="relative">
                 <input 
                     type="text"
@@ -136,7 +135,8 @@ const SchedulesPage = () => {
               <FaPlus className="text-xs" /> Alta de Horario
             </ITButton>
         </div>
-      </div>
+      }
+    >
 
       {/* Table Container */}
       <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white">
@@ -299,7 +299,7 @@ const SchedulesPage = () => {
             </div>
         </div>
       </ITDialog>
-    </div>
+    </ITPage>
   );
 };
 

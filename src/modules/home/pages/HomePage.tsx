@@ -1,6 +1,7 @@
 import { AppState } from "@app/core/store/store";
 import { useEffect, useState } from "react";
-import { FaBook, FaClock, FaExclamationTriangle, FaListAlt, FaRoute, FaUserShield, FaWrench } from "react-icons/fa";
+import { ITPage } from "@axzydev/axzy_ui_system";
+import { FaHome, FaBook, FaClock, FaExclamationTriangle, FaListAlt, FaRoute, FaUserShield, FaWrench } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
@@ -87,20 +88,23 @@ const HomePage = () => {
     setHomeCardItem(cards.filter((card) => (user.role ? card.roles.includes(user.role) : false)));
   }, [user, showLiveDashboard]);
 
+  if (showLiveDashboard) return <LiveOpsDashboard />;
+
   return (
-    <div className="bg-[#f8fafc] min-h-screen p-6">
-        <div className={`${showLiveDashboard ? "max-w-[1600px]" : "max-w-6xl"} mx-auto space-y-8 relative z-10`}>
-          {showLiveDashboard ? (
-            <LiveOpsDashboard />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                {homeCardItem.map((item, index) => (
-                    <HomeCardItem key={index} item={item} index={index} />
-                ))}
-            </div>
-          )}
-        </div>
-    </div>
+    <ITPage
+      className="m-0! px-0! max-w-screen!"
+      noPadding
+      title="Inicio"
+      description={`Bienvenido${user?.name ? `, ${user.name}` : ""}. Accesos rápidos a tus módulos.`}
+      icon={<FaHome size={20} />}
+      iconColor="#065911"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {homeCardItem.map((item, index) => (
+          <HomeCardItem key={index} item={item} index={index} />
+        ))}
+      </div>
+    </ITPage>
   );
 };
 

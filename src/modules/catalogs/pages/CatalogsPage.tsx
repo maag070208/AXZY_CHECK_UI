@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDialog } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import {
   FaChevronDown,
@@ -121,20 +121,16 @@ const CatalogsPage = () => {
   );
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-            <FaLayerGroup className="text-[#065911]" />
-            Catálogos
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Administra los tipos de incidencia de Incidencias, Mantenimiento y Casa Club sin depender de un
-            ticket de desarrollo.
-          </p>
-        </div>
-
-        <ITButton
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Catálogos"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Catálogos" }]}
+      description="Administra los tipos de incidencia de Incidencias, Mantenimiento y Casa Club sin depender de un ticket de desarrollo."
+      icon={<FaLayerGroup size={20} />}
+      iconColor="#065911"
+      actions={
+<ITButton
           onClick={() => {
             setEditCategory(null);
             setCategoryModalOpen(true);
@@ -144,7 +140,8 @@ const CatalogsPage = () => {
         >
           <FaPlus className="text-xs" /> AGREGAR CATEGORÍA
         </ITButton>
-      </div>
+      }
+    >
 
       {/* @axzydev/axzy_ui_system has no tabs/filter primitive, so this uses plain
           ITButton toggles instead. */}
@@ -388,7 +385,7 @@ const CatalogsPage = () => {
           </div>
         </div>
       </ITDialog>
-    </div>
+    </ITPage>
   );
 };
 

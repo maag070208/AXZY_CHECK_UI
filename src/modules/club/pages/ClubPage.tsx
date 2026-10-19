@@ -1,7 +1,7 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader, ITPage } from "@axzydev/axzy_ui_system";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { MediaCarousel } from "@core/components/MediaCarousel";
 import { AgeBadge } from "@core/components/AgeBadge";
@@ -303,31 +303,16 @@ const ClubPage = () => {
   ], [isAdmin, resolvingId, deletingId]);
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      {activeCatalogLabel && (
-        <div className="mb-4 flex items-center gap-3 bg-sky-50 border border-sky-200 text-sky-800 rounded-xl px-4 py-3">
-          <FaTag className="text-sky-600" />
-          <span className="text-sm">
-            Filtrando por catálogo: <strong>{activeCatalogLabel}</strong>
-          </span>
-          <button
-            type="button"
-            onClick={clearCatalogFilters}
-            className="ml-auto flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:text-sky-900"
-          >
-            <FaTimes size={12} /> Quitar filtro
-          </button>
-        </div>
-      )}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-           <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-              <FaGlassCheers className="text-sky-500" />
-              Gestión de Casa Club
-           </h1>
-           <p className="text-slate-500 text-sm mt-1">Seguimiento y resolución de reportes de casa club</p>
-        </div>
-        <div className="flex gap-3 items-center">
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Gestión de Casa Club"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Reportes" }, { label: "Gestión de Casa Club" }]}
+      description="Seguimiento y resolución de reportes de casa club"
+      icon={<FaGlassCheers size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex gap-3 items-center">
             <div className="w-64 relative">
                 <ITInput
                     placeholder="Buscar por título..."
@@ -391,7 +376,24 @@ const ClubPage = () => {
                 </ITButton>
             )}
         </div>
-      </div>
+      }
+    >
+      {activeCatalogLabel && (
+        <div className="mb-4 flex items-center gap-3 bg-sky-50 border border-sky-200 text-sky-800 rounded-xl px-4 py-3">
+          <FaTag className="text-sky-600" />
+          <span className="text-sm">
+            Filtrando por catálogo: <strong>{activeCatalogLabel}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={clearCatalogFilters}
+            className="ml-auto flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:text-sky-900"
+          >
+            <FaTimes size={12} /> Quitar filtro
+          </button>
+        </div>
+      )}
+      
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
@@ -638,7 +640,7 @@ const ClubPage = () => {
         onClose={() => setShowReportModal(false)}
       />
 
-    </div>
+    </ITPage>
   );
 };
 export default ClubPage;

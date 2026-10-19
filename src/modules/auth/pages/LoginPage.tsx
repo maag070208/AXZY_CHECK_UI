@@ -3,7 +3,6 @@ import { AppDispatch } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import Logo from "@assets/logo-green.svg";
 import { IAuthLogin } from "@core/types/auth.types";
-import { ITCard } from "@axzydev/axzy_ui_system";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import LoginFormComponent from "../components/LoginForm";
@@ -42,16 +41,21 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen overflow-y-hidden">
-      <ITCard
-        contentClassName="w-full"
-        className="w-3/4 md:2-2/6 lg:w-2/6 flex justify-center items-center border-slate-200 shadow-slate-400"
-      >
-        <div className="flex flex-col items-center space-y-8">
-          <img src={Logo} alt={"Logo"} className="h-[150px] dark:bg-transparent" />
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-br from-emerald-50 via-white to-slate-100">
+      <div className="w-full max-w-[420px] rounded-2xl bg-white border border-slate-200 shadow-xl shadow-slate-200/60 px-6 py-8 sm:px-8 sm:py-10">
+        <div className="flex flex-col items-center">
+          <img src={Logo} alt="CheckApp" className="h-14 w-auto" />
+          <h1 className="mt-6 text-xl font-semibold text-slate-800">
+            Bienvenido
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Inicia sesión para continuar
+          </p>
+        </div>
+        <div className="mt-8">
           <LoginFormComponent onSubmit={handleSubmit} />
         </div>
-      </ITCard>
+      </div>
     </div>
   );
 };

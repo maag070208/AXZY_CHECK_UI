@@ -1,6 +1,6 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEdit, FaKey, FaPlus, FaSync, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -60,17 +60,16 @@ const UsersPage = () => {
     };
 
     return (
-        <div className="p-6 bg-[#f8fafc] min-h-screen">
-            {/* Header following the screenshot exactly */}
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                   <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                        <FaUserShield className="text-emerald-600" />
-                        Directorio de Usuarios
-                   </h1>
-                   <p className="text-slate-500 text-sm mt-1">Gestión de usuarios vecinales, expedientes y controles de acceso</p>
-                </div>
-                <div className="flex items-center gap-3">
+        <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Directorio de Usuarios"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Directorio de Usuarios" }]}
+      description="Gestión de usuarios vecinales, expedientes y controles de acceso"
+      icon={<FaUserShield size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
                     <div className="w-64 relative">
                         <input 
                             type="text"
@@ -106,7 +105,8 @@ const UsersPage = () => {
                         <FaPlus className="text-xs" /> NUEVO USUARIO
                     </ITButton>
                 </div>
-            </div>
+      }
+    >
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
@@ -248,7 +248,7 @@ const UsersPage = () => {
                     setEditingUser(null);
                 }} 
                 title={editingUser ? `Editar Usuario: ${editingUser.name}` : "Nuevo Usuario"}
-                className="!w-full !max-w-4xl"
+                className="!w-full !max-w-2xl"
             >
                 <CreateUserWizard 
                     userToEdit={editingUser || undefined}
@@ -288,7 +288,7 @@ const UsersPage = () => {
                     </div>
                 </div>
             </ITDialog>
-        </div>
+        </ITPage>
     );
 };
 

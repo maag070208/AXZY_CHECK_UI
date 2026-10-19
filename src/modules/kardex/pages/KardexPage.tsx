@@ -1,7 +1,7 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { translateScanType } from "@app/core/utils/status.utils";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITPage } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaBook, FaEye, FaFileAlt, FaLayerGroup, FaMapMarkerAlt, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
@@ -173,17 +173,16 @@ const KardexPage = () => {
     ], [guards, handleDelete]);
 
   return (
-    <div className="p-6 min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-           <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-              <FaBook className="text-indigo-500" />
-              Kardex
-           </h1>
-           <p className="text-slate-500 text-sm mt-1">Historial de actividades y reportes en tiempo real</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Kardex"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Kardex" }]}
+      description="Historial de actividades y reportes en tiempo real"
+      icon={<FaBook size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
             <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Filtrar por Guardia</label>
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[260px] shadow-sm">
@@ -248,7 +247,9 @@ const KardexPage = () => {
                 </div>
             </div>
         </div>
-      </div>
+      }
+    >
+      
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
@@ -427,7 +428,7 @@ const KardexPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </ITPage>
   );
 };
 

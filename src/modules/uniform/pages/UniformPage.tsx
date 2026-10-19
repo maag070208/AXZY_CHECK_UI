@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITDataTable, ITDialog } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
 import { useCallback, useState } from "react";
 import {
   FaBrush,
@@ -50,21 +50,20 @@ const UniformPage = () => {
   const [detailOpen, setDetailOpen] = useState(false);
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-            <FaTshirt className="text-[#065911]" />
-            Uniforme
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Checklist de uniformidad y aseo por elemento.
-          </p>
-        </div>
-        <ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c] !flex !items-center !gap-2">
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Uniforme"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Uniforme" }]}
+      description="Checklist de uniformidad y aseo por elemento."
+      icon={<FaTshirt size={20} />}
+      iconColor="#065911"
+      actions={
+<ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c] !flex !items-center !gap-2">
           <FaPlus size={12} /> Nuevo Checklist
         </ITButton>
-      </div>
+      }
+    >
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
@@ -262,7 +261,7 @@ const UniformPage = () => {
           </div>
         )}
       </ITDialog>
-    </div>
+    </ITPage>
   );
 };
 

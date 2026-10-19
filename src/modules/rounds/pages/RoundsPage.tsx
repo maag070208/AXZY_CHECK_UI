@@ -1,11 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import {
-  ITBadget,
-  ITButton,
-  ITDataTable,
-  ITDatePicker,
-  ITDialog,
-} from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaStop, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -298,18 +292,16 @@ const RoundsPage = () => {
   );
 
   return (
-    <div className="p-6 min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-            <FaClock className="text-blue-500" />
-            Historial de recorridos
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Historial y supervisión de recorridos de seguridad
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Historial de recorridos"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Historial de recorridos" }]}
+      description="Historial y supervisión de recorridos de seguridad"
+      icon={<FaClock size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
             <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Buscar Guardia</label>
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[240px] shadow-sm focus-within:border-emerald-500/50 transition-all">
@@ -398,7 +390,8 @@ const RoundsPage = () => {
                 </div>
             </div>
         </div>
-      </div>
+      }
+    >
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <ITDataTable
@@ -442,7 +435,7 @@ const RoundsPage = () => {
           </div>
         </div>
       </ITDialog>
-    </div>
+    </ITPage>
   );
 };
 

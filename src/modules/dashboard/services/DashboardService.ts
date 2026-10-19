@@ -68,6 +68,30 @@ export interface ILiveUncoveredRoute {
   title: string;
 }
 
+export interface ILiveTimelineEvent {
+  type: "ROUND_STARTED" | "ROUND_COMPLETED" | "INCIDENT_CREATED" | "INCIDENT_ATTENDED";
+  message: string;
+  at: string;
+}
+
+export interface ILiveInsights {
+  today: {
+    roundsStarted: number;
+    roundsCompleted: number;
+    incidentsCreated: number;
+    yesterdayRoundsStarted: number;
+    yesterdayRoundsCompleted: number;
+    yesterdayIncidentsCreated: number;
+  };
+  avgRoundMinutes: number | null;
+  avgResolutionMinutes: number | null;
+  roundsByDay: { date: string; started: number; completed: number }[];
+  incidentsByDay: { date: string; count: number }[];
+  incidentsByCategory: { name: string; count: number }[];
+  incidentsByHour: { hour: number; count: number }[];
+  timeline: ILiveTimelineEvent[];
+}
+
 export interface ILiveDashboard {
   generatedAt: string;
   kpis: {
@@ -82,6 +106,7 @@ export interface ILiveDashboard {
   guardsOnShift: ILiveGuardOnShift[];
   alerts: ILiveAlert[];
   uncoveredRoutes: ILiveUncoveredRoute[];
+  insights: ILiveInsights;
 }
 
 export const getLiveDashboard = async (): Promise<TResult<ILiveDashboard>> => {

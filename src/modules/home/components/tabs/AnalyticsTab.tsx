@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react';
-import { ITCard, ITDatePicker, ITButton, ITBadget } from "@axzydev/axzy_ui_system";
+import { ITDatePicker, ITButton, ITBadget } from "@axzydev/axzy_ui_system";
 import { FaSync, FaExclamationTriangle, FaQrcode, FaTimesCircle, FaChartLine } from 'react-icons/fa';
 import { Chart, registerables } from 'chart.js';
 import * as ReportService from '../../services/ReportService';
@@ -268,25 +268,25 @@ export const AnalyticsTab = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                    <ITCard className="lg:col-span-7 shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl p-5">
+                    <div className="lg:col-span-7 shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
                         <h3 className="text-[13px] font-bold text-slate-800 mb-4">Top Desempeño (Escaneos)</h3>
                         <div className="h-[220px]">
                             <canvas ref={performanceChartRef}></canvas>
                         </div>
-                    </ITCard>
+                    </div>
 
-                    <ITCard className="lg:col-span-5 shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl p-5 flex flex-col items-center">
+                    <div className="lg:col-span-5 shadow-sm border border-slate-100 bg-white rounded-2xl p-5 flex flex-col items-center">
                         <h3 className="text-[13px] font-bold text-slate-800 mb-4 text-left w-full">Distribución de Actividad</h3>
                         <div className="h-[220px] w-full">
                             <canvas ref={distributionChartRef}></canvas>
                         </div>
-                    </ITCard>
+                    </div>
                 </div>
             </div>
 
             {/* Carga de trabajo: sola, con más espacio */}
             <div className={subTab === 'carga' ? '' : 'hidden'}>
-                <ITCard className="shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl p-5">
+                <div className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-[13px] font-bold text-slate-800">Comparativa de Carga de Trabajo</h3>
                         <ITBadget color="primary" variant="outlined" size="sm">Ranking Operacional</ITBadget>
@@ -295,7 +295,7 @@ export const AnalyticsTab = () => {
                         <canvas ref={workloadChartRef}></canvas>
                     </div>
                     <p className="text-[10px] text-slate-400 mt-3 italic">* El índice de carga se calcula ponderando escaneos, reportes y rondas finalizadas.</p>
-                </ITCard>
+                </div>
             </div>
         </div>
     );

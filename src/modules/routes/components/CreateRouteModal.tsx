@@ -1,10 +1,11 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { ITButton, ITDialog, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
-import { FaCheck, FaMapMarkerAlt, FaMinus, FaPlus, FaRoute, FaTrash } from "react-icons/fa";
+import { FaCamera, FaCheck, FaMinus, FaPlus, FaPrint, FaRoute, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { getLocations, Location } from "../../locations/service/locations.service";
 import { getUsers, User } from "../../users/services/UserService";
+import { printLocationQRs } from "@core/utils/printLocationQRs";
 import { createRoute, ILocationCreate, updateRoute } from "../services/RoutesService";
 
 interface CreateRouteModalProps {
@@ -123,6 +124,23 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
         setAddedLocations(copy);
     };
 
+    const handleTaskPhoto = (locIndex: number, taskIndex: number) => {
+        const copy = [...addedLocations];
+        copy[locIndex].tasks[taskIndex].reqPhoto = !copy[locIndex].tasks[taskIndex].reqPhoto;
+        setAddedLocations(copy);
+    };
+
+    const handlePrintQRs = async () => {
+        try {
+            await printLocationQRs(
+                addedLocations.map(l => ({ id: l.locationId, name: l.locationName ?? `Ubicación ${l.locationId}` })),
+                title.trim() || undefined,
+            );
+        } catch {
+            dispatch(showToast({ message: "No se pudieron generar los QR", type: "error" }));
+        }
+    };
+
     const toggleGuard = (guardId: number) => {
         if (selectedGuards.includes(guardId)) {
             setSelectedGuards(selectedGuards.filter(id => id !== guardId));
@@ -167,210 +185,201 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
     };
 
     const availableLocations = allLocations.filter(l => !addedLocations.find(al => al.locationId === l.id));
+    const canSave = !loading && !!title.trim() && addedLocations.length > 0;
 
     return (
-        <ITDialog 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title={editConfig ? "Ajustar Parámetros de Ruta" : "Configurar Nueva Ruta"}
-            className="!w-full !max-w-6xl !rounded-3xl !overflow-visible"
+        <ITDialog
+            isOpen={isOpen}
+            onClose={onClose}
+            title={editConfig ? "Ajustar ruta" : "Nueva ruta"}
+            className="!w-full !max-w-5xl !rounded-3xl"
         >
-            <div className="flex flex-col lg:flex-row gap-10 max-h-[75vh] overflow-hidden p-1">
-                
-                {/* Left Side: General Info & Guards */}
-                <div className="lg:w-1/3 flex flex-col gap-8 border-r border-slate-100 pr-6 overflow-hidden">
-                    {/* Fixed Section */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-1.5 h-6 bg-[#065911] rounded-full" />
-                            <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">Información Base</h3>
-                        </div>
-                        <ITInput
-                             name="title"
-                             label="Nombre identificador"
-                             placeholder="Ej: Ronda Perimetral Nocturna"
-                             value={title}
-                             onChange={(e) => setTitle(e.target.value)}
-                             onBlur={() => {}}
-                             className="!rounded-xl"
-                        />
-                    </div>
+            <div className="flex flex-col lg:flex-row gap-6 h-[66vh] min-h-[420px] px-1 pt-1">
 
-                    {/* Scrollable Guards List */}
-                    <div className="flex-1 flex flex-col overflow-hidden mt-2">
-                        <div className="flex items-center justify-between mb-5">
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-6 bg-[#065911] rounded-full" />
-                                <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">Personal</h3>
+                {/* Izquierda: nombre y personal */}
+                <aside className="lg:w-[300px] flex-shrink-0 flex flex-col gap-5 lg:border-r border-slate-100 lg:pr-6 min-h-0">
+                    <ITInput
+                        name="title"
+                        label="Nombre de la ruta"
+                        placeholder="Ej: Ronda perimetral nocturna"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={() => {}}
+                    />
+
+                    <div className="flex-1 flex flex-col min-h-0">
+                        <div className="flex items-center justify-between mb-2">
+                            <div>
+                                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Personal</h3>
+                                <p className="text-[11px] text-slate-400">{selectedGuards.length} de {allGuards.length} asignados</p>
                             </div>
-                            <button 
-                                onClick={toggleAllGuards} 
-                                className="text-[9px] font-black uppercase tracking-widest text-[#065911] hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors border border-emerald-100"
+                            <button
+                                type="button"
+                                onClick={toggleAllGuards}
+                                className="text-[11px] font-bold text-[#065911] hover:bg-emerald-50 px-2.5 py-1 rounded-lg transition-colors"
                             >
-                                {selectedGuards.length === allGuards.length ? 'Limpiar Selección' : 'Marcar Todos'}
+                                {selectedGuards.length === allGuards.length ? "Limpiar" : "Marcar todos"}
                             </button>
                         </div>
-                        
-                        <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar">
-                            {allGuards.map(guard => (
-                                <div 
-                                    key={guard.id} 
-                                    onClick={() => toggleGuard(guard.id)}
-                                    className={`
-                                        group cursor-pointer p-3 rounded-2xl border flex items-center justify-between transition-all duration-200
-                                        ${selectedGuards.includes(guard.id) 
-                                            ? 'bg-emerald-50/50 border-[#065911] shadow-sm' 
-                                            : 'bg-white border-slate-100 hover:border-slate-200'}
-                                    `}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[11px] transition-colors ${selectedGuards.includes(guard.id) ? 'bg-[#065911] text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                            {guard.name[0]}{guard.lastName?.[0] || ''}
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className={`text-sm font-black tracking-tight ${selectedGuards.includes(guard.id) ? 'text-slate-900' : 'text-slate-500'}`}>
-                                                {guard.name} {guard.lastName}
-                                            </span>
-                                            <div className="flex items-center gap-1">
-                                                <div className={`w-1 h-1 rounded-full ${selectedGuards.includes(guard.id) ? 'bg-[#065911]' : 'bg-slate-300'}`} />
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">ID: {guard.id}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${selectedGuards.includes(guard.id) ? 'bg-[#065911] border-[#065911] scale-100' : 'border-slate-200 bg-white scale-90 opacity-50 group-hover:opacity-100 group-hover:scale-100'}`}>
-                                         {selectedGuards.includes(guard.id) && <FaCheck className="text-white text-[8px]" />}
-                                    </div>
-                                </div>
-                            ))}
+
+                        <div className="flex-1 min-h-0 overflow-y-auto space-y-1 pr-1">
+                            {allGuards.map(guard => {
+                                const on = selectedGuards.includes(guard.id);
+                                return (
+                                    <button
+                                        type="button"
+                                        key={guard.id}
+                                        onClick={() => toggleGuard(guard.id)}
+                                        aria-pressed={on}
+                                        className={`w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-xl border transition-colors ${
+                                            on ? "bg-emerald-50/60 border-emerald-200" : "bg-white border-transparent hover:bg-slate-50"
+                                        }`}
+                                    >
+                                        <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${on ? "bg-[#065911] text-white" : "bg-slate-100 text-slate-400"}`}>
+                                            {guard.name[0]}{guard.lastName?.[0] || ""}
+                                        </span>
+                                        <span className={`flex-1 min-w-0 truncate text-[13px] font-semibold ${on ? "text-slate-800" : "text-slate-500"}`}>
+                                            {guard.name} {guard.lastName}
+                                        </span>
+                                        <span className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${on ? "bg-[#065911] border-[#065911]" : "border-slate-300 bg-white"}`}>
+                                            {on && <FaCheck className="text-white" size={8} />}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
-                </div>
+                </aside>
 
-                {/* Right Side: Locations & Tasks */}
-                <div className="lg:w-2/3 flex flex-col gap-8 overflow-hidden">
-                    <div className="flex flex-col md:flex-row gap-6 items-end pb-8 border-b border-slate-100">
-                        <div className="flex-1 w-full space-y-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-6 bg-[#065911] rounded-full" />
-                                <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">Puntos de Control a Vincular</h3>
-                            </div>
-                             <ITSearchSelect
-                                placeholder="Escribe el nombre de la ubicación para agregar..."
-                                noResultsMessage="No encontramos ubicaciones disponibles"
+                {/* Derecha: puntos de control */}
+                <section className="flex-1 min-w-0 flex flex-col min-h-0">
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                        <div>
+                            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Puntos de control</h3>
+                            <p className="text-[11px] text-slate-400">{addedLocations.length} {addedLocations.length === 1 ? "punto" : "puntos"} en el recorrido</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handlePrintQRs}
+                            disabled={addedLocations.length === 0}
+                            title="Imprime los QR de todos los puntos de esta ruta"
+                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <FaPrint size={12} /> Imprimir QRs
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
+                        <div className="flex-1 min-w-0">
+                            <ITSearchSelect
+                                placeholder="Busca una ubicación para agregarla..."
+                                noResultsMessage="No hay ubicaciones disponibles"
                                 value={selectedLocId}
                                 onChange={(val) => setSelectedLocId(String(val))}
-                                options={availableLocations.map(l => ({ 
-                                    label: `${l.name} (${l.aisle}-${l.number})`, 
-                                    value: String(l.id) 
+                                options={availableLocations.map(l => ({
+                                    label: `${l.name} (${l.aisle}-${l.number})`,
+                                    value: String(l.id),
                                 }))}
-                                className="!rounded-xl"
-                             />
+                            />
                         </div>
-                        <ITButton 
-                            onClick={handleAddLocation} 
-                            disabled={!selectedLocId}
-                            color="primary"
-                            variant="filled"
-                        >
-                            Añadir
+                        <ITButton onClick={handleAddLocation} disabled={!selectedLocId} color="primary" variant="filled">
+                            <span className="flex items-center gap-1.5"><FaPlus size={10} /> Añadir</span>
                         </ITButton>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto pr-4 space-y-6 pb-6 custom-scrollbar">
+                    <div className="flex-1 min-h-0 overflow-y-auto pt-4 pr-1 space-y-3">
                         {addedLocations.map((loc, idx) => (
-                            <div key={loc.locationId} className="group bg-white border-2 border-slate-100 rounded-2xl overflow-hidden hover:border-slate-200 transition-all">
-                                <div className="flex justify-between items-center p-4 bg-slate-50/50">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#065911] font-black border border-slate-200 shadow-sm">
-                                            {idx + 1}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-black text-slate-800 text-base">{loc.locationName}</h4>
-                                            <div className="flex items-center gap-2">
-                                                <FaMapMarkerAlt className="text-[#065911] text-[10px]" />
-                                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Punto de Control Activo</span>
-                                            </div>
-                                        </div>
+                            <div key={loc.locationId} className="rounded-2xl border border-slate-100 bg-white shadow-sm">
+                                <div className="flex items-center gap-3 px-4 py-3">
+                                    <span className="w-8 h-8 rounded-lg bg-emerald-50 text-[#065911] text-sm font-black flex items-center justify-center flex-shrink-0">
+                                        {idx + 1}
+                                    </span>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-sm font-bold text-slate-800 truncate">{loc.locationName}</h4>
+                                        <p className="text-[11px] text-slate-400">
+                                            {loc.tasks.length === 0 ? "Sin consignas" : `${loc.tasks.length} ${loc.tasks.length === 1 ? "consigna" : "consignas"}`}
+                                        </p>
                                     </div>
-                                    <button onClick={() => handleRemoveLocation(idx)} className="w-10 h-10 rounded-xl hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all flex items-center justify-center">
-                                        <FaTrash size={14} />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleAddTask(idx)}
+                                        className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#065911] hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg transition-colors"
+                                    >
+                                        <FaPlus size={8} /> Consigna
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveLocation(idx)}
+                                        aria-label={`Quitar ${loc.locationName}`}
+                                        className="w-8 h-8 rounded-lg text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-colors flex items-center justify-center"
+                                    >
+                                        <FaTrash size={12} />
                                     </button>
                                 </div>
-                                
-                                <div className="p-5 space-y-5">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                            <div className="w-1.5 h-1.5 bg-[#065911] rounded-full" /> Consignas
-                                        </span>
-                                        <button 
-                                            onClick={() => handleAddTask(idx)}
-                                            className="text-[10px] font-black text-[#065911] uppercase tracking-widest flex items-center gap-2 hover:underline"
-                                        >
-                                            <FaPlus className="text-[8px]" /> Nueva Tarea
-                                        </button>
-                                    </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {loc.tasks.length > 0 && (
+                                    <div className="px-4 pb-3 space-y-2">
                                         {loc.tasks.map((task, tIdx) => (
-                                            <div key={tIdx} className="bg-white p-3.5 rounded-xl border-2 border-slate-100 flex items-center gap-3">
-                                                <div className="flex-1">
+                                            <div key={tIdx} className="flex items-center gap-2">
+                                                <div className="flex-1 min-w-0">
                                                     <ITInput
                                                         name={`task-${idx}-${tIdx}`}
-                                                        placeholder="Instrucción..."
+                                                        placeholder="Instrucción para el guardia..."
                                                         value={task.description}
                                                         onChange={(e) => handleTaskChange(idx, tIdx, e.target.value)}
                                                         onBlur={() => {}}
-                                                        className="!bg-slate-50 !rounded-xl !border-transparent focus:!bg-white focus:!border-[#065911]"
                                                     />
                                                 </div>
-                                                <button onClick={() => handleRemoveTask(idx, tIdx)} className="text-slate-200 hover:text-rose-500 transition-colors">
-                                                    <FaMinus size={14} />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleTaskPhoto(idx, tIdx)}
+                                                    aria-pressed={task.reqPhoto}
+                                                    title={task.reqPhoto ? "Requiere foto" : "No requiere foto"}
+                                                    className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border transition-colors ${
+                                                        task.reqPhoto ? "bg-emerald-50 border-emerald-200 text-[#065911]" : "border-slate-200 text-slate-300 hover:text-slate-500"
+                                                    }`}
+                                                >
+                                                    <FaCamera size={12} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveTask(idx, tIdx)}
+                                                    aria-label="Quitar consigna"
+                                                    className="w-9 h-9 rounded-lg text-slate-300 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center flex-shrink-0 transition-colors"
+                                                >
+                                                    <FaMinus size={11} />
                                                 </button>
                                             </div>
                                         ))}
-                                        {loc.tasks.length === 0 && (
-                                            <div className="col-span-2 py-4 px-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center">
-                                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic opacity-60">Sin consignas asignadas</p>
-                                            </div>
-                                        )}
                                     </div>
-                                </div>
+                                )}
                             </div>
                         ))}
 
                         {addedLocations.length === 0 && (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center p-16">
-                                <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mb-6 border border-slate-100 shadow-inner">
-                                    <FaRoute size={40} />
+                            <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center">
+                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
+                                    <FaRoute size={26} />
                                 </div>
-                                <h5 className="text-slate-800 font-black text-xl mb-2 tracking-tight">Ruta Vacía</h5>
-                                <p className="text-slate-400 text-sm max-w-xs font-medium leading-relaxed">
-                                    Agrega los puntos de control necesarios para este recorrido.
-                                </p>
+                                <h5 className="text-slate-700 font-bold mb-1">Ruta vacía</h5>
+                                <p className="text-slate-400 text-xs max-w-xs">Busca y agrega los puntos de control que forman este recorrido.</p>
                             </div>
                         )}
                     </div>
-                </div>
-
+                </section>
             </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100">
-                <ITButton 
-                    onClick={onClose} 
-                    variant="outlined" 
-                    color="secondary" 
-                    className="!px-6 !py-2.5 !rounded-xl font-bold text-xs uppercase tracking-widest !border-slate-200 !text-slate-400 hover:!bg-slate-50 transition-colors"
-                >
+            <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-slate-100">
+                <ITButton onClick={onClose} variant="outlined" color="secondary" className="!rounded-xl">
                     Descartar
                 </ITButton>
-                <ITButton 
-                    onClick={handleSave} 
+                <ITButton
+                    onClick={handleSave}
                     color="primary"
-                    disabled={loading || !title || addedLocations.length === 0}
-                    className="!px-8 !py-2.5 !rounded-xl !bg-[#065911] font-bold text-xs uppercase tracking-widest shadow-lg shadow-emerald-50 hover:!bg-[#04400c] transition-all active:scale-95 disabled:!opacity-30"
+                    disabled={!canSave}
+                    className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c] disabled:!opacity-40"
                 >
-                    {loading ? "Sincronizando..." : editConfig ? "Actualizar" : "Guardar Ruta"}
+                    {loading ? "Guardando..." : editConfig ? "Guardar cambios" : "Crear ruta"}
                 </ITButton>
             </div>
         </ITDialog>

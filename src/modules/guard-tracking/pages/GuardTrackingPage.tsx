@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITCard, ITDatePicker, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDatePicker, ITSearchSelect, ITPage } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -178,66 +178,44 @@ const GuardTrackingPage = () => {
   const isLiveGuard = liveActiveRounds.some((r) => r.guard.id === selectedGuardId);
 
   return (
-    <div className="bg-[#f8fafc] min-h-screen p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-            <FaUserShield className="text-[#065911]" /> Seguimiento de Guardia
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            {selectedGuard
-              ? `${selectedGuard.name} ${selectedGuard.lastName ?? ""} · ${ROLE_TRANSLATIONS[selectedGuard.role?.name] ?? selectedGuard.role?.name}`
-              : "Elige un guardia para ver su resumen del periodo, sus rondas, y el mapa de cada una."}
-            {isLiveGuard && (
-              <span className="inline-flex items-center gap-1.5 ml-2 text-emerald-600 font-bold">
-                <LiveDot /> en ronda ahora
-              </span>
-            )}
-          </p>
-        </div>
-      </div>
-
-        {/* Accesos rápidos: quién está en ronda ahora mismo */}
-        {liveActiveRounds.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
-              <LiveDot /> En ronda ahora:
-            </span>
-            {liveActiveRounds.map((r) => (
-              <button
-                key={r.roundId}
-                onClick={() => setSelectedGuardId(r.guard.id)}
-                className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all ${
-                  selectedGuardId === r.guard.id
-                    ? "bg-emerald-600 text-white border-emerald-600"
-                    : "bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50"
-                }`}
-              >
-                {r.guard.name} {r.guard.lastName ?? ""}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Filtros */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            <ITSearchSelect
-              name="guard"
-              placeholder="Selecciona un guardia..."
-              options={guardOptions}
-              value={selectedGuardId ? String(selectedGuardId) : ""}
-              onChange={(val) => setSelectedGuardId(val ? Number(val) : null)}
-              className="w-full sm:w-72"
-            />
-            <ITDatePicker
-              name="range"
-              value={dateRange}
-              range
-              onChange={(e: any) => setDateRange(e.target.value)}
-              className="w-full sm:w-72"
-            />
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Seguimiento de Guardia"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Seguimiento de Guardia" }]}
+      description={
+        selectedGuard
+          ? `${selectedGuard.name} ${selectedGuard.lastName ?? ""} · ${ROLE_TRANSLATIONS[selectedGuard.role?.name] ?? selectedGuard.role?.name}`
+          : "Elige un guardia para ver su resumen del periodo, sus rondas, y el mapa de cada una."
+      }
+      icon={<FaUserShield size={20} />}
+      iconColor="#065911"
+      actions={
+        isLiveGuard ? (
+          <span className="inline-flex items-center gap-1.5 text-emerald-600 text-xs font-bold">
+            <LiveDot /> en ronda ahora
+          </span>
+        ) : undefined
+      }
+    >
+      <div className="space-y-6">
+        {/* Barra de filtros + guardias en ronda */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-4">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex-1 min-w-[220px] max-w-sm">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Guardia</p>
+              <ITSearchSelect
+                name="guard"
+                placeholder="Selecciona un guardia..."
+                options={guardOptions}
+                value={selectedGuardId ? String(selectedGuardId) : ""}
+                onChange={(val) => setSelectedGuardId(val ? Number(val) : null)}
+              />
+            </div>
+            <div className="flex-1 min-w-[220px] max-w-xs">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Periodo</p>
+              <ITDatePicker name="range" value={dateRange} range onChange={(e: any) => setDateRange(e.target.value)} />
+            </div>
             <ITButton
               onClick={() => {
                 loadSummary();
@@ -246,23 +224,47 @@ const GuardTrackingPage = () => {
               size="sm"
               variant="filled"
               color="primary"
+              title="Actualizar"
               className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center flex-shrink-0"
             >
               <FaSync className={loadingSummary || loadingRounds ? "animate-spin" : ""} />
             </ITButton>
           </div>
+
+          {liveActiveRounds.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100">
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+                <LiveDot /> En ronda ahora
+              </span>
+              {liveActiveRounds.map((r) => (
+                <button
+                  key={r.roundId}
+                  onClick={() => setSelectedGuardId(r.guard.id)}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all ${
+                    selectedGuardId === r.guard.id
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                  }`}
+                >
+                  {r.guard.name} {r.guard.lastName ?? ""}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {!selectedGuardId && (
-          <div className="bg-white border border-dashed border-slate-200 rounded-3xl py-20 text-center text-slate-400 text-sm">
-            Selecciona un guardia arriba para ver su seguimiento.
+          <div className="bg-white border border-dashed border-slate-200 rounded-2xl py-14 flex flex-col items-center gap-2 text-slate-400">
+            <FaUserShield size={28} className="text-slate-300" />
+            <p className="text-sm font-medium">Selecciona un guardia para ver su seguimiento.</p>
+            <p className="text-xs">Verás su resumen del periodo, sus rondas y el recorrido en el mapa.</p>
           </div>
         )}
 
         {selectedGuardId && (
           <>
             {/* Resumen del periodo */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
               <SummaryCard title="Rondas" value={summary?.totalRounds} icon={<FaRoute />} color="emerald" loading={loadingSummary && !summary} />
               <SummaryCard title="Escaneos" value={summary?.totalScans} icon={<FaMapMarkerAlt />} color="sky" loading={loadingSummary && !summary} />
               <SummaryCard title="Omitidos" value={summary?.missedScans} icon={<FaExclamationCircle />} color="red" loading={loadingSummary && !summary} />
@@ -276,7 +278,7 @@ const GuardTrackingPage = () => {
             </div>
 
             {breakdown && breakdown.incompleteRounds.length > 0 && (
-              <ITCard className="shadow-sm border-none bg-amber-50 rounded-2xl p-5">
+              <div className="shadow-sm border border-amber-100 bg-amber-50 rounded-2xl p-4">
                 <p className="text-xs font-black text-amber-700 uppercase tracking-wide mb-2">
                   {breakdown.incompleteRounds.length} ronda(s) incompleta(s) en este periodo
                 </p>
@@ -285,15 +287,15 @@ const GuardTrackingPage = () => {
                     .map((r) => `${dayjs(r.startTime).format("DD/MM")} (${r.missedCount} omitidos)`)
                     .join(" · ")}
                 </p>
-              </ITCard>
+              </div>
             )}
 
             {/* Rondas (izquierda en desktop) + Detalle de la ronda con mapa (derecha, siempre visible) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               <div className="lg:col-span-7 order-1 lg:order-2 lg:sticky lg:top-6">
-                <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
+                <div className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-slate-800">Mapa y Línea de Tiempo</h3>
+                    <h3 className="text-sm font-bold text-slate-800">Mapa y Línea de Tiempo</h3>
                     {selectedRound && (
                       <ITBadget
                         color={selectedRound.status === "IN_PROGRESS" ? "primary" : "secondary"}
@@ -309,15 +311,15 @@ const GuardTrackingPage = () => {
 
                   {loadingRounds ? (
                     <div className="space-y-3">
-                      <Skeleton className="h-[380px] w-full" />
+                      <Skeleton className="h-[320px] w-full" />
                     </div>
                   ) : !selectedRoundId ? (
-                    <div className="flex items-center justify-center h-[380px] bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm">
+                    <div className="flex items-center justify-center h-[320px] bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm">
                       Este guardia no tiene rondas en el periodo seleccionado.
                     </div>
                   ) : loadingRoundDetail ? (
                     <div className="space-y-3">
-                      <Skeleton className="h-[380px] w-full" />
+                      <Skeleton className="h-[320px] w-full" />
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -347,12 +349,12 @@ const GuardTrackingPage = () => {
                       </div>
                     </div>
                   )}
-                </ITCard>
+                </div>
               </div>
 
               <div className="lg:col-span-5 order-2 lg:order-1">
-                <ITCard className="shadow-xl shadow-slate-200/50 border-none bg-white rounded-3xl p-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4">Rondas del Periodo</h3>
+                <div className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
+                  <h3 className="text-sm font-bold text-slate-800 mb-4">Rondas del Periodo</h3>
                   {loadingRounds ? (
                     <div className="space-y-2">
                       <Skeleton className="h-16 w-full" />
@@ -370,7 +372,7 @@ const GuardTrackingPage = () => {
                           <button
                             key={round.id}
                             onClick={() => setSelectedRoundId(round.id)}
-                            className={`w-full text-left flex items-center justify-between gap-3 rounded-2xl border px-5 py-3.5 transition-all ${
+                            className={`w-full text-left flex items-center justify-between gap-3 rounded-xl border px-4 py-2.5 transition-all ${
                               isSelected
                                 ? isActive
                                   ? "bg-emerald-50 border-emerald-300 ring-2 ring-emerald-100"
@@ -402,13 +404,13 @@ const GuardTrackingPage = () => {
                       })}
                     </div>
                   )}
-                </ITCard>
+                </div>
               </div>
             </div>
           </>
         )}
       </div>
-    </div>
+    </ITPage>
   );
 };
 
@@ -432,11 +434,13 @@ const SummaryCard = ({
     indigo: "bg-indigo-50 text-indigo-600",
   };
   return (
-    <ITCard className="p-5 shadow-lg shadow-slate-100/50 border-none bg-white rounded-2xl">
-      <div className={`w-10 h-10 rounded-xl ${colorClasses[color]} flex items-center justify-center mb-3 text-base`}>{icon}</div>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{title}</p>
-      {loading ? <Skeleton className="h-7 w-14" /> : <h4 className="text-2xl font-black text-slate-800">{value ?? 0}</h4>}
-    </ITCard>
+    <div className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm px-4 py-3.5 min-w-0">
+      <div className={`w-10 h-10 rounded-xl ${colorClasses[color]} flex items-center justify-center text-base flex-shrink-0`}>{icon}</div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate">{title}</p>
+        {loading ? <Skeleton className="h-6 w-14 mt-1" /> : <h4 className="text-xl font-black text-slate-800 leading-tight">{value ?? 0}</h4>}
+      </div>
+    </div>
   );
 };
 

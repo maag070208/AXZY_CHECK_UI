@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ITButton, ITDataTable } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITPage } from "@axzydev/axzy_ui_system";
 import { FaUserShield, FaClipboardList, FaClock, FaEye, FaSync, FaSearch, FaTimes } from "react-icons/fa";
 import { getPaginatedUsers, User } from "../../users/services/UserService";
 import { AssignmentModal } from "../components/AssignmentModal";
@@ -53,18 +53,16 @@ const GuardsPage = () => {
     };
 
     return (
-        <div className="p-8 bg-[#F8FAFC] min-h-screen">
-            {/* Header matching the ResidentsPage feel */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                        <FaUserShield className="text-[#065911]" />
-                        Módulo de Guardias
-                    </h1>
-                    <p className="text-slate-500 text-sm mt-1">Gestión de personal operativo, turnos y controles de seguridad</p>
-                </div>
-
-                <div className="flex items-center gap-3">
+        <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Módulo de Guardias"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Módulo de Guardias" }]}
+      description="Gestión de personal operativo, turnos y controles de seguridad"
+      icon={<FaUserShield size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
                     <div className="w-64 relative">
                         <input 
                             type="text"
@@ -95,7 +93,8 @@ const GuardsPage = () => {
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Actualizar</span>
                     </ITButton>
                 </div>
-            </div>
+      }
+    >
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
@@ -230,7 +229,7 @@ const GuardsPage = () => {
                     />
                 </>
             )}
-        </div>
+        </ITPage>
     );
 };
 

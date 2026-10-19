@@ -1,9 +1,9 @@
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITInput, ITPage } from "@axzydev/axzy_ui_system";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaCar, FaEdit, FaPlus, FaQrcode, FaSync, FaTimes, FaTrash } from "react-icons/fa";
+import { FaCar, FaSearchLocation, FaEdit, FaPlus, FaQrcode, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { LocationForm } from "../components/LocationForm";
 import { createLocation, deleteLocation, getPaginatedLocations, Location, updateLocation } from "../service/locations.service";
@@ -229,13 +229,16 @@ const LocationsPage = () => {
   ], [user]);
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-           <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Ubicaciones</h1>
-           <p className="text-slate-500 text-sm mt-1">Gestión de zonas y puntos de control</p>
-        </div>
-        <div className="flex items-center gap-3">
+    <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Ubicaciones"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Ubicaciones" }]}
+      description="Gestión de zonas y puntos de control"
+      icon={<FaSearchLocation size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
             <div className="w-64 relative">
                 <ITInput
                     placeholder="Buscar por nombre..."
@@ -276,7 +279,9 @@ const LocationsPage = () => {
                 </ITButton>
             )}
         </div>
-      </div>
+      }
+    >
+      
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
@@ -360,7 +365,7 @@ const LocationsPage = () => {
             </div>
         </div>
       </ITDialog>
-    </div>
+    </ITPage>
   );
 };
 

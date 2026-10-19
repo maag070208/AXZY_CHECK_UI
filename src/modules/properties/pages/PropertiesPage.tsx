@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITPage } from "@axzydev/axzy_ui_system";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -235,13 +235,16 @@ const PropertiesPage = () => {
     ], [propertyTypes, loadingTypes, errorTypes]);
 
     return (
-        <div className="p-6 bg-[#f8fafc] min-h-screen">
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                   <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Propiedades</h1>
-                   <p className="text-slate-500 text-sm mt-1">Gestión de casas y departamentos (Catálogo Habitacional)</p>
-                </div>
-                <div className="flex items-center gap-3">
+        <ITPage
+      className="m-0! px-4! max-w-screen!"
+      noPadding
+      title="Propiedades"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Propiedades" }]}
+      description="Gestión de casas y departamentos (Catálogo Habitacional)"
+      icon={<FaHome size={20} />}
+      iconColor="#065911"
+      actions={
+<div className="flex items-center gap-3">
                     <div className="w-64 relative">
                         <ITInput
                             placeholder="Buscar por ID o nombre..."
@@ -280,7 +283,9 @@ const PropertiesPage = () => {
                         <span>Agregar Propiedad</span>
                     </button>
                 </div>
-            </div>
+      }
+    >
+            
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
@@ -338,7 +343,7 @@ const PropertiesPage = () => {
                     </div>
                 </div>
             </ITDialog>
-        </div>
+        </ITPage>
     );
 };
 
