@@ -141,6 +141,13 @@ const SchedulesPage = () => {
       {/* Table Container */}
       <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white">
         <ITDataTable
+          defaultItemsPerPage={50}
+          itemsPerPageOptions={[25, 50, 100]}
+          layout="fixed"
+          density="compact"
+          virtualized
+          virtualizedMaxHeight={400}
+          rowHeight={50}
           key={refreshKey}
           fetchData={memoizedFetch as any}
           externalFilters={externalFilters}

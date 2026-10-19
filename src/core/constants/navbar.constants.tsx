@@ -195,7 +195,7 @@ export const Navbar = () => {
 };
 
 export const NAVBAR_LOGO = () => (
-  <img src={LOGO} className="h-[80px] hidden md:flex" />
+  <img src={LOGO} className="h-10 w-auto object-contain" />
 );
 
 export const SIDEBAR_LOGO = () => (

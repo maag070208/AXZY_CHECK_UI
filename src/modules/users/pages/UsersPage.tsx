@@ -110,10 +110,16 @@ const UsersPage = () => {
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
+                  defaultItemsPerPage={50}
+                  itemsPerPageOptions={[25, 50, 100]}
+                  layout="fixed"
+                  density="compact"
+                  virtualized
+                  virtualizedMaxHeight={400}
+                  rowHeight={50}
                     key={refreshKey}
                     fetchData={memoizedFetch as any}
                     externalFilters={externalFilters}
-                    defaultItemsPerPage={10}
                     title=""
                     columns={[
                         {

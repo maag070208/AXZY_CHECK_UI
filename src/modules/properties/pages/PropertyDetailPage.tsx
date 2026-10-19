@@ -391,10 +391,16 @@ const PropertyDetailPage = () => {
                             
                             <div className="p-2">
                                 <ITDataTable
+                                  defaultItemsPerPage={50}
+                                  itemsPerPageOptions={[25, 50, 100]}
+                                  layout="fixed"
+                                  density="compact"
+                                  virtualized
+                                  virtualizedMaxHeight={400}
+                                  rowHeight={50}
                                     key={refreshKey}
                                     columns={residentColumns as any}
                                     fetchData={fetchResidents as any}
-                                    defaultItemsPerPage={5}
                                     title=""
                                 />
                             </div>
