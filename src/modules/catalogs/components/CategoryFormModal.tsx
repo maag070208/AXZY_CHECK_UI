@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITFlex, ITInput, ITText } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { FaBan, FaCheck } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -127,40 +127,40 @@ export const CategoryFormModal = ({
       title={editCategory ? "Editar categoría" : "Nueva categoría"}
       className="!w-full !max-w-lg"
     >
-      <div className="p-6">
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <ITFlex direction="column" className="p-6">
+        <ITFlex direction="column" className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: meta.accent }} />
           Catálogo de {meta.label}
-        </div>
+        </ITFlex>
 
         {/* Live preview of the resulting card */}
-        <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-          <div className="flex items-center gap-3">
+        <ITFlex direction="column" className="mb-5 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+          <ITFlex align="center" gap={3} className="flex items-center gap-3">
             <span
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
               style={getCategoryTint(previewColor)}
             >
               <PreviewIcon size={18} />
             </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-black text-slate-800">
+            <ITFlex direction="column" className="min-w-0 flex-1">
+              <ITText as="p" className="truncate text-sm font-black text-slate-800">
                 {value.trim() || "Nombre de la categoría"}
-              </p>
-              <div className="mt-1 flex items-center gap-2">
-                <span className="max-w-[160px] truncate rounded bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-slate-500 ring-1 ring-inset ring-slate-200">
+              </ITText>
+              <ITFlex align="center" gap={2} className="mt-1 flex items-center gap-2">
+                <ITText as="span" className="max-w-[160px] truncate rounded bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-slate-500 ring-1 ring-inset ring-slate-200">
                   {name.trim() || "CODIGO_INTERNO"}
-                </span>
-                <span className="text-[10px] font-medium text-slate-400">{editCategory?._count?.types ?? 0} tipos</span>
-              </div>
-            </div>
-            <span className="shrink-0 text-[8.5px] font-black uppercase tracking-widest text-slate-300">
+                </ITText>
+                <ITText as="span" className="text-[10px] font-medium text-slate-400">{editCategory?._count?.types ?? 0} tipos</ITText>
+              </ITFlex>
+            </ITFlex>
+            <ITText as="span" className="shrink-0 text-[8.5px] font-black uppercase tracking-widest text-slate-300">
               Vista previa
-            </span>
-          </div>
-        </div>
+            </ITText>
+          </ITFlex>
+        </ITFlex>
 
-        <div className="space-y-4">
-          <div>
+        <ITFlex direction="column" className="space-y-4">
+          <ITFlex direction="column">
             <ITInput
               name="name"
               label="Nombre interno (código)"
@@ -171,12 +171,12 @@ export const CategoryFormModal = ({
               maxLength={60}
               required
             />
-            <p className="mt-1 text-[10.5px] leading-relaxed text-slate-400">
+            <ITText as="p" className="mt-1 text-[10.5px] leading-relaxed text-slate-400">
               Identificador único que usa la app. Se guarda en mayúsculas.
-            </p>
-          </div>
+            </ITText>
+          </ITFlex>
 
-          <div>
+          <ITFlex direction="column">
             <ITInput
               name="value"
               label="Texto visible"
@@ -187,21 +187,21 @@ export const CategoryFormModal = ({
               maxLength={80}
               required
             />
-            <p className="mt-1 text-[10.5px] leading-relaxed text-slate-400">
+            <ITText as="p" className="mt-1 text-[10.5px] leading-relaxed text-slate-400">
               Es el nombre que verán los guardias y administradores.
-            </p>
-          </div>
+            </ITText>
+          </ITFlex>
 
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+          <ITFlex direction="column">
+            <ITFlex align="center" justify="between" className="mb-2 flex items-center justify-between">
+              <ITText as="p" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                 Color de identificación
-              </p>
-              <span className="font-mono text-[9.5px] font-semibold uppercase text-slate-400">
+              </ITText>
+              <ITText as="span" className="font-mono text-[9.5px] font-semibold uppercase text-slate-400">
                 {color || "Sin color"}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+              </ITText>
+            </ITFlex>
+            <ITFlex align="center" className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setColor("")}
@@ -247,11 +247,11 @@ export const CategoryFormModal = ({
                   </button>
                 );
               })}
-            </div>
-          </div>
-        </div>
+            </ITFlex>
+          </ITFlex>
+        </ITFlex>
 
-        <div className="mt-6 flex justify-end gap-2.5 border-t border-slate-100 pt-4">
+        <ITFlex justify="end" className="mt-6 flex justify-end gap-2.5 border-t border-slate-100 pt-4">
           <ITButton
             variant="outlined"
             color="secondary"
@@ -269,8 +269,8 @@ export const CategoryFormModal = ({
           >
             {loading ? "Guardando..." : editCategory ? "Guardar cambios" : "Crear categoría"}
           </ITButton>
-        </div>
-      </div>
+        </ITFlex>
+      </ITFlex>
     </ITDialog>
   );
 };
