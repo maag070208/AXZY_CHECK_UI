@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITDialog, ITFlex } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDialog, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { FaCalendarAlt, FaCheck, FaCheckCircle, FaFileAlt, FaMapMarkerAlt, FaUserShield } from "react-icons/fa";
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
@@ -14,11 +14,11 @@ interface IncidentDetailDialogProps {
 }
 
 const SectionTitle = ({ children }: { children: string }) => (
-  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">{children}</p>
+  <ITText as="p" className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">{children}</ITText>
 );
 
 const Card = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">{children}</div>
+  <ITFlex direction="column" className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">{children}</ITFlex>
 );
 
 /** Detalle de una incidencia: descripción, evidencia, ubicación, responsables y acción de atender. */
@@ -37,22 +37,22 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
         <ITBadget color="secondary" size="sm">
           {incident.category?.value || "General"}
         </ITBadget>
-        <span className="text-sm text-slate-500">Reportada el {dayjs(incident.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</span>
+        <ITText as="span" className="text-sm text-slate-500">Reportada el {dayjs(incident.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</ITText>
       </ITFlex>
 
-      <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-y-auto flex-1 min-h-0 pr-1">
-        <div className="lg:col-span-2 space-y-6">
+      <ITFlex direction="column" className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-y-auto flex-1 min-h-0 pr-1">
+        <ITFlex direction="column" className="lg:col-span-2 space-y-6">
           <Card>
-            <h3 className="text-lg font-bold text-slate-800">{incident.title}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">
+            <ITText as="h3" className="text-lg font-bold text-slate-800">{incident.title}</ITText>
+            <ITText as="p" className="mt-3 text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">
               {incident.description || "Sin descripción detallada."}
-            </p>
+            </ITText>
           </Card>
 
           <Card>
             <ITFlex align="center" justify="between">
               <SectionTitle>Evidencia</SectionTitle>
-              {hasMedia && <span className="-mt-3 text-xs font-bold text-indigo-600">{incident.media!.length} archivos</span>}
+              {hasMedia && <ITText as="span" className="-mt-3 text-xs font-bold text-indigo-600">{incident.media!.length} archivos</ITText>}
             </ITFlex>
             {hasMedia ? (
               <MediaCarousel
@@ -64,7 +64,7 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
             ) : (
               <ITFlex direction="column" align="center" gap={2} className="py-10 rounded-xl border-2 border-dashed border-slate-200 text-slate-400">
                 <FaFileAlt />
-                <span className="text-sm font-medium">Sin evidencia adjunta</span>
+                <ITText as="span" className="text-sm font-medium">Sin evidencia adjunta</ITText>
               </ITFlex>
             )}
           </Card>
@@ -78,27 +78,27 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
               <GoogleMapComponent lat={incident.latitude!} lng={incident.longitude!} height="300px" />
             </Card>
           )}
-        </div>
+        </ITFlex>
 
-        <div className="space-y-6">
+        <ITFlex direction="column" className="space-y-6">
           <Card>
             <SectionTitle>Responsables</SectionTitle>
             <ITFlex direction="column" gap={4}>
               <ITFlex align="center" gap={3}>
-                <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
+                <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
                   <FaUserShield />
-                </div>
+                </ITFlex>
                 <div>
-                  <p className="text-xs text-slate-400">Reportó</p>
-                  <p className="text-sm font-bold text-slate-800">{reporter}</p>
-                  {incident.guard?.username && <p className="text-xs text-slate-500">@{incident.guard.username}</p>}
+                  <ITText as="p" className="text-xs text-slate-400">Reportó</ITText>
+                  <ITText as="p" className="text-sm font-bold text-slate-800">{reporter}</ITText>
+                  {incident.guard?.username && <ITText as="p" className="text-xs text-slate-500">@{incident.guard.username}</ITText>}
                 </div>
               </ITFlex>
 
               {incident.type && (
                 <div>
-                  <p className="text-xs text-slate-400">Tipo</p>
-                  <p className="text-sm font-bold text-slate-800">{incident.type.value}</p>
+                  <ITText as="p" className="text-xs text-slate-400">Tipo</ITText>
+                  <ITText as="p" className="text-sm font-bold text-slate-800">{incident.type.value}</ITText>
                 </div>
               )}
             </ITFlex>
@@ -107,11 +107,11 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
           {isPending ? (
             <Card>
               <SectionTitle>Acción pendiente</SectionTitle>
-              <p className="text-sm text-slate-600 mb-4">Esta incidencia requiere atención inmediata.</p>
+              <ITText as="p" className="text-sm text-slate-600 mb-4">Esta incidencia requiere atención inmediata.</ITText>
               <ITButton onClick={() => onResolve(incident.id)} color="success" variant="filled" size="md">
                 <ITFlex align="center" gap={2}>
                   <FaCheck />
-                  <span>Marcar como atendida</span>
+                  <ITText as="span">Marcar como atendida</ITText>
                 </ITFlex>
               </ITButton>
             </Card>
@@ -120,24 +120,24 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
               <Card>
                 <SectionTitle>Atención</SectionTitle>
                 <ITFlex align="center" gap={3}>
-                  <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                  <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center">
                     <FaCheckCircle />
-                  </div>
+                  </ITFlex>
                   <div>
-                    <p className="text-xs text-slate-400">Atendida por</p>
-                    <p className="text-sm font-bold text-slate-800">{incident.resolvedBy.name}</p>
+                    <ITText as="p" className="text-xs text-slate-400">Atendida por</ITText>
+                    <ITText as="p" className="text-sm font-bold text-slate-800">{incident.resolvedBy.name}</ITText>
                     {incident.resolvedAt && (
-                      <p className="text-xs text-slate-500 flex items-center gap-1">
+                      <ITText as="p" className="text-xs text-slate-500 flex items-center gap-1">
                         <FaCalendarAlt /> {dayjs(incident.resolvedAt).format("DD/MM/YYYY HH:mm")}
-                      </p>
+                      </ITText>
                     )}
                   </div>
                 </ITFlex>
               </Card>
             )
           )}
-        </div>
-      </div>
+        </ITFlex>
+      </ITFlex>
     </ITDialog>
   );
 };

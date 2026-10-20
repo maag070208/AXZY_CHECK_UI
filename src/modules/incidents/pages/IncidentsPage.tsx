@@ -1,7 +1,7 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITAlert, ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITLoader, ITPage } from "@axzydev/axzy_ui_system";
+import { ITAlert, ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITLoader, ITPage, ITText } from "@axzydev/axzy_ui_system";
 import { AgeBadge } from "@core/components/AgeBadge";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -168,24 +168,24 @@ const IncidentsPage = () => {
         type: "string",
         sortable: true,
         render: (row: Incident) => (
-            <div className="flex items-start gap-3 min-w-0">
-                <div className="mt-1 w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0 text-red-500">
+            <ITFlex align="start" gap={3} className="flex items-start gap-3 min-w-0">
+                <ITFlex align="center" justify="center" className="mt-1 w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0 text-red-500">
                     <FaExclamationTriangle className="text-xs" />
-                </div>
-                <div className="min-w-0 flex-1">
-                    <p className="font-bold text-slate-800 truncate">{row.title}</p>
-                    <div className="flex gap-1 items-center min-w-0">
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md uppercase">
+                </ITFlex>
+                <ITFlex direction="column" className="min-w-0 flex-1">
+                    <ITText as="p" className="font-bold text-slate-800 truncate">{row.title}</ITText>
+                    <ITFlex align="center" gap={1} className="flex gap-1 items-center min-w-0">
+                        <ITText as="span" className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md uppercase">
                             {row.category?.value || 'General'}
-                        </span>
+                        </ITText>
                         {row.type && (
-                            <span className="text-[10px] font-medium text-slate-400 truncate max-w-[140px]">
+                            <ITText as="span" className="text-[10px] font-medium text-slate-400 truncate max-w-[140px]">
                                 • {row.type.value}
-                            </span>
+                            </ITText>
                         )}
-                    </div>
-                </div>
-            </div>
+                    </ITFlex>
+                </ITFlex>
+            </ITFlex>
         )
     },
     {
@@ -194,10 +194,10 @@ const IncidentsPage = () => {
         type: "string",
         sortable: true,
         render: (row: Incident) => (
-            <div className="flex flex-col text-xs">
-                <span className="font-medium text-slate-700">{dayjs(row.createdAt).format("DD/MM/YYYY")}</span>
-                <span className="text-slate-400">{dayjs(row.createdAt).format("HH:mm")}</span>
-            </div>
+            <ITFlex direction="column" className="flex flex-col text-xs">
+                <ITText as="span" className="font-medium text-slate-700">{dayjs(row.createdAt).format("DD/MM/YYYY")}</ITText>
+                <ITText as="span" className="text-slate-400">{dayjs(row.createdAt).format("HH:mm")}</ITText>
+            </ITFlex>
         )
     },
     {
@@ -219,12 +219,12 @@ const IncidentsPage = () => {
             loading: loadingGuards
         },
         render: (row: Incident) => (
-            <div className="flex items-center gap-2">
+            <ITFlex align="center" gap={2} className="flex items-center gap-2">
                 <FaUserShield className="text-slate-400" />
-                <div className="flex flex-col">
-                    <span className="text-sm font-medium text-slate-700">{row.guard?.name} {row.guard?.lastName}</span>
-                </div>
-            </div>
+                <ITFlex direction="column" className="flex flex-col">
+                    <ITText as="span" className="text-sm font-medium text-slate-700">{row.guard?.name} {row.guard?.lastName}</ITText>
+                </ITFlex>
+            </ITFlex>
         )
     },
     {
@@ -248,16 +248,16 @@ const IncidentsPage = () => {
         type: "string",
         sortable: false,
         render: (row: Incident) => (
-            <div className="flex items-center gap-1 text-slate-500">
+            <ITFlex align="center" gap={1} className="flex items-center gap-1 text-slate-500">
                 {row.media && row.media.length > 0 ? (
                     <>
                         <FaFileAlt className="text-blue-400" />
-                        <span className="text-xs font-medium">{row.media.length}</span>
+                        <ITText as="span" className="text-xs font-medium">{row.media.length}</ITText>
                     </>
                 ) : (
-                    <span className="text-xs text-slate-300">-</span>
+                    <ITText as="span" className="text-xs text-slate-300">-</ITText>
                 )}
-            </div>
+            </ITFlex>
         )
     },
     {
@@ -265,7 +265,7 @@ const IncidentsPage = () => {
         label: "Acciones",
         type: "actions",
         actions: (row: Incident) => (
-            <div className="flex items-center gap-2">
+            <ITFlex align="center" gap={2} className="flex items-center gap-2">
                 <ITButton
                     onClick={() => setViewingIncident(row)}
                     size="sm"
@@ -302,7 +302,7 @@ const IncidentsPage = () => {
                         {deletingId === row.id ? <ITLoader size="sm" /> : <FaTrash />}
                     </ITButton>
                 )}
-            </div>
+            </ITFlex>
         )
     }
   ], [isAdmin, resolvingId, deletingId]);
@@ -317,8 +317,8 @@ const IncidentsPage = () => {
       icon={<FaExclamationTriangle size={20} />}
       iconColor="#065911"
       actions={
-<div className="flex gap-3 items-center">
-            <div className="w-64 relative">
+<ITFlex align="center" gap={3} className="flex gap-3 items-center">
+            <ITFlex direction="column" className="w-64 relative">
                 <ITInput
                     placeholder="Buscar por título..."
                     name="search"
@@ -335,8 +335,8 @@ const IncidentsPage = () => {
                         <FaTimes size={14} />
                     </button>
                 )}
-            </div>
-            <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
+            </ITFlex>
+            <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
                 <FaFilter className="text-slate-400 text-xs mr-2" />
                 <select
                     value={statusFilter}
@@ -347,7 +347,7 @@ const IncidentsPage = () => {
                     <option value="PENDING">Pendientes</option>
                     <option value="ATTENDED">Atendidas</option>
                 </select>
-            </div>
+            </ITFlex>
             <ITButton
                 onClick={() => setShowReportModal(true)}
                 color="primary"
@@ -357,7 +357,7 @@ const IncidentsPage = () => {
                 title="Generar reporte PDF de incidencias"
             >
                 <ITFlex align="center" gap={2}><FaFilePdf className="text-sm" />
-                <span className="text-xs font-bold">Generar Reporte PDF</span></ITFlex>
+                <ITText as="span" className="text-xs font-bold">Generar Reporte PDF</ITText></ITFlex>
             </ITButton>
             <ITButton
                 onClick={() => setRefreshKey(prev => prev + 1)}
@@ -368,7 +368,7 @@ const IncidentsPage = () => {
                 title="Actualizar datos"
             >
                 <ITFlex align="center" gap={2}><FaSync className="text-xs text-slate-500" />
-                <span className="text-xs font-bold text-slate-500">Refrescar</span></ITFlex>
+                <ITText as="span" className="text-xs font-bold text-slate-500">Refrescar</ITText></ITFlex>
             </ITButton>
             {isAdmin && (
                 <ITButton
@@ -380,17 +380,17 @@ const IncidentsPage = () => {
                     <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO REPORTE
                 </ITFlex></ITButton>
             )}
-        </div>
+        </ITFlex>
       }
     >
       {activeCatalogLabel && (
         <ITAlert variant="success" icon={<FaTag />} className="mb-4">
           <ITFlex align="center" justify="between" gap={3}>
-            <span className="text-sm">Filtrando por catálogo: <strong>{activeCatalogLabel}</strong></span>
+            <ITText as="span" className="text-sm">Filtrando por catálogo: <strong>{activeCatalogLabel}</strong></ITText>
             <ITButton variant="text" color="success" size="md" onClick={clearCatalogFilters}>
               <ITFlex align="center" gap={2}>
                 <FaTimes />
-                <span>Quitar filtro</span>
+                <ITText as="span">Quitar filtro</ITText>
               </ITFlex>
             </ITButton>
           </ITFlex>
@@ -398,7 +398,7 @@ const IncidentsPage = () => {
       )}
       
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
@@ -413,7 +413,7 @@ const IncidentsPage = () => {
             externalFilters={externalFilters as any}
             title=""
         />
-      </div>
+      </ITFlex>
 
     {viewingIncident && (
       <IncidentDetailDialog
@@ -431,23 +431,23 @@ const IncidentsPage = () => {
         onClose={() => setIncidentToResolveId(null)}
         title="Confirmar Resolución"
       >
-        <div className="p-8 text-center">
-            <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <ITFlex direction="column" className="p-8 text-center">
+            <ITFlex align="center" justify="center" className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <FaCheckCircle size={32} />
-            </div>
-            <h4 className="text-xl font-bold text-slate-800 mb-2">¿Marcar como atendida?</h4>
-            <p className="text-slate-500 text-sm mb-8">
+            </ITFlex>
+            <ITText as="h4" className="text-xl font-bold text-slate-800 mb-2">¿Marcar como atendida?</ITText>
+            <ITText as="p" className="text-slate-500 text-sm mb-8">
                 Esta acción registrará que la incidencia ha sido resuelta y quedará marcada como completada en el sistema.
-            </p>
-            <div className="flex justify-center gap-3">
+            </ITText>
+            <ITFlex justify="center" gap={3} className="flex justify-center gap-3">
                 <ITButton variant="outlined" color="secondary" onClick={() => setIncidentToResolveId(null)}>
                     Cancelar
                 </ITButton>
                 <ITButton variant="filled" color="success" onClick={confirmResolve}>
                     Confirmar
                 </ITButton>
-            </div>
-        </div>
+            </ITFlex>
+        </ITFlex>
       </ITDialog>
 
       {/* Confirm Delete Dialog */}
@@ -456,23 +456,23 @@ const IncidentsPage = () => {
         onClose={() => setIncidentToDelete(null)}
         title="Eliminar Incidencia"
       >
-        <div className="p-8 text-center">
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <ITFlex direction="column" className="p-8 text-center">
+            <ITFlex align="center" justify="center" className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <FaTrash size={24} />
-            </div>
-            <h4 className="text-xl font-bold text-slate-800 mb-2">¿Estás completamente seguro?</h4>
-            <p className="text-slate-500 text-sm mb-8">
-                Esta acción es irreversible. Se eliminará el reporte <span className="font-bold text-slate-700">"{incidentToDelete?.title}"</span> y toda su evidencia asociada.
-            </p>
-            <div className="flex justify-center gap-3">
+            </ITFlex>
+            <ITText as="h4" className="text-xl font-bold text-slate-800 mb-2">¿Estás completamente seguro?</ITText>
+            <ITText as="p" className="text-slate-500 text-sm mb-8">
+                Esta acción es irreversible. Se eliminará el reporte <ITText as="span" className="font-bold text-slate-700">"{incidentToDelete?.title}"</ITText> y toda su evidencia asociada.
+            </ITText>
+            <ITFlex justify="center" gap={3} className="flex justify-center gap-3">
                 <ITButton variant="outlined" color="secondary" onClick={() => setIncidentToDelete(null)}>
                     Cancelar
                 </ITButton>
                 <ITButton variant="filled" color="danger" onClick={confirmDelete}>
                     Eliminar permanentemente
                 </ITButton>
-            </div>
-        </div>
+            </ITFlex>
+        </ITFlex>
       </ITDialog>
 
       {/* Create Incident Modal */}
