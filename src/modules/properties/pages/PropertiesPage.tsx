@@ -133,7 +133,7 @@ const PropertiesPage = () => {
             key: "identifier",
             label: "ID Único",
             type: "string",
-            sortable: true,
+            sortable: false,
             render: (row: any) => (
                 <ITFlex direction="column" className="font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded inline-block">
                     {row.identifier}
@@ -144,7 +144,7 @@ const PropertiesPage = () => {
             key: "name",
             label: "Nombre / Referencia",
             type: "string",
-            sortable: true,
+            sortable: false,
             render: (row: any) => <ITFlex direction="column" className="font-medium text-slate-700">{row.name}</ITFlex>
         },
         {

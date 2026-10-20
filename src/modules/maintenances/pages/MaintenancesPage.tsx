@@ -166,7 +166,7 @@ const MaintenancesPage = () => {
         key: "title", 
         label: "Mantenimiento", 
         type: "string", 
-        sortable: true,
+        sortable: false,
         width: 350,
         render: (row: Maintenance) => (
             <ITFlex align="start" gap={3} className="flex items-start gap-3 min-w-0">
@@ -188,7 +188,7 @@ const MaintenancesPage = () => {
         key: "createdAt",
         label: "Reportado",
         type: "string",
-        sortable: true,
+        sortable: false,
         render: (row: Maintenance) => (
             <ITFlex direction="column" className="flex flex-col text-xs">
                 <ITText as="span" className="font-medium text-slate-700">{dayjs(row.createdAt).format("DD/MM/YYYY")}</ITText>
@@ -227,7 +227,7 @@ const MaintenancesPage = () => {
         key: "status", 
         label: "Estado", 
         type: "string", 
-        sortable: true,
+        sortable: false,
         render: (row: Maintenance) => (
             <ITBadget 
                 color={row.status === 'ATTENDED' ? 'success' : 'danger'} 

@@ -1635,7 +1635,7 @@ interface Member {
 
 export default function AsyncMembersTable() {
   const columns = [
-    { key: 'name', label: 'Nombre Colaborador', type: 'string' as const, sortable: true },
+    { key: 'name', label: 'Nombre Colaborador', type: 'string' as const, sortable: false },
     { key: 'role', label: 'Rol de Sistema', type: 'string' as const, sortable: false }
   ];
 

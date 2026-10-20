@@ -9,7 +9,7 @@ import { ChatPanel } from "../components/ChatPanel";
 const ChatPage = () => {
   return (
     <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Chat del equipo"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Chat" }]}
@@ -17,8 +17,7 @@ const ChatPage = () => {
       icon={<FaComments size={20} />}
       iconColor="#065911"
     >
-      {/* Altura fija: el chat hace scroll por dentro y el input siempre queda visible. */}
-      <ITFlex direction="column" className="h-[calc(100vh-17rem)] min-h-[380px] w-full">
+      <ITFlex direction="column" className="h-[calc(100vh-17rem)] min-h-[440px] w-full pb-10 pt-5">
         <ChatPanel variant="page" />
       </ITFlex>
     </ITPage>

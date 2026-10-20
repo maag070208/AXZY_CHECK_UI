@@ -2235,7 +2235,7 @@ export const useNotify = () => {
 ```tsx
 <ITTable
   columns={[
-    { key: "name", label: "Name", type: "string", sortable: true },
+    { key: "name", label: "Name", type: "string", sortable: false },
     { key: "active", label: "Active", type: "boolean", filter: true },
     { key: "actions", label: "", type: "actions", actions: (row) => <ITButton>Edit</ITButton> },
   ]}
@@ -2444,7 +2444,7 @@ export const useNotify = () => {
 ```tsx
 <ITDataTable
   columns={[
-    { key: "name", label: "Name", sortable: true, filter: true },
+    { key: "name", label: "Name", sortable: false, filter: true },
     { key: "status", label: "Status", type: "boolean", filter: true },
   ]}
   fetchData={async (params) => api.fetchItems(params)}
@@ -2747,7 +2747,7 @@ errors={formik.errors}
 ```tsx
 <ITSearchTable
   columns={[
-    { key: "name", label: "Name", type: "string", sortable: true, editable: true },
+    { key: "name", label: "Name", type: "string", sortable: false, editable: true },
     { key: "status", label: "Status", type: "string", filter: true },
   ]}
   data={rows}

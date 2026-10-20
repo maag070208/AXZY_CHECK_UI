@@ -160,7 +160,7 @@ const ClubPage = () => {
         key: "title",
         label: "Reporte",
         type: "string",
-        sortable: true,
+        sortable: false,
         width: 350,
         render: (row: ClubItem) => (
             <ITFlex align="start" gap={3} className="flex items-start gap-3 min-w-0">
@@ -187,7 +187,7 @@ const ClubPage = () => {
         key: "createdAt",
         label: "Reportado",
         type: "string",
-        sortable: true,
+        sortable: false,
         render: (row: ClubItem) => (
             <ITFlex direction="column" className="flex flex-col text-xs">
                 <ITText as="span" className="font-medium text-slate-700">{dayjs(row.createdAt).format("DD/MM/YYYY")}</ITText>
@@ -226,7 +226,7 @@ const ClubPage = () => {
         key: "status",
         label: "Estado",
         type: "string",
-        sortable: true,
+        sortable: false,
         render: (row: ClubItem) => (
             <ITBadget
                 color={row.status === 'ATTENDED' ? 'success' : 'danger'}

@@ -1,11 +1,24 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITFlex, ITInput, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
+import {
+  ITBadget,
+  ITButton,
+  ITCard,
+  ITDataTable,
+  ITDatePicker,
+  ITDialog,
+  ITFlex,
+  ITGrid,
+  ITInput,
+  ITPage,
+  ITProgress,
+  ITSearchSelect,
+  ITText,
+} from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaStop, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getRoutesList } from "../../routes/services/RoutesService";
-import { getUsers } from "../../users/services/UserService";
 import {
   endRound,
   getPaginatedRounds,
@@ -28,11 +41,11 @@ const PROGRESS_BADGE_COLOR: Record<string, "danger" | "warning" | "primary" | "s
   EXCELENTE: "success",
 };
 
-const PROGRESS_BAR_COLOR: Record<string, string> = {
-  MALO: "bg-red-500",
-  MEDIO: "bg-amber-500",
-  ALTO: "bg-sky-500",
-  EXCELENTE: "bg-emerald-500",
+const PROGRESS_COLOR: Record<string, "danger" | "warning" | "info" | "success"> = {
+  MALO: "danger",
+  MEDIO: "warning",
+  ALTO: "info",
+  EXCELENTE: "success",
 };
 
 const RoundsPage = () => {
@@ -78,16 +91,12 @@ const RoundsPage = () => {
 
   // Envolvemos el fetch para ver qué se manda exactamente
   const memoizedFetch = useCallback((params: any) => {
-    console.log('--- PARÁMETROS ENVIADOS A LA API ---', params);
     return getPaginatedRounds(params);
   }, []);
 
   // Config IDs Map
   const [routesMap, setRoutesMap] = useState<Record<number, string>>({});
   const navigate = useNavigate();
-
-  // Start Round Modal State
-  const [guards, setGuards] = useState<any[]>([]);
 
   // End Round Confirmation Modal State
   const [roundToFinishId, setRoundToFinishId] = useState<number | null>(null);
@@ -101,16 +110,6 @@ const RoundsPage = () => {
           map[r.id] = r.title;
         });
         setRoutesMap(map);
-      }
-    });
-
-    getUsers().then((res) => {
-      if (res.success && res.data) {
-        const onlyGuards = res.data.filter((u: any) => {
-            const roleName = typeof u.role === 'object' ? u.role.name : u.role;
-            return roleName === "GUARD" || roleName === "SHIFT" || roleName === "MAINT";
-        });
-        setGuards(onlyGuards);
       }
     });
   }, []);
@@ -156,15 +155,15 @@ const RoundsPage = () => {
         key: "id",
         label: "ID",
         type: "number",
-        sortable: true,
+        sortable: false,
       },
       {
         key: "recurringConfiguration",
         label: "Ronda",
         type: "string",
-        sortable: true,
+        sortable: false,
         render: (row: any) => (
-          <ITText as="span" className="font-semibold text-slate-700">
+          <ITText as="span" className="font-semibold text-slate-700 dark:text-slate-200">
             {row.recurringConfiguration?.title ||
               routesMap[row.recurringConfigurationId] ||
               "Ronda General"}
@@ -176,18 +175,18 @@ const RoundsPage = () => {
         label: "Guardia",
         type: "string",
         render: (row: IRound) => (
-          <ITFlex direction="column" className="font-medium text-slate-700">
+          <ITText as="span" className="font-medium text-slate-700 dark:text-slate-200">
             {row.guard.name} {row.guard.lastName}
-          </ITFlex>
+          </ITText>
         ),
       },
       {
         key: "startTime",
         label: "Inicio",
         type: "string",
-        sortable: true,
+        sortable: false,
         render: (row: IRound) => (
-          <ITText as="span" className="text-slate-600 text-sm">
+          <ITText as="span" className="text-sm text-slate-600 dark:text-slate-300">
             {new Date(row.startTime).toLocaleString()}
           </ITText>
         ),
@@ -196,9 +195,9 @@ const RoundsPage = () => {
         key: "endTime",
         label: "Fin",
         type: "string",
-        sortable: true,
+        sortable: false,
         render: (row: IRound) => (
-          <ITText as="span" className="text-slate-600 text-sm">
+          <ITText as="span" className="text-sm text-slate-600 dark:text-slate-300">
             {row.endTime ? new Date(row.endTime).toLocaleString() : "-"}
           </ITText>
         ),
@@ -207,7 +206,7 @@ const RoundsPage = () => {
         key: "status",
         label: "Estado",
         type: "string",
-        sortable: true,
+        sortable: false,
         render: (row: IRound) => (
           <ITBadget
             color={row.status === "COMPLETED" ? "secondary" : "warning"}
@@ -228,16 +227,20 @@ const RoundsPage = () => {
           }
           return (
             <ITFlex direction="column" className="min-w-[120px]">
-              <ITFlex align="center" justify="between" className="flex items-center justify-between text-[10px] font-bold text-slate-500 mb-1">
-                <ITText as="span">{row.scannedCount}/{row.totalLocations} puntos</ITText>
-                <ITText as="span">{row.progressPercent}%</ITText>
+              <ITFlex align="center" justify="between" className="mb-1">
+                <ITText as="span" className="text-[10px] font-bold text-slate-500">
+                  {row.scannedCount}/{row.totalLocations} puntos
+                </ITText>
+                <ITText as="span" className="text-[10px] font-bold text-slate-500">
+                  {row.progressPercent}%
+                </ITText>
               </ITFlex>
-              <ITFlex direction="column" className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                <ITFlex direction="column"
-                  className={`h-full rounded-full ${PROGRESS_BAR_COLOR[row.progressStatus ?? "MALO"]}`}
-                  style={{ width: `${row.progressPercent}%` }}
-                />
-              </ITFlex>
+              <ITProgress
+                value={row.progressPercent}
+                max={100}
+                color={PROGRESS_COLOR[row.progressStatus ?? "MALO"]}
+                size="sm"
+              />
             </ITFlex>
           );
         },
@@ -260,145 +263,149 @@ const RoundsPage = () => {
         label: "Acciones",
         type: "actions",
         actions: (row: IRound) => (
-          <ITFlex gap={2} className="flex gap-2">
+          <ITFlex align="center" gap={2}>
             <ITButton
               onClick={() => navigate(`/rounds/${row.id}`)}
-              size="sm"
+              size="md"
               color="primary"
-              variant="outlined"
-             
+              variant="icon-only"
+              icon={<FaEye />}
+              ariaLabel="Ver detalles"
               title="Ver detalles"
-            >
-              <FaEye />
-            </ITButton>
+            />
 
             {row.status === "IN_PROGRESS" && (
               <ITButton
                 onClick={() => handleEndRound(row.id)}
-                size="sm"
+                size="md"
                 color="danger"
-                variant="filled"
-               
-                title="Finalizar Ronda (Admin)"
-              >
-                <FaStop />
-              </ITButton>
+                variant="icon-only"
+                icon={<FaStop />}
+                ariaLabel="Finalizar ronda"
+                title="Finalizar ronda"
+              />
             )}
           </ITFlex>
         ),
       },
     ],
-    [routesMap, navigate, guards],
+    [routesMap, navigate],
   );
 
   return (
     <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Historial de recorridos"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Historial de recorridos" }]}
-      description="Historial y supervisión de recorridos de seguridad"
+      description="Historial y supervisión de recorridos de seguridad. Solo los escaneos con al menos una foto cuentan para Avance y Desempeño."
       icon={<FaClock size={20} />}
       iconColor="#065911"
-      actions={
-<ITFlex align="center" gap={3} className="flex items-center gap-3">
-            <ITFlex direction="column" className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Buscar Guardia</label>
-                <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[240px] shadow-sm focus-within:border-emerald-500/50 transition-all">
-                    <FaUser className="text-slate-300 text-xs mr-2" />
-                    <ITInput
-                        name="searchRound"
-                        placeholder="Nombre o usuario..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        containerClassName="w-full"
-                        className="!bg-transparent !border-0 !shadow-none !p-0 text-sm font-bold text-slate-600"
-                    />
-                    {searchTerm.length > 0 && (
-                        <ITButton
-                            variant="icon-only"
-                            color="gray"
-                            size="sm"
-                            onClick={() => setSearchTerm("")}
-                            icon={<FaTimesCircle className="text-xs" />}
-                            title="Limpiar búsqueda"
-                           
-                        />
-                    )}
-                </ITFlex>
-            </ITFlex>
-
-            <ITFlex direction="column" className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Estado</label>
-                <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[150px] shadow-sm">
-                    <ITSearchSelect
-                        value={statusFilter}
-                        onChange={(value) => {
-                            setStatusFilter(String(value));
-                            setRefreshKey(prev => prev + 1);
-                        }}
-                        options={[
-                            { label: "Todos", value: "ALL" },
-                            { label: "En curso", value: "IN_PROGRESS" },
-                            { label: "Finalizadas", value: "COMPLETED" },
-                        ]}
-                        clearable={false}
-                        className="w-full"
-                    />
-                </ITFlex>
-            </ITFlex>
-
-            <ITFlex direction="column" className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Periodo</label>
-                <ITFlex align="center" gap={3} className="flex items-center gap-3">
-          <ITDatePicker
-            label=""
-            name="date"
-            value={selectedDate as any}
-            range
-            onChange={(e) => {
-              const val = e.target.value as any;
-
-              if (Array.isArray(val)) {
-                // El DatePicker regresa strings ISO, los convertimos a Date para la UI
-                const parsedDates = val.map((d) => (d ? new Date(d) : null));
-                setSelectedDate(parsedDates);
-                
-                // Si el rango se completó (dos fechas seleccionadas), refrescamos la tabla
-                if (parsedDates[0] && parsedDates[1]) {
-                    setRefreshKey(prev => prev + 1);
-                }
-              } else if (val) {
-                // Caso un solo día o string ISO directo
-                const date = new Date(val);
-                setSelectedDate([date, date]);
-                setRefreshKey(prev => prev + 1);
-              } else {
-                // Caso limpiar filtro
-                setSelectedDate(null);
-                setRefreshKey(prev => prev + 1);
-              }
-            }}
-            className="text-sm text-slate-600 outline-none font-medium"
-          />
-          <ITButton
-                onClick={() => setRefreshKey(prev => prev + 1)}
-                color="secondary"
-                variant="outlined"
-               
-                size="md"
-                title="Actualizar tabla"
-              >
-                <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                <ITText as="span" className="text-xs font-bold text-slate-600">Refrescar</ITText></ITFlex>
-          </ITButton>
-                </ITFlex>
-            </ITFlex>
-        </ITFlex>
-      }
     >
+      <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
+        <ITCard className="rounded-3xl" contentClassName="p-4!">
+          <ITGrid container columns={12} spacing={3}>
+            <ITGrid item xs={12} md={4}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Buscar guardia
+                </ITText>
+                <ITFlex align="center" gap={1}>
+                  <ITInput
+                    name="searchRound"
+                    placeholder="Nombre o usuario..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onBlur={() => {}}
+                    iconLeft={<FaUser />}
+                    size="md"
+                  />
+                  {searchTerm.length > 0 && (
+                    <ITButton
+                      variant="icon-only"
+                      color="secondary"
+                      size="sm"
+                      onClick={() => setSearchTerm("")}
+                      icon={<FaTimesCircle size={12} />}
+                      ariaLabel="Limpiar búsqueda"
+                      title="Limpiar búsqueda"
+                    />
+                  )}
+                </ITFlex>
+              </ITFlex>
+            </ITGrid>
 
-      <ITFlex direction="column" className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <ITGrid item xs={12} sm={6} md={3}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Estado
+                </ITText>
+                <ITSearchSelect
+                  value={statusFilter}
+                  onChange={(value) => {
+                    setStatusFilter(String(value));
+                    setRefreshKey((prev) => prev + 1);
+                  }}
+                  options={[
+                    { label: "Todos", value: "ALL" },
+                    { label: "En curso", value: "IN_PROGRESS" },
+                    { label: "Finalizadas", value: "COMPLETED" },
+                  ]}
+                  clearable={false}
+                  className="w-full"
+                />
+              </ITFlex>
+            </ITGrid>
+
+            <ITGrid item xs={12} sm={6} md={4}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Periodo
+                </ITText>
+                <ITDatePicker
+                  name="date"
+                  value={selectedDate as any}
+                  range
+                  onChange={(e) => {
+                    const val = e.target.value as any;
+
+                    if (Array.isArray(val)) {
+                      const parsedDates = val.map((d) => (d ? new Date(d) : null));
+                      setSelectedDate(parsedDates);
+
+                      if (parsedDates[0] && parsedDates[1]) {
+                        setRefreshKey((prev) => prev + 1);
+                      }
+                    } else if (val) {
+                      const date = new Date(val);
+                      setSelectedDate([date, date]);
+                      setRefreshKey((prev) => prev + 1);
+                    } else {
+                      setSelectedDate(null);
+                      setRefreshKey((prev) => prev + 1);
+                    }
+                  }}
+                  className="w-full"
+                />
+              </ITFlex>
+            </ITGrid>
+
+            <ITGrid item xs={12} md={1}>
+              <ITFlex align="end" justify="end" className="h-full">
+                <ITButton
+                  onClick={() => setRefreshKey((prev) => prev + 1)}
+                  color="secondary"
+                  variant="icon-only"
+                  size="md"
+                  icon={<FaSync />}
+                  ariaLabel="Actualizar tabla"
+                  title="Actualizar tabla"
+                />
+              </ITFlex>
+            </ITGrid>
+          </ITGrid>
+        </ITCard>
+
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
@@ -414,19 +421,16 @@ const RoundsPage = () => {
         />
       </ITFlex>
 
-
-      {/* End Round Confirmation Modal */}
       <ITDialog
         isOpen={!!roundToFinishId}
         onClose={() => setRoundToFinishId(null)}
-        title="Confirmar Finalización"
+        title="Confirmar finalización"
       >
-        <ITFlex direction="column" className="p-6">
-          <ITText as="p" className="text-[#1b1b1f] text-base mb-6">
-            ¿Seguro que deseas FINALIZAR esta ronda manualmente? Esta acción no
-            se puede deshacer.
+        <ITFlex direction="column" gap={4}>
+          <ITText as="p" className="text-sm text-slate-600 dark:text-slate-300">
+            ¿Seguro que deseas finalizar esta ronda manualmente? Esta acción no se puede deshacer.
           </ITText>
-          <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
+          <ITFlex justify="end" gap={2}>
             <ITButton
               variant="outlined"
               color="secondary"
@@ -434,8 +438,8 @@ const RoundsPage = () => {
             >
               Cancelar
             </ITButton>
-            <ITButton variant="solid" color="danger" onClick={confirmEndRound}>
-              Finalizar Ronda
+            <ITButton color="danger" onClick={confirmEndRound}>
+              Finalizar ronda
             </ITButton>
           </ITFlex>
         </ITFlex>

@@ -88,12 +88,12 @@ const KardexPage = () => {
     };
 
     const columns = useMemo(() => [
-        { key: "id", label: "ID", type: "number", sortable: true },
+        { key: "id", label: "ID", type: "number", sortable: false },
         { 
             key: "timestamp", 
             label: "Fecha/Hora", 
             type: "string", 
-            sortable: true, 
+            sortable: false, 
             render: (row: any) => dayjs(row.timestamp).format("DD/MM/YYYY HH:mm") 
         },
         { 
@@ -123,7 +123,7 @@ const KardexPage = () => {
             key: "scanType", 
             label: "Tipo", 
             type: "string", 
-            sortable: true,
+            sortable: false,
             render: (row: any) => (
                 <ITBadget 
                     color={row.scanType === 'ASSIGNMENT' ? 'success' : row.scanType === 'RECURRING' ? 'warning' : 'primary'} 

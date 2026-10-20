@@ -52,13 +52,13 @@ export const RoundRouteMap = ({ points, height = '420px', className = '' }: Roun
         <Map
           defaultCenter={center}
           defaultZoom={points.length === 1 ? 16 : 15}
-          gestureHandling={'greedy'}
+          gestureHandling={'cooperative'}
           disableDefaultUI={false}
           mapId="bf3fcca21542f575"
         >
           <Polyline
             path={points.map((p) => ({ lat: p.lat, lng: p.lng }))}
-            strokeColor="#0ea5e9"
+            strokeColor="#12a36f"
             strokeOpacity={0.8}
             strokeWeight={3}
           />
@@ -68,7 +68,7 @@ export const RoundRouteMap = ({ points, height = '420px', className = '' }: Roun
               position={{ lat: point.lat, lng: point.lng }}
               onClick={() => setActivePoint(point)}
             >
-              <Pin background={'#0ea5e9'} glyphColor={'#fff'} borderColor={'#0c4a6e'} glyph={String(point.seq)} />
+              <Pin background={'#12a36f'} glyphColor={'#fff'} borderColor={'#065911'} glyph={String(point.seq)} />
             </AdvancedMarker>
           ))}
           {activePoint && (

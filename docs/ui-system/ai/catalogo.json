@@ -3732,7 +3732,7 @@
    "name": "ITTable",
    "layer": "molecules",
    "description": "A feature-rich data table with per-column filtering, sortable columns,\npagination, boolean/catalog type support, and currency formatting.",
-   "example": "<ITTable\n  columns={[\n    { key: \"name\", label: \"Name\", type: \"string\", sortable: true },\n    { key: \"active\", label: \"Active\", type: \"boolean\", filter: true },\n    { key: \"actions\", label: \"\", type: \"actions\", actions: (row) => <ITButton>Edit</ITButton> },\n  ]}\n  data={users}\n  title=\"User List\"\n  size=\"sm\"\n/>",
+   "example": "<ITTable\n  columns={[\n    { key: \"name\", label: \"Name\", type: \"string\", sortable: false },\n    { key: \"active\", label: \"Active\", type: \"boolean\", filter: true },\n    { key: \"actions\", label: \"\", type: \"actions\", actions: (row) => <ITButton>Edit</ITButton> },\n  ]}\n  data={users}\n  title=\"User List\"\n  size=\"sm\"\n/>",
    "source": "src/components/molecules/table/table.tsx",
    "props": [
     {
@@ -4365,7 +4365,7 @@
    "name": "ITDataTable",
    "layer": "organisms",
    "description": "Async server-side data table with sorting, filtering, and pagination.\n\nFetches data via the `fetchData` callback whenever pagination, sorting, or\nfilters change. Supports column-level text/catalog/boolean filters, sortable\ncolumns, and a loading overlay. Built on-top of internal table hooks for\nautomatic state coordination.",
-   "example": "```tsx\n<ITDataTable\n  columns={[\n    { key: \"name\", label: \"Name\", sortable: true, filter: true },\n    { key: \"status\", label: \"Status\", type: \"boolean\", filter: true },\n  ]}\n  fetchData={async (params) => api.fetchItems(params)}\n  title=\"Users\"\n  variant=\"bordered\"\n/>\n```",
+   "example": "```tsx\n<ITDataTable\n  columns={[\n    { key: \"name\", label: \"Name\", sortable: false, filter: true },\n    { key: \"status\", label: \"Status\", type: \"boolean\", filter: true },\n  ]}\n  fetchData={async (params) => api.fetchItems(params)}\n  title=\"Users\"\n  variant=\"bordered\"\n/>\n```",
    "source": "src/components/organisms/data-table/dataTable.tsx",
    "props": [
     {
@@ -5163,7 +5163,7 @@
    "name": "ITSearchTable",
    "layer": "organisms",
    "description": "Server-side data table with global search, column sorting, inline editing, and pagination.",
-   "example": "```tsx\n<ITSearchTable\n  columns={[\n    { key: \"name\", label: \"Name\", type: \"string\", sortable: true, editable: true },\n    { key: \"status\", label: \"Status\", type: \"string\", filter: true },\n  ]}\n  data={rows}\n  title=\"Users\"\n  pageIndex={0}\n  totalCount={100}\n  totalPages={10}\n  hasPreviousPage={false}\n  hasNextPage={true}\n  onPageChange={(p) => fetchPage(p)}\n  onSortChange={(s) => sortData(s)}\n  onFilterChange={(f) => filterData(f)}\n/>\n```",
+   "example": "```tsx\n<ITSearchTable\n  columns={[\n    { key: \"name\", label: \"Name\", type: \"string\", sortable: false, editable: true },\n    { key: \"status\", label: \"Status\", type: \"string\", filter: true },\n  ]}\n  data={rows}\n  title=\"Users\"\n  pageIndex={0}\n  totalCount={100}\n  totalPages={10}\n  hasPreviousPage={false}\n  hasNextPage={true}\n  onPageChange={(p) => fetchPage(p)}\n  onSortChange={(s) => sortData(s)}\n  onFilterChange={(f) => filterData(f)}\n/>\n```",
    "source": "src/components/organisms/searchTable/searchTable.tsx",
    "props": [
     {

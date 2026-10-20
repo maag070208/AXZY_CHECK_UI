@@ -81,7 +81,7 @@ const UniformPage = () => {
               key: "createdAt",
               label: "FECHA",
               type: "string",
-              sortable: true,
+              sortable: false,
               render: (row: any) => (
                 <ITText as="span" className="text-xs font-bold text-slate-700">
                   {new Date(row.createdAt).toLocaleDateString("es-MX")}

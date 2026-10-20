@@ -147,7 +147,7 @@ const IncidentsPage = () => {
             key: "title",
             label: "Incidencia",
             type: "string",
-            sortable: true,
+            sortable: false,
             width: 350, 
             render: (row: Incident) => (
                 <ITFlex align="start" gap={3} className="flex items-start gap-3 min-w-0">
@@ -174,7 +174,7 @@ const IncidentsPage = () => {
             key: "createdAt",
             label: "Reportado",
             type: "string",
-            sortable: true,
+            sortable: false,
             render: (row: Incident) => (
                 <ITFlex direction="column" className="flex flex-col text-xs">
                     <ITText as="span" className="font-medium text-slate-700">{dayjs(row.createdAt).format("DD/MM/YYYY")}</ITText>
@@ -213,7 +213,7 @@ const IncidentsPage = () => {
             key: "status",
             label: "Estado",
             type: "string",
-            sortable: true,
+            sortable: false,
             render: (row: Incident) => (
                 <ITBadget
                     color={row.status === 'ATTENDED' ? 'success' : 'danger'}

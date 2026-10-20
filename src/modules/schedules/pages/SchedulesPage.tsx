@@ -157,7 +157,7 @@ const SchedulesPage = () => {
               key: "name", 
               label: "HORARIO", 
               type: "string", 
-              sortable: true,
+              sortable: false,
               render: (row: any) => (
                   <ITFlex align="center" gap={3} className="flex items-center gap-3 py-1">
                       <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200">

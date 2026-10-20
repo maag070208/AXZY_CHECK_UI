@@ -132,7 +132,7 @@ const RoutesPage = () => {
               key: "id",
               label: "ID",
               type: "number",
-              sortable: true,
+              sortable: false,
               render: (row: any) => (
                 <ITFlex direction="column" className="text-xs font-bold text-slate-400 py-4">
                   #{row.id}
@@ -143,7 +143,7 @@ const RoutesPage = () => {
               key: "title",
               label: "NOMBRE / REFERENCIA",
               type: "string",
-              sortable: true,
+              sortable: false,
               render: (row: any) => (
                 <ITFlex align="start" gap={3} className="flex items-start gap-3">
                     <ITFlex align="center" justify="center" className="mt-1 w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0 text-[#065911]">

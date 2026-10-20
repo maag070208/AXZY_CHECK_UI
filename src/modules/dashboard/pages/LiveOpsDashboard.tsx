@@ -3,19 +3,24 @@ import {
   ITButton,
   ITCard,
   ITChip,
+  ITDatePicker,
   ITFlex,
   ITGrid,
   ITPage,
   ITSegmentedControl,
   ITSkeleton,
-  ITStatCard,
   ITText,
+  ITProgress,
 } from "@axzydev/axzy_ui_system";
 import { AppState } from "@app/core/store/store";
+import { getCatalogOptions } from "@core/services/CatalogService";
+import { getIncidents } from "../../incidents/services/IncidentService";
+import { getPaginatedRounds } from "../../rounds/services/RoundsService";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaArrowRight,
+  FaChartBar,
   FaChartLine,
   FaCircle,
   FaClock,
@@ -33,47 +38,79 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AnalyticsTab } from "../../home/components/tabs/AnalyticsTab";
 import { useLiveDashboard } from "../hooks/useLiveDashboard";
+import type { ILiveInsights } from "../services/DashboardService";
 import { LiveAside } from "../components/LiveAside";
 import { IncidentsByCategory, IncidentsByHour, RoundsTrend, TodaySummary } from "../components/LiveInsights";
 import { LiveGuardsMap } from "../components/LiveGuardsMap";
 
 type KpiTone = "green" | "blue" | "amber" | "red" | "violet" | "mint";
 
-const TONE_COLOR: Record<KpiTone, string> = {
-  green: "bg-emerald-50 dark:bg-emerald-950/20",
-  blue: "bg-blue-50 dark:bg-blue-950/20",
-  amber: "bg-amber-50 dark:bg-amber-950/20",
-  red: "bg-rose-50 dark:bg-rose-950/20",
-  violet: "bg-violet-50 dark:bg-violet-950/20",
-  mint: "bg-teal-50 dark:bg-teal-950/20",
+const TONE_ICON: Record<KpiTone, string> = {
+  green: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400",
+  blue: "bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400",
+  amber: "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400",
+  red: "bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400",
+  violet: "bg-violet-50 text-violet-600 dark:bg-violet-950/30 dark:text-violet-400",
+  mint: "bg-teal-50 text-teal-600 dark:bg-teal-950/30 dark:text-teal-400",
+};
+
+const TONE_PROGRESS: Record<KpiTone, "success" | "info" | "warning" | "danger" | "purple" | "primary"> = {
+  green: "success",
+  blue: "info",
+  amber: "warning",
+  red: "danger",
+  violet: "purple",
+  mint: "success",
 };
 
 interface KpiCardProps {
   title: string;
   value?: number | string;
   hint?: string;
+  progress?: number;
   icon: React.ReactNode;
   tone: KpiTone;
   loading: boolean;
   onClick: () => void;
 }
 
-const KpiCard = ({ title, value, hint, icon, tone, loading, onClick }: KpiCardProps) => {
+const KpiCard = ({ title, value, hint, progress, icon, tone, loading, onClick }: KpiCardProps) => {
   if (loading) {
     return <ITSkeleton variant="rectangular" height={112} className="rounded-2xl" />;
   }
 
   return (
-    <ITStatCard
-      label={title}
-      value={value ?? "—"}
-      trend={hint}
-      trendDirection="neutral"
-      icon={icon}
-      color={TONE_COLOR[tone]}
-      className="h-full rounded-2xl"
-      onClick={onClick}
-    />
+    <ITCard onClick={onClick} className="h-full" contentClassName="p-4!">
+      <ITFlex align="center" justify="between" gap={2}>
+        <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+          {title}
+        </ITText>
+        <ITFlex
+          align="center"
+          justify="center"
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${TONE_ICON[tone]}`}
+        >
+          {icon}
+        </ITFlex>
+      </ITFlex>
+      <ITText as="p" className="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+        {value ?? "—"}
+      </ITText>
+      {hint && (
+        <ITText as="p" className="mt-1 text-[10px] font-medium leading-snug text-slate-500 dark:text-slate-400">
+          {hint}
+        </ITText>
+      )}
+      {progress !== undefined && (
+        <ITProgress
+          value={progress}
+          max={100}
+          color={TONE_PROGRESS[tone]}
+          size="sm"
+          className="mt-3"
+        />
+      )}
+    </ITCard>
   );
 };
 
@@ -85,6 +122,183 @@ const SummarySkeleton = () => (
   </ITCard>
 );
 
+type RhythmInsights = Pick<ILiveInsights, "roundsByDay" | "incidentsByCategory" | "incidentsByHour">;
+
+const RhythmSection = () => {
+  const [range, setRange] = useState<any>([dayjs().subtract(6, "day").toDate(), dayjs().toDate()]);
+  const [rhythm, setRhythm] = useState<RhythmInsights | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const run = async () => {
+      if (!range?.[0] || !range?.[1]) return;
+      const start = dayjs(range[0]).startOf("day");
+      const end = dayjs(range[1]).endOf("day");
+      if (!start.isValid() || !end.isValid()) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const [incidentsRes, categoriesRes, firstPage] = await Promise.all([
+          getIncidents({ startDate: start.toDate(), endDate: end.toDate() }),
+          getCatalogOptions("incident_category" as any),
+          getPaginatedRounds({
+            page: 1,
+            limit: 1000,
+            filters: { date: [start.toISOString(), end.toISOString()] } as any,
+            sort: { key: "startTime", direction: "asc" },
+          }),
+        ]);
+
+        if (cancelled) return;
+
+        const incidents = incidentsRes.success ? incidentsRes.data ?? [] : [];
+        const categoryMap = new Map<number, string>();
+        if (categoriesRes?.success && Array.isArray(categoriesRes.data)) {
+          for (const c of categoriesRes.data) {
+            categoryMap.set(Number(c.id), c.name ?? c.value ?? "Sin categoría");
+          }
+        }
+
+        let rounds = firstPage.data;
+        if (firstPage.total > rounds.length && rounds.length > 0) {
+          const pages = Math.ceil(firstPage.total / 1000);
+          const rest = await Promise.all(
+            Array.from({ length: pages - 1 }, (_, i) =>
+              getPaginatedRounds({
+                page: i + 2,
+                limit: 1000,
+                filters: { date: [start.toISOString(), end.toISOString()] } as any,
+                sort: { key: "startTime", direction: "asc" },
+              }),
+            ),
+          );
+          if (cancelled) return;
+          rounds = rounds.concat(...rest.map((p) => p.data));
+        }
+
+        const days: string[] = [];
+        for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, "day")) {
+          days.push(d.format("YYYY-MM-DD"));
+        }
+
+        const roundsByDay = days.map((date) => {
+          const ofDay = rounds.filter((r) => dayjs(r.startTime).format("YYYY-MM-DD") === date);
+          return {
+            date,
+            started: ofDay.length,
+            completed: ofDay.filter((r) => r.status === "COMPLETED").length,
+          };
+        });
+
+        const byCategory = new Map<string, number>();
+        for (const i of incidents) {
+          const name = (i.categoryId && categoryMap.get(Number(i.categoryId))) || "Sin categoría";
+          byCategory.set(name, (byCategory.get(name) ?? 0) + 1);
+        }
+        const incidentsByCategory = [...byCategory.entries()]
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 6);
+
+        const incidentsByHour = Array.from({ length: 24 }, (_, hour) => ({ hour, count: 0 }));
+        for (const i of incidents) incidentsByHour[dayjs(i.createdAt).hour()].count++;
+
+        setRhythm({ roundsByDay, incidentsByCategory, incidentsByHour });
+      } catch (e: any) {
+        if (!cancelled) setError(e?.message ?? "No se pudo cargar el rango.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [range, reloadKey]);
+
+  const start = range?.[0] ? dayjs(range[0]) : dayjs().subtract(6, "day");
+  const end = range?.[1] ? dayjs(range[1]) : dayjs();
+
+  return (
+    <ITFlex direction="column" gap={3}>
+      <ITFlex align="end" justify="between" gap={2} wrap="wrap">
+        <ITFlex direction="column" gap={1}>
+          <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-primary-700">
+            Ritmo de la operación
+          </ITText>
+          <ITText as="h3" className="text-base font-extrabold tracking-tight text-slate-900">
+            Rondas, incidencias y horas de mayor actividad
+          </ITText>
+          <ITText as="p" className="text-xs text-slate-500">
+            Filtra las tres gráficas por rango de fechas.
+          </ITText>
+        </ITFlex>
+        <ITFlex align="center" gap={2} wrap="nowrap" className="w-full sm:w-auto">
+          <ITDatePicker
+            name="rhythm-range"
+            value={range}
+            range
+            onChange={(e: any) => setRange(e.target.value)}
+            className="w-full sm:w-[260px]"
+          />
+          <ITButton
+            variant="icon-only"
+            color="primary"
+            size="sm"
+            icon={<FaSync className={loading ? "animate-spin" : ""} size={13} />}
+            ariaLabel="Actualizar rango"
+            onClick={() => setReloadKey((k) => k + 1)}
+            className="shrink-0"
+          />
+        </ITFlex>
+      </ITFlex>
+
+      {error && (
+        <ITAlert variant="error" title="No se pudo cargar el rango">
+          {error}
+        </ITAlert>
+      )}
+
+      {rhythm && !loading ? (
+        <ITGrid container columns={12} spacing={3}>
+          <ITGrid item xs={12} xl={6}>
+            <RoundsTrend
+              insights={rhythm}
+              title={`Rondas — ${start.format("DD MMM")} a ${end.format("DD MMM")}`}
+              height={240}
+            />
+          </ITGrid>
+          <ITGrid item xs={12} xl={3}>
+            <IncidentsByCategory insights={rhythm} subtitle={`Rango: ${start.format("DD MMM")} a ${end.format("DD MMM")}`} />
+          </ITGrid>
+          <ITGrid item xs={12} xl={3}>
+            <IncidentsByHour insights={rhythm} subtitle={`Top 6 horas · ${start.format("DD MMM")} a ${end.format("DD MMM")}`} />
+          </ITGrid>
+        </ITGrid>
+      ) : (
+        <ITGrid container columns={12} spacing={3}>
+          <ITGrid item xs={12} xl={4}>
+            <ITSkeleton variant="rectangular" height={220} />
+          </ITGrid>
+          <ITGrid item xs={12} xl={4}>
+            <ITSkeleton variant="rectangular" height={220} />
+          </ITGrid>
+          <ITGrid item xs={12} xl={4}>
+            <ITSkeleton variant="rectangular" height={220} />
+          </ITGrid>
+        </ITGrid>
+      )}
+    </ITFlex>
+  );
+};
+
 /**
  * Home de ADMIN/SHIFT — Centro de operaciones.
  * UI 100% AXZY UI System + utilidades de layout por className.
@@ -93,8 +307,7 @@ export const LiveOpsDashboard = () => {
   const { data, loading, error, refetch } = useLiveDashboard();
   const auth = useSelector((state: AppState) => state.auth);
   const navigate = useNavigate();
-  const [view, setView] = useState<"live" | "analytics">("live");
-  const [monitorView, setMonitorView] = useState<"resumen" | "ritmo">("resumen");
+  const [view, setView] = useState<"live" | "rhythm" | "analytics">("live");
   const isFirstLoad = loading && !data;
 
   const staleRoundIds = new Set((data?.activeRounds ?? []).filter((r) => r.stale).map((r) => r.roundId));
@@ -120,6 +333,10 @@ export const LiveOpsDashboard = () => {
   const activeRounds = data?.kpis.activeRoundsCount;
   const guardsOnShift = data?.kpis.guardsOnShiftCount;
   const openIncidents = data?.kpis.openIncidentsCount;
+  const guardProgress = guardsOnShift ? Math.round((guardsOnRound / guardsOnShift) * 100) : 0;
+  const coverageProgress = data?.kpis.routesTotal
+    ? Math.round((data.kpis.routesCovered / data.kpis.routesTotal) * 100)
+    : 0;
   return (
     <ITPage
       className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
@@ -220,19 +437,24 @@ export const LiveOpsDashboard = () => {
             size="sm"
             options={[
               { value: "live", label: "Monitoreo", icon: <FaShieldAlt size={12} /> },
+              { value: "rhythm", label: "Ritmo de la operación", icon: <FaChartBar size={12} /> },
               { value: "analytics", label: "Security Analytics", icon: <FaChartLine size={12} /> },
             ]}
             value={view}
-            onChange={(value) => setView(value as "live" | "analytics")}
+            onChange={(value) => setView(value as "live" | "rhythm" | "analytics")}
           />
           <ITText as="span" className="text-[10px] font-semibold text-slate-500">
-            {view === "live" ? "Datos en vivo · actualización automática" : "Histórico y analítica de seguridad"}
+            {view === "live"
+              ? "Datos en vivo · actualización automática"
+              : view === "rhythm"
+                ? "Tendencias de los últimos 7 días"
+                : "Histórico y analítica de seguridad"}
           </ITText>
         </ITFlex>
 
         {view === "live" ? (
           <ITGrid container columns={12} spacing={5}>
-            <ITGrid item xs={12} xl={9} className="min-w-0">
+            <ITGrid item xs={12} xl={8} className="min-w-0">
               <ITFlex direction="column" gap={5}>
                 <ITGrid container columns={12} spacing={3}>
                 <ITGrid item xs={12} md={6} xl={4}>
@@ -251,6 +473,7 @@ export const LiveOpsDashboard = () => {
                   title="Guardias en turno"
                   value={guardsOnShift}
                   hint={`${guardsOnRound} en ronda · ${guardsIdle} inactivos`}
+                  progress={guardProgress}
                   icon={<FaUserShield />}
                   tone="blue"
                   loading={isFirstLoad}
@@ -273,6 +496,7 @@ export const LiveOpsDashboard = () => {
                   title="Cobertura de rutas"
                   value={data ? `${data.kpis.routesCovered}/${data.kpis.routesTotal}` : undefined}
                   hint={data && data.uncoveredRoutes.length ? `${data.uncoveredRoutes.length} sin cubrir` : "Todas cubiertas"}
+                  progress={coverageProgress}
                   icon={<FaMapMarkedAlt />}
                   tone="mint"
                   loading={isFirstLoad}
@@ -303,23 +527,6 @@ export const LiveOpsDashboard = () => {
                 </ITGrid>
               </ITGrid>
 
-              <ITFlex align="center" justify="between" gap={2} wrap="wrap">
-                <ITSegmentedControl
-                  size="sm"
-                  options={[
-                    { value: "resumen", label: "Resumen" },
-                    { value: "ritmo", label: "Ritmo de la operación" },
-                  ]}
-                  value={monitorView}
-                  onChange={(value) => setMonitorView(value as "resumen" | "ritmo")}
-                />
-                <ITText as="span" className="text-[10px] font-semibold text-slate-500">
-                  {monitorView === "resumen" ? "Resumen operativo" : "Tendencias de los últimos 7 días"}
-                </ITText>
-              </ITFlex>
-
-              {monitorView === "resumen" ? (
-                <>
               {data?.insights ? <TodaySummary insights={data.insights} /> : <SummarySkeleton />}
 
               <ITCard title="Última ubicación conocida" className="rounded-3xl" contentClassName="space-y-3">
@@ -358,58 +565,17 @@ export const LiveOpsDashboard = () => {
                   </ITText>
                 </ITFlex>
               </ITCard>
-                </>
-              ) : (
-              <ITFlex direction="column" gap={3}>
-                <ITFlex align="end" justify="between" gap={2} wrap="wrap">
-                  <ITFlex direction="column" gap={1}>
-                    <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-primary-700">
-                      Últimos 7 días
-                    </ITText>
-                    <ITText as="h3" className="text-base font-extrabold tracking-tight text-slate-900">
-                      Ritmo de la operación
-                    </ITText>
-                    <ITText as="p" className="text-xs text-slate-500">
-                      Rondas, incidencias y horas de mayor actividad.
-                    </ITText>
-                  </ITFlex>
-                  <ITChip label="Actualizado en vivo" color="secondary" size="sm" variant="soft" />
-                </ITFlex>
-
-                {data?.insights ? (
-                  <ITGrid container columns={12} spacing={3}>
-                    <ITGrid item xs={12} xl={4}>
-                      <RoundsTrend insights={data.insights} />
-                    </ITGrid>
-                    <ITGrid item xs={12} xl={4}>
-                      <IncidentsByCategory insights={data.insights} />
-                    </ITGrid>
-                    <ITGrid item xs={12} xl={4}>
-                      <IncidentsByHour insights={data.insights} />
-                    </ITGrid>
-                  </ITGrid>
-                ) : (
-                  <ITGrid container columns={12} spacing={3}>
-                    <ITGrid item xs={12} xl={4}>
-                      <ITSkeleton variant="rectangular" height={220} />
-                    </ITGrid>
-                    <ITGrid item xs={12} xl={4}>
-                      <ITSkeleton variant="rectangular" height={220} />
-                    </ITGrid>
-                    <ITGrid item xs={12} xl={4}>
-                      <ITSkeleton variant="rectangular" height={220} />
-                    </ITGrid>
-                  </ITGrid>
-                )}
-              </ITFlex>
-              )}
             </ITFlex>
           </ITGrid>
 
-          <ITGrid item xs={12} xl={3} className="min-w-0 xl:sticky xl:top-4">
+          <ITGrid item xs={12} xl={4} className="min-w-0 xl:sticky xl:top-4">
             <LiveAside data={data} loading={loading} />
           </ITGrid>
         </ITGrid>
+        ) : view === "rhythm" ? (
+          <ITFlex className="w-full">
+            <RhythmSection />
+          </ITFlex>
         ) : (
           <ITFlex className="w-full min-w-0">
             <AnalyticsTab />

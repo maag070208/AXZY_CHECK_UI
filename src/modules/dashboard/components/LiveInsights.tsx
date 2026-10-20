@@ -70,8 +70,6 @@ export const TodaySummary = ({ insights }: { insights: ILiveInsights }) => {
         <ITStatCard
           label="Cumplimiento"
           value={compliance === null ? "—" : `${compliance}%`}
-          trend="completadas / iniciadas"
-          trendDirection="neutral"
           color="bg-slate-50 dark:bg-slate-900/40"
           className="h-full"
         />
@@ -80,8 +78,6 @@ export const TodaySummary = ({ insights }: { insights: ILiveInsights }) => {
         <ITStatCard
           label="Duración prom. ronda"
           value={formatMinutes(insights.avgRoundMinutes)}
-          trend="últimos 7 días"
-          trendDirection="neutral"
           color="bg-slate-50 dark:bg-slate-900/40"
           className="h-full"
         />
@@ -90,8 +86,6 @@ export const TodaySummary = ({ insights }: { insights: ILiveInsights }) => {
         <ITStatCard
           label="Tiempo de atención"
           value={formatMinutes(insights.avgResolutionMinutes)}
-          trend="incidencias, 7 días"
-          trendDirection="neutral"
           color="bg-slate-50 dark:bg-slate-900/40"
           className="h-full"
         />
@@ -102,7 +96,7 @@ export const TodaySummary = ({ insights }: { insights: ILiveInsights }) => {
 };
 
 /** Rondas iniciadas vs completadas de los últimos 7 días. */
-export const RoundsTrend = ({ insights }: { insights: ILiveInsights }) => {
+export const RoundsTrend = ({ insights, title = "Rondas — últimos 7 días", height = 180 }: { insights: Pick<ILiveInsights, "roundsByDay">; title?: string; height?: number }) => {
   const data = insights.roundsByDay.map((d) => ({
     label: dayjs(d.date).format("dd D"),
     bar: d.started,
@@ -110,28 +104,28 @@ export const RoundsTrend = ({ insights }: { insights: ILiveInsights }) => {
   }));
 
   return (
-    <ITCard title="Rondas — últimos 7 días" className="h-full rounded-3xl" contentClassName="space-y-3">
+    <ITCard title={title} className="h-full rounded-3xl" contentClassName="space-y-3">
       <ITLineBarChart
         data={data}
         ariaLabel="Rondas iniciadas y completadas en los últimos 7 días"
         barLabel="Iniciadas"
         lineLabel="Completadas"
-        barColor="#94a3b8"
-        lineColor="#10b981"
-        height={180}
+        barColor="#d9f99d"
+        lineColor="#065911"
+        height={height}
       />
     </ITCard>
   );
 };
 
-export const IncidentsByCategory = ({ insights }: { insights: ILiveInsights }) => {
+export const IncidentsByCategory = ({ insights, subtitle = "Últimos 7 días" }: { insights: Pick<ILiveInsights, "incidentsByCategory">; subtitle?: string }) => {
   const rows = insights.incidentsByCategory;
   const max = Math.max(1, ...rows.map((r) => r.count));
 
   return (
     <ITCard title="Incidencias por tipo" className="h-full rounded-3xl" contentClassName="space-y-3">
       <ITText as="p" className="text-[10px] font-semibold text-slate-400">
-        Últimos 7 días
+        {subtitle}
       </ITText>
       {rows.length === 0 ? (
         <ITEmptyState title="Sin incidencias en los últimos 7 días." />
@@ -156,7 +150,7 @@ export const IncidentsByCategory = ({ insights }: { insights: ILiveInsights }) =
   );
 };
 
-export const IncidentsByHour = ({ insights }: { insights: ILiveInsights }) => {
+export const IncidentsByHour = ({ insights, subtitle = "Top 6 horas · últimos 7 días" }: { insights: Pick<ILiveInsights, "incidentsByHour">; subtitle?: string }) => {
   const max = Math.max(1, ...insights.incidentsByHour.map((h) => h.count));
   const total = insights.incidentsByHour.reduce((a, h) => a + h.count, 0);
   const topHours = [...insights.incidentsByHour].sort((a, b) => b.count - a.count).slice(0, 6);
@@ -164,7 +158,7 @@ export const IncidentsByHour = ({ insights }: { insights: ILiveInsights }) => {
   return (
     <ITCard title="Incidencias por hora" className="h-full rounded-3xl" contentClassName="space-y-3">
       <ITText as="p" className="text-[10px] font-semibold text-slate-400">
-        Top 6 horas · últimos 7 días
+        {subtitle}
       </ITText>
       {total === 0 ? (
         <ITEmptyState title="Sin incidencias en los últimos 7 días." />

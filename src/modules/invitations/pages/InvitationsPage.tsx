@@ -125,7 +125,7 @@ const InvitationsPage = () => {
             key: "guestName", 
             label: "Invitado Destino", 
             type: "string", 
-            sortable: true,
+            sortable: false,
             render: (row: Invitation) => (
                 <ITFlex direction="column">
                     <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-0.5">

@@ -5,8 +5,8 @@ import {
   ITChip,
   ITEmptyState,
   ITFlex,
-  ITGrid,
   ITProgress,
+  ITSegmentedControl,
   ITSkeleton,
   ITStack,
   ITText,
@@ -59,13 +59,13 @@ const AlertItem = ({ alert }: { alert: ILiveAlert }) => {
   const high = alert.severity === "high";
   return (
     <ITCard
-      className={`rounded-2xl! border-l-4! ${high ? "border-l-red-400!" : "border-l-amber-400!"}`}
+      className={`rounded-2xl! ${high ? "bg-red-50! border-red-200!" : "bg-amber-50! border-amber-200!"}`}
       contentClassName="p-3!"
     >
       <ITFlex gap={2} className="flex gap-2">
         <ITFlex
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-            high ? "bg-red-50 text-red-500" : "bg-amber-50 text-amber-500"
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white ${
+            high ? "text-red-500" : "text-amber-500"
           }`}
         >
           <FaExclamationTriangle size={12} />
@@ -140,17 +140,36 @@ const RoundItem = ({ round, onClick }: { round: ILiveActiveRound; onClick: () =>
   );
 };
 
-const TIMELINE_STYLE: Record<ILiveTimelineEvent["type"], { icon: React.ReactNode; color: string }> = {
-  ROUND_STARTED: { icon: <FaPlay size={8} />, color: "bg-sky-100 text-sky-600" },
-  ROUND_COMPLETED: { icon: <FaCheckCircle size={10} />, color: "bg-emerald-100 text-emerald-600" },
-  INCIDENT_CREATED: { icon: <FaExclamationTriangle size={9} />, color: "bg-orange-100 text-orange-600" },
-  INCIDENT_ATTENDED: { icon: <FaTools size={9} />, color: "bg-indigo-100 text-indigo-600" },
+const TIMELINE_STYLE: Record<
+  ILiveTimelineEvent["type"],
+  { icon: React.ReactNode; color: string; row: string }
+> = {
+  ROUND_STARTED: {
+    icon: <FaPlay size={8} />,
+    color: "bg-sky-100 text-sky-600",
+    row: "bg-sky-50 border-sky-200",
+  },
+  ROUND_COMPLETED: {
+    icon: <FaCheckCircle size={10} />,
+    color: "bg-emerald-100 text-emerald-600",
+    row: "bg-emerald-50 border-emerald-200",
+  },
+  INCIDENT_CREATED: {
+    icon: <FaExclamationTriangle size={9} />,
+    color: "bg-orange-100 text-orange-600",
+    row: "bg-amber-50 border-amber-200",
+  },
+  INCIDENT_ATTENDED: {
+    icon: <FaTools size={9} />,
+    color: "bg-indigo-100 text-indigo-600",
+    row: "bg-indigo-50 border-indigo-200",
+  },
 };
 
 const TimelineItem = ({ event }: { event: ILiveTimelineEvent }) => {
   const style = TIMELINE_STYLE[event.type];
   return (
-    <ITFlex gap={2} className="flex gap-2">
+    <ITFlex gap={2} className={`rounded-xl border p-2.5 ${style.row}`}>
       <ITFlex className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${style.color}`}>
         {style.icon}
       </ITFlex>
@@ -190,43 +209,31 @@ export const LiveAside = ({ data, loading }: { data: ILiveDashboard | null; load
       className="h-auto w-full rounded-3xl xl:h-[calc(100vh-8.5rem)]"
       contentClassName="flex min-h-0 flex-1 flex-col gap-3 p-4!"
     >
-      <ITFlex align="center" justify="between" className="flex flex-wrap items-center justify-between gap-2">
-        <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-primary-700">
-          Sala de control
-        </ITText>
+      <ITFlex align="center" justify="between" gap={2} wrap="wrap">
+        <ITFlex direction="column">
+          <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-primary-700">
+            Sala de control
+          </ITText>
+          <ITText as="span" className="text-[10px] font-medium text-slate-400">
+            {alerts.length} alertas · {rounds.length} rondas
+          </ITText>
+        </ITFlex>
         <ITChip label="En vivo" color="success" size="sm" variant="soft" icon={<FaWifi size={10} />} />
       </ITFlex>
 
-      <ITGrid container columns={4} spacing={1} className="rounded-xl bg-slate-100 p-1">
-        {tabs.map((t) => {
-          const active = tab === t.id;
-          return (
-            <ITGrid key={t.id} item xs={1}>
-              <ITChip
-                size="sm"
-                selected={active}
-                color={active ? "primary" : "secondary"}
-                icon={t.icon}
-                onClick={() => setTab(t.id)}
-                className="w-full justify-center"
-              >
-                <ITFlex align="center" justify="center" gap={1} className="whitespace-nowrap">
-                  <ITText as="span" className="text-[10px] font-bold">
-                    {t.label}
-                  </ITText>
-                  {!!t.count && (
-                    <ITText as="span" className="text-[9px] font-black opacity-60">
-                      {t.count}
-                    </ITText>
-                  )}
-                </ITFlex>
-              </ITChip>
-            </ITGrid>
-          );
-        })}
-      </ITGrid>
+      <ITSegmentedControl
+        size="sm"
+        className="w-full [&>button]:flex-1 [&>button]:justify-center [&>button]:rounded-lg [&>button]:px-4! [&>button]:py-2! [&>button]:transition-colors [&>button]:hover:bg-slate-50!"
+        options={tabs.map((t) => ({
+          value: t.id,
+          label: t.label,
+          icon: t.icon,
+        }))}
+        value={tab}
+        onChange={(value) => setTab(value as TabId)}
+      />
 
-      <ITFlex direction="column" className="flex-1 min-h-0 overflow-y-auto pr-1">
+      <ITFlex direction="column" className="flex-1 min-h-0 overflow-y-auto pt-2 pr-1">
         {loading && !data ? (
           <ITStack spacing={2}>
             <ITSkeleton variant="rectangular" height={64} count={3} className="rounded-xl" />
@@ -276,7 +283,7 @@ export const LiveAside = ({ data, loading }: { data: ILiveDashboard | null; load
             </ITStack>
           )
         ) : (
-          <ITFlex className="flex-1 min-h-0">
+          <ITFlex direction="column" className="w-full flex-1 min-h-0">
             <ChatPanel variant="sidebar" />
           </ITFlex>
         )}
