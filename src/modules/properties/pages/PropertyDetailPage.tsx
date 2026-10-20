@@ -1,4 +1,5 @@
 import { ITButton, ITDialog, ITDataTable, ITBadget, ITLoader } from "@axzydev/axzy_ui_system";
+import { OccupancyPanel } from "../occupancy/OccupancyPanel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { 
     FaArrowLeft, 
@@ -237,7 +238,8 @@ const PropertyDetailPage = () => {
         'HABIT': { label: 'HABITADA', color: 'success' },
         'RENT': { label: 'EN RENTA', color: 'primary' }
     };
-    const statusKey = typeof property.status === 'object' ? property.status.name : property.status;
+    // typeof null === 'object': hay que comprobar null antes de leer .name.
+    const statusKey = property.status && typeof property.status === 'object' ? property.status.name : property.status;
     const status = (statusKey && statusMap[statusKey]) || { label: 'DESCONOCIDO', color: 'secondary' };
 
     return (
@@ -374,8 +376,9 @@ const PropertyDetailPage = () => {
                         </section>
                     </div>
 
-                    {/* Main Section: Residents Table */}
+                    {/* Main Section: Occupancy, then residents table */}
                     <div className="lg:col-span-2 space-y-8">
+                        <OccupancyPanel propertyId={property.id} onChanged={() => setRefreshKey((k) => k + 1)} />
                         <section className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
                             <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-gradient-to-r from-white to-slate-50/30">
                                 <div className="flex items-center gap-4">

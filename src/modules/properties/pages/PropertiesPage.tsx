@@ -7,12 +7,15 @@ import { FaBuilding, FaEdit, FaEye, FaHome, FaMapMarkedAlt, FaPlus, FaQrcode, Fa
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { PropertyForm } from "../components/PropertyForm";
+import { OccupancyDashboard } from "../occupancy/OccupancyDashboard";
+import { ImportPropertiesModal } from "../occupancy/ImportPropertiesModal";
 import { createProperty, deleteProperty, getPaginatedProperties, Property, updateProperty } from "../service/properties.service";
 
 const PropertiesPage = () => {
     const [refreshKey, setRefreshKey] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isImportOpen, setIsImportOpen] = useState(false);
     const [editingProperty, setEditingProperty] = useState<Property | null>(null);
     const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null);
 
@@ -275,6 +278,9 @@ const PropertiesPage = () => {
                         <FaSync className={`text-xs text-slate-500`} />
                         <span className="text-xs font-bold text-slate-500">Actualizar</span>
                     </ITButton>
+                    <ITButton variant="outlined" color="secondary" size="sm" onClick={() => setIsImportOpen(true)} className="h-[42px] !rounded-xl">
+                        Importar CSV
+                    </ITButton>
                     <button 
                         onClick={() => setIsCreateModalOpen(true)}
                         className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 h-[42px] rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:scale-105 transition-all"
@@ -286,6 +292,10 @@ const PropertiesPage = () => {
       }
     >
             
+
+            <div className="mb-6">
+                <OccupancyDashboard key={refreshKey} />
+            </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
@@ -305,6 +315,12 @@ const PropertiesPage = () => {
             </div>
 
             {/* Modals */}
+            <ImportPropertiesModal
+                isOpen={isImportOpen}
+                onClose={() => setIsImportOpen(false)}
+                onDone={() => setRefreshKey((prev) => prev + 1)}
+            />
+
             <ITDialog 
                 isOpen={isCreateModalOpen} 
                 onClose={() => setIsCreateModalOpen(false)} 
