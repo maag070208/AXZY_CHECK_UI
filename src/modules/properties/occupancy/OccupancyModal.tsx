@@ -1,4 +1,4 @@
-import { ITButton, ITDialog, ITInput, ITSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITFlex, ITInput, ITSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { changeOccupancy, createPerson, getOccupancyStatuses, OccupancyStatus, PersonLite, searchPersons } from "./occupancy.service";
 
@@ -90,8 +90,8 @@ export const OccupancyModal = ({ isOpen, propertyId, currentCode, onClose, onDon
 
   return (
     <ITDialog isOpen={isOpen} onClose={onClose} title="Cambiar ocupación" className="w-[640px] max-w-[95vw]">
-      <div className="space-y-4 p-2">
-        <p className="text-sm text-slate-500">Estado actual: <strong>{current?.name ?? "—"}</strong></p>
+      <ITFlex direction="column" className="space-y-4 p-2">
+        <ITText as="p" className="text-sm text-slate-500">Estado actual: <strong>{current?.name ?? "—"}</strong></ITText>
 
         <ITSelect
           name="target"
@@ -104,9 +104,9 @@ export const OccupancyModal = ({ isOpen, propertyId, currentCode, onClose, onDon
         />
 
         {(NEEDS_TENANT.includes(target) || target === "OWNER_OCCUPIED") && (
-          <div className="space-y-2">
+          <ITFlex direction="column" className="space-y-2">
             <ITInput name="personQuery" label={target === "RENTED" ? "Inquilino" : "Persona que habita"} placeholder="Buscar por nombre o teléfono" value={query} onChange={(e) => void search(e.target.value)} />
-            {tenant && <p className="text-sm text-emerald-700">Seleccionado: {tenant.firstName} {tenant.lastName ?? ""}</p>}
+            {tenant && <ITText as="p" className="text-sm text-emerald-700">Seleccionado: {tenant.firstName} {tenant.lastName ?? ""}</ITText>}
             {!tenant && results.map((p) => (
               <ITButton key={p.id} variant="ghost" onClick={() => setTenant(p)}>
                 {p.firstName} {p.lastName ?? ""} {p.phone ? `· ${p.phone}` : ""}
@@ -115,7 +115,7 @@ export const OccupancyModal = ({ isOpen, propertyId, currentCode, onClose, onDon
             {!tenant && query.trim().length >= 2 && results.length === 0 && (
               <ITButton variant="outlined" onClick={() => void createTenantFromQuery()}>Crear persona “{query.trim()}”</ITButton>
             )}
-          </div>
+          </ITFlex>
         )}
 
         <ITInput name="notes" label="Notas (opcional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -132,13 +132,13 @@ export const OccupancyModal = ({ isOpen, propertyId, currentCode, onClose, onDon
 
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
-        <div className="flex justify-end gap-2 pt-2">
+        <ITFlex justify="end" gap={2} className="flex justify-end gap-2 pt-2">
           <ITButton variant="outlined" onClick={onClose}>Cancelar</ITButton>
           <ITButton onClick={() => void submit()} disabled={saving || (needsRelease && !releaseConfirmed)}>
             {saving ? "Guardando…" : "Confirmar cambio"}
           </ITButton>
-        </div>
-      </div>
+        </ITFlex>
+      </ITFlex>
     </ITDialog>
   );
 };
