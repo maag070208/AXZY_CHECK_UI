@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Invitation } from "../services/invitations.service";
 import LOGO from "@assets/logo.svg";
-import { ITButton } from "@axzydev/axzy_ui_system";
+import { ITButton, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 
 interface Props {
   invitation: Invitation;
@@ -30,13 +30,13 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
   const validDate = new Date(invitation.validUntil).toLocaleDateString();
 
   return (
-    <div className="flex flex-col items-center justify-center w-full bg-slate-100 p-2 sm:p-4 overflow-y-auto">
+    <ITFlex direction="column" align="center" justify="center" className="flex flex-col items-center justify-center w-full bg-slate-100 p-2 sm:p-4 overflow-y-auto">
 
       {/* CARD */}
-      <div className="ticket w-full max-w-[320px] sm:max-w-[340px] h-auto bg-white rounded-3xl shadow-2xl border border-slate-200 print:shadow-none print:border-none print:max-w-none print:w-[380px] relative">
+      <ITFlex direction="column" className="ticket w-full max-w-[320px] sm:max-w-[340px] h-auto bg-white rounded-3xl shadow-2xl border border-slate-200 print:shadow-none print:border-none print:max-w-none print:w-[380px] relative">
 
         {/* HEADER */}
-        <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 text-white px-4 sm:px-5 py-4 flex flex-col items-center text-center relative rounded-t-3xl print:bg-emerald-600 print:text-white print:break-inside-avoid print:exact-color">
+        <ITFlex direction="column" align="center" className="bg-gradient-to-r from-emerald-600 to-emerald-500 text-white px-4 sm:px-5 py-4 flex flex-col items-center text-center relative rounded-t-3xl print:bg-emerald-600 print:text-white print:break-inside-avoid print:exact-color">
           
           <img
             src={LOGO}
@@ -44,80 +44,80 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
             className="h-10 sm:h-12 mb-1.5 brightness-0 invert"
           />
 
-          <h1 className="font-black tracking-wide text-base sm:text-lg uppercase">
+          <ITText as="h1" className="font-black tracking-wide text-base sm:text-lg uppercase">
             Pase de Acceso
-          </h1>
+          </ITText>
 
-          <p className="text-[9px] sm:text-[10px] tracking-widest opacity-90 mt-0.5">
+          <ITText as="p" className="text-[9px] sm:text-[10px] tracking-widest opacity-90 mt-0.5">
             CHECKAPP SECURITY
-          </p>
+          </ITText>
 
-          <div className="absolute right-3 sm:right-4 top-3 sm:top-4 text-[8px] sm:text-[9px] font-bold bg-white/20 px-2 py-1 rounded-md uppercase border border-white/20">
+          <ITFlex direction="column" className="absolute right-3 sm:right-4 top-3 sm:top-4 text-[8px] sm:text-[9px] font-bold bg-white/20 px-2 py-1 rounded-md uppercase border border-white/20">
             {invitation.type?.name === "PROV"
               ? "Proveedor"
               : "Visita"}
-          </div>
-        </div>
+          </ITFlex>
+        </ITFlex>
 
         {/* BODY */}
-        <div className="px-5 py-4 flex flex-col items-center">
+        <ITFlex direction="column" align="center" className="px-5 py-4 flex flex-col items-center">
 
           {/* QR */}
-          <div className="bg-white border-2 border-slate-100 shadow-inner rounded-2xl p-2 mb-3 print:shadow-none print:border-none print:mb-2 print:p-0">
+          <ITFlex direction="column" className="bg-white border-2 border-slate-100 shadow-inner rounded-2xl p-2 mb-3 print:shadow-none print:border-none print:mb-2 print:p-0">
             {qrUrl ? (
               <img src={qrUrl} alt="QR" className="w-36 h-36 sm:w-44 sm:h-44" />
             ) : (
-              <div className="w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center text-slate-400 text-xs">
+              <ITFlex align="center" justify="center" className="w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center text-slate-400 text-xs">
                 Generando QR...
-              </div>
+              </ITFlex>
             )}
-          </div>
+          </ITFlex>
 
           {/* CODE */}
-          <div className="font-mono font-black tracking-[4px] text-sm sm:text-base bg-slate-100 border border-slate-200 rounded-lg px-4 py-1.5 mb-3 print:bg-white print:border-none print:text-lg">
+          <ITFlex direction="column" className="font-mono font-black tracking-[4px] text-sm sm:text-base bg-slate-100 border border-slate-200 rounded-lg px-4 py-1.5 mb-3 print:bg-white print:border-none print:text-lg">
             {invitation.code}
-          </div>
+          </ITFlex>
 
           {/* INVITED */}
-          <div className="text-center mb-3 w-full">
-            <p className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">
+          <ITFlex direction="column" className="text-center mb-3 w-full">
+            <ITText as="p" className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">
               Invitado
-            </p>
-            <p className="text-base sm:text-lg font-black text-slate-800 break-words line-clamp-2 leading-tight">
+            </ITText>
+            <ITText as="p" className="text-base sm:text-lg font-black text-slate-800 break-words line-clamp-2 leading-tight">
               {invitation.guestName}
-            </p>
-          </div>
+            </ITText>
+          </ITFlex>
 
           {/* DESTINATION */}
-          <div className="text-center border-t border-dashed pt-3 w-full print:border-slate-300">
-            <p className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">
+          <ITFlex direction="column" className="text-center border-t border-dashed pt-3 w-full print:border-slate-300">
+            <ITText as="p" className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">
               Destino
-            </p>
+            </ITText>
 
-            <p className="font-bold text-slate-700 text-xs sm:text-sm leading-tight">
+            <ITText as="p" className="font-bold text-slate-700 text-xs sm:text-sm leading-tight">
               {invitation.property?.name || "Sin asignar"}
-            </p>
+            </ITText>
 
-            <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1">
+            <ITText as="p" className="text-[9px] sm:text-[10px] text-slate-500 mt-1">
               Autorizó: {invitation.createdBy?.name}{" "}
               {invitation.createdBy?.lastName}
-            </p>
-          </div>
+            </ITText>
+          </ITFlex>
 
           {/* VALID DATE */}
-          <div className="mt-4 sm:mt-5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[9px] sm:text-[10px] font-bold px-3 py-2 rounded-lg uppercase tracking-widest w-full text-center print:border-none print:bg-transparent print:text-slate-800">
+          <ITFlex direction="column" className="mt-4 sm:mt-5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[9px] sm:text-[10px] font-bold px-3 py-2 rounded-lg uppercase tracking-widest w-full text-center print:border-none print:bg-transparent print:text-slate-800">
             Válido hasta {validDate}
-          </div>
-        </div>
+          </ITFlex>
+        </ITFlex>
 
         {/* FOOTER */}
-        <div className="bg-slate-50 text-center text-[8px] sm:text-[9px] text-slate-500 py-2 border-t rounded-b-3xl print:bg-transparent print:border-none print:pt-0">
+        <ITFlex direction="column" className="bg-slate-50 text-center text-[8px] sm:text-[9px] text-slate-500 py-2 border-t rounded-b-3xl print:bg-transparent print:border-none print:pt-0">
           Presentar este código en caseta de seguridad
-        </div>
-      </div>
+        </ITFlex>
+      </ITFlex>
 
       {/* ACTIONS */}
-      <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 w-full max-w-[380px] print:hidden pb-4">
+      <ITFlex gap={3} className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 w-full max-w-[380px] print:hidden pb-4">
 
         <ITButton
           onClick={onClose}
@@ -136,7 +136,7 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
           Imprimir / Guardar PDF
         </ITButton>
 
-      </div>
+      </ITFlex>
 
       {/* PRINT STYLES */}
       <style>{`
@@ -186,6 +186,6 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
           }
         }
       `}</style>
-    </div>
+    </ITFlex>
   );
 };
