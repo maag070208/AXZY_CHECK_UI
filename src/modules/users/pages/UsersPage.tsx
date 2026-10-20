@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { ChangePasswordModal } from "../components/ChangePasswordModal";
 import { CreateUserWizard } from "../components/CreateUserWizard";
 import { deleteUser, getPaginatedUsers, User } from "../services/UserService";
+import { getRoleFilterOptions } from "../utils/role.utils";
 
 const UsersPage = () => {
     const dispatch = useDispatch();
@@ -15,6 +16,7 @@ const UsersPage = () => {
     
     // Catalog for roles filter
     const { data: rolesCatalog, loading: loadingRoles } = useCatalog('role');
+    const roleFilterOptions = useMemo(() => getRoleFilterOptions(rolesCatalog), [rolesCatalog]);
 
     // Modal States
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -145,7 +147,7 @@ const UsersPage = () => {
                             type: "string",
                             filter: "catalog",
                             catalogOptions: {
-                                data: rolesCatalog,
+                                data: roleFilterOptions,
                                 loading: loadingRoles
                             },
                             render: (row: User) => {

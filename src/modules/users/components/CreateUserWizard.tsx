@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { getSchedules, Schedule } from "../../schedules/SchedulesService";
 import { createUser, updateUser, User } from "../services/UserService";
+import { getVisibleRoles } from "../utils/role.utils";
 
 interface Props {
   userToEdit?: User;
@@ -43,13 +44,14 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const { data: roles } = useCatalog("role");
+  const visibleRoles = useMemo(() => getVisibleRoles(roles), [roles]);
 
   useEffect(() => {
     getSchedules().then(setSchedules);
   }, []);
 
   const isOperationalRoleId = (roleId: string) => {
-    const role = roles.find((r) => String(r.id) === roleId);
+    const role = visibleRoles.find((r) => String(r.id) === roleId);
     return !!role && OPERATIONAL_ROLES.includes(role.name);
   };
 
@@ -107,7 +109,10 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
     },
   });
 
-  const needsSchedule = useMemo(() => isOperationalRoleId(formik.values.roleId), [roles, formik.values.roleId]);
+  const needsSchedule = useMemo(() => {
+    const role = visibleRoles.find((r) => String(r.id) === formik.values.roleId);
+    return !!role && OPERATIONAL_ROLES.includes(role.name);
+  }, [visibleRoles, formik.values.roleId]);
   const scheduleOptions = useMemo(
     () => schedules.map((s) => ({ label: `${s.name} (${s.startTime} - ${s.endTime})`, value: String(s.id) })),
     [schedules],
@@ -149,7 +154,7 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
           <div className="mb-4">
             <p className="text-sm font-medium text-slate-700 mb-2">Rol</p>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Rol">
-              {roles.map((r) => {
+              {visibleRoles.map((r) => {
                 const on = String(r.id) === formik.values.roleId;
                 return (
                   <button

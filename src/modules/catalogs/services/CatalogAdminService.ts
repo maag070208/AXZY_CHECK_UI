@@ -26,8 +26,14 @@ export interface CatalogType {
 
 // Categories --------------------------------------------------------------
 
-export const getCategories = async (type: CatalogAdminType): Promise<TResult<CatalogCategory[]>> => {
-  return await get<CatalogCategory[]>(`/catalog-admin/categories?type=${type}`);
+/**
+ * Lists every category. When `type` is omitted the API returns the three
+ * catalogs (INCIDENT, MAINTENANCE, CASA_CLUB) in a single request, which lets
+ * the screen switch tabs instantly and show accurate counters.
+ */
+export const getCategories = async (type?: CatalogAdminType): Promise<TResult<CatalogCategory[]>> => {
+  const query = type ? `?type=${type}` : "";
+  return await get<CatalogCategory[]>(`/catalog-admin/categories${query}`);
 };
 
 export const createCategory = async (data: {
@@ -49,6 +55,11 @@ export const updateCategory = async (
 
 export const deleteCategory = async (id: number): Promise<TResult<any>> => {
   return await remove<any>(`/catalog-admin/categories/${id}`);
+};
+
+/** Reassigns category order following the position of each id in the array. */
+export const reorderCategories = async (ids: number[]): Promise<TResult<boolean>> => {
+  return await put<boolean>("/catalog-admin/categories/reorder", { ids });
 };
 
 // Types ---------------------------------------------------------------------
@@ -74,4 +85,9 @@ export const updateType = async (
 
 export const deleteType = async (id: number): Promise<TResult<any>> => {
   return await remove<any>(`/catalog-admin/types/${id}`);
+};
+
+/** Reassigns the order of the types that belong to a category. */
+export const reorderTypes = async (ids: number[]): Promise<TResult<boolean>> => {
+  return await put<boolean>("/catalog-admin/types/reorder", { ids });
 };

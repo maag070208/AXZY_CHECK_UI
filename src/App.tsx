@@ -33,6 +33,7 @@ import ShiftHandoverPage from "./modules/shift-handover/pages/ShiftHandoverPage"
 import NewShiftHandoverPage from "./modules/shift-handover/pages/NewShiftHandoverPage";
 import UniformPage from "./modules/uniform/pages/UniformPage";
 import NewUniformCheckPage from "./modules/uniform/pages/NewUniformCheckPage";
+import LandingPage from "./modules/landing/pages/LandingPage";
 
 
 function App() {
@@ -73,6 +74,8 @@ function App() {
   if (!token) {
     return (
       <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<Navigate to="/login" />} />
@@ -82,6 +85,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/landing" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<HomePage />} />
