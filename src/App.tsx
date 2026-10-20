@@ -52,7 +52,7 @@ function App() {
 
   if (!isAppReady) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+      <div className="flex h-screen items-center justify-center">
         <ITLoader size="lg" />
       </div>
     );

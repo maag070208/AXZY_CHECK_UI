@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ITButton } from '@axzydev/axzy_ui_system';
+import { ITButton, ITDialog } from '@axzydev/axzy_ui_system';
 import {
     FaChevronLeft,
     FaChevronRight,
@@ -91,8 +91,8 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
 
     const currentItem = media[currentIndex];
 
-    return (
-        <div 
+    const viewer = (
+        <div
             ref={containerRef}
             className={`
                 flex flex-col overflow-hidden transition-all duration-500 ease-in-out font-sans group
@@ -242,5 +242,12 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
         </div>
+    );
+
+    if (!isFullscreen) return viewer;
+    return (
+        <ITDialog isOpen fullScreen onClose={toggleFullscreen}>
+            {viewer}
+        </ITDialog>
     );
 };

@@ -413,167 +413,140 @@ const ClubPage = () => {
       </div>
 
     {viewingClub && (
-      <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 pt-12 sm:pt-20">
-        <div
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
-          onClick={() => setViewingClub(null)}
-        />
-
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-100 animate-in fade-in zoom-in duration-200">
-
-          <div className="px-8 py-6 flex justify-between items-center bg-white border-b border-slate-100 z-10">
-            <div>
-               <div className="flex items-center gap-3 mb-1">
-                  <h3 className="text-2xl font-bold text-slate-800">Detalle de Reporte</h3>
-                  <ITBadget
-                      color={viewingClub.status === 'ATTENDED' ? 'success' : 'danger'}
-                      size="sm"
-                  >
-                      {viewingClub.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}
-                  </ITBadget>
-               </div>
-               <p className="text-sm text-slate-500">Reportado el {dayjs(viewingClub.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
-            </div>
-            <button
-              onClick={() => setViewingClub(null)}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-all"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-
-          <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-              <div className="lg:col-span-8 space-y-8">
-                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                    <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                        <span className="w-1 h-4 bg-sky-400 rounded-full block"></span>
-                        {viewingClub.title}
-                    </h4>
-                    <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
-                        {viewingClub.description || "Sin descripción detallada."}
-                    </p>
-                 </div>
-
-                <section>
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <span className="w-1 h-4 bg-indigo-500 rounded-full block"></span>
-                        Evidencia
-                    </h4>
-                    {viewingClub.media && viewingClub.media.length > 0 &&
-                        <span className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
-                            {viewingClub.media.length} archivos
-                        </span>
-                    }
-                  </div>
-
-                  {viewingClub.media && viewingClub.media.length > 0 ? (
-                    <MediaCarousel
-                        media={viewingClub.media}
-                        title={viewingClub.title}
-                        showDelete={isAdmin}
-                        onDelete={handleDeleteMedia}
-                    />
-                  ) : (
-                    <div className="py-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
-                      <FaFileAlt className="text-slate-300 mb-2" />
-                      <p className="text-sm font-medium text-slate-400">Sin evidencia adjunta</p>
+      <ITDialog isOpen onClose={() => setViewingClub(null)} title="Detalle de Reporte" className="max-w-4xl">
+        <p className="text-sm text-slate-500 mb-4">Reportado el {dayjs(viewingClub.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
+  
+            <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+  
+                <div className="lg:col-span-8 space-y-8">
+                   <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                      <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                          <span className="w-1 h-4 bg-sky-400 rounded-full block"></span>
+                          {viewingClub.title}
+                      </h4>
+                      <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
+                          {viewingClub.description || "Sin descripción detallada."}
+                      </p>
+                   </div>
+  
+                  <section>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                          <span className="w-1 h-4 bg-indigo-500 rounded-full block"></span>
+                          Evidencia
+                      </h4>
+                      {viewingClub.media && viewingClub.media.length > 0 &&
+                          <span className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
+                              {viewingClub.media.length} archivos
+                          </span>
+                      }
                     </div>
+  
+                    {viewingClub.media && viewingClub.media.length > 0 ? (
+                      <MediaCarousel
+                          media={viewingClub.media}
+                          title={viewingClub.title}
+                          showDelete={isAdmin}
+                          onDelete={handleDeleteMedia}
+                      />
+                    ) : (
+                      <div className="py-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
+                        <FaFileAlt className="text-slate-300 mb-2" />
+                        <p className="text-sm font-medium text-slate-400">Sin evidencia adjunta</p>
+                      </div>
+                    )}
+                  </section>
+  
+                  {viewingClub.latitude && viewingClub.longitude && (
+                     <section>
+                       <div className="flex items-center justify-between mb-4">
+                         <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                             <span className="w-1 h-4 bg-emerald-500 rounded-full block"></span>
+                             Ubicación Reportada
+                         </h4>
+                       </div>
+                       <GoogleMapComponent
+                           lat={viewingClub.latitude}
+                           lng={viewingClub.longitude}
+                           height="300px"
+                       />
+                     </section>
                   )}
-                </section>
-
-                {viewingClub.latitude && viewingClub.longitude && (
-                   <section>
-                     <div className="flex items-center justify-between mb-4">
-                       <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                           <span className="w-1 h-4 bg-emerald-500 rounded-full block"></span>
-                           Ubicación Reportada
-                       </h4>
-                     </div>
-                     <GoogleMapComponent
-                         lat={viewingClub.latitude}
-                         lng={viewingClub.longitude}
-                         height="300px"
-                     />
-                   </section>
-                )}
+                </div>
+  
+                <div className="lg:col-span-4 space-y-6">
+                   <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                      <h5 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</h5>
+  
+                      <div className="space-y-4">
+                          <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500">
+                                  <FaUserShield />
+                              </div>
+                              <div>
+                                  <p className="text-xs text-slate-400 font-medium">Reportado por</p>
+                                  <p className="text-sm font-bold text-slate-800">{viewingClub.guard?.name} {viewingClub.guard?.lastName}</p>
+                                  <p className="text-xs text-slate-500">@{viewingClub.guard?.username}</p>
+                              </div>
+                          </div>
+  
+                          <div className="w-full h-px bg-slate-50"></div>
+  
+                          <div className="flex items-start gap-4">
+                               <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-500">
+                                  <FaGlassCheers />
+                              </div>
+                              <div>
+                                  <p className="text-xs text-slate-400 font-medium">Categoría y Tipo</p>
+                                  <p className="text-sm font-bold text-slate-800">
+                                      {viewingClub.category?.value || 'General'}
+                                  </p>
+                                  {viewingClub.type && (
+                                      <p className="text-xs text-slate-500">{viewingClub.type.value}</p>
+                                  )}
+                              </div>
+                          </div>
+  
+                          {viewingClub.status === 'ATTENDED' && viewingClub.resolvedBy && (
+                              <>
+                                  <div className="w-full h-px bg-slate-50"></div>
+                                  <div className="flex items-start gap-4">
+                                      <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 text-emerald-500">
+                                          <FaCheckCircle />
+                                      </div>
+                                      <div>
+                                          <p className="text-xs text-slate-400 font-medium">Atendido por</p>
+                                          <p className="text-sm font-bold text-slate-800">{viewingClub.resolvedBy.name}</p>
+                                          <p className="text-xs text-slate-500">
+                                              {dayjs(viewingClub.resolvedAt).format("DD/MM/YYYY HH:mm")}
+                                          </p>
+                                      </div>
+                                  </div>
+                              </>
+                          )}
+                      </div>
+                   </div>
+  
+                   {viewingClub.status === 'PENDING' && (
+                       <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                          <h5 className="text-xs font-bold text-orange-800 mb-2">Acciones Pendientes</h5>
+                          <p className="text-xs text-orange-700 mb-3">Este reporte requiere atención inmediata.</p>
+                          <ITButton
+                              onClick={() => handleResolve(viewingClub.id)}
+                              variant='filled'
+                              color="success"
+                              className="w-full justify-center"
+                          >
+                              Marcar como Atendido
+                          </ITButton>
+                       </div>
+                   )}
+                </div>
+  
               </div>
-
-              <div className="lg:col-span-4 space-y-6">
-                 <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                    <h5 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</h5>
-
-                    <div className="space-y-4">
-                        <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500">
-                                <FaUserShield />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-400 font-medium">Reportado por</p>
-                                <p className="text-sm font-bold text-slate-800">{viewingClub.guard?.name} {viewingClub.guard?.lastName}</p>
-                                <p className="text-xs text-slate-500">@{viewingClub.guard?.username}</p>
-                            </div>
-                        </div>
-
-                        <div className="w-full h-px bg-slate-50"></div>
-
-                        <div className="flex items-start gap-4">
-                             <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-500">
-                                <FaGlassCheers />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-400 font-medium">Categoría y Tipo</p>
-                                <p className="text-sm font-bold text-slate-800">
-                                    {viewingClub.category?.value || 'General'}
-                                </p>
-                                {viewingClub.type && (
-                                    <p className="text-xs text-slate-500">{viewingClub.type.value}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {viewingClub.status === 'ATTENDED' && viewingClub.resolvedBy && (
-                            <>
-                                <div className="w-full h-px bg-slate-50"></div>
-                                <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 text-emerald-500">
-                                        <FaCheckCircle />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-400 font-medium">Atendido por</p>
-                                        <p className="text-sm font-bold text-slate-800">{viewingClub.resolvedBy.name}</p>
-                                        <p className="text-xs text-slate-500">
-                                            {dayjs(viewingClub.resolvedAt).format("DD/MM/YYYY HH:mm")}
-                                        </p>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                 </div>
-
-                 {viewingClub.status === 'PENDING' && (
-                     <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                        <h5 className="text-xs font-bold text-orange-800 mb-2">Acciones Pendientes</h5>
-                        <p className="text-xs text-orange-700 mb-3">Este reporte requiere atención inmediata.</p>
-                        <ITButton
-                            onClick={() => handleResolve(viewingClub.id)}
-                            variant='filled'
-                            color="success"
-                            className="w-full justify-center"
-                        >
-                            Marcar como Atendido
-                        </ITButton>
-                     </div>
-                 )}
-              </div>
-
             </div>
-          </div>
-        </div>
-      </div>
+      </ITDialog>
     )}
 
       <ITDialog
