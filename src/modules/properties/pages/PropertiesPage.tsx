@@ -120,7 +120,7 @@ const PropertiesPage = () => {
                 </html>
             `);
             printWindow.document.close();
-        } catch (e) {
+        } catch {
             dispatch(showToast({ message: "Error al generar QR", type: "error" }));
         }
     };

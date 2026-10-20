@@ -87,7 +87,7 @@ const PropertyDetailPage = () => {
             } else {
                 dispatch(showToast({ message: res.messages?.[0] || "Error al actualizar", type: "error" }));
             }
-        } catch (error: any) {
+        } catch {
             dispatch(showToast({ message: "Error al actualizar propiedad", type: "error" }));
         }
     };
@@ -129,7 +129,7 @@ const PropertyDetailPage = () => {
                 </html>
             `);
             printWindow.document.close();
-        } catch (e) {
+        } catch {
             dispatch(showToast({ message: "Error al generar QR", type: "error" }));
         }
     };

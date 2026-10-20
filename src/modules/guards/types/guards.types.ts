@@ -1,8 +1,7 @@
 import { User } from "../../users/services/UserService";
 
-export interface Guard extends User {
-  // Guard specific fields if any, otherwise it uses User fields
-}
+// Un guardia usa los campos de User; si necesita campos propios, se agregan aquí.
+export type Guard = User;
 
 export enum AssignmentStatus {
     PENDING = "PENDING",

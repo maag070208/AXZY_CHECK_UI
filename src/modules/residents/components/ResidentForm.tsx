@@ -89,7 +89,7 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
             } else {
                 dispatch(showToast({ message: "Error al subir imagen", type: "error" }));
             }
-        } catch (err) {
+        } catch {
             dispatch(showToast({ message: "Error de red al subir imagen", type: "error" }));
         } finally {
             if (side === 'front') setUploadingFront(false);

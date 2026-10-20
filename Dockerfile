@@ -3,15 +3,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package definition
-COPY package.json yarn.lock ./
-
-# Copy local dependencies
-# Note: Ensure this version matches your package.json exactly
-COPY axzy_ui_system-v1.0.155.tgz ./
+# Copy package definition (pnpm es el único gestor del proyecto)
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile
+RUN corepack enable && pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -24,7 +20,7 @@ ENV VITE_BASE_URL=$VITE_BASE_URL
 ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
 
 # Build for production
-RUN yarn build:prod
+RUN pnpm run build:prod
 
 # Production Stage
 FROM nginx:alpine

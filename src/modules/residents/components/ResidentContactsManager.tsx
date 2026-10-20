@@ -65,7 +65,7 @@ const ResidentContactForm = ({ initialData, residentId, onSubmitSuccess, onCance
                     }));
                     onSubmitSuccess();
                 }
-            } catch (error) {
+            } catch {
                 dispatch(showToast({ message: "Error al guardar contacto", type: "error" }));
             }
         }
@@ -181,7 +181,7 @@ export const ResidentContactsManager = ({
         dispatch(showToast({ message: "Contacto eliminado", type: "success" }));
         fetchContacts();
       }
-    } catch (error) {
+    } catch {
       dispatch(
         showToast({ message: "Error al eliminar contacto", type: "error" }),
       );

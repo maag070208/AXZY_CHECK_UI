@@ -94,7 +94,7 @@ const InvitationsPage = () => {
             } else {
                 dispatch(showToast({ message: res.messages?.[0] || "Error", type: "error" }));
             }
-        } catch (error: any) {
+        } catch {
             dispatch(showToast({ message: "Error de red", type: "error" }));
         }
     };

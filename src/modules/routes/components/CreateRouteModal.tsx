@@ -169,7 +169,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
         setLoading(true);
         try {
             const payload = { title, locations: addedLocations, guardIds: selectedGuards };
-            let res = editConfig ? await updateRoute(editConfig.id, payload) : await createRoute(payload);
+            const res = editConfig ? await updateRoute(editConfig.id, payload) : await createRoute(payload);
             if (res.success) {
                 dispatch(showToast({ message: "Guardado correctamente", type: "success" }));
                 onSuccess();
@@ -177,7 +177,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
             } else {
                 dispatch(showToast({ message: "Error al guardar: " + (res.messages?.join(", ") || ""), type: "error" }));
             }
-        } catch (e) {
+        } catch {
             dispatch(showToast({ message: "Error de conexión", type: "error" }));
         } finally {
             setLoading(false);

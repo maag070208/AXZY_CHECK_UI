@@ -142,7 +142,7 @@ const RoundsPage = () => {
           }),
         );
       }
-    } catch (e) {
+    } catch {
       setRoundToFinishId(null);
       dispatch(
         showToast({ message: "Error al finalizar ronda", type: "error" }),
