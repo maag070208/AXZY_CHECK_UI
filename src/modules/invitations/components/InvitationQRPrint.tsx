@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Invitation } from "../services/invitations.service";
 import LOGO from "@assets/logo.svg";
+import { ITButton } from "@axzydev/axzy_ui_system";
 
 interface Props {
   invitation: Invitation;
@@ -118,19 +119,22 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
       {/* ACTIONS */}
       <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 w-full max-w-[380px] print:hidden pb-4">
 
-        <button
+        <ITButton
           onClick={onClose}
-          className="px-6 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 font-semibold w-full sm:w-auto"
+          variant="outlined"
+          color="secondary"
+          className="w-full sm:w-auto !rounded-xl !px-6 !py-3"
         >
           Cerrar
-        </button>
+        </ITButton>
 
-        <button
+        <ITButton
           onClick={handlePrint}
-          className="px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-200 w-full sm:w-auto flex-1 flex justify-center"
+          color="primary"
+          className="w-full sm:w-auto flex-1 !rounded-xl !px-6 !py-3"
         >
           Imprimir / Guardar PDF
-        </button>
+        </ITButton>
 
       </div>
 
