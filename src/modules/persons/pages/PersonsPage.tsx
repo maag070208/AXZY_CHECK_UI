@@ -47,6 +47,9 @@ export const PersonsPage = () => {
         <h1 className="text-2xl font-bold text-slate-800">Personas</h1>
         <ITButton onClick={() => setCreating(true)}>Nueva persona</ITButton>
       </div>
+      <p className="text-sm text-slate-500 -mt-4">
+        Personas del residencial: titulares, inquilinos, residentes y visitas. Busca una para ver su ficha o crea una nueva.
+      </p>
 
       <ITInput name="q" label="Buscar por nombre o teléfono" value={q} onChange={(e) => setQ(e.target.value)} />
 
@@ -59,7 +62,11 @@ export const PersonsPage = () => {
             </button>
           </li>
         ))}
-        {rows.length === 0 && <li className="px-6 py-4 text-slate-400">Sin resultados</li>}
+        {rows.length === 0 && (
+          <li className="px-6 py-4 text-slate-400">
+            {q.trim() ? `No hay personas con "${q.trim()}".` : "Escribe un nombre o teléfono para buscar."}
+          </li>
+        )}
       </ul>
 
       <ITDialog isOpen={creating} onClose={() => { setCreating(false); setDuplicates([]); setError(null); }} title="Nueva persona" className="w-[560px] max-w-[95vw]">
