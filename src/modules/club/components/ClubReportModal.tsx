@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITDatePicker, ITDialog, ITLoader, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDatePicker, ITDialog, ITFlex, ITLoader, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { AppState } from "@app/core/store/store";
 import dayjs from "dayjs";
@@ -226,10 +226,10 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
     const modalContent = (
         <>
             <ITDialog isOpen={isOpen} onClose={handleClose} title="Generar Reporte de Casa Club" className="max-w-4xl max-h-[90vh] flex flex-col">
-                <p className="text-xs text-slate-500 mb-4">Configura el rango y selecciona los reportes a incluir.</p>
-                    <div className="p-6 overflow-y-auto flex-1 bg-slate-50/30">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
+                <ITText as="p" className="text-xs text-slate-500 mb-4">Configura el rango y selecciona los reportes a incluir.</ITText>
+                    <ITFlex direction="column" className="p-6 overflow-y-auto flex-1 bg-slate-50/30">
+                        <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <ITFlex direction="column">
                                 <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
                                     <FaCalendarAlt className="text-sky-500" /> Rango de fechas
                                 </label>
@@ -251,8 +251,8 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                     }}
                                     className="text-sm text-slate-600 outline-none font-medium h-[42px] !border-slate-200"
                                 />
-                            </div>
-                            <div>
+                            </ITFlex>
+                            <ITFlex direction="column">
                                 <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
                                     <FaFilter className="text-sky-500" /> Estado
                                 </label>
@@ -266,10 +266,10 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                         { value: "ATTENDED", label: "Solo atendidos" },
                                     ]}
                                 />
-                            </div>
-                        </div>
+                            </ITFlex>
+                        </ITFlex>
     
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                        <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                             <label
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all ${
                                     includeImages
@@ -284,10 +284,10 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                     onChange={(e) => setIncludeImages(e.target.checked)}
                                 />
                                 <FaFileImage className={`text-sm ${includeImages ? "text-sky-600" : "text-slate-400"}`} />
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold leading-tight">Adjuntar imágenes</p>
-                                    <p className="text-[11px] opacity-75">Incluye la evidencia fotográfica y de video de cada reporte.</p>
-                                </div>
+                                <ITFlex direction="column" className="flex-1">
+                                    <ITText as="p" className="text-sm font-bold leading-tight">Adjuntar imágenes</ITText>
+                                    <ITText as="p" className="text-[11px] opacity-75">Incluye la evidencia fotográfica y de video de cada reporte.</ITText>
+                                </ITFlex>
                             </label>
                             <label
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all ${
@@ -303,26 +303,26 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                     onChange={(e) => setIncludeLocation(e.target.checked)}
                                 />
                                 <FaMapMarkerAlt className={`text-sm ${includeLocation ? "text-sky-600" : "text-slate-400"}`} />
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold leading-tight">Adjuntar ubicación</p>
-                                    <p className="text-[11px] opacity-75">Incluye coordenadas GPS y enlace a Google Maps.</p>
-                                </div>
+                                <ITFlex direction="column" className="flex-1">
+                                    <ITText as="p" className="text-sm font-bold leading-tight">Adjuntar ubicación</ITText>
+                                    <ITText as="p" className="text-[11px] opacity-75">Incluye coordenadas GPS y enlace a Google Maps.</ITText>
+                                </ITFlex>
                             </label>
-                        </div>
+                        </ITFlex>
     
-                        <div className="flex flex-wrap items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 mb-3">
-                            <div className="text-sm text-slate-600">
-                                <span className="font-bold text-slate-800">{selectedIds.size}</span>
+                        <ITFlex align="center" gap={3} className="flex flex-wrap items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 mb-3">
+                            <ITFlex direction="column" className="text-sm text-slate-600">
+                                <ITText as="span" className="font-bold text-slate-800">{selectedIds.size}</ITText>
                                 {" "}de{" "}
-                                <span className="font-bold text-slate-800">{filteredClubs.length}</span>
+                                <ITText as="span" className="font-bold text-slate-800">{filteredClubs.length}</ITText>
                                 {" "}seleccionado{selectedIds.size === 1 ? "" : "s"}
-                                <span className="text-slate-400 ml-2">
+                                <ITText as="span" className="text-slate-400 ml-2">
                                     {startDate && endDate
                                         ? `(${dayjs(startDate).format("DD/MM/YYYY")} — ${dayjs(endDate).format("DD/MM/YYYY")})`
                                         : "(selecciona un rango)"}
-                                </span>
-                            </div>
-                            <div className="ml-auto flex items-center gap-2">
+                                </ITText>
+                            </ITFlex>
+                            <ITFlex align="center" gap={2} className="ml-auto flex items-center gap-2">
                                 <button
                                     type="button"
                                     onClick={toggleAllFiltered}
@@ -341,21 +341,21 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                         <FaTimes size={10} /> Limpiar
                                     </button>
                                 )}
-                            </div>
-                        </div>
+                            </ITFlex>
+                        </ITFlex>
     
-                        <div className="border border-slate-100 rounded-xl overflow-hidden">
-                            <div className="max-h-[320px] overflow-y-auto bg-white">
+                        <ITFlex direction="column" className="border border-slate-100 rounded-xl overflow-hidden">
+                            <ITFlex direction="column" className="max-h-[320px] overflow-y-auto bg-white">
                                 {loading ? (
-                                    <div className="flex items-center justify-center py-16 text-slate-400 gap-3">
+                                    <ITFlex align="center" justify="center" gap={3} className="flex items-center justify-center py-16 text-slate-400 gap-3">
                                         <ITLoader size="sm" />
-                                        <span className="text-sm">Cargando reportes del rango...</span>
-                                    </div>
+                                        <ITText as="span" className="text-sm">Cargando reportes del rango...</ITText>
+                                    </ITFlex>
                                 ) : filteredClubs.length === 0 ? (
-                                    <div className="py-16 text-center text-slate-400">
+                                    <ITFlex direction="column" className="py-16 text-center text-slate-400">
                                         <FaExclamationTriangle className="mx-auto mb-2 text-slate-300" />
-                                        <p className="text-sm font-medium">No se encontraron reportes en el rango seleccionado.</p>
-                                    </div>
+                                        <ITText as="p" className="text-sm font-medium">No se encontraron reportes en el rango seleccionado.</ITText>
+                                    </ITFlex>
                                 ) : (
                                     <ul className="divide-y divide-slate-100">
                                         {filteredClubs.map((club) => {
@@ -379,10 +379,10 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                                     >
                                                         {checked ? <FaCheckSquare size={18} /> : <FaSquare size={18} className="text-slate-300" />}
                                                     </button>
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 flex-wrap">
-                                                            <span className="text-[10px] font-bold text-slate-400">#{club.id}</span>
-                                                            <p className="font-bold text-slate-800 text-sm line-clamp-1">{club.title}</p>
+                                                    <ITFlex direction="column" className="flex-1 min-w-0">
+                                                        <ITFlex align="center" gap={2} className="flex items-center gap-2 flex-wrap">
+                                                            <ITText as="span" className="text-[10px] font-bold text-slate-400">#{club.id}</ITText>
+                                                            <ITText as="p" className="font-bold text-slate-800 text-sm line-clamp-1">{club.title}</ITText>
                                                             <ITBadget
                                                                 color={club.status === 'ATTENDED' ? 'success' : 'danger'}
                                                                 size="sm"
@@ -390,42 +390,42 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                                             >
                                                                 {club.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}
                                                             </ITBadget>
-                                                        </div>
-                                                        <div className="flex items-center gap-3 mt-1 text-[11px] text-slate-500 flex-wrap">
-                                                            <span className="font-semibold">
+                                                        </ITFlex>
+                                                        <ITFlex align="center" gap={3} className="flex items-center gap-3 mt-1 text-[11px] text-slate-500 flex-wrap">
+                                                            <ITText as="span" className="font-semibold">
                                                                 {club.category?.value ?? "General"}
                                                                 {club.type ? ` · ${club.type.value}` : ""}
-                                                            </span>
-                                                            <span>{dayjs(club.createdAt).format("DD/MM/YYYY HH:mm")}</span>
-                                                            <span>
+                                                            </ITText>
+                                                            <ITText as="span">{dayjs(club.createdAt).format("DD/MM/YYYY HH:mm")}</ITText>
+                                                            <ITText as="span">
                                                                 Por: {club.guard?.name} {club.guard?.lastName ?? ""}
-                                                            </span>
+                                                            </ITText>
                                                             {club.media && club.media.length > 0 && (
-                                                                <span className="flex items-center gap-1 text-blue-500">
+                                                                <ITText as="span" className="flex items-center gap-1 text-blue-500">
                                                                     <FaFileAlt /> {club.media.length}
-                                                                </span>
+                                                                </ITText>
                                                             )}
                                                             {club.latitude && club.longitude && (
-                                                                <span className="flex items-center gap-1 text-emerald-500">
+                                                                <ITText as="span" className="flex items-center gap-1 text-emerald-500">
                                                                     <FaMapMarkerAlt /> GPS
-                                                                </span>
+                                                                </ITText>
                                                             )}
-                                                        </div>
-                                                    </div>
+                                                        </ITFlex>
+                                                    </ITFlex>
                                                 </li>
                                             );
                                         })}
                                     </ul>
                                 )}
-                            </div>
-                        </div>
-                    </div>
+                            </ITFlex>
+                        </ITFlex>
+                    </ITFlex>
     
-                    <div className="px-6 py-4 border-t border-slate-100 bg-white rounded-b-2xl flex justify-between items-center gap-3">
-                        <p className="text-[11px] text-slate-400">
+                    <ITFlex align="center" justify="between" gap={3} className="px-6 py-4 border-t border-slate-100 bg-white rounded-b-2xl flex justify-between items-center gap-3">
+                        <ITText as="p" className="text-[11px] text-slate-400">
                             {isAdmin ? "Generarás el reporte con permisos de administrador." : "El reporte se genera con los permisos del usuario autenticado."}
-                        </p>
-                        <div className="flex gap-3">
+                        </ITText>
+                        <ITFlex gap={3} className="flex gap-3">
                             <ITButton
                                 variant="outlined"
                                 color="secondary"
@@ -443,16 +443,16 @@ const ClubReportModal = ({ isOpen, onClose }: ClubReportModalProps) => {
                                 disabled={selectedIds.size === 0 || generating}
                             >
                                 {generating ? <ITLoader size="sm" /> : <FaFilePdf />}
-                                <span>{generating ? "Generando..." : "Generar Reporte PDF"}</span>
+                                <ITText as="span">{generating ? "Generando..." : "Generar Reporte PDF"}</ITText>
                             </ITButton>
-                        </div>
-                    </div>
+                        </ITFlex>
+                    </ITFlex>
             </ITDialog>
             <ITDialog isOpen={generating} onClose={() => undefined} title="Generando reporte PDF" className="max-w-sm">
-                <div className="flex flex-col items-center gap-4 py-4">
+                <ITFlex direction="column" align="center" gap={4} className="flex flex-col items-center gap-4 py-4">
                     <ITLoader size="lg" />
-                    <p className="text-xs text-slate-500">Por favor no cierres esta ventana.</p>
-                </div>
+                    <ITText as="p" className="text-xs text-slate-500">Por favor no cierres esta ventana.</ITText>
+                </ITFlex>
             </ITDialog>
         </>
     );
