@@ -1,4 +1,4 @@
-import { ITButton, ITDatePicker, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDatePicker, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useEffect, useState } from "react";
@@ -62,9 +62,9 @@ export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
 
     return (
         <form onSubmit={formik.handleSubmit} className="p-6">
-            <h3 className="text-lg font-bold text-slate-800 mb-6">Generar Nuevo Pase de Acceso</h3>
+            <ITText as="h3" className="text-lg font-bold text-slate-800 mb-6">Generar Nuevo Pase de Acceso</ITText>
             
-            <div className="space-y-6">
+            <ITFlex direction="column" className="space-y-6">
                 <ITInput
                     label="Nombre Completo del Invitado"
                     name="guestName"
@@ -76,7 +76,7 @@ export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
                     placeholder="Ej. Luis Hernandez Silva"
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <ITFlex direction="column" className="grid grid-cols-2 gap-4">
                     <ITSearchSelect
                         label="Destino (Propiedad)"
                         name="propertyId"
@@ -96,7 +96,7 @@ export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
                         error={formik.errors.typeId}
                         touched={formik.touched.typeId}
                     />
-                </div>
+                </ITFlex>
 
                 <ITDatePicker
                     label="Rango de Vigencia del Pase"
@@ -120,16 +120,16 @@ export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
                     onBlur={formik.handleBlur}
                     placeholder="Auto civic blanco, viene a reparar tubería..."
                 />
-            </div>
+            </ITFlex>
 
-            <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-slate-100">
+            <ITFlex justify="end" gap={3} className="flex justify-end gap-3 mt-8 pt-4 border-t border-slate-100">
                 <ITButton type="button" variant="outlined" color="secondary" onClick={onCancel}>
                     Cancelar
                 </ITButton>
                 <ITButton type="submit" variant="solid" disabled={formik.isSubmitting}>
                     {formik.isSubmitting ? "Emitiendo..." : "Generar Invitación QR"}
                 </ITButton>
-            </div>
+            </ITFlex>
         </form>
     );
 };
