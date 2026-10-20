@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDialog, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { FaClipboardList, FaPlus, FaTrash, FaMapMarkerAlt } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -96,10 +96,10 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
             title={`Asignar Tarea Especial: ${guardName}`}
             className="!max-w-2xl w-full !overflow-visible"
         >
-            <div className="p-6">
-                <div className="space-y-6">
+            <ITFlex direction="column" className="p-6">
+                <ITFlex direction="column" className="space-y-6">
                     {/* Location Selection */}
-                    <div className="space-y-1.5">
+                    <ITFlex direction="column" className="space-y-1.5">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-tight flex items-center gap-2">
                             <FaMapMarkerAlt className="text-slate-400" /> Ubicación del punto
                         </label>
@@ -110,22 +110,22 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                             value={selectedLocationId}
                             onChange={(val) => setSelectedLocationId(val)}
                         />
-                    </div>
+                    </ITFlex>
 
                     {/* Tasks Section - Camera removed as per user request */}
-                    <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                        <div className="flex justify-between items-center mb-4">
+                    <ITFlex direction="column" className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                        <ITFlex align="center" justify="between" className="flex justify-between items-center mb-4">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-tight flex items-center gap-2">
                                 <FaClipboardList className="text-slate-400" /> Consignas
                             </label>
                             {tasks.length > 0 && (
-                                <span className="text-[10px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-100 uppercase">
+                                <ITText as="span" className="text-[10px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-100 uppercase">
                                     {tasks.length} {tasks.length === 1 ? 'Tarea' : 'Tareas'}
-                                </span>
+                                </ITText>
                             )}
-                        </div>
+                        </ITFlex>
                         
-                        <div className="flex gap-2 mb-4">
+                        <ITFlex gap={2} className="flex gap-2 mb-4">
                             <ITInput
                                 name="tempTaskDesc"
                                 placeholder="Describe la consigna..."
@@ -142,18 +142,18 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                             >
                                 <FaPlus size={14} />
                             </ITButton>
-                        </div>
+                        </ITFlex>
 
                         {tasks.length > 0 ? (
-                            <div className="space-y-2">
+                            <ITFlex direction="column" className="space-y-2">
                                 {tasks.map((task, index) => (
                                     <div key={index} className="flex items-center justify-between bg-white px-4 py-2.5 rounded-xl border border-slate-100 shadow-sm">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 border border-slate-100">
+                                        <ITFlex align="center" gap={3} className="flex items-center gap-3">
+                                            <ITFlex align="center" justify="center" className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 border border-slate-100">
                                                 {index + 1}
-                                            </div>
-                                            <span className="text-sm text-slate-600 font-medium">{task.description}</span>
-                                        </div>
+                                            </ITFlex>
+                                            <ITText as="span" className="text-sm text-slate-600 font-medium">{task.description}</ITText>
+                                        </ITFlex>
                                         <ITButton
                                             variant="icon-only"
                                             color="gray"
@@ -164,14 +164,14 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                                         />
                                     </div>
                                 ))}
-                            </div>
+                            </ITFlex>
                         ) : (
-                            <p className="text-[11px] text-slate-400 italic text-center py-2 font-medium tracking-wide">No se han definido consignas especiales</p>
+                            <ITText as="p" className="text-[11px] text-slate-400 italic text-center py-2 font-medium tracking-wide">No se han definido consignas especiales</ITText>
                         )}
-                    </div>
+                    </ITFlex>
 
                     {/* Notes Section */}
-                    <div className="space-y-1.5">
+                    <ITFlex direction="column" className="space-y-1.5">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-tight">Notas Generales</label>
                         <textarea
                             value={notes}
@@ -179,11 +179,11 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                             placeholder="Instrucciones generales para la asignación..."
                             className="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 text-sm text-slate-600 h-24 resize-none outline-none focus:border-[#065911] transition-all font-medium placeholder:text-slate-300"
                         />
-                    </div>
-                </div>
+                    </ITFlex>
+                </ITFlex>
 
                 {/* Footer */}
-                <div className="mt-8 flex justify-end gap-3 pt-5 border-t border-slate-50">
+                <ITFlex justify="end" gap={3} className="mt-8 flex justify-end gap-3 pt-5 border-t border-slate-50">
                     <ITButton
                         variant="outlined"
                         color="secondary"
@@ -199,8 +199,8 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                     >
                         {submitting ? "Creando..." : "Crear Asignación"}
                     </ITButton>
-                </div>
-            </div>
+                </ITFlex>
+            </ITFlex>
         </ITDialog>
     );
 };
