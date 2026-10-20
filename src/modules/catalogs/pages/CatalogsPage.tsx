@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITAlert, ITButton, ITEmptyState, ITPage, ITTripleFilter } from "@axzydev/axzy_ui_system";
+import { ITAlert, ITButton, ITEmptyState, ITFlex, ITPage, ITText, ITTripleFilter } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FaChevronDown,
@@ -532,7 +532,7 @@ const CatalogsPage = () => {
       icon={<FaLayerGroup size={20} />}
       iconColor="#065911"
       actions={
-        <div className="flex items-center gap-2.5">
+        <ITFlex align="center" className="flex items-center gap-2.5">
           <ITButton
             onClick={() => void handleRefresh()}
             variant="outlined"
@@ -542,34 +542,34 @@ const CatalogsPage = () => {
             title="Actualizar catálogos"
             ariaLabel="Actualizar catálogos"
           >
-            <span className="flex items-center gap-2">
+            <ITText as="span" className="flex items-center gap-2">
               <FaSync className={cx("text-[11px]", refreshing && "animate-spin")} />
-              <span className="hidden sm:!inline">Actualizar</span>
-            </span>
+              <ITText as="span" className="hidden sm:!inline">Actualizar</ITText>
+            </ITText>
           </ITButton>
           <ITButton
             onClick={openCreateCategory}
             color="primary"
            
           >
-            <span className="flex items-center gap-2">
+            <ITText as="span" className="flex items-center gap-2">
               <FaPlus size={10} /> Nueva categoría
-            </span>
+            </ITText>
           </ITButton>
-        </div>
+        </ITFlex>
       }
     >
       {loadError && categories.length > 0 && (
-        <div className="mb-4">
+        <ITFlex direction="column" className="mb-4">
           <ITAlert variant="error" title="No se pudieron sincronizar los catálogos">
             {loadError}
           </ITAlert>
-        </div>
+        </ITFlex>
       )}
 
       {/* Catalog switcher + filters */}
       <section className="mb-5 overflow-hidden rounded-2xl   bg-white shadow-sm">
-        <div className="flex flex-col gap-3 !p-3.5 sm:!p-4 xl:!flex-row xl:items-center xl:justify-between">
+        <ITFlex direction="column" gap={3} className="flex flex-col gap-3 !p-3.5 sm:!p-4 xl:!flex-row xl:items-center xl:justify-between">
           <div
             role="tablist"
             aria-label="Tipo de catálogo"
@@ -602,21 +602,21 @@ const CatalogsPage = () => {
                     )}
                   />
                   {tabMeta.label}
-                  <span
+                  <ITText as="span"
                     className={cx(
                       "hidden rounded-full px-1.5 py-0.5 text-[9.5px] font-black sm:!inline-flex",
                       selected ? "bg-[#065911]/10 text-[#065911]" : "bg-slate-200/80 text-slate-500",
                     )}
                   >
                     {tabCounts[type]}
-                  </span>
+                  </ITText>
                 </button>
               );
             })}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative w-full sm:!w-60">
+          <ITFlex align="center" gap={2} className="flex flex-wrap items-center gap-2">
+            <ITFlex direction="column" className="relative w-full sm:!w-60">
               <FaSearch
                 size={10}
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -639,12 +639,12 @@ const CatalogsPage = () => {
                   <FaTimes size={9} />
                 </button>
               )}
-            </div>
+            </ITFlex>
 
-            <div className="flex items-center gap-2">
-              <span className="hidden text-[9px] font-black uppercase tracking-widest text-slate-400 md:!inline">
+            <ITFlex align="center" gap={2} className="flex items-center gap-2">
+              <ITText as="span" className="hidden text-[9px] font-black uppercase tracking-widest text-slate-400 md:!inline">
                 Estado
-              </span>
+              </ITText>
               <ITTripleFilter<StatusFilter>
                 value={statusFilter}
                 onChange={setStatusFilter}
@@ -655,7 +655,7 @@ const CatalogsPage = () => {
                 color="primary"
                 className="!h-9 !rounded-xl !p-0.5"
               />
-            </div>
+            </ITFlex>
 
             <button
               type="button"
@@ -670,39 +670,39 @@ const CatalogsPage = () => {
               />
               {allVisibleExpanded ? "Contraer" : "Expandir"}
             </button>
-          </div>
-        </div>
+          </ITFlex>
+        </ITFlex>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-slate-100 bg-slate-50/60 px-4 py-2.5">
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-slate-500">
+        <ITFlex align="center" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-slate-100 bg-slate-50/60 px-4 py-2.5">
+          <ITText as="span" className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-slate-500">
             <FaLayerGroup size={10} className="text-slate-400" />
             {hasFilters
               ? `${visibleCategories.length} de ${pluralize(tabCategories.length, "categoría", "categorías")}`
               : pluralize(tabCategories.length, "categoría", "categorías")}
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-slate-500">
+          </ITText>
+          <ITText as="span" className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-slate-500">
             <FaListUl size={10} className="text-slate-400" />
             {pluralize(totalTypes, "tipo", "tipos")}
-          </span>
-          <span className="hidden h-3 w-px bg-slate-200 sm:!block" />
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          </ITText>
+          <ITText as="span" className="hidden h-3 w-px bg-slate-200 sm:!block" />
+          <ITText as="span" className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-700">
+            <ITText as="span" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
             {pluralize(activeCount, "activa", "activas")}
-          </span>
-          <span
+          </ITText>
+          <ITText as="span"
             className={cx(
               "inline-flex items-center gap-1.5 text-[10.5px] font-semibold",
               inactiveCount > 0 ? "text-rose-500" : "text-slate-400",
             )}
           >
-            <span
+            <ITText as="span"
               className={cx(
                 "h-1.5 w-1.5 rounded-full",
                 inactiveCount > 0 ? "bg-rose-400" : "bg-slate-300",
               )}
             />
             {pluralize(inactiveCount, "inactiva", "inactivas")}
-          </span>
+          </ITText>
           {hasFilters && visibleCategories.length > 0 && (
             <button
               type="button"
@@ -712,7 +712,7 @@ const CatalogsPage = () => {
               Limpiar filtros
             </button>
           )}
-          <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-medium text-slate-400">
+          <ITText as="span" className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-medium text-slate-400">
             {refreshing ? (
               <>
                 <FaSyncAlt size={9} className="animate-spin" /> Actualizando...
@@ -725,21 +725,21 @@ const CatalogsPage = () => {
             ) : (
               "Sin sincronizar"
             )}
-          </span>
-        </div>
+          </ITText>
+        </ITFlex>
       </section>
 
       {loading && categories.length === 0 ? (
-        <div className="grid grid-cols-1 gap-4 lg:!grid-cols-2 2xl:!grid-cols-3">
+        <ITFlex direction="column" className="grid grid-cols-1 gap-4 lg:!grid-cols-2 2xl:!grid-cols-3">
           {[0, 1, 2, 3, 4, 5].map((item) => (
             <div
               key={item}
               className="h-[132px] animate-pulse rounded-2xl border border-slate-200/70 bg-white shadow-sm"
             />
           ))}
-        </div>
+        </ITFlex>
       ) : loadError && categories.length === 0 ? (
-        <div className="rounded-2xl   bg-white p-3 shadow-sm">
+        <ITFlex direction="column" className="rounded-2xl   bg-white p-3 shadow-sm">
           <ITEmptyState
             icon={<FaExclamationTriangle size={30} className="text-amber-400" />}
             title="No se pudieron cargar los catálogos"
@@ -754,9 +754,9 @@ const CatalogsPage = () => {
               </ITButton>
             }
           />
-        </div>
+        </ITFlex>
       ) : visibleCategories.length === 0 ? (
-        <div className="rounded-2xl   bg-white p-3 shadow-sm">
+        <ITFlex direction="column" className="rounded-2xl   bg-white p-3 shadow-sm">
           <ITEmptyState
             icon={<FaLayerGroup size={30} className="text-slate-300" />}
             title={emptyTitle}
@@ -777,16 +777,16 @@ const CatalogsPage = () => {
                   onClick={openCreateCategory}
                  
                 >
-                  <span className="flex items-center gap-2">
+                  <ITText as="span" className="flex items-center gap-2">
                     <FaPlus size={10} /> Nueva categoría
-                  </span>
+                  </ITText>
                 </ITButton>
               )
             }
           />
-        </div>
+        </ITFlex>
       ) : (
-        <div className="grid grid-cols-1 items-start gap-4 lg:!grid-cols-2 2xl:!grid-cols-3">
+        <ITFlex direction="column" className="grid grid-cols-1 items-start gap-4 lg:!grid-cols-2 2xl:!grid-cols-3">
           {visibleCategories.map((category) => {
             const fullIndex = tabCategories.findIndex((item) => item.id === category.id);
             return (
@@ -818,7 +818,7 @@ const CatalogsPage = () => {
               />
             );
           })}
-        </div>
+        </ITFlex>
       )}
 
       <CategoryFormModal
