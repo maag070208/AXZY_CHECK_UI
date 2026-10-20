@@ -1,3 +1,4 @@
+import { ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import * as Ably from "ably";
@@ -127,46 +128,46 @@ export const ChatPanel = ({ variant = "page" }: ChatPanelProps) => {
   const text = compact ? "text-xs" : "text-sm";
 
   return (
-    <div
+    <ITFlex direction="column"
       className={`flex flex-col bg-white overflow-hidden ${
         compact ? "h-full rounded-2xl shadow-xl shadow-slate-200/50" : "h-full rounded-2xl border border-slate-100 shadow-sm"
       }`}
     >
       {compact && (
-        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
-          <p className="text-[13px] font-black text-slate-800 flex items-center gap-2">
+        <ITFlex align="center" justify="between" className="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+          <ITText as="p" className="text-[13px] font-black text-slate-800 flex items-center gap-2">
             <FaComments className="text-[#065911]" /> Chat del Equipo
-          </p>
+          </ITText>
           <LiveBadge />
-        </div>
+        </ITFlex>
       )}
 
       <div ref={scrollRef} onScroll={handleScroll} className={`flex-1 min-h-0 overflow-y-auto ${compact ? "px-3 py-3" : "px-6 py-5"} bg-slate-50/40`}>
         {rows.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center gap-2 text-slate-400">
+          <ITFlex direction="column" align="center" justify="center" gap={2} className="h-full flex flex-col items-center justify-center gap-2 text-slate-400">
             <FaComments size={28} className="text-slate-300" />
-            <p className="text-sm font-medium">Todavía no hay mensajes</p>
-            <p className="text-xs">Escribe el primero para iniciar la conversación.</p>
-          </div>
+            <ITText as="p" className="text-sm font-medium">Todavía no hay mensajes</ITText>
+            <ITText as="p" className="text-xs">Escribe el primero para iniciar la conversación.</ITText>
+          </ITFlex>
         ) : (
-          <div className="flex flex-col">
+          <ITFlex direction="column" className="flex flex-col">
             {rows.map((row) =>
               row.kind === "day" ? (
                 <div key={row.key} className="flex items-center gap-3 my-4 first:mt-0">
-                  <span className="flex-1 h-px bg-slate-200/70" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{row.label}</span>
-                  <span className="flex-1 h-px bg-slate-200/70" />
+                  <ITText as="span" className="flex-1 h-px bg-slate-200/70" />
+                  <ITText as="span" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{row.label}</ITText>
+                  <ITText as="span" className="flex-1 h-px bg-slate-200/70" />
                 </div>
               ) : (
                 <MessageRow key={row.msg.id} row={row} compact={compact} text={text} />
               ),
             )}
-          </div>
+          </ITFlex>
         )}
         <div ref={listEndRef} />
       </div>
 
-      <div className={`border-t border-slate-100 bg-white flex items-end gap-2 flex-shrink-0 ${compact ? "p-2.5" : "p-4"}`}>
+      <ITFlex direction="column" className={`border-t border-slate-100 bg-white flex items-end gap-2 flex-shrink-0 ${compact ? "p-2.5" : "p-4"}`}>
         <textarea
           ref={inputRef}
           rows={1}
@@ -197,19 +198,19 @@ export const ChatPanel = ({ variant = "page" }: ChatPanelProps) => {
         >
           <FaPaperPlane size={compact ? 11 : 14} />
         </button>
-      </div>
-    </div>
+      </ITFlex>
+    </ITFlex>
   );
 };
 
 const LiveBadge = () => (
-  <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-600 uppercase tracking-wide">
-    <span className="relative flex h-1.5 w-1.5">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-    </span>
+  <ITText as="span" className="flex items-center gap-1.5 text-[9px] font-black text-emerald-600 uppercase tracking-wide">
+    <ITText as="span" className="relative flex h-1.5 w-1.5">
+      <ITText as="span" className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+      <ITText as="span" className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+    </ITText>
     En vivo
-  </span>
+  </ITText>
 );
 
 type Row =
@@ -259,25 +260,25 @@ const MessageRow = ({ row, compact, text }: { row: Extract<Row, { kind: "msg" }>
   const avatarSize = compact ? "w-6 h-6 text-[9px]" : "w-8 h-8 text-[11px]";
 
   return (
-    <div className={`flex items-end gap-2 ${own ? "justify-end" : "justify-start"} ${first ? "mt-3 first:mt-0" : "mt-0.5"}`}>
+    <ITFlex direction="column" className={`flex items-end gap-2 ${own ? "justify-end" : "justify-start"} ${first ? "mt-3 first:mt-0" : "mt-0.5"}`}>
       {!own && (
-        <div className={`${avatarSize} rounded-full flex items-center justify-center font-black flex-shrink-0 ${last ? color : "invisible"}`}>{initials}</div>
+        <ITFlex direction="column" className={`${avatarSize} rounded-full flex items-center justify-center font-black flex-shrink-0 ${last ? color : "invisible"}`}>{initials}</ITFlex>
       )}
-      <div className={`${compact ? "max-w-[82%]" : "max-w-[65%]"} min-w-0`}>
+      <ITFlex direction="column" className={`${compact ? "max-w-[82%]" : "max-w-[65%]"} min-w-0`}>
         {!own && first && (
-          <p className={`font-bold text-slate-500 mb-0.5 ml-1 ${compact ? "text-[10px]" : "text-[11px]"}`}>
+          <ITText as="p" className={`font-bold text-slate-500 mb-0.5 ml-1 ${compact ? "text-[10px]" : "text-[11px]"}`}>
             {msg.user.name} {msg.user.lastName || ""}
-          </p>
+          </ITText>
         )}
-        <div
+        <ITFlex direction="column"
           className={`px-3 py-1.5 ${text} break-words whitespace-pre-wrap ${
             own ? "bg-[#065911] text-white rounded-2xl rounded-br-md" : "bg-white border border-slate-100 text-slate-800 rounded-2xl rounded-bl-md shadow-sm"
           }`}
         >
           {msg.message}
-          <span className={`ml-2 align-bottom text-[10px] ${own ? "text-emerald-200" : "text-slate-400"}`}>{time}</span>
-        </div>
-      </div>
-    </div>
+          <ITText as="span" className={`ml-2 align-bottom text-[10px] ${own ? "text-emerald-200" : "text-slate-400"}`}>{time}</ITText>
+        </ITFlex>
+      </ITFlex>
+    </ITFlex>
   );
 };
