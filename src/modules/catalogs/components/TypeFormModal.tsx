@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDialog, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { FaLayerGroup } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -93,33 +93,33 @@ export const TypeFormModal = ({
       title={editType ? "Editar tipo" : "Nuevo tipo"}
       className="!w-full !max-w-md !overflow-visible"
     >
-      <div className="p-6">
-        <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-          <div className="flex items-center gap-3">
+      <ITFlex direction="column" className="p-6">
+        <ITFlex direction="column" className="mb-4 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+          <ITFlex align="center" gap={3} className="flex items-center gap-3">
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border"
               style={getCategoryTint(selectedColor)}
             >
               <FaLayerGroup size={14} />
             </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            <ITFlex direction="column" className="min-w-0 flex-1">
+              <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
                 Categoría seleccionada
-              </p>
-              <p className="truncate text-[13px] font-bold text-slate-700">
+              </ITText>
+              <ITText as="p" className="truncate text-[13px] font-bold text-slate-700">
                 {selectedCategory?.value || "Selecciona una categoría"}
-              </p>
-            </div>
+              </ITText>
+            </ITFlex>
             {selectedCategory && !selectedCategory.active && (
-              <span className="shrink-0 rounded-full bg-rose-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-500">
+              <ITText as="span" className="shrink-0 rounded-full bg-rose-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-500">
                 Inactiva
-              </span>
+              </ITText>
             )}
-          </div>
-        </div>
+          </ITFlex>
+        </ITFlex>
 
-        <div className="space-y-4">
-          <div>
+        <ITFlex direction="column" className="space-y-4">
+          <ITFlex direction="column">
             <ITInput
               name="name"
               label="Nombre interno (código)"
@@ -130,12 +130,12 @@ export const TypeFormModal = ({
               maxLength={60}
               required
             />
-            <p className="mt-1 text-[10.5px] leading-relaxed text-slate-400">
+            <ITText as="p" className="mt-1 text-[10.5px] leading-relaxed text-slate-400">
               Identificador único del tipo. Se guarda en mayúsculas.
-            </p>
-          </div>
+            </ITText>
+          </ITFlex>
 
-          <div>
+          <ITFlex direction="column">
             <ITInput
               name="value"
               label="Texto visible"
@@ -146,10 +146,10 @@ export const TypeFormModal = ({
               maxLength={80}
               required
             />
-            <p className="mt-1 text-[10.5px] leading-relaxed text-slate-400">
+            <ITText as="p" className="mt-1 text-[10.5px] leading-relaxed text-slate-400">
               Aparecerá en el formulario de la app cuando se elija esta categoría.
-            </p>
-          </div>
+            </ITText>
+          </ITFlex>
 
           <ITSearchSelect
             name="categoryId"
@@ -160,9 +160,9 @@ export const TypeFormModal = ({
             required
             clearable={false}
           />
-        </div>
+        </ITFlex>
 
-        <div className="mt-6 flex justify-end gap-2.5 border-t border-slate-100 pt-4">
+        <ITFlex justify="end" className="mt-6 flex justify-end gap-2.5 border-t border-slate-100 pt-4">
           <ITButton
             variant="outlined"
             color="secondary"
@@ -180,8 +180,8 @@ export const TypeFormModal = ({
           >
             {loading ? "Guardando..." : editType ? "Guardar cambios" : "Crear tipo"}
           </ITButton>
-        </div>
-      </div>
+        </ITFlex>
+      </ITFlex>
     </ITDialog>
   );
 };
