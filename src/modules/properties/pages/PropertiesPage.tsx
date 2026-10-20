@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -135,9 +135,9 @@ const PropertiesPage = () => {
             type: "string",
             sortable: true,
             render: (row: any) => (
-                <div className="font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded inline-block">
+                <ITFlex direction="column" className="font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded inline-block">
                     {row.identifier}
-                </div>
+                </ITFlex>
             )
         },
         {
@@ -145,7 +145,7 @@ const PropertiesPage = () => {
             label: "Nombre / Referencia",
             type: "string",
             sortable: true,
-            render: (row: any) => <div className="font-medium text-slate-700">{row.name}</div>
+            render: (row: any) => <ITFlex direction="column" className="font-medium text-slate-700">{row.name}</ITFlex>
         },
         {
             key: "typeId",
@@ -158,10 +158,10 @@ const PropertiesPage = () => {
                 error: !!errorTypes
             },
             render: (row: any) => (
-                <div className="flex items-center gap-2 text-slate-500 italic">
+                <ITFlex align="center" gap={2} className="flex items-center gap-2 text-slate-500 italic">
                     {row.type?.name === 'CASA' ? <FaHome className="text-emerald-500" /> : <FaBuilding className="text-blue-500" />}
                     {row.type?.name || '---'}
-                </div>
+                </ITFlex>
             )
         },
         {
@@ -169,10 +169,10 @@ const PropertiesPage = () => {
             label: "Ubicación",
             type: "string",
             render: (row: any) => (
-                <div className="text-xs text-slate-500">
-                    <p className="font-bold">{row.mainStreet}</p>
-                    {row.betweenStreets && <p>E/ {row.betweenStreets}</p>}
-                </div>
+                <ITFlex direction="column" className="text-xs text-slate-500">
+                    <ITText as="p" className="font-bold">{row.mainStreet}</ITText>
+                    {row.betweenStreets && <ITText as="p">E/ {row.betweenStreets}</ITText>}
+                </ITFlex>
             )
         },
         {
@@ -198,7 +198,7 @@ const PropertiesPage = () => {
             label: "Acciones",
             type: "actions",
             actions: (row: any) => (
-                <div className="flex items-center gap-2">
+                <ITFlex align="center" gap={2} className="flex items-center gap-2">
                     <ITButton
                         onClick={() => navigate(`/properties/${row.id}`)}
                         size="sm"
@@ -232,7 +232,7 @@ const PropertiesPage = () => {
                     <ITButton onClick={() => setPropertyToDelete(row)} size="sm" variant="ghost">
                         <FaTrash />
                     </ITButton>
-                </div>
+                </ITFlex>
             )
         }
     ], [propertyTypes, loadingTypes, errorTypes]);
@@ -247,8 +247,8 @@ const PropertiesPage = () => {
             icon={<FaHome size={20} />}
             iconColor="#065911"
             actions={
-                <div className="flex items-center gap-3">
-                    <div className="w-64 relative">
+                <ITFlex align="center" gap={3} className="flex items-center gap-3">
+                    <ITFlex direction="column" className="w-64 relative">
                         <ITInput
                             placeholder="Buscar por ID o nombre..."
                             name="search"
@@ -268,7 +268,7 @@ const PropertiesPage = () => {
                                
                             />
                         )}
-                    </div>
+                    </ITFlex>
                     <ITButton
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
@@ -278,7 +278,7 @@ const PropertiesPage = () => {
                         title="Actualizar tabla"
                     >
                         <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                        <span className="text-xs font-bold text-slate-500">Actualizar</span></ITFlex>
+                        <ITText as="span" className="text-xs font-bold text-slate-500">Actualizar</ITText></ITFlex>
                     </ITButton>
                     <ITButton variant="outlined" color="secondary" size="sm" onClick={() => setIsImportOpen(true)}>
                         Importar CSV
@@ -290,19 +290,19 @@ const PropertiesPage = () => {
                     >
                         <ITFlex align="center" gap={2}>
                             <FaPlus className="text-xs" />
-                            <span>Agregar Propiedad</span>
+                            <ITText as="span">Agregar Propiedad</ITText>
                         </ITFlex>
                     </ITButton>
-                </div>
+                </ITFlex>
             }
         >
 
 
-            <div className="mb-6">
+            <ITFlex direction="column" className="mb-6">
                 <OccupancyDashboard key={refreshKey} />
-            </div>
+            </ITFlex>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
                     defaultItemsPerPage={50}
                     itemsPerPageOptions={[25, 50, 100]}
@@ -317,7 +317,7 @@ const PropertiesPage = () => {
                     externalFilters={externalFilters}
                     title=""
                 />
-            </div>
+            </ITFlex>
 
             {/* Modals */}
             <ImportPropertiesModal
@@ -356,13 +356,13 @@ const PropertiesPage = () => {
                 onClose={() => setPropertyToDelete(null)}
                 title="Confirmar Eliminación"
             >
-                <div className="p-6">
-                    <p className="text-slate-700 mb-6">¿Estás seguro de eliminar la propiedad <span className="font-bold">{propertyToDelete?.identifier}</span>?</p>
-                    <div className="flex justify-end gap-3">
+                <ITFlex direction="column" className="p-6">
+                    <ITText as="p" className="text-slate-700 mb-6">¿Estás seguro de eliminar la propiedad <ITText as="span" className="font-bold">{propertyToDelete?.identifier}</ITText>?</ITText>
+                    <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
                         <ITButton variant="outlined" onClick={() => setPropertyToDelete(null)}>Cancelar</ITButton>
                         <ITButton onClick={confirmDelete}>Eliminar</ITButton>
-                    </div>
-                </div>
+                    </ITFlex>
+                </ITFlex>
             </ITDialog>
         </ITPage>
     );
