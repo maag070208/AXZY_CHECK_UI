@@ -219,7 +219,7 @@ export const ReportCreateForm = ({
   };
 
   return (
-    <ITDialog isOpen={isOpen} onClose={() => !submitting && handleClose()} title={title} className="max-w-xl">
+    <ITDialog isOpen={isOpen} onClose={() => !submitting && handleClose()} title={title} className="max-w-xl max-h-[90vh] flex flex-col">
       <div className="flex items-center gap-3 -mt-2 mb-4">
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${a.iconBox}`}>{icon}</div>
         <p className="text-[11px] text-slate-400">{subtitle}</p>

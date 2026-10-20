@@ -418,7 +418,7 @@ const MaintenancesPage = () => {
       </div>
 
     {viewingMaintenance && (
-      <ITDialog isOpen onClose={() => setViewingMaintenance(null)} title="Detalle de Mantenimiento" className="max-w-4xl">
+      <ITDialog isOpen onClose={() => setViewingMaintenance(null)} title="Detalle de Mantenimiento" className="max-w-4xl max-h-[90vh] flex flex-col">
         <p className="text-sm text-slate-500 mb-4">Reportado el {dayjs(viewingMaintenance.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
             
             <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">

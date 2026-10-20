@@ -225,7 +225,7 @@ const IncidentReportModal = ({ isOpen, onClose }: IncidentReportModalProps) => {
 
     const modalContent = (
         <>
-            <ITDialog isOpen={isOpen} onClose={handleClose} title="Generar Reporte de Incidencias" className="max-w-4xl">
+            <ITDialog isOpen={isOpen} onClose={handleClose} title="Generar Reporte de Incidencias" className="max-w-4xl max-h-[90vh] flex flex-col">
                 <p className="text-xs text-slate-500 mb-4">Configura el rango y selecciona las incidencias a incluir.</p>
                     <div className="p-6 overflow-y-auto flex-1 bg-slate-50/30">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

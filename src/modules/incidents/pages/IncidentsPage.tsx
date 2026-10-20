@@ -169,18 +169,18 @@ const IncidentsPage = () => {
         type: "string",
         sortable: true,
         render: (row: Incident) => (
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 min-w-0">
                 <div className="mt-1 w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0 text-red-500">
                     <FaExclamationTriangle className="text-xs" />
                 </div>
-                <div>
-                    <p className="font-bold text-slate-800 line-clamp-1">{row.title}</p>
-                    <div className="flex gap-1 items-center">
+                <div className="min-w-0 flex-1">
+                    <p className="font-bold text-slate-800 truncate">{row.title}</p>
+                    <div className="flex gap-1 items-center min-w-0">
                         <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md uppercase">
                             {row.category?.value || 'General'}
                         </span>
                         {row.type && (
-                            <span className="text-[10px] font-medium text-slate-400">
+                            <span className="text-[10px] font-medium text-slate-400 truncate max-w-[140px]">
                                 • {row.type.value}
                             </span>
                         )}
@@ -214,6 +214,7 @@ const IncidentsPage = () => {
         type: "string",
         sortable: false,
         filter: "catalog",
+        minWidth: 180,
         catalogOptions: {
             data: guardsCatalog || [],
             loading: loadingGuards
@@ -418,7 +419,7 @@ const IncidentsPage = () => {
       </div>
 
     {viewingIncident && (
-      <ITDialog isOpen onClose={() => setViewingIncident(null)} title="Detalle de Incidencia" className="max-w-4xl">
+      <ITDialog isOpen onClose={() => setViewingIncident(null)} title="Detalle de Incidencia" className="max-w-4xl max-h-[90vh] flex flex-col">
         <p className="text-sm text-slate-500 mb-4">Reportado el {dayjs(viewingIncident.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
   
             <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">

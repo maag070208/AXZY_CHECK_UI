@@ -413,7 +413,7 @@ const ClubPage = () => {
       </div>
 
     {viewingClub && (
-      <ITDialog isOpen onClose={() => setViewingClub(null)} title="Detalle de Reporte" className="max-w-4xl">
+      <ITDialog isOpen onClose={() => setViewingClub(null)} title="Detalle de Reporte" className="max-w-4xl max-h-[90vh] flex flex-col">
         <p className="text-sm text-slate-500 mb-4">Reportado el {dayjs(viewingClub.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
   
             <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">

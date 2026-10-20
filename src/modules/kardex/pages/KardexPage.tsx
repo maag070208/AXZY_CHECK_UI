@@ -271,7 +271,7 @@ const KardexPage = () => {
       </div>
 
       {viewingEntry && (
-      <ITDialog isOpen onClose={() => setViewingEntry(null)} title="Detalle de Actividad" className="max-w-4xl">
+      <ITDialog isOpen onClose={() => setViewingEntry(null)} title="Detalle de Actividad" className="max-w-4xl max-h-[90vh] flex flex-col">
         <p className="text-sm text-slate-500 mb-4">Registrado el {dayjs(viewingEntry.timestamp).format("DD [de] MMMM, YYYY [a las] HH:mm a")}</p>
               
               <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
