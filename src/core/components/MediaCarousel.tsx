@@ -1,3 +1,4 @@
+import { ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ITButton, ITDialog } from '@axzydev/axzy_ui_system';
 import {
@@ -100,19 +101,19 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
             `}
         >
             {/* --- Header Superior --- */}
-            <div className={`
+            <ITFlex direction="column" className={`
                 absolute top-0 left-0 w-full z-20 flex justify-between items-center p-4
                 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300
                 ${isFullscreen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
             `}>
-                <div className="flex flex-col">
-                    <h3 className="text-white font-medium text-lg drop-shadow-md">{title}</h3>
-                    <p className="text-white/60 text-xs uppercase tracking-widest">
+                <ITFlex direction="column" className="flex flex-col">
+                    <ITText as="h3" className="text-white font-medium text-lg drop-shadow-md">{title}</ITText>
+                    <ITText as="p" className="text-white/60 text-xs uppercase tracking-widest">
                         {currentIndex + 1} / {media.length}
-                    </p>
-                </div>
+                    </ITText>
+                </ITFlex>
                 
-                <div className="flex gap-2">
+                <ITFlex gap={2} className="flex gap-2">
                     <ITButton
                         variant="icon-only"
                         color="gray"
@@ -129,11 +130,11 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                            
                         />
                     )}
-                </div>
-            </div>
+                </ITFlex>
+            </ITFlex>
 
             {/* --- Escenario Principal --- */}
-            <div className={`relative flex-1 flex items-center justify-center select-none ${isFullscreen ? 'h-full' : 'h-[min(420px,50vh)]'}`}>
+            <ITFlex direction="column" className={`relative flex-1 flex items-center justify-center select-none ${isFullscreen ? 'h-full' : 'h-[min(420px,50vh)]'}`}>
                 
                 {/* Botones de Navegación */}
                 {media.length > 1 && (
@@ -156,9 +157,9 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                 )}
 
                 {/* Contenido Media */}
-                <div className="w-full h-full flex items-center justify-center p-2 bg-black">
+                <ITFlex align="center" justify="center" className="w-full h-full flex items-center justify-center p-2 bg-black">
                     {currentItem.type?.toUpperCase() === 'VIDEO' || currentItem.url.toLowerCase().match(/\.(mp4|webm|mov|ogg|m4v)$/i) ? (
-                        <div className="relative w-full h-full flex items-center justify-center">
+                        <ITFlex align="center" justify="center" className="relative w-full h-full flex items-center justify-center">
                             <video 
                                 key={currentItem.url}
                                 src={currentItem.url}
@@ -175,7 +176,7 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                             >
                                 Tu navegador no soporta el elemento de video.
                             </video>
-                        </div>
+                        </ITFlex>
                     ) : (
                         <img 
                             src={currentItem.url} 
@@ -186,15 +187,15 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                             }}
                         />
                     )}
-                </div>
-            </div>
+                </ITFlex>
+            </ITFlex>
 
             {/* --- Tira de Miniaturas (Footer) --- */}
-            <div className={`
+            <ITFlex direction="column" className={`
                 w-full p-4 border-t border-white/10 bg-slate-950/80 backdrop-blur-xl z-20
                 ${isFullscreen ? 'absolute bottom-0 opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}
             `}>
-                <div className="flex gap-4 overflow-x-auto pb-2 justify-center no-scrollbar">
+                <ITFlex justify="center" gap={4} className="flex gap-4 overflow-x-auto pb-2 justify-center no-scrollbar">
                     {media.map((item, idx) => (
                         <button
                             key={idx}
@@ -208,7 +209,7 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                             `}
                         >
                             {item.type?.toUpperCase() === 'VIDEO' || item.url.toLowerCase().match(/\.(mp4|webm|mov|ogg|m4v)$/i) ? (
-                                <div className="w-full h-full bg-slate-800 flex items-center justify-center relative">
+                                <ITFlex align="center" justify="center" className="w-full h-full bg-slate-800 flex items-center justify-center relative">
                                     <video 
                                         src={`${item.url}#t=0.5`} 
                                         className="absolute inset-0 w-full h-full object-cover opacity-60"
@@ -218,10 +219,10 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                                         }}
                                         muted
                                     />
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/0 transition-all duration-300">
+                                    <ITFlex align="center" justify="center" className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/0 transition-all duration-300">
                                         <FaPlay className="text-white text-xs drop-shadow-lg scale-125 group-hover:scale-150 transition-transform" />
-                                    </div>
-                                </div>
+                                    </ITFlex>
+                                </ITFlex>
                             ) : (
                                 <img 
                                     src={item.url} 
@@ -234,8 +235,8 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                             )}
                         </button>
                     ))}
-                </div>
-            </div>
+                </ITFlex>
+            </ITFlex>
 
             <style>{`
                 .no-scrollbar::-webkit-scrollbar { display: none; }
