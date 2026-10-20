@@ -2,8 +2,6 @@ import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
-import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
-import { MediaCarousel } from "@core/components/MediaCarousel";
 import { AgeBadge } from "@core/components/AgeBadge";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -13,6 +11,7 @@ import { useSearchParams } from "react-router-dom";
 import IncidentCreateForm from "../components/IncidentCreateForm";
 import IncidentReportModal from "../components/IncidentReportModal";
 import { deleteIncident, deleteIncidentMedia, getPaginatedIncidents, Incident, resolveIncident } from "../services/IncidentService";
+import { IncidentDetailDialog } from "../components/IncidentDetailDialog";
 
 const IncidentsPage = () => {
   const dispatch = useDispatch();
@@ -419,144 +418,13 @@ const IncidentsPage = () => {
       </div>
 
     {viewingIncident && (
-      <ITDialog isOpen onClose={() => setViewingIncident(null)} title="Detalle de Incidencia" className="max-w-4xl max-h-[90vh] flex flex-col">
-        <p className="text-sm text-slate-500 mb-4">Reportado el {dayjs(viewingIncident.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
-  
-            <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-  
-                <div className="lg:col-span-8 space-y-8">
-                   {/* Descripción */}
-                   <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                      <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                          <span className="w-1 h-4 bg-orange-400 rounded-full block"></span>
-                          {viewingIncident.title}
-                      </h4>
-                      <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
-                          {viewingIncident.description || "Sin descripción detallada."}
-                      </p>
-                   </div>
-  
-                  {/* Multimedia Section */}
-                  <section>
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                          <span className="w-1 h-4 bg-indigo-500 rounded-full block"></span>
-                          Evidencia
-                      </h4>
-                      {viewingIncident.media && viewingIncident.media.length > 0 &&
-                          <span className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
-                              {viewingIncident.media.length} archivos
-                          </span>
-                      }
-                    </div>
-  
-                    {viewingIncident.media && viewingIncident.media.length > 0 ? (
-                      <MediaCarousel
-                          media={viewingIncident.media}
-                          title={viewingIncident.title}
-                          showDelete={isAdmin}
-                          onDelete={handleDeleteMedia}
-                      />
-                    ) : (
-                      <div className="py-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
-                        <FaFileAlt className="text-slate-300 mb-2" />
-                        <p className="text-sm font-medium text-slate-400">Sin evidencia adjunta</p>
-                      </div>
-                    )}
-                  </section>
-  
-                  {/* Location Section */}
-                  {viewingIncident.latitude && viewingIncident.longitude && (
-                     <section>
-                       <div className="flex items-center justify-between mb-4">
-                         <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                             <span className="w-1 h-4 bg-emerald-500 rounded-full block"></span>
-                             Ubicación Reportada
-                         </h4>
-                       </div>
-                       <GoogleMapComponent
-                           lat={viewingIncident.latitude}
-                           lng={viewingIncident.longitude}
-                           height="300px"
-                       />
-                     </section>
-                  )}
-                </div>
-  
-                <div className="lg:col-span-4 space-y-6">
-                   {/* Metadata Cards */}
-                   <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                      <h5 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</h5>
-  
-                      <div className="space-y-4">
-                          <div className="flex items-start gap-4">
-                              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500">
-                                  <FaUserShield />
-                              </div>
-                              <div>
-                                  <p className="text-xs text-slate-400 font-medium">Reportado por</p>
-                                  <p className="text-sm font-bold text-slate-800">{viewingIncident.guard?.name} {viewingIncident.guard?.lastName}</p>
-                                  <p className="text-xs text-slate-500">@{viewingIncident.guard?.username}</p>
-                              </div>
-                          </div>
-  
-                          <div className="w-full h-px bg-slate-50"></div>
-  
-                          <div className="flex items-start gap-4">
-                               <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-500">
-                                  <FaExclamationTriangle />
-                              </div>
-                              <div>
-                                  <p className="text-xs text-slate-400 font-medium">Categoría y Tipo</p>
-                                  <p className="text-sm font-bold text-slate-800">
-                                      {viewingIncident.category?.value || 'General'}
-                                  </p>
-                                  {viewingIncident.type && (
-                                      <p className="text-xs text-slate-500">{viewingIncident.type.value}</p>
-                                  )}
-                              </div>
-                          </div>
-  
-                          {viewingIncident.status === 'ATTENDED' && viewingIncident.resolvedBy && (
-                              <>
-                                  <div className="w-full h-px bg-slate-50"></div>
-                                  <div className="flex items-start gap-4">
-                                      <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 text-emerald-500">
-                                          <FaCheckCircle />
-                                      </div>
-                                      <div>
-                                          <p className="text-xs text-slate-400 font-medium">Atendido por</p>
-                                          <p className="text-sm font-bold text-slate-800">{viewingIncident.resolvedBy.name}</p>
-                                          <p className="text-xs text-slate-500">
-                                              {dayjs(viewingIncident.resolvedAt).format("DD/MM/YYYY HH:mm")}
-                                          </p>
-                                      </div>
-                                  </div>
-                              </>
-                          )}
-                      </div>
-                   </div>
-  
-                   {viewingIncident.status === 'PENDING' && (
-                       <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                          <h5 className="text-xs font-bold text-orange-800 mb-2">Acciones Pendientes</h5>
-                          <p className="text-xs text-orange-700 mb-3">Esta incidencia requiere atención inmediata.</p>
-                          <ITButton
-                              onClick={() => handleResolve(viewingIncident.id)}
-                              variant='filled'
-                              color="success"
-                             
-                          >
-                              Marcar como Atendida
-                          </ITButton>
-                       </div>
-                   )}
-                </div>
-  
-              </div>
-            </div>
-      </ITDialog>
+      <IncidentDetailDialog
+        incident={viewingIncident}
+        isAdmin={isAdmin}
+        onClose={() => setViewingIncident(null)}
+        onResolve={handleResolve}
+        onDeleteMedia={handleDeleteMedia}
+      />
     )}
 
       {/* Confirm Resolve Dialog */}
