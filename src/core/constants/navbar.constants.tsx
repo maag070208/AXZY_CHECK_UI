@@ -2,6 +2,7 @@ import { AppState } from "@app/core/store/store";
 import LOGO from "@assets/logo.svg";
 import React from "react";
 import {
+  FaBuilding,
   FaClipboardList,
   FaHome,
   FaLayerGroup,
@@ -69,19 +70,27 @@ export const useNavigationItems = (): any[] => {
           ],
         },
         {
-          id: "residencial",
-          label: "Residencial",
-          items: [
-            { id: "properties", label: "Propiedades", path: "/properties", roles: ["ADMIN", "SHIFT"] },
-            { id: "residents", label: "Residentes", path: "/residents", roles: ["ADMIN"] },
-          ],
-        },
-        {
           id: "records",
           label: "Registros",
           items: [
             { id: "kardex", label: "Kardex", path: "/kardex", roles: ["ADMIN", "SHIFT"] },
             { id: "shift-handover", label: "Entrega de turno", path: "/shift-handover", roles: ["ADMIN", "SHIFT"] },
+          ],
+        },
+      ],
+    },
+    {
+      id: "residential",
+      label: "Residencial",
+      icon: <FaBuilding />,
+      groups: [
+        {
+          id: "homes",
+          label: "Hogares",
+          items: [
+            { id: "properties", label: "Propiedades", path: "/properties", roles: ["ADMIN", "SHIFT"] },
+            { id: "residents", label: "Residentes", path: "/residents", roles: ["ADMIN"] },
+            { id: "persons", label: "Personas", path: "/persons", roles: ["ADMIN"] },
           ],
         },
       ],
@@ -115,7 +124,6 @@ export const useNavigationItems = (): any[] => {
             { id: "schedule", label: "Horarios", path: "/schedules", roles: ["ADMIN"] },
             { id: "uniform", label: "Uniforme", path: "/uniform", roles: ["ADMIN", "SHIFT"] },
             { id: "users", label: "Usuarios", path: "/users", roles: ["ADMIN"] },
-            { id: "persons", label: "Personas", path: "/persons", roles: ["ADMIN"] },
           ],
         },
       ],
