@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react';
-import { ITDatePicker, ITButton, ITBadget } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDatePicker, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import { FaSync, FaExclamationTriangle, FaQrcode, FaTimesCircle, FaChartLine } from 'react-icons/fa';
 import { Chart, registerables } from 'chart.js';
 import * as ReportService from '../../services/ReportService';
@@ -225,25 +225,25 @@ export const AnalyticsTab = () => {
     };
 
     return (
-        <div className="pt-4 border-t border-slate-100 space-y-4 animate-in fade-in duration-500">
+        <ITFlex direction="column" className="pt-4 border-t border-slate-100 space-y-4 animate-in fade-in duration-500">
             {/* Encabezado + filtro de fechas */}
-            <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                    <h2 className="text-lg font-black text-slate-800 tracking-tight">Security Analytics</h2>
-                    <p className="text-slate-400 text-[11px] mt-0.5">Histórico por rango de fechas.</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-100">
+            <ITFlex align="end" justify="between" gap={3} className="flex flex-wrap items-end justify-between gap-3">
+                <ITFlex direction="column">
+                    <ITText as="h2" className="text-lg font-black text-slate-800 tracking-tight">Security Analytics</ITText>
+                    <ITText as="p" className="text-slate-400 text-[11px] mt-0.5">Histórico por rango de fechas.</ITText>
+                </ITFlex>
+                <ITFlex align="center" gap={2} className="flex items-center gap-2">
+                    <ITFlex direction="column" className="bg-white p-1 rounded-xl shadow-sm border border-slate-100">
                         <ITDatePicker name="range" value={dateRange} range onChange={(e: any) => setDateRange(e.target.value)} className="!border-none !bg-transparent !shadow-none !p-0 px-2" />
-                    </div>
+                    </ITFlex>
                     <ITButton onClick={fetchData} size="sm" variant="filled" color="primary">
                         <FaSync className={loading ? 'animate-spin' : ''} size={12} />
                     </ITButton>
-                </div>
-            </div>
+                </ITFlex>
+            </ITFlex>
 
             {/* Sub-pestañas */}
-            <div className="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+            <ITFlex direction="column" className="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
                 <button
                     onClick={() => setSubTab('resumen')}
                     className={`text-[11px] font-black px-3.5 py-1.5 rounded-lg transition-colors ${subTab === 'resumen' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}
@@ -256,48 +256,48 @@ export const AnalyticsTab = () => {
                 >
                     Carga de Trabajo
                 </button>
-            </div>
+            </ITFlex>
 
             {/* Resumen: estadísticas compactas + 2 gráficas */}
-            <div className={subTab === 'resumen' ? 'space-y-4' : 'hidden'}>
-                <div className="flex flex-wrap gap-3">
+            <ITFlex direction="column" className={subTab === 'resumen' ? 'space-y-4' : 'hidden'}>
+                <ITFlex gap={3} className="flex flex-wrap gap-3">
                     <StatPill title="Eventos/Incidencias" value={stats?.totalIncidents} icon={<FaExclamationTriangle />} color="indigo" loading={loading} />
                     <StatPill title="Puntos Escaneados" value={stats?.totalScans} icon={<FaQrcode />} color="emerald" loading={loading} />
                     <StatPill title="Rondas Incompletas" value={stats?.incompleteRounds} icon={<FaChartLine />} color="orange" loading={loading} />
                     <StatPill title="Puntos Omitidos" value={stats?.missedScans} icon={<FaTimesCircle />} color="red" loading={loading} />
-                </div>
+                </ITFlex>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                    <div className="lg:col-span-7 shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
-                        <h3 className="text-[13px] font-bold text-slate-800 mb-4">Top Desempeño (Escaneos)</h3>
-                        <div className="h-[220px]">
+                <ITFlex direction="column" className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <ITFlex direction="column" className="lg:col-span-7 shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
+                        <ITText as="h3" className="text-[13px] font-bold text-slate-800 mb-4">Top Desempeño (Escaneos)</ITText>
+                        <ITFlex direction="column" className="h-[220px]">
                             <canvas ref={performanceChartRef}></canvas>
-                        </div>
-                    </div>
+                        </ITFlex>
+                    </ITFlex>
 
-                    <div className="lg:col-span-5 shadow-sm border border-slate-100 bg-white rounded-2xl p-5 flex flex-col items-center">
-                        <h3 className="text-[13px] font-bold text-slate-800 mb-4 text-left w-full">Distribución de Actividad</h3>
-                        <div className="h-[220px] w-full">
+                    <ITFlex direction="column" align="center" className="lg:col-span-5 shadow-sm border border-slate-100 bg-white rounded-2xl p-5 flex flex-col items-center">
+                        <ITText as="h3" className="text-[13px] font-bold text-slate-800 mb-4 text-left w-full">Distribución de Actividad</ITText>
+                        <ITFlex direction="column" className="h-[220px] w-full">
                             <canvas ref={distributionChartRef}></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </ITFlex>
+                    </ITFlex>
+                </ITFlex>
+            </ITFlex>
 
             {/* Carga de trabajo: sola, con más espacio */}
-            <div className={subTab === 'carga' ? '' : 'hidden'}>
-                <div className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[13px] font-bold text-slate-800">Comparativa de Carga de Trabajo</h3>
+            <ITFlex direction="column" className={subTab === 'carga' ? '' : 'hidden'}>
+                <ITFlex direction="column" className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
+                    <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
+                        <ITText as="h3" className="text-[13px] font-bold text-slate-800">Comparativa de Carga de Trabajo</ITText>
                         <ITBadget color="primary" variant="outlined" size="sm">Ranking Operacional</ITBadget>
-                    </div>
-                    <div className="h-[320px]">
+                    </ITFlex>
+                    <ITFlex direction="column" className="h-[320px]">
                         <canvas ref={workloadChartRef}></canvas>
-                    </div>
-                    <p className="text-[10px] text-slate-400 mt-3 italic">* El índice de carga se calcula ponderando escaneos, reportes y rondas finalizadas.</p>
-                </div>
-            </div>
-        </div>
+                    </ITFlex>
+                    <ITText as="p" className="text-[10px] text-slate-400 mt-3 italic">* El índice de carga se calcula ponderando escaneos, reportes y rondas finalizadas.</ITText>
+                </ITFlex>
+            </ITFlex>
+        </ITFlex>
     );
 };
 
@@ -310,16 +310,16 @@ const StatPill = ({ title, value, icon, color, loading }: any) => {
     };
 
     return (
-        <div className="flex-1 min-w-[150px] flex items-center gap-2.5 bg-white border border-slate-100 rounded-xl px-3.5 py-2.5 shadow-sm">
-            <div className={`w-8 h-8 rounded-lg ${colorClasses[color]} flex items-center justify-center text-xs flex-shrink-0`}>{icon}</div>
-            <div className="min-w-0">
+        <ITFlex align="center" className="flex-1 min-w-[150px] flex items-center gap-2.5 bg-white border border-slate-100 rounded-xl px-3.5 py-2.5 shadow-sm">
+            <ITFlex direction="column" className={`w-8 h-8 rounded-lg ${colorClasses[color]} flex items-center justify-center text-xs flex-shrink-0`}>{icon}</ITFlex>
+            <ITFlex direction="column" className="min-w-0">
                 {loading ? (
-                    <div className="h-4 w-10 bg-slate-100 rounded animate-pulse" />
+                    <ITFlex direction="column" className="h-4 w-10 bg-slate-100 rounded animate-pulse" />
                 ) : (
-                    <p className="text-base font-black text-slate-800 leading-none">{value ?? 0}</p>
+                    <ITText as="p" className="text-base font-black text-slate-800 leading-none">{value ?? 0}</ITText>
                 )}
-                <p className="text-[8.5px] font-black text-slate-400 uppercase tracking-wide truncate mt-0.5">{title}</p>
-            </div>
-        </div>
+                <ITText as="p" className="text-[8.5px] font-black text-slate-400 uppercase tracking-wide truncate mt-0.5">{title}</ITText>
+            </ITFlex>
+        </ITFlex>
     );
 };
