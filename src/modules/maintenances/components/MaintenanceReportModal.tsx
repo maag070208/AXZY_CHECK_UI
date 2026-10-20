@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITDatePicker, ITDialog, ITLoader, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDatePicker, ITDialog, ITFlex, ITLoader, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { AppState } from "@app/core/store/store";
 import dayjs from "dayjs";
@@ -231,10 +231,10 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
     const modalContent = (
         <>
             <ITDialog isOpen={isOpen} onClose={handleClose} title="Generar Reporte de Mantenimientos" className="max-w-4xl max-h-[90vh] flex flex-col">
-                <p className="text-xs text-slate-500 mb-4">Configura el rango y selecciona los mantenimientos a incluir.</p>
-                    <div className="p-6 overflow-y-auto flex-1 bg-slate-50/30">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
+                <ITText as="p" className="text-xs text-slate-500 mb-4">Configura el rango y selecciona los mantenimientos a incluir.</ITText>
+                    <ITFlex direction="column" className="p-6 overflow-y-auto flex-1 bg-slate-50/30">
+                        <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <ITFlex direction="column">
                                 <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
                                     <FaCalendarAlt className="text-emerald-500" /> Rango de fechas
                                 </label>
@@ -256,8 +256,8 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                     }}
                                     className="text-sm text-slate-600 outline-none font-medium h-[42px] !border-slate-200"
                                 />
-                            </div>
-                            <div>
+                            </ITFlex>
+                            <ITFlex direction="column">
                                 <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
                                     <FaFilter className="text-emerald-500" /> Estado
                                 </label>
@@ -271,10 +271,10 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                         { value: "ATTENDED", label: "Solo atendidos" },
                                     ]}
                                 />
-                            </div>
-                        </div>
+                            </ITFlex>
+                        </ITFlex>
     
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                        <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                             <label
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all ${
                                     includeImages
@@ -289,10 +289,10 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                     onChange={(e) => setIncludeImages(e.target.checked)}
                                 />
                                 <FaFileImage className={`text-sm ${includeImages ? "text-emerald-600" : "text-slate-400"}`} />
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold leading-tight">Adjuntar imágenes</p>
-                                    <p className="text-[11px] opacity-75">Incluye la evidencia fotográfica y de video de cada mantenimiento.</p>
-                                </div>
+                                <ITFlex direction="column" className="flex-1">
+                                    <ITText as="p" className="text-sm font-bold leading-tight">Adjuntar imágenes</ITText>
+                                    <ITText as="p" className="text-[11px] opacity-75">Incluye la evidencia fotográfica y de video de cada mantenimiento.</ITText>
+                                </ITFlex>
                             </label>
                             <label
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all ${
@@ -308,26 +308,26 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                     onChange={(e) => setIncludeLocation(e.target.checked)}
                                 />
                                 <FaMapMarkerAlt className={`text-sm ${includeLocation ? "text-emerald-600" : "text-slate-400"}`} />
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold leading-tight">Adjuntar ubicación</p>
-                                    <p className="text-[11px] opacity-75">Incluye coordenadas GPS y enlace a Google Maps.</p>
-                                </div>
+                                <ITFlex direction="column" className="flex-1">
+                                    <ITText as="p" className="text-sm font-bold leading-tight">Adjuntar ubicación</ITText>
+                                    <ITText as="p" className="text-[11px] opacity-75">Incluye coordenadas GPS y enlace a Google Maps.</ITText>
+                                </ITFlex>
                             </label>
-                        </div>
+                        </ITFlex>
     
-                        <div className="flex flex-wrap items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 mb-3">
-                            <div className="text-sm text-slate-600">
-                                <span className="font-bold text-slate-800">{selectedIds.size}</span>
+                        <ITFlex align="center" gap={3} className="flex flex-wrap items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 mb-3">
+                            <ITFlex direction="column" className="text-sm text-slate-600">
+                                <ITText as="span" className="font-bold text-slate-800">{selectedIds.size}</ITText>
                                 {" "}de{" "}
-                                <span className="font-bold text-slate-800">{filteredMaintenances.length}</span>
+                                <ITText as="span" className="font-bold text-slate-800">{filteredMaintenances.length}</ITText>
                                 {" "}seleccionado{selectedIds.size === 1 ? "" : "s"}
-                                <span className="text-slate-400 ml-2">
+                                <ITText as="span" className="text-slate-400 ml-2">
                                     {startDate && endDate
                                         ? `(${dayjs(startDate).format("DD/MM/YYYY")} — ${dayjs(endDate).format("DD/MM/YYYY")})`
                                         : "(selecciona un rango)"}
-                                </span>
-                            </div>
-                            <div className="ml-auto flex items-center gap-2">
+                                </ITText>
+                            </ITFlex>
+                            <ITFlex align="center" gap={2} className="ml-auto flex items-center gap-2">
                                 <button
                                     type="button"
                                     onClick={toggleAllFiltered}
@@ -346,21 +346,21 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                         <FaTimes size={10} /> Limpiar
                                     </button>
                                 )}
-                            </div>
-                        </div>
+                            </ITFlex>
+                        </ITFlex>
     
-                        <div className="border border-slate-100 rounded-xl overflow-hidden">
-                            <div className="max-h-[320px] overflow-y-auto bg-white">
+                        <ITFlex direction="column" className="border border-slate-100 rounded-xl overflow-hidden">
+                            <ITFlex direction="column" className="max-h-[320px] overflow-y-auto bg-white">
                                 {loading ? (
-                                    <div className="flex items-center justify-center py-16 text-slate-400 gap-3">
+                                    <ITFlex align="center" justify="center" gap={3} className="flex items-center justify-center py-16 text-slate-400 gap-3">
                                         <ITLoader size="sm" />
-                                        <span className="text-sm">Cargando mantenimientos del rango...</span>
-                                    </div>
+                                        <ITText as="span" className="text-sm">Cargando mantenimientos del rango...</ITText>
+                                    </ITFlex>
                                 ) : filteredMaintenances.length === 0 ? (
-                                    <div className="py-16 text-center text-slate-400">
+                                    <ITFlex direction="column" className="py-16 text-center text-slate-400">
                                         <FaExclamationTriangle className="mx-auto mb-2 text-slate-300" />
-                                        <p className="text-sm font-medium">No se encontraron mantenimientos en el rango seleccionado.</p>
-                                    </div>
+                                        <ITText as="p" className="text-sm font-medium">No se encontraron mantenimientos en el rango seleccionado.</ITText>
+                                    </ITFlex>
                                 ) : (
                                     <ul className="divide-y divide-slate-100">
                                         {filteredMaintenances.map((m) => {
@@ -384,10 +384,10 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                                     >
                                                         {checked ? <FaCheckSquare size={18} /> : <FaSquare size={18} className="text-slate-300" />}
                                                     </button>
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 flex-wrap">
-                                                            <span className="text-[10px] font-bold text-slate-400">#{m.id}</span>
-                                                            <p className="font-bold text-slate-800 text-sm line-clamp-1">{m.title}</p>
+                                                    <ITFlex direction="column" className="flex-1 min-w-0">
+                                                        <ITFlex align="center" gap={2} className="flex items-center gap-2 flex-wrap">
+                                                            <ITText as="span" className="text-[10px] font-bold text-slate-400">#{m.id}</ITText>
+                                                            <ITText as="p" className="font-bold text-slate-800 text-sm line-clamp-1">{m.title}</ITText>
                                                             <ITBadget
                                                                 color={m.status === 'ATTENDED' ? 'success' : 'warning'}
                                                                 size="sm"
@@ -395,39 +395,39 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                                             >
                                                                 {m.status === 'ATTENDED' ? 'Atendido' : 'Pendiente'}
                                                             </ITBadget>
-                                                        </div>
-                                                        <div className="flex items-center gap-3 mt-1 text-[11px] text-slate-500 flex-wrap">
-                                                            <span className="font-semibold">{m.category || 'General'}</span>
-                                                            <span>{dayjs(m.createdAt).format("DD/MM/YYYY HH:mm")}</span>
-                                                            <span>
+                                                        </ITFlex>
+                                                        <ITFlex align="center" gap={3} className="flex items-center gap-3 mt-1 text-[11px] text-slate-500 flex-wrap">
+                                                            <ITText as="span" className="font-semibold">{m.category || 'General'}</ITText>
+                                                            <ITText as="span">{dayjs(m.createdAt).format("DD/MM/YYYY HH:mm")}</ITText>
+                                                            <ITText as="span">
                                                                 Por: {m.guard?.name} {m.guard?.lastName ?? ""}
-                                                            </span>
+                                                            </ITText>
                                                             {m.media && m.media.length > 0 && (
-                                                                <span className="flex items-center gap-1 text-blue-500">
+                                                                <ITText as="span" className="flex items-center gap-1 text-blue-500">
                                                                     <FaFileAlt /> {m.media.length}
-                                                                </span>
+                                                                </ITText>
                                                             )}
                                                             {m.latitude && m.longitude && (
-                                                                <span className="flex items-center gap-1 text-emerald-500">
+                                                                <ITText as="span" className="flex items-center gap-1 text-emerald-500">
                                                                     <FaMapMarkerAlt /> GPS
-                                                                </span>
+                                                                </ITText>
                                                             )}
-                                                        </div>
-                                                    </div>
+                                                        </ITFlex>
+                                                    </ITFlex>
                                                 </li>
                                             );
                                         })}
                                     </ul>
                                 )}
-                            </div>
-                        </div>
-                    </div>
+                            </ITFlex>
+                        </ITFlex>
+                    </ITFlex>
     
-                    <div className="px-6 py-4 border-t border-slate-100 bg-white rounded-b-2xl flex justify-between items-center gap-3">
-                        <p className="text-[11px] text-slate-400">
+                    <ITFlex align="center" justify="between" gap={3} className="px-6 py-4 border-t border-slate-100 bg-white rounded-b-2xl flex justify-between items-center gap-3">
+                        <ITText as="p" className="text-[11px] text-slate-400">
                             {isAdmin ? "Generarás el reporte con permisos de administrador." : "El reporte se genera con los permisos del usuario autenticado."}
-                        </p>
-                        <div className="flex gap-3">
+                        </ITText>
+                        <ITFlex gap={3} className="flex gap-3">
                             <ITButton
                                 variant="outlined"
                                 color="secondary"
@@ -445,16 +445,16 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                                 disabled={selectedIds.size === 0 || generating}
                             >
                                 {generating ? <ITLoader size="sm" /> : <FaFilePdf />}
-                                <span>{generating ? "Generando..." : "Generar Reporte PDF"}</span>
+                                <ITText as="span">{generating ? "Generando..." : "Generar Reporte PDF"}</ITText>
                             </ITButton>
-                        </div>
-                    </div>
+                        </ITFlex>
+                    </ITFlex>
             </ITDialog>
             <ITDialog isOpen={generating} onClose={() => undefined} title="Generando reporte PDF" className="max-w-sm">
-                <div className="flex flex-col items-center gap-4 py-4">
+                <ITFlex direction="column" align="center" gap={4} className="flex flex-col items-center gap-4 py-4">
                     <ITLoader size="lg" />
-                    <p className="text-xs text-slate-500">Por favor no cierres esta ventana.</p>
-                </div>
+                    <ITText as="p" className="text-xs text-slate-500">Por favor no cierres esta ventana.</ITText>
+                </ITFlex>
             </ITDialog>
         </>
     );
