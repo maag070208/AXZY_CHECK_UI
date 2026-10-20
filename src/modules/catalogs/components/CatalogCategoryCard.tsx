@@ -1,4 +1,4 @@
-import { ITDropdownMenu } from "@axzydev/axzy_ui_system";
+import { ITDropdownMenu, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import type { ReactNode } from "react";
 import {
   FaArrowDown,
@@ -84,7 +84,7 @@ const TypeSearch = ({
   value: string;
   onChange: (value: string) => void;
 }) => (
-  <div className="relative">
+  <ITFlex direction="column" className="relative">
     <FaSearch
       size={9}
       className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
@@ -107,7 +107,7 @@ const TypeSearch = ({
         <FaTimes size={8} />
       </button>
     )}
-  </div>
+  </ITFlex>
 );
 
 /**
@@ -207,36 +207,36 @@ export const CatalogCategoryCard = ({
             : "bg-rose-50/30 shadow-sm hover:shadow-md",
       )}
     >
-      <div className="flex items-start gap-3 p-4">
-        <div
+      <ITFlex align="start" gap={3} className="flex items-start gap-3 p-4">
+        <ITFlex align="center" justify="center"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border"
           style={getCategoryTint(color)}
         >
           <CategoryIcon size={19} />
-        </div>
+        </ITFlex>
 
-        <div className="min-w-0 flex-1 pt-0.5">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="break-words text-[16px] font-black leading-tight text-slate-800">
+        <ITFlex direction="column" className="min-w-0 flex-1 pt-0.5">
+          <ITFlex align="center" className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <ITText as="h3" className="break-words text-[16px] font-black leading-tight text-slate-800">
               {category.value}
-            </h3>
+            </ITText>
             {!category.active && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-500 ring-1 ring-inset ring-rose-100">
+              <ITText as="span" className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-500 ring-1 ring-inset ring-rose-100">
                 Inactiva
-              </span>
+              </ITText>
             )}
-          </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="max-w-[190px] truncate rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-slate-500">
+          </ITFlex>
+          <ITFlex align="center" className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <ITText as="span" className="max-w-[190px] truncate rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-slate-500">
               {category.name}
-            </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
+            </ITText>
+            <ITText as="span" className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
               {totalTypes} {totalTypes === 1 ? "tipo" : "tipos"}
-            </span>
-          </div>
-        </div>
+            </ITText>
+          </ITFlex>
+        </ITFlex>
 
-        <div className="flex shrink-0 items-center gap-0.5">
+        <ITFlex align="center" className="flex shrink-0 items-center gap-0.5">
           <IconButton label="Editar categoría" onClick={onEditCategory} tone="primary">
             <FaPen size={11} />
           </IconButton>
@@ -246,8 +246,8 @@ export const CatalogCategoryCard = ({
             triggerLabel="Acciones de la categoría"
             className="!h-[30px] !w-[30px] !rounded-lg !p-0 text-slate-400 hover:!bg-slate-100 hover:!text-slate-700"
           />
-        </div>
-      </div>
+        </ITFlex>
+      </ITFlex>
 
       <button
         type="button"
@@ -259,46 +259,46 @@ export const CatalogCategoryCard = ({
           expanded ? "border-slate-100 bg-slate-50/70" : "border-slate-100 hover:bg-slate-50/70",
         )}
       >
-        <span className="inline-flex items-center gap-1.5">
-          <span
+        <ITText as="span" className="inline-flex items-center gap-1.5">
+          <ITText as="span"
             className={cx(
               "h-1.5 w-1.5 rounded-full",
               category.active ? "bg-emerald-500" : "bg-rose-400",
             )}
           />
-          <span
+          <ITText as="span"
             className={cx(
               "text-[10px] font-black uppercase tracking-widest",
               category.active ? "text-emerald-700" : "text-rose-500",
             )}
           >
             {category.active ? "Activa" : "Inactiva"}
-          </span>
-        </span>
+          </ITText>
+        </ITText>
 
-        <span className="inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-500">
+        <ITText as="span" className="inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-500">
           {expanded ? "Ocultar tipos" : "Ver tipos"}
-          <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-black text-slate-600">
+          <ITText as="span" className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-black text-slate-600">
             {totalTypes}
-          </span>
+          </ITText>
           <FaChevronDown
             size={9}
             className={cx("text-slate-400 transition-transform duration-200", expanded && "rotate-180")}
           />
-        </span>
+        </ITText>
       </button>
 
       {expanded && (
         <div id={panelId} className="border-t border-slate-100 bg-slate-50/60 !p-3.5">
-          <div className="mb-2.5 flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+          <ITFlex align="center" gap={2} className="mb-2.5 flex flex-wrap items-center gap-2">
+            <ITText as="span" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
               Tipos
-            </span>
-            <span className="rounded-full border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
+            </ITText>
+            <ITText as="span" className="rounded-full border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
               {fullTypes.length}
-            </span>
+            </ITText>
 
-            <div className="ml-auto flex items-center gap-1.5">
+            <ITFlex align="center" className="ml-auto flex items-center gap-1.5">
               {fullTypes.length > 3 && (
                 <TypeSearch value={typeQuery} onChange={onTypeQueryChange} />
               )}
@@ -309,24 +309,24 @@ export const CatalogCategoryCard = ({
               >
                 <FaPlus size={8} /> Nuevo tipo
               </button>
-            </div>
-          </div>
+            </ITFlex>
+          </ITFlex>
 
           {typesLoading && (
-            <div className="space-y-1.5">
+            <ITFlex direction="column" className="space-y-1.5">
               {[0, 1, 2].map((item) => (
                 <div
                   key={item}
                   className="h-11 animate-pulse rounded-xl border border-slate-100 bg-white"
                 />
               ))}
-            </div>
+            </ITFlex>
           )}
 
           {!typesLoading && typesError && (
-            <div className="flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2.5 text-[11px] font-semibold text-rose-600">
+            <ITFlex align="center" gap={2} className="flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2.5 text-[11px] font-semibold text-rose-600">
               <FaExclamationCircle size={12} className="shrink-0" />
-              <span className="flex-1">{typesError}</span>
+              <ITText as="span" className="flex-1">{typesError}</ITText>
               <button
                 type="button"
                 onClick={onReloadTypes}
@@ -334,16 +334,16 @@ export const CatalogCategoryCard = ({
               >
                 Reintentar
               </button>
-            </div>
+            </ITFlex>
           )}
 
           {!typesLoading && !typesError && fullTypes.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-5 text-center">
+            <ITFlex direction="column" className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-5 text-center">
               <MdPlaylistAdd size={22} className="mx-auto mb-1.5 text-slate-300" />
-              <p className="text-xs font-bold text-slate-600">Sin tipos todavía</p>
-              <p className="mt-0.5 text-[11px] text-slate-400">
+              <ITText as="p" className="text-xs font-bold text-slate-600">Sin tipos todavía</ITText>
+              <ITText as="p" className="mt-0.5 text-[11px] text-slate-400">
                 Agrega el primer tipo de esta categoría.
-              </p>
+              </ITText>
               <button
                 type="button"
                 onClick={onAddType}
@@ -351,14 +351,14 @@ export const CatalogCategoryCard = ({
               >
                 Agregar tipo
               </button>
-            </div>
+            </ITFlex>
           )}
 
           {!typesLoading && !typesError && fullTypes.length > 0 && filteredTypes.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-5 text-center">
-              <p className="text-[11px] font-semibold text-slate-500">
+            <ITFlex direction="column" className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-5 text-center">
+              <ITText as="p" className="text-[11px] font-semibold text-slate-500">
                 Ningún tipo coincide con “{typeQuery}”.
-              </p>
+              </ITText>
               <button
                 type="button"
                 onClick={() => onTypeQueryChange("")}
@@ -366,11 +366,11 @@ export const CatalogCategoryCard = ({
               >
                 Limpiar búsqueda
               </button>
-            </div>
+            </ITFlex>
           )}
 
           {!typesLoading && !typesError && filteredTypes.length > 0 && (
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <ITFlex direction="column" className="overflow-hidden rounded-xl border border-slate-200 bg-white">
               {filteredTypes.map((type, index) => {
                 const fullIndex = fullTypes.findIndex((item) => item.id === type.id);
                 const typeBusy = busyKey === `type-${type.id}`;
@@ -430,28 +430,28 @@ export const CatalogCategoryCard = ({
                       className="h-1.5 w-1.5 shrink-0 rounded-full"
                       style={{ backgroundColor: color }}
                     />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <p
+                    <ITFlex direction="column" className="min-w-0 flex-1">
+                      <ITFlex align="center" className="flex items-center gap-1.5">
+                        <ITText as="p"
                           className={cx(
                             "truncate text-[13px] font-semibold",
                             type.active ? "text-slate-700" : "text-slate-500",
                           )}
                         >
                           {type.value}
-                        </p>
+                        </ITText>
                         {!type.active && (
-                          <span className="shrink-0 rounded-full bg-rose-50 px-1.5 py-0.5 text-[8.5px] font-black uppercase tracking-wider text-rose-500 ring-1 ring-inset ring-rose-100">
+                          <ITText as="span" className="shrink-0 rounded-full bg-rose-50 px-1.5 py-0.5 text-[8.5px] font-black uppercase tracking-wider text-rose-500 ring-1 ring-inset ring-rose-100">
                             Inactivo
-                          </span>
+                          </ITText>
                         )}
-                      </div>
-                      <p className="truncate font-mono text-[9px] uppercase tracking-wide text-slate-400">
+                      </ITFlex>
+                      <ITText as="p" className="truncate font-mono text-[9px] uppercase tracking-wide text-slate-400">
                         {type.name}
-                      </p>
-                    </div>
+                      </ITText>
+                    </ITFlex>
 
-                    <div className="flex shrink-0 items-center gap-0.5">
+                    <ITFlex align="center" className="flex shrink-0 items-center gap-0.5">
                       <IconButton
                         label="Editar tipo"
                         onClick={() => onEditType(type)}
@@ -466,11 +466,11 @@ export const CatalogCategoryCard = ({
                         triggerLabel={`Acciones del tipo ${type.value}`}
                         className="!h-7 !w-7 !rounded-lg !p-0 text-slate-400 hover:!bg-slate-100 hover:!text-slate-700"
                       />
-                    </div>
+                    </ITFlex>
                   </div>
                 );
               })}
-            </div>
+            </ITFlex>
           )}
         </div>
       )}
