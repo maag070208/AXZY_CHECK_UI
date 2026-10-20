@@ -1,4 +1,4 @@
-import { ITButton, ITDatePicker, ITInput, ITLoader, ITSearchSelect, ITTimePicker } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDatePicker, ITFlex, ITInput, ITLoader, ITSearchSelect, ITText, ITTimePicker } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import { PersonLite, searchPersons } from "@app/modules/persons/persons.service";
@@ -71,24 +71,24 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
     void load();
   };
 
-  if (loading) return <div className="flex justify-center p-6"><ITLoader size="sm" /></div>;
+  if (loading) return <ITFlex justify="center" className="flex justify-center p-6"><ITLoader size="sm" /></ITFlex>;
 
   return (
     <section className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 space-y-6">
-      <h2 className="text-lg font-bold text-slate-800">Personas autorizadas</h2>
+      <ITText as="h2" className="text-lg font-bold text-slate-800">Personas autorizadas</ITText>
 
       <ul className="divide-y divide-slate-100 text-sm">
         {rows.map((a) => (
           <li key={a.id} className="py-3 flex items-center justify-between gap-4">
-            <span>
+            <ITText as="span">
               <strong>{a.person.firstName} {a.person.lastName ?? ""}</strong> · {SCOPE_LABEL[a.scope]} · {a.days.split(",").map((d) => DAY_LABELS[Number(d)]).join(" ")} {a.startTime}–{a.endTime}
               {a.revokedAt ? <em className="ml-2 text-red-600">Revocada</em> : null}
-            </span>
+            </ITText>
             {!a.revokedAt && (
-              <div className="flex gap-2">
+              <ITFlex gap={2} className="flex gap-2">
                 <ITButton variant="ghost" size="sm" onClick={() => void generatePass(a.id)}>Generar pase</ITButton>
                 <ITButton variant="ghost" size="sm" onClick={() => void revoke(a.id)}>Revocar</ITButton>
-              </div>
+              </ITFlex>
             )}
           </li>
         ))}
@@ -96,16 +96,16 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
       </ul>
 
       {passFor && (
-        <div className="rounded-2xl bg-slate-50 p-4 flex items-center gap-4">
+        <ITFlex align="center" gap={4} className="rounded-2xl bg-slate-50 p-4 flex items-center gap-4">
           <img src={passFor.dataUrl} alt="Pase QR" width={220} height={220} />
-          <p className="text-sm text-slate-600">Pase de acceso. Se muestra una sola vez: si lo generas de nuevo, este deja de funcionar.</p>
+          <ITText as="p" className="text-sm text-slate-600">Pase de acceso. Se muestra una sola vez: si lo generas de nuevo, este deja de funcionar.</ITText>
           <ITButton variant="outlined" size="sm" onClick={() => setPassFor(null)}>Cerrar</ITButton>
-        </div>
+        </ITFlex>
       )}
 
-      <div className="space-y-3 border-t border-slate-100 pt-4">
+      <ITFlex direction="column" className="space-y-3 border-t border-slate-100 pt-4">
         <ITInput name="authPerson" label="Buscar persona" value={query} onChange={(e) => void search(e.target.value)} />
-        {person && <p className="text-sm text-emerald-700">Seleccionada: {person.firstName} {person.lastName ?? ""}</p>}
+        {person && <ITText as="p" className="text-sm text-emerald-700">Seleccionada: {person.firstName} {person.lastName ?? ""}</ITText>}
         {!person && results.map((p) => (
           <ITButton key={p.id} variant="ghost" onClick={() => setPerson(p)}>
             {p.firstName} {p.lastName ?? ""}
@@ -140,7 +140,7 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
           ))}
         </fieldset>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <ITFlex direction="column" className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <ITTimePicker name="startTime" label="Desde" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
           <ITTimePicker name="endTime" label="Hasta" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
           <ITDatePicker
@@ -155,11 +155,11 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
             value={validUntil ? dayjs(validUntil).toDate() : undefined}
             onChange={(e) => setValidUntil(e.target.value ? dayjs(e.target.value as Date).format("YYYY-MM-DD") : "")}
           />
-        </div>
+        </ITFlex>
 
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
         <ITButton onClick={() => void save()} disabled={!person}>Autorizar acceso</ITButton>
-      </div>
+      </ITFlex>
     </section>
   );
 };
