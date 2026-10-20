@@ -197,12 +197,12 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
                 />
               </div>
               <div className="mt-3 flex items-center gap-4">
-                <button type="button" onClick={generate} className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800">
+                <ITButton type="button" variant="text" color="primary" size="sm" onClick={generate} className="!p-0 gap-1.5 font-bold text-emerald-700 hover:text-emerald-800">
                   <FaMagic size={11} /> Generar contraseña segura
-                </button>
-                <button type="button" onClick={() => setShowPassword((v) => !v)} className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-700">
+                </ITButton>
+                <ITButton type="button" variant="text" color="gray" size="sm" onClick={() => setShowPassword((v) => !v)} className="!p-0 gap-1.5 font-bold text-slate-500 hover:text-slate-700">
                   {showPassword ? <FaEyeSlash size={12} /> : <FaEye size={12} />} {showPassword ? "Ocultar" : "Mostrar"}
-                </button>
+                </ITButton>
               </div>
             </div>
           )}

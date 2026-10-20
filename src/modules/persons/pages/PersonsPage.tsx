@@ -56,10 +56,15 @@ export const PersonsPage = () => {
       <ul className="divide-y divide-slate-100 bg-white rounded-2xl border border-slate-100">
         {rows.map((p) => (
           <li key={p.id}>
-            <button className="w-full text-left px-6 py-3 hover:bg-slate-50" onClick={() => navigate(`/persons/${p.id}`)}>
+            <ITButton
+              variant="text"
+              color="gray"
+              onClick={() => navigate(`/persons/${p.id}`)}
+              className="w-full !justify-start !text-left !px-6 !py-3 !rounded-none hover:bg-slate-50"
+            >
               <span className="font-semibold text-slate-800">{p.firstName} {p.lastName ?? ""}</span>
               <span className="ml-3 text-sm text-slate-500">{p.phone ?? ""}</span>
-            </button>
+            </ITButton>
           </li>
         ))}
         {rows.length === 0 && (

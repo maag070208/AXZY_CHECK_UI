@@ -546,12 +546,13 @@ const PropertyDetailPage = () => {
                                             <div className="absolute inset-0 bg-slate-800 opacity-0 group-hover:opacity-10 transition-opacity z-10" />
                                             <img src={doc.url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="INE" />
                                             <div className="absolute top-4 right-4 z-20">
-                                                <button 
+                                                <ITButton
+                                                    variant="icon-only"
+                                                    color="gray"
                                                     onClick={() => window.open(doc.url, '_blank')}
-                                                    className="w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-lg flex items-center justify-center text-slate-800 hover:bg-emerald-500 hover:text-white transition-all transform scale-0 group-hover:scale-100"
-                                                >
-                                                    <FaEye />
-                                                </button>
+                                                    icon={<FaEye />}
+                                                    className="w-10 h-10 !rounded-full bg-white/90 backdrop-blur shadow-lg text-slate-800 hover:bg-emerald-500 hover:text-white transition-all transform scale-0 group-hover:scale-100"
+                                                />
                                             </div>
                                         </div>
                                     </div>

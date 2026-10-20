@@ -294,9 +294,14 @@ const NewShiftHandoverPage = () => {
                         }
                       />
                     </div>
-                    <button onClick={() => handleRemoveElement(index)} className="text-slate-300 hover:text-red-500 flex-shrink-0">
-                      <FaTrash size={12} />
-                    </button>
+                    <ITButton
+                      variant="icon-only"
+                      color="gray"
+                      size="sm"
+                      onClick={() => handleRemoveElement(index)}
+                      icon={<FaTrash size={12} />}
+                      className="text-slate-300 hover:text-red-500 flex-shrink-0"
+                    />
                   </div>
                 ))}
               </div>

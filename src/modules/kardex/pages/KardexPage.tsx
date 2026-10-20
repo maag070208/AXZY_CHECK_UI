@@ -195,13 +195,15 @@ const KardexPage = () => {
                         className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full"
                     />
                     {searchTerm.length > 0 && (
-                        <button 
+                        <ITButton
+                            variant="icon-only"
+                            color="gray"
+                            size="sm"
                             onClick={() => setSearchTerm("")}
-                            className="text-slate-300 hover:text-red-400 transition-all"
+                            icon={<FaTimesCircle className="text-xs" />}
                             title="Limpiar búsqueda"
-                        >
-                            <FaTimesCircle className="text-xs" />
-                        </button>
+                            className="text-slate-300 hover:text-red-400 transition-all"
+                        />
                     )}
                 </div>
             </div>
@@ -284,12 +286,13 @@ const KardexPage = () => {
                 </div>
                 <p className="text-sm text-slate-500">Registrado el {dayjs(viewingEntry.timestamp).format("DD [de] MMMM, YYYY [a las] HH:mm a")}</p>
               </div>
-              <button 
-                onClick={() => setViewingEntry(null)} 
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-all"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+              <ITButton
+                variant="icon-only"
+                color="gray"
+                onClick={() => setViewingEntry(null)}
+                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>}
+                className="!rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-all"
+              />
             </div>
             
             <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">

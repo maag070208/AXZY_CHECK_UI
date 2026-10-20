@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { ITButton } from '@axzydev/axzy_ui_system';
 import {
     FaChevronLeft,
     FaChevronRight,
@@ -112,19 +113,21 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                 </div>
                 
                 <div className="flex gap-2">
-                    <button 
+                    <ITButton
+                        variant="icon-only"
+                        color="gray"
                         onClick={toggleFullscreen}
-                        className="p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-all border border-white/10"
-                    >
-                        {isFullscreen ? <FaCompress /> : <FaExpand />}
-                    </button>
+                        icon={isFullscreen ? <FaCompress /> : <FaExpand />}
+                        className="!rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/10"
+                    />
                     {isFullscreen && (
-                        <button 
+                        <ITButton
+                            variant="icon-only"
+                            color="danger"
                             onClick={toggleFullscreen}
-                            className="p-3 rounded-full bg-red-500/20 hover:bg-red-500/40 backdrop-blur-md text-red-200 transition-all border border-red-500/20"
-                        >
-                            <FaTimes />
-                        </button>
+                            icon={<FaTimes />}
+                            className="!rounded-full bg-red-500/20 hover:bg-red-500/40 backdrop-blur-md text-red-200 border border-red-500/20"
+                        />
                     )}
                 </div>
             </div>
@@ -135,18 +138,20 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                 {/* Botones de Navegación */}
                 {media.length > 1 && (
                     <>
-                        <button 
+                        <ITButton
+                            variant="icon-only"
+                            color="gray"
                             onClick={prevSlide}
-                            className="absolute left-4 z-30 p-4 rounded-2xl bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 border border-white/10 -translate-x-4 group-hover:translate-x-0"
-                        >
-                            <FaChevronLeft size={24} />
-                        </button>
-                        <button 
+                            icon={<FaChevronLeft size={24} />}
+                            className="absolute left-4 z-30 !rounded-2xl bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 border border-white/10 -translate-x-4 group-hover:translate-x-0"
+                        />
+                        <ITButton
+                            variant="icon-only"
+                            color="gray"
                             onClick={nextSlide}
-                            className="absolute right-4 z-30 p-4 rounded-2xl bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 border border-white/10 translate-x-4 group-hover:translate-x-0"
-                        >
-                            <FaChevronRight size={24} />
-                        </button>
+                            icon={<FaChevronRight size={24} />}
+                            className="absolute right-4 z-30 !rounded-2xl bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 border border-white/10 translate-x-4 group-hover:translate-x-0"
+                        />
                     </>
                 )}
 

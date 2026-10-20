@@ -1,6 +1,6 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITLoader } from "@axzydev/axzy_ui_system";
 import { useEffect, useMemo, useState } from "react";
 import { FaArrowLeft, FaBuilding, FaCalendarAlt, FaCheckCircle, FaCheckDouble, FaClipboardList, FaClock, FaExclamationTriangle, FaEye, FaFileAlt, FaImage, FaLocationArrow, FaMapMarkedAlt, FaMapMarkerAlt, FaPlay, FaQrcode, FaRoute, FaStopwatch, FaTrash, FaUserShield } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -256,12 +256,13 @@ const RoundDetailPage = () => {
                 </div>
                 <h3 className="text-xl font-bold text-slate-800 mb-2">No se encontró la ronda</h3>
                 <p className="text-slate-500 mb-6">La ronda que buscas no existe o ha sido eliminada.</p>
-                <button 
+                <ITButton
                     onClick={() => navigate(-1)}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    color="info"
+                    className="!px-6 !py-2 !rounded-lg"
                 >
                     Volver
-                </button>
+                </ITButton>
             </div>
         </div>
     );
@@ -272,15 +273,17 @@ const RoundDetailPage = () => {
             <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-20">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
-                        <button 
+                        <ITButton
+                            variant="text"
+                            color="gray"
                             onClick={() => navigate(-1)}
-                            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-all duration-200 group"
+                            className="!p-0 gap-2 text-slate-600 hover:text-slate-900 transition-all duration-200 group"
                         >
                             <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center transition-colors">
                                 <FaArrowLeft className="text-sm" />
                             </div>
                             <span className="font-medium hidden sm:inline">Volver</span>
-                        </button>
+                        </ITButton>
                         
                         <div className="flex items-center gap-3">
                             <ITBadget 
@@ -395,13 +398,15 @@ const RoundDetailPage = () => {
                                 <h3 className="font-bold text-slate-800 text-lg">Ruta Recorrida</h3>
                             </div>
                             
-                            <button 
+                            <ITButton
+                                variant="text"
+                                color="gray"
                                 onClick={handleOpenRouteMap}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all duration-200 font-medium text-sm"
+                                className="!rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 duration-200 font-medium text-sm gap-2"
                             >
                                 <FaMapMarkedAlt className="text-blue-600" />
                                 <span>Ver trazo en mapa</span>
-                            </button>
+                            </ITButton>
                         </div>
                         
                         <div className="overflow-x-auto pb-4">
@@ -516,13 +521,15 @@ const RoundDetailPage = () => {
                                             </div>
                                             
                                             {isAdmin && (event.type === 'INCIDENT' || (event.type === 'SCAN' && (event.data?.scanType === 'FREE' || event.data?.user?.role === 'MANTENIMIENTO'))) && (
-                                                <button 
+                                                <ITButton
+                                                    variant="icon-only"
+                                                    color="gray"
+                                                    size="sm"
                                                     onClick={() => handleDeleteEvent(event.data.id, event.type as any)}
-                                                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                    icon={<FaTrash size={14} />}
                                                     title="Eliminar registro"
-                                                >
-                                                    <FaTrash size={14} />
-                                                </button>
+                                                    className="text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                />
                                             )}
                                         </div>
                                         

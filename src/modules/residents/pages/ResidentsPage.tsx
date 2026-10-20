@@ -214,13 +214,15 @@ const ResidentsPage = () => {
                             className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                         />
                         {searchTerm && (
-                            <button 
+                            <ITButton
+                                variant="icon-only"
+                                color="gray"
+                                size="sm"
                                 onClick={() => setSearchTerm("")}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                                icon={<FaTimes size={14} />}
                                 title="Limpiar búsqueda"
-                            >
-                                <FaTimes size={14} />
-                            </button>
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                            />
                         )}
                     </div>
                     <ITButton
@@ -234,13 +236,15 @@ const ResidentsPage = () => {
                         <FaSync className="text-xs text-slate-500" />
                         <span className="text-xs font-bold text-slate-500">Actualizar</span>
                     </ITButton>
-                    <button 
+                    <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 h-[42px] rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:scale-105 transition-all"
+                        color="primary"
+                        size="sm"
+                        className="h-[42px] !rounded-xl !flex !items-center !gap-2"
                     >
                         <FaPlus className="text-xs" />
                         <span>Alta de Residente</span>
-                    </button>
+                    </ITButton>
                 </div>
       }
     >

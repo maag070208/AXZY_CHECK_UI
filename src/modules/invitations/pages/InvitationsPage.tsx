@@ -234,12 +234,14 @@ const InvitationsPage = () => {
                             className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                         />
                         {searchTerm && (
-                            <button 
+                            <ITButton
+                                variant="icon-only"
+                                color="gray"
+                                size="sm"
                                 onClick={() => setSearchTerm("")}
+                                icon={<FaTimes size={14} />}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
-                            >
-                                <FaTimes size={14} />
-                            </button>
+                            />
                         )}
                     </div>
                     <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
@@ -269,13 +271,15 @@ const InvitationsPage = () => {
                         <FaSync className={`text-xs text-slate-500`} />
                         <span className="text-xs font-bold text-slate-500">Refrescar</span>
                     </ITButton>
-                    <button 
+                    <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:scale-105 transition-all"
+                        color="primary"
+                        size="sm"
+                        className="!rounded-xl !flex !items-center !gap-2"
                     >
                         <FaPlus className="text-xs" />
                         <span>Crear Pase</span>
-                    </button>
+                    </ITButton>
                 </div>
       }
     >
@@ -420,22 +424,21 @@ const InvitationsPage = () => {
                         </div>
 
                         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
-                            <button 
+                            <ITButton
+                                variant="text"
+                                color="gray"
                                 onClick={() => setScanningCode(null)}
-                                className="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-200/50 transition-all border-2 border-transparent w-full sm:w-auto"
+                                className="!px-6 !py-3 !rounded-xl font-bold text-slate-500 hover:bg-slate-200/50 transition-all w-full sm:w-auto"
                             >
                                 Cancelar
-                            </button>
-                            <button 
+                            </ITButton>
+                            <ITButton
                                 onClick={confirmScanningCode}
-                                className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all border-2 border-transparent w-full sm:w-auto flex items-center justify-center gap-2 ${
-                                    scanningCode?.type === 'ENTERED' 
-                                    ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/30 hover:shadow-emerald-500/50' 
-                                    : 'bg-slate-800 hover:bg-slate-700 shadow-slate-800/30'
-                                }`}
+                                color={scanningCode?.type === 'ENTERED' ? 'success' : 'gray'}
+                                className="!px-8 !py-3 !rounded-xl font-bold text-white shadow-lg w-full sm:w-auto flex items-center justify-center gap-2"
                             >
                                 {scanningCode?.type === 'ENTERED' ? 'Autorizar y Dar Acceso' : 'Cerrar Visita (Salida)'}
-                            </button>
+                            </ITButton>
                         </div>
                     </div>
                 </div>

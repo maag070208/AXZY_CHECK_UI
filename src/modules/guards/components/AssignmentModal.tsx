@@ -154,12 +154,14 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                                             </div>
                                             <span className="text-sm text-slate-600 font-medium">{task.description}</span>
                                         </div>
-                                        <button 
+                                        <ITButton
+                                            variant="icon-only"
+                                            color="gray"
+                                            size="sm"
                                             onClick={() => removeTask(index)}
-                                            className="text-slate-300 hover:text-red-400 transition-colors p-1"
-                                        >
-                                            <FaTrash size={12} />
-                                        </button>
+                                            icon={<FaTrash size={12} />}
+                                            className="text-slate-300 hover:text-red-400 transition-colors"
+                                        />
                                     </div>
                                 ))}
                             </div>

@@ -72,12 +72,14 @@ const GuardsPage = () => {
                             className="w-full py-2 h-[42px] px-4 pr-10 bg-white border border-slate-100 rounded-xl outline-none text-sm focus:border-[#065911] transition-all shadow-sm font-medium text-slate-600"
                         />
                         {searchTerm ? (
-                            <button 
+                            <ITButton
+                                variant="icon-only"
+                                color="gray"
+                                size="sm"
                                 onClick={() => setSearchTerm("")}
+                                icon={<FaTimes size={14} />}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
-                            >
-                                <FaTimes size={14} />
-                            </button>
+                            />
                         ) : (
                             <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-200" size={14} />
                         )}

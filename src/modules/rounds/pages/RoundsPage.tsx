@@ -314,13 +314,15 @@ const RoundsPage = () => {
                         className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full placeholder:text-slate-300 placeholder:font-normal"
                     />
                     {searchTerm.length > 0 && (
-                        <button 
+                        <ITButton
+                            variant="icon-only"
+                            color="gray"
+                            size="sm"
                             onClick={() => setSearchTerm("")}
-                            className="text-slate-300 hover:text-red-400 transition-all"
+                            icon={<FaTimesCircle className="text-xs" />}
                             title="Limpiar búsqueda"
-                        >
-                            <FaTimesCircle className="text-xs" />
-                        </button>
+                            className="text-slate-300 hover:text-red-400 transition-all"
+                        />
                     )}
                 </div>
             </div>

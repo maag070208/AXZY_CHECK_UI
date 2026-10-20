@@ -258,13 +258,15 @@ const PropertiesPage = () => {
                             className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                         />
                         {searchTerm && (
-                            <button 
+                            <ITButton
+                                variant="icon-only"
+                                color="gray"
+                                size="sm"
                                 onClick={() => setSearchTerm("")}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                                icon={<FaTimes size={14} />}
                                 title="Limpiar búsqueda"
-                            >
-                                <FaTimes size={14} />
-                            </button>
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                            />
                         )}
                     </div>
                     <ITButton

@@ -324,12 +324,14 @@ const MaintenancesPage = () => {
                     className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                 />
                 {searchTerm && (
-                    <button 
+                    <ITButton
+                        variant="icon-only"
+                        color="gray"
+                        size="sm"
                         onClick={() => setSearchTerm("")}
+                        icon={<FaTimes size={14} />}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
-                    >
-                        <FaTimes size={14} />
-                    </button>
+                    />
                 )}
             </div>
             <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
@@ -435,12 +437,13 @@ const MaintenancesPage = () => {
                </div>
                <p className="text-sm text-slate-500">Reportado el {dayjs(viewingMaintenance.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</p>
             </div>
-            <button 
-              onClick={() => setViewingMaintenance(null)} 
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-all"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
+            <ITButton
+              variant="icon-only"
+              color="gray"
+              onClick={() => setViewingMaintenance(null)}
+              icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>}
+              className="!rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-all"
+            />
           </div>
           
           <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">

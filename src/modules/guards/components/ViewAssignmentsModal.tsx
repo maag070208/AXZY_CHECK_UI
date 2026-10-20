@@ -87,12 +87,13 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                 <div className="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
                     <div className="flex items-center gap-4">
                         {selectedAssignment && (
-                            <button 
+                            <ITButton
+                                variant="icon-only"
+                                color="gray"
                                 onClick={() => setSelectedAssignment(null)}
-                                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-all hover:text-[#065911]"
-                            >
-                                <FaArrowLeft />
-                            </button>
+                                icon={<FaArrowLeft />}
+                                className="!rounded-full text-slate-400 transition-all hover:text-[#065911] hover:bg-slate-100"
+                            />
                         )}
                         <div>
                             <h4 className="font-bold text-slate-800 text-lg flex items-center gap-2">
@@ -116,13 +117,14 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button 
+                        <ITButton
+                            variant="icon-only"
+                            color="gray"
                             onClick={fetchAssignments}
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-[#065911]"
                             disabled={loading}
-                        >
-                            <FaSync className={loading ? "animate-spin" : ""} />
-                        </button>
+                            icon={<FaSync className={loading ? "animate-spin" : ""} />}
+                            className="hover:bg-slate-100 transition-colors text-[#065911]"
+                        />
                     </div>
                 </div>
 

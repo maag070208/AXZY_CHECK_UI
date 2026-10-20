@@ -78,12 +78,14 @@ const RoutesPage = () => {
                     className="w-full pl-4 pr-10 py-2.5 bg-white border border-slate-100 rounded-xl focus:border-[#065911] outline-none text-sm transition-all shadow-sm font-medium h-[42px]"
                 />
                 {searchTerm ? (
-                    <button 
+                    <ITButton
+                        variant="icon-only"
+                        color="gray"
+                        size="sm"
                         onClick={() => setSearchTerm("")}
+                        icon={<FaTimes size={14} />}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
-                    >
-                        <FaTimes size={14} />
-                    </button>
+                    />
                 ) : (
                     <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-200" />
                 )}
