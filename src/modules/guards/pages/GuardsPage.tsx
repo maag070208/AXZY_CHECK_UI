@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ITButton, ITDataTable, ITPage , ITInput , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
 import { FaUserShield, FaClipboardList, FaClock, FaEye, FaSync, FaSearch, FaTimes } from "react-icons/fa";
 import { getPaginatedUsers, User } from "../../users/services/UserService";
 import { AssignmentModal } from "../components/AssignmentModal";
@@ -62,8 +62,8 @@ const GuardsPage = () => {
       icon={<FaUserShield size={20} />}
       iconColor="#065911"
       actions={
-<div className="flex items-center gap-3">
-                    <div className="w-64 relative">
+<ITFlex align="center" gap={3} className="flex items-center gap-3">
+                    <ITFlex direction="column" className="w-64 relative">
                         <ITInput
                             name="searchGuard"
                             placeholder="Buscar guardia..."
@@ -83,7 +83,7 @@ const GuardsPage = () => {
                         ) : (
                             <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-200" size={14} />
                         )}
-                    </div>
+                    </ITFlex>
 
                     <ITButton
                         onClick={refreshTable}
@@ -92,13 +92,13 @@ const GuardsPage = () => {
                         size="md"
                     >
                         <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Actualizar</span></ITFlex>
+                        <ITText as="span" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Actualizar</ITText></ITFlex>
                     </ITButton>
-                </div>
+                </ITFlex>
       }
     >
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
                   defaultItemsPerPage={50}
                   itemsPerPageOptions={[25, 50, 100]}
@@ -116,15 +116,15 @@ const GuardsPage = () => {
                             label: "GUARDIA",
                             type: "string",
                             render: (row: any) => (
-                                <div className="flex items-center gap-3 py-2">
-                                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200 text-sm">
+                                <ITFlex align="center" gap={3} className="flex items-center gap-3 py-2">
+                                    <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200 text-sm">
                                         {row.name.charAt(0)}{row.lastName?.charAt(0) || ''}
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-slate-800 text-sm uppercase">{row.name} {row.lastName}</div>
-                                        <div className="text-xs text-slate-500 font-medium">@{row.username}</div>
-                                    </div>
-                                </div>
+                                    </ITFlex>
+                                    <ITFlex direction="column">
+                                        <ITFlex direction="column" className="font-bold text-slate-800 text-sm uppercase">{row.name} {row.lastName}</ITFlex>
+                                        <ITFlex direction="column" className="text-xs text-slate-500 font-medium">@{row.username}</ITFlex>
+                                    </ITFlex>
+                                </ITFlex>
                             )
                         },
                         {
@@ -134,11 +134,11 @@ const GuardsPage = () => {
                             render: (row: any) => {
                                 const roleValue = typeof row.role === 'object' ? row.role.value : row.role;
                                 return (
-                                    <div className="flex items-center">
-                                        <span className="px-2 py-1 bg-[#F1F5F9] text-[#475569] font-bold text-[10px] rounded border border-slate-100 uppercase tracking-wider">
+                                    <ITFlex align="center" className="flex items-center">
+                                        <ITText as="span" className="px-2 py-1 bg-[#F1F5F9] text-[#475569] font-bold text-[10px] rounded border border-slate-100 uppercase tracking-wider">
                                             {roleValue}
-                                        </span>
-                                    </div>
+                                        </ITText>
+                                    </ITFlex>
                                 );
                             }
                         },
@@ -148,16 +148,16 @@ const GuardsPage = () => {
                             type: "string",
                             render: (row: any) => (
                                 row.schedule ? (
-                                    <div className="text-sm text-slate-600">
-                                        <div className="flex items-center gap-1.5 font-bold text-slate-700 text-xs uppercase">
+                                    <ITFlex direction="column" className="text-sm text-slate-600">
+                                        <ITFlex align="center" className="flex items-center gap-1.5 font-bold text-slate-700 text-xs uppercase">
                                             {row.schedule.name}
-                                        </div>
-                                        <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
+                                        </ITFlex>
+                                        <ITFlex align="center" gap={1} className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
                                             <FaClock className="text-[10px]" /> {row.schedule.startTime} - {row.schedule.endTime}
-                                        </div>
-                                    </div>
+                                        </ITFlex>
+                                    </ITFlex>
                                 ) : (
-                                    <span className="text-[11px] italic text-slate-300">Sin Horario</span>
+                                    <ITText as="span" className="text-[11px] italic text-slate-300">Sin Horario</ITText>
                                 )
                             )
                         },
@@ -166,8 +166,8 @@ const GuardsPage = () => {
                             label: "ACTIVIDAD",
                             type: "string",
                             render: (row: any) => (
-                                <div className="text-sm text-slate-600">
-                                    <div className="font-bold text-xs">Tareas: {row.assignments?.length || 0}</div>
+                                <ITFlex direction="column" className="text-sm text-slate-600">
+                                    <ITFlex direction="column" className="font-bold text-xs">Tareas: {row.assignments?.length || 0}</ITFlex>
                                     {/* <div className="mt-1">
                                         <ITBadget 
                                             color={row.isLoggedIn ? "success" : "secondary"} 
@@ -180,7 +180,7 @@ const GuardsPage = () => {
                                             </span>
                                         </ITBadget>
                                     </div> */}
-                                </div>
+                                </ITFlex>
                             )
                         },
                         {
@@ -188,7 +188,7 @@ const GuardsPage = () => {
                             label: "ACCIONES",
                             type: "actions",
                             actions: (row: any) => (
-                                <div className="flex items-center gap-2">
+                                <ITFlex align="center" gap={2} className="flex items-center gap-2">
                                     <ITButton 
                                         onClick={() => handleViewAssignments(row)} 
                                         size="sm" 
@@ -207,12 +207,12 @@ const GuardsPage = () => {
                                     >
                                         <FaClipboardList />
                                     </ITButton>
-                                </div>
+                                </ITFlex>
                             )
                         }
                     ]}
                 />
-            </div>
+            </ITFlex>
 
             {selectedGuard && (
                 <>
