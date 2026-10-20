@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import IncidentCreateForm from "../components/IncidentCreateForm";
 import IncidentReportModal from "../components/IncidentReportModal";
-import { deleteIncident, deleteIncidentMedia, getPaginatedIncidents, Incident, resolveIncident } from "../services/IncidentService";
+import { deleteIncident, getPaginatedIncidents, Incident, resolveIncident } from "../services/IncidentService";
 import { IncidentDetailDialog } from "../components/IncidentDetailDialog";
 
 const IncidentsPage = () => {
@@ -141,24 +141,6 @@ const IncidentsPage = () => {
     }
   };
 
-  const handleDeleteMedia = async (item: { key?: string; url: string }) => {
-    if (!viewingIncident) return;
-    const key = item.key || item.url.split('/').pop();
-    if (!key) return;
-
-    const res = await deleteIncidentMedia(viewingIncident.id, key);
-    if (res.success) {
-        dispatch(showToast({ message: "Archivo eliminado", type: "success" }));
-        setViewingIncident(prev => {
-            if (!prev) return null;
-            return {
-                ...prev,
-                media: prev.media?.filter((m) => (m.key || m.url.split('/').pop()) !== key)
-            };
-        });
-        setRefreshKey(prev => prev + 1);
-    }
-  };
 
   const columns = useMemo(() => [
     { key: "id", label: "ID", type: "number", sortable: true },
@@ -421,7 +403,6 @@ const IncidentsPage = () => {
         isAdmin={isAdmin}
         onClose={() => setViewingIncident(null)}
         onResolve={handleResolve}
-        onDeleteMedia={handleDeleteMedia}
       />
     )}
 

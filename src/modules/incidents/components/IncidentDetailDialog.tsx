@@ -10,11 +10,10 @@ interface IncidentDetailDialogProps {
   isAdmin: boolean;
   onClose: () => void;
   onResolve: (id: number) => void;
-  onDeleteMedia: (item: { key?: string; url: string }) => void;
 }
 
 /** Detalle de incidencia: evidencia a la izquierda; datos, mapa y línea de tiempo a la derecha; acciones al pie. */
-export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, onDeleteMedia }: IncidentDetailDialogProps) => {
+export const IncidentDetailDialog = ({ incident, onClose, onResolve }: IncidentDetailDialogProps) => {
   const isPending = incident.status === "PENDING";
   const reporterName = incident.guard ? `${incident.guard.name} ${incident.guard.lastName ?? ""}`.trim() : "Sin registro";
   const initials = incident.guard ? `${incident.guard.name?.charAt(0) ?? ""}${incident.guard.lastName?.charAt(0) ?? ""}`.toUpperCase() : "?";
@@ -34,7 +33,7 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
       <ITFlex className="min-h-0 overflow-hidden" style={{ height: "calc(88vh - 200px)" }}>
         <ITFlex direction="column" className="min-h-0 min-w-0 flex-[3] overflow-y-auto border-r border-slate-200 p-6">
           {hasMedia ? (
-            <MediaCarousel media={incident.media!} title="Evidencia" showDelete={isAdmin} onDelete={(item) => onDeleteMedia(item)} />
+            <MediaCarousel media={incident.media!} title="Evidencia" />
           ) : (
             <ITFlex direction="column" align="center" justify="center" className="flex-1 rounded-xl border border-dashed border-slate-200">
               <ITText as="span" muted>Sin evidencia adjunta</ITText>
