@@ -1,4 +1,4 @@
-import { ITButton, ITInput, ITLoader , ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITFlex, ITInput, ITLoader, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import { addHouseholdResident, HouseholdResident, listHousehold, listResidentKinds, moveOutResident, ResidentKindOption, setPrimaryResident } from "./household.service";
 
@@ -61,31 +61,31 @@ export const HouseholdPanel = ({ propertyId, onChanged }: Props) => {
     onChanged();
   };
 
-  if (loading) return <div className="flex justify-center p-6"><ITLoader size="sm" /></div>;
+  if (loading) return <ITFlex justify="center" className="flex justify-center p-6"><ITLoader size="sm" /></ITFlex>;
 
   return (
     <section className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 space-y-6">
-      <h2 className="text-lg font-bold text-slate-800">Hogar</h2>
+      <ITText as="h2" className="text-lg font-bold text-slate-800">Hogar</ITText>
 
       <ul className="divide-y divide-slate-100 text-sm">
         {rows.map((r) => (
           <li key={r.id} className="py-3 flex items-center justify-between gap-4">
-            <span>
+            <ITText as="span">
               <strong>{r.person.firstName} {r.person.lastName ?? ""}</strong> · {r.kind.name}
               {r.isPrimary ? <em className="ml-2 text-emerald-700">Titular</em> : null}
-              {!r.kind.isHouseholdMember ? <span className="ml-2 text-slate-400">(no cuenta en el hogar)</span> : null}
-            </span>
-            <div className="flex gap-2">
+              {!r.kind.isHouseholdMember ? <ITText as="span" className="ml-2 text-slate-400">(no cuenta en el hogar)</ITText> : null}
+            </ITText>
+            <ITFlex gap={2} className="flex gap-2">
               {!r.isPrimary && r.kind.isHouseholdMember && <ITButton variant="ghost" size="sm" onClick={() => void primary(r.id)}>Hacer titular</ITButton>}
               <ITButton variant="ghost" size="sm" onClick={() => void moveOut(r.id)}>Dar de baja</ITButton>
-            </div>
+            </ITFlex>
           </li>
         ))}
         {rows.length === 0 && <li className="py-3 text-slate-400">Sin residentes registrados</li>}
       </ul>
 
-      <div className="space-y-3 border-t border-slate-100 pt-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <ITFlex direction="column" className="space-y-3 border-t border-slate-100 pt-4">
+        <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <ITInput name="householdFirstName" label="Nombre" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
           <ITInput name="householdLastName" label="Apellidos" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
           <ITInput name="householdPhone" label="Teléfono" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
@@ -97,18 +97,18 @@ export const HouseholdPanel = ({ propertyId, onChanged }: Props) => {
             options={kinds.map((k) => ({ label: k.name, value: k.code }))}
             clearable={false}
           />
-        </div>
+        </ITFlex>
 
         {duplicateWarning && (
           <div role="alert" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800 space-y-2">
-            <p>Ya existe una persona con estos datos.</p>
+            <ITText as="p">Ya existe una persona con estos datos.</ITText>
             <ITButton variant="outlined" onClick={() => void add(true)}>Crear de todos modos</ITButton>
           </div>
         )}
         {message && <p role="alert" className="text-sm text-red-600">{message}</p>}
 
         <ITButton onClick={() => void add(false)} disabled={!form.firstName.trim()}>Agregar al hogar</ITButton>
-      </div>
+      </ITFlex>
     </section>
   );
 };
