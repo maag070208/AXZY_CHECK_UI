@@ -24,7 +24,9 @@ export const HouseholdPanel = ({ propertyId, onChanged }: Props) => {
 
   useEffect(() => {
     void load();
-    void listResidentKinds().then((res: any) => setKinds(res.data ?? []));
+    listResidentKinds()
+      .then((res) => setKinds(res.data ?? []))
+      .catch(() => setKinds([]));
   }, [load]);
 
   const add = async (confirmNewPerson = false) => {

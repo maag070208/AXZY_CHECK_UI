@@ -15,7 +15,9 @@ export const PersonsPage = () => {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      void searchPersons(q.trim()).then((res: any) => setRows(res.data ?? []));
+      searchPersons(q.trim())
+        .then((res) => setRows(res.data ?? []))
+        .catch(() => setRows([]));
     }, 250);
     return () => clearTimeout(t);
   }, [q]);

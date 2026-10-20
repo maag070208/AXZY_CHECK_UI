@@ -8,10 +8,11 @@ export const OccupancyDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    void getOccupancyStats().then((res: any) => {
-      setStats(res.data ?? null);
-      setLoading(false);
-    });
+    // El cliente lanza el cuerpo en respuestas no 2xx: sin catch el spinner nunca se apaga.
+    getOccupancyStats()
+      .then((res) => setStats(res.data ?? null))
+      .catch(() => setStats(null))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="flex justify-center p-4"><ITLoader size="sm" /></div>;

@@ -33,7 +33,9 @@ export const OccupancyModal = ({ isOpen, propertyId, currentCode, onClose, onDon
     setNotes("");
     setNeedsRelease(false);
     setReleaseConfirmed(false);
-    void getOccupancyStatuses().then((res) => setStatuses(res.data ?? []));
+    getOccupancyStatuses()
+      .then((res) => setStatuses(res.data ?? []))
+      .catch(() => setStatuses([]));
   }, [isOpen]);
 
   const current = statuses.find((s) => s.code === currentCode);

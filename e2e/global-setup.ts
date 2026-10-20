@@ -21,5 +21,5 @@ export default async function globalSetup() {
   const api = path.resolve(process.cwd(), "../API");
   const env = { ...process.env, DATABASE_URL: TEST_DATABASE_URL, PRISMA_HIDE_UPDATE_MESSAGE: "1" } as Record<string, string>;
   execSync("pnpm exec prisma migrate reset --force --skip-seed --skip-generate", { cwd: api, env, stdio: "inherit" });
-  execSync("pnpm exec ts-node prisma/seed.ts", { cwd: api, env: { ...env, SEED_DEMO: "true" }, stdio: "inherit" });
+  execSync("pnpm exec prisma db seed", { cwd: api, env: { ...env, SEED_DEMO: "true" }, stdio: "inherit" });
 }

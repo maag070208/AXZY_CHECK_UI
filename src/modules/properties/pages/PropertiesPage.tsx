@@ -281,13 +281,15 @@ const PropertiesPage = () => {
                     <ITButton variant="outlined" color="secondary" size="sm" onClick={() => setIsImportOpen(true)} className="h-[42px] !rounded-xl">
                         Importar CSV
                     </ITButton>
-                    <button 
+                    <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 h-[42px] rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:scale-105 transition-all"
+                        color="primary"
+                        size="sm"
+                        className="h-[42px] !rounded-xl !flex !items-center !gap-2"
                     >
                         <FaPlus className="text-xs" />
                         <span>Agregar Propiedad</span>
-                    </button>
+                    </ITButton>
                 </div>
       }
     >
