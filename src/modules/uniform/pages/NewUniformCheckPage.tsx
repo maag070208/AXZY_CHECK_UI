@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITInput, ITSearchSelect, ITSlideToggle } from "@axzydev/axzy_ui_system";
+import { ITButton, ITFlex, ITInput, ITSearchSelect, ITSlideToggle, ITText } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import {
   FaArrowLeft,
@@ -93,10 +93,10 @@ const NewUniformCheckPage = () => {
   };
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+    <ITFlex direction="column" className="p-6 bg-[#f8fafc] min-h-screen">
+      <ITFlex direction="column" className="max-w-7xl mx-auto">
+        <ITFlex align="center" justify="between" gap={4} className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <ITFlex align="center" gap={3} className="flex items-center gap-3">
             <button
               onClick={() => navigate("/uniform")}
               className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
@@ -104,21 +104,21 @@ const NewUniformCheckPage = () => {
             >
               <FaArrowLeft />
             </button>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+            <ITFlex direction="column">
+              <ITText as="h1" className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
                 <FaTshirt className="text-[#065911]" />
                 Nuevo Checklist de Uniforme
-              </h1>
-              <p className="text-slate-500 text-sm mt-1">
+              </ITText>
+              <ITText as="p" className="text-slate-500 text-sm mt-1">
                 Evaluación de uniformidad y aseo por elemento.
-              </p>
-            </div>
-          </div>
-        </div>
+              </ITText>
+            </ITFlex>
+          </ITFlex>
+        </ITFlex>
 
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">1. Guardia</p>
+        <ITFlex direction="column" className="space-y-6">
+          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">1. Guardia</ITText>
             <ITSearchSelect
               name="guard"
               label="Guardia a evaluar"
@@ -127,12 +127,12 @@ const NewUniformCheckPage = () => {
               value={guardId}
               onChange={(val) => setGuardId(String(val))}
             />
-          </div>
+          </ITFlex>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-wide">2. Checklist</p>
-              <div className="flex gap-2">
+          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <ITFlex align="center" justify="between" className="flex items-center justify-between mb-3">
+              <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide">2. Checklist</ITText>
+              <ITFlex gap={2} className="flex gap-2">
                 <button
                   onClick={() => setChecklist(UNIFORM_FIELDS.reduce((acc, key) => ({ ...acc, [key]: true }), {}))}
                   className="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full uppercase tracking-wide hover:bg-emerald-100"
@@ -145,16 +145,16 @@ const NewUniformCheckPage = () => {
                 >
                   Limpiar
                 </button>
-              </div>
-            </div>
+              </ITFlex>
+            </ITFlex>
 
-            <div className="bg-slate-50 rounded-xl divide-y divide-slate-100">
+            <ITFlex direction="column" className="bg-slate-50 rounded-xl divide-y divide-slate-100">
               {CHECKLIST_ITEMS.map((item) => (
                 <div key={item.key} className="flex items-center justify-between px-4 py-2.5">
-                  <span className="text-sm font-semibold text-slate-700 flex items-center gap-2.5">
+                  <ITText as="span" className="text-sm font-semibold text-slate-700 flex items-center gap-2.5">
                     <item.icon className="text-slate-400" />
                     {item.label}
-                  </span>
+                  </ITText>
                   <ITSlideToggle
                     size="sm"
                     isOn={checklist[item.key]}
@@ -162,15 +162,15 @@ const NewUniformCheckPage = () => {
                   />
                 </div>
               ))}
-            </div>
-          </div>
+            </ITFlex>
+          </ITFlex>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">3. Notas</p>
+          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">3. Notas</ITText>
             <ITInput name="notes" type="textarea" label="Notas (opcional)" value={notes} onChange={(e: any) => setNotes(e.target.value)} onBlur={noop} />
-          </div>
+          </ITFlex>
 
-          <div className="flex justify-end gap-3 pb-10">
+          <ITFlex justify="end" gap={3} className="flex justify-end gap-3 pb-10">
             <ITButton variant="outlined" color="secondary" onClick={() => navigate("/uniform")}>
               Cancelar
             </ITButton>
@@ -183,10 +183,10 @@ const NewUniformCheckPage = () => {
             >
               {submitting ? "Enviando..." : "Registrar Checklist"}
             </ITButton>
-          </div>
-        </div>
-      </div>
-    </div>
+          </ITFlex>
+        </ITFlex>
+      </ITFlex>
+    </ITFlex>
   );
 };
 
