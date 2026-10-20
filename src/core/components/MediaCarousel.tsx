@@ -54,7 +54,7 @@ export const MediaCarousel = ({ media, initialIndex = 0, title, onDelete, showDe
                 </ITButton>
             </ITFlex>
 
-            <ITFlex align="center" justify="center" className={`relative w-full overflow-hidden rounded-xl bg-slate-900 ${inFullscreen ? "h-[calc(100vh-180px)]" : "h-[min(520px,52vh)]"}`}>
+            <ITFlex align="center" justify="center" className={`relative w-full overflow-hidden rounded-xl bg-slate-900 ${inFullscreen ? "h-[calc(100vh-180px)]" : "h-[min(480px,48vh)]"}`}>
                 {current.type === "VIDEO" ? (
                     <video src={current.url} controls className="h-full w-full" />
                 ) : (

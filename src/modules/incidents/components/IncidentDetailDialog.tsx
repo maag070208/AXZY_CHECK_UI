@@ -31,8 +31,8 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
         {incident.type && <ITBadget color="secondary" size="sm">{incident.type.value}</ITBadget>}
       </ITFlex>
 
-      <ITFlex className="min-h-0 flex-1">
-        <ITFlex direction="column" className="min-h-0 min-w-0 flex-[3] border-r border-slate-200 p-6">
+      <ITFlex className="min-h-0 flex-1 overflow-hidden">
+        <ITFlex direction="column" className="min-h-0 min-w-0 flex-[3] overflow-y-auto border-r border-slate-200 p-6">
           {hasMedia ? (
             <MediaCarousel media={incident.media!} title="Evidencia" showDelete={isAdmin} onDelete={(item) => onDeleteMedia(item)} />
           ) : (
