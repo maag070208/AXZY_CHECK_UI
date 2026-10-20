@@ -1,3 +1,4 @@
+import { ITText } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 
 type AgeTier = "green" | "yellow" | "red" | "black";
@@ -35,11 +36,11 @@ export const AgeBadge = ({ createdAt }: AgeBadgeProps) => {
   const { days, tier } = getOpenAge(dayjs(createdAt).toISOString());
   const styles = TIER_STYLES[tier];
   return (
-    <span className="flex items-center gap-1.5 whitespace-nowrap">
-      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${styles.dot}`} />
-      <span className={`text-xs font-black ${styles.text}`}>
+    <ITText as="span" className="flex items-center gap-1.5 whitespace-nowrap">
+      <ITText as="span" className={`w-2 h-2 rounded-full flex-shrink-0 ${styles.dot}`} />
+      <ITText as="span" className={`text-xs font-black ${styles.text}`}>
         {days} {days === 1 ? "día" : "días"}
-      </span>
-    </span>
+      </ITText>
+    </ITText>
   );
 };
