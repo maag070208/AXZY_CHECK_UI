@@ -1,7 +1,8 @@
 import { ITButton, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import { PersonLite, searchPersons } from "@app/modules/persons/persons.service";
-import { Authorization, createAuthorization, DAY_LABELS, listAuthorizations, revokeAuthorization } from "./authorizations.service";
+import QRCode from "qrcode";
+import { Authorization, createAuthorization, DAY_LABELS, issuePass, listAuthorizations, revokeAuthorization } from "./authorizations.service";
 
 interface Props {
   propertyId: number;
@@ -55,6 +56,15 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
     void load();
   };
 
+  const [passFor, setPassFor] = useState<{ id: number; dataUrl: string } | null>(null);
+
+  /** El token se muestra una sola vez: emitir de nuevo invalida el pase anterior. */
+  const generatePass = async (id: number) => {
+    const res: any = await issuePass(id);
+    if (res.success === false) return setError(res.messages?.[0] ?? "No se pudo generar el pase");
+    setPassFor({ id, dataUrl: await QRCode.toDataURL(res.data.token, { width: 220, margin: 1 }) });
+  };
+
   const revoke = async (id: number) => {
     await revokeAuthorization(id);
     void load();
@@ -73,11 +83,24 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
               <strong>{a.person.firstName} {a.person.lastName ?? ""}</strong> · {SCOPE_LABEL[a.scope]} · {a.days.split(",").map((d) => DAY_LABELS[Number(d)]).join(" ")} {a.startTime}–{a.endTime}
               {a.revokedAt ? <em className="ml-2 text-red-600">Revocada</em> : null}
             </span>
-            {!a.revokedAt && <ITButton variant="ghost" size="sm" onClick={() => void revoke(a.id)}>Revocar</ITButton>}
+            {!a.revokedAt && (
+              <div className="flex gap-2">
+                <ITButton variant="ghost" size="sm" onClick={() => void generatePass(a.id)}>Generar pase</ITButton>
+                <ITButton variant="ghost" size="sm" onClick={() => void revoke(a.id)}>Revocar</ITButton>
+              </div>
+            )}
           </li>
         ))}
         {rows.length === 0 && <li className="py-3 text-slate-400">Nadie autorizado</li>}
       </ul>
+
+      {passFor && (
+        <div className="rounded-2xl bg-slate-50 p-4 flex items-center gap-4">
+          <img src={passFor.dataUrl} alt="Pase QR" width={220} height={220} />
+          <p className="text-sm text-slate-600">Pase de acceso. Se muestra una sola vez: si lo generas de nuevo, este deja de funcionar.</p>
+          <ITButton variant="outlined" size="sm" onClick={() => setPassFor(null)}>Cerrar</ITButton>
+        </div>
+      )}
 
       <div className="space-y-3 border-t border-slate-100 pt-4">
         <ITInput name="authPerson" label="Buscar persona" value={query} onChange={(e) => void search(e.target.value)} />

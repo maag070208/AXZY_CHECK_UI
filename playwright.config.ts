@@ -23,7 +23,8 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: [
     {
-      command: "pnpm exec ts-node -r tsconfig-paths/register ./src/index.ts",
+      // `node` directo (no pnpm/npm): así el proceso que Playwright arranca es el que cierra al terminar.
+      command: "node node_modules/ts-node/dist/bin.js -r tsconfig-paths/register ./src/index.ts",
       cwd: API_DIR,
       url: "http://localhost:4444/health",
       reuseExistingServer: false,
@@ -38,7 +39,7 @@ export default defineConfig({
     },
     {
       // Build con modo e2e (.env.e2e → API local). Nunca con build:prod: ese modo embebe la API de producción.
-      command: `pnpm run e2e:build && pnpm exec vite preview --port ${WEB_PORT} --strictPort`,
+      command: `node node_modules/vite/bin/vite.js build --mode e2e && node node_modules/vite/bin/vite.js preview --port ${WEB_PORT} --strictPort`,
       url: `http://localhost:${WEB_PORT}`,
       reuseExistingServer: false,
       timeout: 180_000,

@@ -36,7 +36,11 @@ test("A2: autorizar a una persona en una propiedad, verla en la lista y revocarl
   const row = page.locator("li", { hasText: name });
   await expect(row).toContainText("Peatón");
 
-  // 4) Revocar: queda marcada como revocada.
+  // 4) Generar el pase QR: aparece la imagen y el aviso de que se muestra una vez.
+  await row.getByRole("button", { name: "Generar pase" }).click();
+  await expect(page.getByRole("img", { name: "Pase QR" })).toBeVisible();
+
+  // 5) Revocar: queda marcada como revocada.
   await row.getByRole("button", { name: "Revocar" }).click();
   await expect(row).toContainText("Revocada");
 });

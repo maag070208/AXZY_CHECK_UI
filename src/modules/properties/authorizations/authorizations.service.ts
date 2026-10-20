@@ -22,4 +22,7 @@ export const createAuthorization = (propertyId: number, body: { personId: number
 export const revokeAuthorization = (authorizationId: number) =>
   post<Authorization>(`/authorizations/${authorizationId}/revoke`, {}).catch((error) => error as { success: false; messages?: string[] });
 
+export const issuePass = (authorizationId: number) =>
+  post<{ token: string }>(`/authorizations/${authorizationId}/pass`, {}).catch((error) => error as { success: false; messages?: string[] });
+
 export const DAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
