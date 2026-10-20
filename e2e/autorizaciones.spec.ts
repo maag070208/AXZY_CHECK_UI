@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import { API_URL } from "./config";
 
 const login = async (page: Page) => {
   await page.goto("/login");
@@ -20,11 +21,11 @@ test("A2: autorizar a una persona en una propiedad, verla en la lista y revocarl
   await expect(page).toHaveURL(/\/#\/persons\/\d+/);
 
   // 2) Propiedad de la demo (id obtenido de la API con la misma sesión).
-  const propertyId = await page.evaluate(async () => {
+  const propertyId = await page.evaluate(async (url) => {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:4444/api/v1/properties", { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`${url}/properties`, { headers: { Authorization: `Bearer ${token}` } });
     return (await res.json()).data[0].id as number;
-  });
+  }, API_URL);
 
   // 3) Autorizar con horario de lunes a viernes.
   await page.goto(`/#/properties/${propertyId}`);

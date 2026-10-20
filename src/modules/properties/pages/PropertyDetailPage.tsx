@@ -1,6 +1,7 @@
 import { ITButton, ITDialog, ITDataTable, ITBadget, ITLoader } from "@axzydev/axzy_ui_system";
 import { OccupancyPanel } from "../occupancy/OccupancyPanel";
 import { AuthorizationsPanel } from "../authorizations/AuthorizationsPanel";
+import { HouseholdPanel } from "../household/HouseholdPanel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { 
     FaArrowLeft, 
@@ -380,6 +381,7 @@ const PropertyDetailPage = () => {
                     {/* Main Section: Occupancy, then residents table */}
                     <div className="lg:col-span-2 space-y-8">
                         <OccupancyPanel propertyId={property.id} onChanged={() => setRefreshKey((k) => k + 1)} />
+                        <HouseholdPanel propertyId={property.id} onChanged={() => setRefreshKey((k) => k + 1)} />
                         <AuthorizationsPanel propertyId={property.id} />
                         <section className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
                             <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-gradient-to-r from-white to-slate-50/30">

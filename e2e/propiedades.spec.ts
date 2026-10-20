@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import { API_URL } from "./config";
 
 const CSV = [
   "identifier,name,mainStreet,kind,occupancy,floor,unitNumber",
@@ -27,12 +28,12 @@ test("T-A1-T9: importar un departamento, rentarlo con inquilino y ver el histori
   await page.getByRole("button", { name: "Cerrar", exact: true }).last().click();
 
   // 2) Abrir la propiedad creada (id obtenido de la API con la misma sesión).
-  const id = await page.evaluate(async () => {
+  const id = await page.evaluate(async (url) => {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:4444/api/v1/properties", { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`${url}/properties`, { headers: { Authorization: `Bearer ${token}` } });
     const body = await res.json();
     return body.data.find((p: { identifier: string }) => p.identifier === "E2E-DEP-304").id as number;
-  });
+  }, API_URL);
   await page.goto(`/#/properties/${id}`);
   await expect(page.getByRole("heading", { name: "Ocupación" })).toBeVisible();
   await expect(page.getByText("Vacía", { exact: true }).first()).toBeVisible();
