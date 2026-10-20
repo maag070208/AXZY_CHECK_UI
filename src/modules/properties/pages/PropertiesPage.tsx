@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage } from "@axzydev/axzy_ui_system";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -28,7 +28,7 @@ const PropertiesPage = () => {
         }, 500);
         return () => clearTimeout(timer);
     }, [searchTerm]);
-    
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -129,10 +129,10 @@ const PropertiesPage = () => {
     };
 
     const columns = useMemo(() => [
-        { 
-            key: "identifier", 
-            label: "ID Único", 
-            type: "string", 
+        {
+            key: "identifier",
+            label: "ID Único",
+            type: "string",
             sortable: true,
             render: (row: any) => (
                 <div className="font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded inline-block">
@@ -140,16 +140,16 @@ const PropertiesPage = () => {
                 </div>
             )
         },
-        { 
-            key: "name", 
-            label: "Nombre / Referencia", 
-            type: "string", 
+        {
+            key: "name",
+            label: "Nombre / Referencia",
+            type: "string",
             sortable: true,
             render: (row: any) => <div className="font-medium text-slate-700">{row.name}</div>
         },
-        { 
-            key: "typeId", 
-            label: "Tipo", 
+        {
+            key: "typeId",
+            label: "Tipo",
             type: "catalog",
             filter: 'catalog',
             catalogOptions: {
@@ -164,9 +164,9 @@ const PropertiesPage = () => {
                 </div>
             )
         },
-        { 
-            key: "mainStreet", 
-            label: "Ubicación", 
+        {
+            key: "mainStreet",
+            label: "Ubicación",
             type: "string",
             render: (row: any) => (
                 <div className="text-xs text-slate-500">
@@ -199,11 +199,11 @@ const PropertiesPage = () => {
             type: "actions",
             actions: (row: any) => (
                 <div className="flex items-center gap-2">
-                    <ITButton 
-                        onClick={() => navigate(`/properties/${row.id}`)} 
-                        size="sm" 
-                        variant="outlined" 
-                        color="secondary" 
+                    <ITButton
+                        onClick={() => navigate(`/properties/${row.id}`)}
+                        size="sm"
+                        variant="outlined"
+                        color="secondary"
                         title="Ver Detalles"
                     >
                         <FaEye />
@@ -211,17 +211,17 @@ const PropertiesPage = () => {
                     <ITButton onClick={() => handlePrintQR(row)} size="sm" variant="outlined" color="primary" title="Imprimir QR de Ronda">
                         <FaQrcode />
                     </ITButton>
-                    <ITButton 
+                    <ITButton
                         onClick={() => {
                             if (row.latitude && row.longitude) {
                                 window.open(`https://www.google.com/maps?q=${row.latitude},${row.longitude}`, '_blank');
                             } else {
                                 dispatch(showToast({ message: "Propiedad sin coordenadas GPS", type: "warning" }));
                             }
-                        }} 
-                        size="sm" 
-                        variant="outlined" 
-                        color="secondary" 
+                        }}
+                        size="sm"
+                        variant="outlined"
+                        color="secondary"
                         title="Ver en Google Maps"
                     >
                         <FaMapMarkedAlt />
@@ -239,22 +239,22 @@ const PropertiesPage = () => {
 
     return (
         <ITPage
-      className="m-0! px-4! max-w-screen!"
-      noPadding
-      title="Propiedades"
-      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Propiedades" }]}
-      description="Gestión de casas y departamentos (Catálogo Habitacional)"
-      icon={<FaHome size={20} />}
-      iconColor="#065911"
-      actions={
-<div className="flex items-center gap-3">
+            className="m-0! px-4! max-w-screen!"
+            noPadding
+            title="Propiedades"
+            breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Propiedades" }]}
+            description="Gestión de casas y departamentos (Catálogo Habitacional)"
+            icon={<FaHome size={20} />}
+            iconColor="#065911"
+            actions={
+                <div className="flex items-center gap-3">
                     <div className="w-64 relative">
                         <ITInput
                             placeholder="Buscar por ID o nombre..."
                             name="search"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            onBlur={() => {}}
+                            onBlur={() => { }}
                             className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                         />
                         {searchTerm && (
@@ -286,16 +286,17 @@ const PropertiesPage = () => {
                     <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
                         color="primary"
-                        size="sm"
-                        className="h-[42px] !rounded-xl !flex !items-center !gap-2"
+                        size="md"
                     >
-                        <FaPlus className="text-xs" />
-                        <span>Agregar Propiedad</span>
+                        <ITFlex align="center" gap={2}>
+                            <FaPlus className="text-xs" />
+                            <span>Agregar Propiedad</span>
+                        </ITFlex>
                     </ITButton>
                 </div>
-      }
-    >
-            
+            }
+        >
+
 
             <div className="mb-6">
                 <OccupancyDashboard key={refreshKey} />
@@ -303,13 +304,13 @@ const PropertiesPage = () => {
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
-                  defaultItemsPerPage={50}
-                  itemsPerPageOptions={[25, 50, 100]}
-                  layout="fixed"
-                  density="compact"
-                  virtualized
-                  virtualizedMaxHeight={400}
-                  rowHeight={50}
+                    defaultItemsPerPage={50}
+                    itemsPerPageOptions={[25, 50, 100]}
+                    layout="fixed"
+                    density="compact"
+                    virtualized
+                    virtualizedMaxHeight={400}
+                    rowHeight={50}
                     key={refreshKey}
                     columns={columns as any}
                     fetchData={memoizedFetch as any}
@@ -325,34 +326,34 @@ const PropertiesPage = () => {
                 onDone={() => setRefreshKey((prev) => prev + 1)}
             />
 
-            <ITDialog 
-                isOpen={isCreateModalOpen} 
-                onClose={() => setIsCreateModalOpen(false)} 
+            <ITDialog
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
                 title="Nueva Propiedad"
                 className="max-w-2xl"
             >
-                <PropertyForm 
-                    onSubmit={handleCreate} 
-                    onCancel={() => setIsCreateModalOpen(false)} 
+                <PropertyForm
+                    onSubmit={handleCreate}
+                    onCancel={() => setIsCreateModalOpen(false)}
                 />
             </ITDialog>
 
-            <ITDialog 
-                isOpen={!!editingProperty} 
-                onClose={() => setEditingProperty(null)} 
+            <ITDialog
+                isOpen={!!editingProperty}
+                onClose={() => setEditingProperty(null)}
                 title="Editar Propiedad"
                 className="max-w-2xl"
             >
-                <PropertyForm 
+                <PropertyForm
                     initialData={editingProperty}
-                    onSubmit={handleUpdate} 
-                    onCancel={() => setEditingProperty(null)} 
+                    onSubmit={handleUpdate}
+                    onCancel={() => setEditingProperty(null)}
                 />
             </ITDialog>
 
-            <ITDialog 
-                isOpen={!!propertyToDelete} 
-                onClose={() => setPropertyToDelete(null)} 
+            <ITDialog
+                isOpen={!!propertyToDelete}
+                onClose={() => setPropertyToDelete(null)}
                 title="Confirmar Eliminación"
             >
                 <div className="p-6">

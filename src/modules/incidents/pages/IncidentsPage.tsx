@@ -539,7 +539,7 @@ const IncidentsPage = () => {
                    </div>
   
                    {viewingIncident.status === 'PENDING' && (
-                       <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                       <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
                           <h5 className="text-xs font-bold text-orange-800 mb-2">Acciones Pendientes</h5>
                           <p className="text-xs text-orange-700 mb-3">Esta incidencia requiere atención inmediata.</p>
                           <ITButton
