@@ -55,7 +55,7 @@ const ShiftHandoverPage = () => {
       icon={<FaSwatchbook size={20} />}
       iconColor="#065911"
       actions={
-<ITButton onClick={() => navigate("/shift-handover/nuevo")} color="primary" className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c]" size="md">
+<ITButton onClick={() => navigate("/shift-handover/nuevo")} color="primary" size="md">
           <ITFlex align="center" gap={2}><FaPlus size={12} /> Nueva Entrega de Turno
         </ITFlex></ITButton>
       }
@@ -134,7 +134,7 @@ const ShiftHandoverPage = () => {
                     size="sm"
                     color="secondary"
                     variant="outlined"
-                    className="!p-2"
+                   
                     title="Ver detalles"
                   >
                     <FaEye />

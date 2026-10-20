@@ -266,7 +266,7 @@ const RoundsPage = () => {
               size="sm"
               color="primary"
               variant="outlined"
-              className="!p-2"
+             
               title="Ver detalles"
             >
               <FaEye />
@@ -278,7 +278,7 @@ const RoundsPage = () => {
                 size="sm"
                 color="danger"
                 variant="filled"
-                className="!p-2"
+               
                 title="Finalizar Ronda (Admin)"
               >
                 <FaStop />
@@ -322,7 +322,7 @@ const RoundsPage = () => {
                             onClick={() => setSearchTerm("")}
                             icon={<FaTimesCircle className="text-xs" />}
                             title="Limpiar búsqueda"
-                            className="text-slate-300 hover:text-red-400 transition-all"
+                           
                         />
                     )}
                 </div>
@@ -385,7 +385,7 @@ const RoundsPage = () => {
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
-                className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+               
                 size="md"
                 title="Actualizar tabla"
               >

@@ -118,7 +118,7 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                         color="gray"
                         onClick={toggleFullscreen}
                         icon={isFullscreen ? <FaCompress /> : <FaExpand />}
-                        className="!rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/10"
+                       
                     />
                     {isFullscreen && (
                         <ITButton
@@ -126,7 +126,7 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                             color="danger"
                             onClick={toggleFullscreen}
                             icon={<FaTimes />}
-                            className="!rounded-full bg-red-500/20 hover:bg-red-500/40 backdrop-blur-md text-red-200 border border-red-500/20"
+                           
                         />
                     )}
                 </div>
@@ -143,14 +143,14 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
                             color="gray"
                             onClick={prevSlide}
                             icon={<FaChevronLeft size={24} />}
-                            className="absolute left-4 z-30 !rounded-2xl bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 border border-white/10 -translate-x-4 group-hover:translate-x-0"
+                           
                         />
                         <ITButton
                             variant="icon-only"
                             color="gray"
                             onClick={nextSlide}
                             icon={<FaChevronRight size={24} />}
-                            className="absolute right-4 z-30 !rounded-2xl bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 border border-white/10 translate-x-4 group-hover:translate-x-0"
+                           
                         />
                     </>
                 )}

@@ -137,7 +137,7 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                             <ITButton
                                 onClick={addTask}
                                 size="sm"
-                                className="!bg-[#065911] !h-[40px] !px-4 !rounded-xl"
+                               
                                 disabled={!tempTaskDesc.trim()}
                             >
                                 <FaPlus size={14} />
@@ -160,7 +160,7 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                                             size="sm"
                                             onClick={() => removeTask(index)}
                                             icon={<FaTrash size={12} />}
-                                            className="text-slate-300 hover:text-red-400 transition-colors"
+                                           
                                         />
                                     </div>
                                 ))}
@@ -188,14 +188,14 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
                         variant="outlined"
                         color="secondary"
                         onClick={onClose}
-                        className="!h-[42px] !px-6 !rounded-xl !border-slate-200 !text-slate-500 font-bold text-xs"
+                       
                     >
                         Cancelar
                     </ITButton>
                     <ITButton
                         onClick={handleSubmit}
                         disabled={!selectedLocationId || submitting}
-                        className="!bg-[#065911] !h-[42px] !px-8 !rounded-xl font-bold text-xs shadow-lg shadow-emerald-50"
+                       
                     >
                         {submitting ? "Creando..." : "Crear Asignación"}
                     </ITButton>

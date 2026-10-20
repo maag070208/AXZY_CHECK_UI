@@ -197,10 +197,10 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
                 />
               </div>
               <div className="mt-3 flex items-center gap-4">
-                <ITButton type="button" variant="text" color="primary" size="md" onClick={generate} className="!p-0 gap-1.5 font-bold text-emerald-700 hover:text-emerald-800">
+                <ITButton type="button" variant="text" color="primary" size="md" onClick={generate}>
                   <ITFlex align="center" gap={2}><FaMagic size={11} /> Generar contraseña segura
                 </ITFlex></ITButton>
-                <ITButton type="button" variant="text" color="gray" size="sm" onClick={() => setShowPassword((v) => !v)} className="!p-0 gap-1.5 font-bold text-slate-500 hover:text-slate-700">
+                <ITButton type="button" variant="text" color="gray" size="sm" onClick={() => setShowPassword((v) => !v)}>
                   {showPassword ? <FaEyeSlash size={12} /> : <FaEye size={12} />} {showPassword ? "Ocultar" : "Mostrar"}
                 </ITButton>
               </div>
@@ -228,7 +228,7 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
         <ITButton type="button" color="secondary" variant="outlined" onClick={onCancel} disabled={formik.isSubmitting}>
           Cancelar
         </ITButton>
-        <ITButton type="submit" disabled={formik.isSubmitting} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+        <ITButton type="submit" disabled={formik.isSubmitting}>
           {formik.isSubmitting ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear usuario"}
         </ITButton>
       </div>

@@ -60,7 +60,7 @@ export const PersonsPage = () => {
               variant="text"
               color="gray"
               onClick={() => navigate(`/persons/${p.id}`)}
-              className="w-full !justify-start !text-left !px-6 !py-3 !rounded-none hover:bg-slate-50"
+             
             >
               <span className="font-semibold text-slate-800">{p.firstName} {p.lastName ?? ""}</span>
               <span className="ml-3 text-sm text-slate-500">{p.phone ?? ""}</span>

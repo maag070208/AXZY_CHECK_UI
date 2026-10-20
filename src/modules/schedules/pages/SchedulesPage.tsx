@@ -123,7 +123,7 @@ const SchedulesPage = () => {
                onClick={refreshTable}
                variant="outlined"
                color="secondary"
-               className="!px-4 !py-2.5 !rounded-lg !border-slate-400 !text-slate-600 font-bold text-sm bg-white hover:bg-slate-50" size="md"
+               size="md"
             >
               <ITFlex align="center" gap={2}><FaSync className={refreshKey % 2 === 0 ? '' : 'rotate-180'} /> Actualizar
             </ITFlex></ITButton>
@@ -131,7 +131,7 @@ const SchedulesPage = () => {
             <ITButton
                onClick={() => openModal()}
                color="primary"
-               className="!px-6 !py-2.5 !rounded-lg !bg-[#065911] hover:!bg-[#04400c] font-bold text-sm shadow-sm" size="md"
+               size="md"
             >
               <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> Alta de Horario
             </ITFlex></ITButton>
@@ -273,7 +273,7 @@ const SchedulesPage = () => {
             <ITButton variant="outlined" color="secondary" onClick={closeModal}>
               Cancelar
             </ITButton>
-            <ITButton onClick={handleSave} color="primary" className="!bg-[#065911]">
+            <ITButton onClick={handleSave} color="primary">
               Guardar
             </ITButton>
           </div>
@@ -294,7 +294,7 @@ const SchedulesPage = () => {
                 <ITButton variant="outlined" color="secondary" onClick={() => setScheduleToDeleteId(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton className="!bg-red-600 text-white" onClick={confirmDelete}>
+                <ITButton onClick={confirmDelete}>
                     Eliminar
                 </ITButton>
             </div>

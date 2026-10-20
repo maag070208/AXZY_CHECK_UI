@@ -372,7 +372,7 @@ const QuoteForm = () => {
         </div>
       </div>
 
-      <ITButton type="submit" color="primary" variant="filled" className="lp-form-submit" size="md">
+      <ITButton type="submit" color="primary" variant="filled" size="md">
         <ITFlex align="center" gap={2}><FaWhatsapp size={14} /> Solicitar cotización
       </ITFlex></ITButton>
       <p className="lp-form-note">
@@ -404,14 +404,14 @@ const ModulePanel = ({ item, onQuote }: ModulePanelProps) => (
       </ul>
       <div className="lp-module-actions">
         <ITButton
-          className="lp-btn-dark"
+         
           onClick={() => window.open(DEMO_URL, "_blank", "noopener,noreferrer")}
         >
           <span className="lp-cta-inner">
             Explorar demo <FaExternalLinkAlt size={10} />
           </span>
         </ITButton>
-        <ITButton variant="text" color="gray" type="button" className="lp-text-link" onClick={onQuote} size="md">
+        <ITButton variant="text" color="gray" type="button" onClick={onQuote} size="md">
           <ITFlex align="center" gap={2}>Solicitar información <FaArrowRight size={9} /></ITFlex>
         </ITButton>
       </div>
@@ -480,7 +480,7 @@ const LandingPage = () => {
         <div className="lp-container lp-nav-inner">
           <ITButton variant="text" color="gray"
             type="button"
-            className="lp-logo"
+           
             ariaLabel="CheckApp, ir al inicio"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
@@ -492,7 +492,7 @@ const LandingPage = () => {
               <ITButton variant="text" color="gray"
                 key={link.id}
                 type="button"
-                className="lp-nav-link"
+               
                 onClick={() => scrollTo(link.id)}
               >
                 {link.label}
@@ -503,7 +503,7 @@ const LandingPage = () => {
           <div className="lp-nav-actions">
             <ITButton variant="text" color="gray"
               type="button"
-              className="lp-mobile-toggle"
+             
               ariaLabel={menuOpen ? "Cerrar menú" : "Abrir menú"}
               onClick={() => setMenuOpen((open) => !open)}
             >
@@ -519,7 +519,7 @@ const LandingPage = () => {
                 <ITButton variant="text" color="gray"
                   key={link.id}
                   type="button"
-                  className="lp-mobile-link"
+                 
                   onClick={() => scrollTo(link.id)}
                 >
                   {link.label}
@@ -554,12 +554,12 @@ const LandingPage = () => {
               </p>
 
               <div className="lp-hero-actions">
-                <ITButton className="lp-btn-primary" onClick={() => scrollTo("cotizacion")}>
+                <ITButton onClick={() => scrollTo("cotizacion")}>
                   <span className="lp-cta-inner">
                     Solicitar cotización <FaArrowRight size={10} />
                   </span>
                 </ITButton>
-                <ITButton className="lp-btn-ghost" onClick={() => scrollTo("como-funciona")}>
+                <ITButton onClick={() => scrollTo("como-funciona")}>
                   <span className="lp-cta-inner">Ver cómo funciona</span>
                 </ITButton>
               </div>
@@ -583,7 +583,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <ITButton variant="text" color="gray" type="button" className="lp-scroll-cue" onClick={() => scrollTo("problema")} size="md">
+          <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("problema")} size="md">
             <ITFlex align="center" gap={2}><span>Desliza para recorrer</span>
             <FaChevronDown size={12} /></ITFlex>
           </ITButton>
@@ -926,15 +926,15 @@ const LandingPage = () => {
 
           <div>
             <h4>Producto</h4>
-            <ITButton variant="text" color="gray" type="button" className="lp-footer-link" onClick={() => scrollTo("beneficios")}>
+            <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("beneficios")}>
               Beneficios
             </ITButton>
-            <ITButton variant="text" color="gray" type="button" className="lp-footer-link" onClick={() => scrollTo("modulos")}>
+            <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("modulos")}>
               Módulos
             </ITButton>
             <ITButton variant="text" color="gray"
               type="button"
-              className="lp-footer-link"
+             
               onClick={() => scrollTo("como-funciona")}
             >
               Cómo funciona
@@ -952,7 +952,7 @@ const LandingPage = () => {
             <a className="lp-footer-link" href="mailto:aamaro@axzy.dev">
               aamaro@axzy.dev
             </a>
-            <ITButton variant="text" color="gray" type="button" className="lp-footer-link" onClick={() => scrollTo("cotizacion")}>
+            <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("cotizacion")}>
               Solicitar cotización
             </ITButton>
           </div>

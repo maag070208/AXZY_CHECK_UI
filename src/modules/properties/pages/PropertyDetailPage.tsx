@@ -201,7 +201,7 @@ const PropertyDetailPage = () => {
                         onClick={() => setViewingResident(row)} 
                         size="sm" 
                         variant="ghost" 
-                        className="text-slate-400 hover:text-emerald-600"
+                       
                         title="Ver Detalles"
                     >
                         <FaEye />
@@ -228,7 +228,7 @@ const PropertyDetailPage = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800 mb-2">Propiedad no encontrada</h2>
                 <p className="text-slate-500 mb-8">El registro solicitado no existe o ha sido eliminado del catálogo.</p>
-                <ITButton color="primary" onClick={() => navigate("/properties")} className="w-full">
+                <ITButton color="primary" onClick={() => navigate("/properties")}>
                     Volver al listado
                 </ITButton>
             </div>
@@ -253,7 +253,7 @@ const PropertyDetailPage = () => {
                         <ITButton 
                             variant="ghost" 
                             onClick={() => navigate("/properties")}
-                            className="text-slate-500 hover:text-slate-800 hover:bg-slate-50 p-2"
+                           
                         >
                             <FaArrowLeft className="text-lg" />
                         </ITButton>
@@ -273,7 +273,7 @@ const PropertyDetailPage = () => {
                                 variant="outlined" 
                                 color="secondary" 
                                 onClick={() => setIsEditModalOpen(true)}
-                                className="border-slate-200 hover:border-slate-300" size="md"
+                                size="md"
                             >
                                 <ITFlex align="center" gap={2}><FaEdit className="mr-2" />
                                 Editar
@@ -283,7 +283,7 @@ const PropertyDetailPage = () => {
                             variant="solid" 
                             color="primary" 
                             onClick={handlePrintQR}
-                            className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 text-white" size="md"
+                            size="md"
                         >
                             <ITFlex align="center" gap={2}><FaQrcode className="mr-2" />
                             Imprimir QR
@@ -355,7 +355,7 @@ const PropertyDetailPage = () => {
                                         />
                                         <ITButton 
                                             variant="ghost" 
-                                            className="w-full text-blue-500 hover:bg-blue-50 justify-start h-auto py-3 px-4 rounded-xl"
+                                           
                                             onClick={() => window.open(`https://www.google.com/maps?q=${property.latitude},${property.longitude}`, '_blank')} size="md"
                                         >
                                             <ITFlex align="center" gap={2}><FaMapMarkedAlt className="mr-3" />
@@ -513,7 +513,7 @@ const PropertyDetailPage = () => {
                         </div>
 
                         <div className="mt-10">
-                            <ITButton variant="ghost" color="secondary" onClick={() => setViewingResident(null)} className="w-full text-slate-400 hover:text-slate-800 py-4 font-bold border-2 border-slate-100 hover:border-slate-300 rounded-2xl transition-all">
+                            <ITButton variant="ghost" color="secondary" onClick={() => setViewingResident(null)}>
                                 Cerrar Expediente de Propiedad
                             </ITButton>
                         </div>
@@ -551,7 +551,7 @@ const PropertyDetailPage = () => {
                                                     color="gray"
                                                     onClick={() => window.open(doc.url, '_blank')}
                                                     icon={<FaEye />}
-                                                    className="w-10 h-10 !rounded-full bg-white/90 backdrop-blur shadow-lg text-slate-800 hover:bg-emerald-500 hover:text-white transition-all transform scale-0 group-hover:scale-100"
+                                                   
                                                 />
                                             </div>
                                         </div>

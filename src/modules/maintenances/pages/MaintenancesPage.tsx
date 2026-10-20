@@ -267,7 +267,7 @@ const MaintenancesPage = () => {
                     size="sm"
                     color='secondary'
                     variant="outlined"
-                    className="!p-2"
+                   
                     title="Ver detalles"
                 >
                     <FaEye />
@@ -278,7 +278,7 @@ const MaintenancesPage = () => {
                         size="sm"
                         color='success'
                         variant="filled"
-                        className="!p-2"
+                       
                         title="Marcar como atendido"
                         disabled={resolvingId === row.id}
                     >
@@ -291,7 +291,7 @@ const MaintenancesPage = () => {
                         size="sm"
                         color='danger'
                         variant="outlined"
-                        className="!p-2 text-red-500 hover:!bg-red-50 border-red-200"
+                       
                         title="Eliminar mantenimiento"
                         disabled={deletingId === row.id}
                     >
@@ -330,7 +330,7 @@ const MaintenancesPage = () => {
                         size="sm"
                         onClick={() => setSearchTerm("")}
                         icon={<FaTimes size={14} />}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                       
                     />
                 )}
             </div>
@@ -352,7 +352,7 @@ const MaintenancesPage = () => {
                 onClick={() => setShowReportModal(true)}
                 color="primary"
                 variant="outlined"
-                className="h-[42px] px-4 !rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-all"
+               
                 size="md"
                 title="Generar reporte PDF de mantenimientos"
             >
@@ -363,7 +363,7 @@ const MaintenancesPage = () => {
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
-                className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+               
                 size="md"
                 title="Actualizar datos"
             >
@@ -374,7 +374,7 @@ const MaintenancesPage = () => {
                 <ITButton 
                     onClick={() => setShowCreateModal(true)}
                     color="primary"
-                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm"
+                   
                     title="Nuevo reporte" size="md"
                 >
                     <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO REPORTE
@@ -542,7 +542,7 @@ const MaintenancesPage = () => {
                               onClick={() => handleResolve(viewingMaintenance.id)}
                               variant='filled'
                               color="success"
-                              className="w-full justify-center"
+                             
                           >
                               Marcar como Atendido
                           </ITButton>
@@ -570,10 +570,10 @@ const MaintenancesPage = () => {
                 Esta acción registrará que el mantenimiento ha sido resuelto y quedará marcado como completado en el sistema.
             </p>
             <div className="flex justify-center gap-3">
-                <ITButton variant="outlined" color="secondary" className="px-6" onClick={() => setMaintenanceToResolveId(null)}>
+                <ITButton variant="outlined" color="secondary" onClick={() => setMaintenanceToResolveId(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton variant="filled" color="success" className="px-8" onClick={confirmResolve}>
+                <ITButton variant="filled" color="success" onClick={confirmResolve}>
                     Confirmar
                 </ITButton>
             </div>
@@ -595,10 +595,10 @@ const MaintenancesPage = () => {
                 Esta acción es irreversible. Se eliminará el reporte <span className="font-bold text-slate-700">"{maintenanceToDelete?.title}"</span> y toda su evidencia asociada.
             </p>
             <div className="flex justify-center gap-3">
-                <ITButton variant="outlined" color="secondary" className="px-6" onClick={() => setMaintenanceToDelete(null)}>
+                <ITButton variant="outlined" color="secondary" onClick={() => setMaintenanceToDelete(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton variant="filled" color="danger" className="px-8" onClick={confirmDelete}>
+                <ITButton variant="filled" color="danger" onClick={confirmDelete}>
                     Eliminar permanentemente
                 </ITButton>
             </div>

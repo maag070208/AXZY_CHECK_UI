@@ -259,7 +259,7 @@ const RoundDetailPage = () => {
                 <ITButton
                     onClick={() => navigate(-1)}
                     color="info"
-                    className="!px-6 !py-2 !rounded-lg"
+                   
                 >
                     Volver
                 </ITButton>
@@ -277,7 +277,7 @@ const RoundDetailPage = () => {
                             variant="text"
                             color="gray"
                             onClick={() => navigate(-1)}
-                            className="!p-0 gap-2 text-slate-600 hover:text-slate-900 transition-all duration-200 group"
+                           
                         >
                             <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center transition-colors">
                                 <FaArrowLeft className="text-sm" />
@@ -402,7 +402,7 @@ const RoundDetailPage = () => {
                                 variant="text"
                                 color="gray"
                                 onClick={handleOpenRouteMap}
-                                className="!rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 duration-200 font-medium text-sm" size="md"
+                                size="md"
                             >
                                 <ITFlex align="center" gap={2}><FaMapMarkedAlt className="text-blue-600" />
                                 <span>Ver trazo en mapa</span></ITFlex>
@@ -528,7 +528,7 @@ const RoundDetailPage = () => {
                                                     onClick={() => handleDeleteEvent(event.data.id, event.type as any)}
                                                     icon={<FaTrash size={14} />}
                                                     title="Eliminar registro"
-                                                    className="text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                   
                                                 />
                                             )}
                                         </div>

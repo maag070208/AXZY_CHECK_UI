@@ -196,7 +196,7 @@ const LocationsPage = () => {
                       size="sm"
                       variant="outlined"
                       color="primary"
-                      className="!p-2"
+                     
                       title="Imprimir QR"
                   >
                       <FaQrcode />
@@ -207,7 +207,7 @@ const LocationsPage = () => {
                               onClick={() => setEditingLocation(row)}
                               size="sm"
                               variant="ghost"
-                              className="!p-2 text-slate-400 hover:text-slate-600"
+                             
                               title="Editar"
                           >
                               <FaEdit />
@@ -216,7 +216,7 @@ const LocationsPage = () => {
                               onClick={() => handleDelete(row)}
                               size="sm"
                               variant="ghost"
-                              className="!p-2 text-red-300 hover:text-red-500"
+                             
                               title="Eliminar"
                           >
                               <FaTrash />
@@ -256,7 +256,7 @@ const LocationsPage = () => {
                         onClick={() => setSearchTerm("")}
                         icon={<FaTimes size={14} />}
                         title="Limpiar búsqueda"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                       
                     />
                 )}
             </div>
@@ -264,7 +264,7 @@ const LocationsPage = () => {
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
-                className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+               
                 size="md"
                 title="Actualizar tabla"
             >
@@ -275,7 +275,7 @@ const LocationsPage = () => {
                 <ITButton
                     onClick={() => setIsModalOpen(true)}
                     color="primary"
-                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm" size="md"
+                    size="md"
                 >
                     <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVA UBICACIÓN
                 </ITFlex></ITButton>
@@ -361,7 +361,7 @@ const LocationsPage = () => {
                 <ITButton variant="outlined" color="secondary" onClick={() => setLocationToDelete(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton variant="solid" className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={confirmDelete}>
+                <ITButton variant="solid" onClick={confirmDelete}>
                     Eliminar
                 </ITButton>
             </div>

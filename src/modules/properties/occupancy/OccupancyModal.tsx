@@ -108,7 +108,7 @@ export const OccupancyModal = ({ isOpen, propertyId, currentCode, onClose, onDon
             <ITInput name="personQuery" label={target === "RENTED" ? "Inquilino" : "Persona que habita"} placeholder="Buscar por nombre o teléfono" value={query} onChange={(e) => void search(e.target.value)} />
             {tenant && <p className="text-sm text-emerald-700">Seleccionado: {tenant.firstName} {tenant.lastName ?? ""}</p>}
             {!tenant && results.map((p) => (
-              <ITButton key={p.id} variant="ghost" onClick={() => setTenant(p)} className="block w-full text-left">
+              <ITButton key={p.id} variant="ghost" onClick={() => setTenant(p)}>
                 {p.firstName} {p.lastName ?? ""} {p.phone ? `· ${p.phone}` : ""}
               </ITButton>
             ))}

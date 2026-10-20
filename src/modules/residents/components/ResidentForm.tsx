@@ -377,7 +377,7 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                     type="button" 
                     onClick={handleNext} 
                     disabled={formik.isSubmitting}
-                    className={currentStep === steps.length - 1 ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}
+                   
                 >
                     {currentStep === steps.length - 1 ? (
                         formik.isSubmitting ? 'Guardando...' : (initialData ? 'Guardar Cambios' : 'Confirmar Registro')

@@ -256,7 +256,7 @@ const NewShiftHandoverPage = () => {
                   onClick={handleAddElement}
                   color="primary"
                   variant="filled"
-                  className="!bg-[#065911] hover:!bg-[#04400c] !h-10 !px-6 !rounded-xl font-bold text-xs"
+                 
                 >
                   <div className="flex items-center gap-2">
                     <FaPlus size={12} /> Agregar
@@ -300,7 +300,7 @@ const NewShiftHandoverPage = () => {
                       size="sm"
                       onClick={() => handleRemoveElement(index)}
                       icon={<FaTrash size={12} />}
-                      className="text-slate-300 hover:text-red-500 flex-shrink-0"
+                     
                     />
                   </div>
                 ))}
@@ -347,7 +347,7 @@ const NewShiftHandoverPage = () => {
               color="primary"
               onClick={handleSubmit}
               disabled={submitting}
-              className="!bg-[#065911] hover:!bg-[#04400c] !px-8"
+             
             >
               {submitting ? "Enviando..." : "Enviar Reporte de Turno"}
             </ITButton>

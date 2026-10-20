@@ -87,7 +87,7 @@ const UsersPage = () => {
                                 size="sm"
                                 onClick={() => setSearchTerm("")}
                                 icon={<FaTimes size={14} />}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                               
                             />
                         )}
                     </div>
@@ -95,7 +95,7 @@ const UsersPage = () => {
                         onClick={refreshTable}
                         color="secondary"
                         variant="outlined"
-                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                       
                         size="md"
                     >
                         <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
@@ -104,7 +104,7 @@ const UsersPage = () => {
                     <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
                         color="primary"
-                        className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm" size="md"
+                        size="md"
                     >
                         <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO USUARIO
                     </ITFlex></ITButton>
@@ -214,7 +214,7 @@ const UsersPage = () => {
                                         onClick={() => setChangingPasswordUser(row)} 
                                         size="sm" 
                                         variant="outlined" 
-                                        className="border-emerald-200 text-emerald-500 hover:bg-emerald-50"
+                                       
                                         title="Contraseña"
                                     >
                                         <FaKey />
@@ -223,7 +223,7 @@ const UsersPage = () => {
                                         onClick={() => setEditingUser(row)} 
                                         size="sm" 
                                         variant="ghost" 
-                                        className="text-slate-400 hover:text-slate-600"
+                                       
                                         title="Editar"
                                     >
                                         <FaEdit />
@@ -232,7 +232,7 @@ const UsersPage = () => {
                                         onClick={() => setUserToDeleteId(row.id)} 
                                         size="sm" 
                                         variant="ghost" 
-                                        className="text-red-300 hover:text-red-500"
+                                       
                                         title="Eliminar"
                                     >
                                         <FaTrash />
@@ -288,7 +288,7 @@ const UsersPage = () => {
                     <p className="text-slate-700 mb-6">¿Estás seguro de eliminar el usuario seleccionado? Esta acción inhabilitará su acceso a la plataforma de forma permanente.</p>
                     <div className="flex justify-end gap-3">
                         <ITButton variant="outlined" onClick={() => setUserToDeleteId(null)}>Cancelar</ITButton>
-                        <ITButton className="bg-red-600 text-white border-red-600" onClick={confirmDelete}>Eliminar Usuario</ITButton>
+                        <ITButton onClick={confirmDelete}>Eliminar Usuario</ITButton>
                     </div>
                 </div>
             </ITDialog>

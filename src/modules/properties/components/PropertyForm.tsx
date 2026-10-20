@@ -154,7 +154,7 @@ export const PropertyForm = ({ initialData, onSubmit, onCancel }: PropertyFormPr
                 <ITButton type="button" variant="outlined" color="secondary" onClick={onCancel}>
                     Cancelar
                 </ITButton>
-                <ITButton type="submit" variant="solid" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <ITButton type="submit" variant="solid">
                     {initialData ? "Actualizar" : "Guardar"}
                 </ITButton>
             </div>

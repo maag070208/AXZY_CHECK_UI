@@ -95,7 +95,7 @@ const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
             disabled={!isValid || !dirty}
             variant="filled"
             color="primary"
-            className="w-full"
+           
           />
         </Form>
       )}

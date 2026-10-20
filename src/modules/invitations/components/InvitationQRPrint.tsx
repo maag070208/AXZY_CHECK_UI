@@ -123,7 +123,7 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
           onClick={onClose}
           variant="outlined"
           color="secondary"
-          className="w-full sm:w-auto !rounded-xl !px-6 !py-3"
+         
         >
           Cerrar
         </ITButton>
@@ -131,7 +131,7 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
         <ITButton
           onClick={handlePrint}
           color="primary"
-          className="w-full sm:w-auto flex-1 !rounded-xl !px-6 !py-3"
+         
         >
           Imprimir / Guardar PDF
         </ITButton>

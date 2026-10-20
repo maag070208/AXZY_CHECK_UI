@@ -80,7 +80,7 @@ const LoginFormComponent = ({
             errors={errors}
           />
           <div className="mt-4">
-            <ITButton disabled={!isValid} className="w-full" type="submit">
+            <ITButton disabled={!isValid} type="submit">
               Iniciar Sesión
             </ITButton>
           </div>

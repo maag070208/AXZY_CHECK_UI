@@ -185,17 +185,17 @@ const InvitationsPage = () => {
                         onClick={() => setViewingQr(row)} 
                         size="sm" 
                         variant="solid" 
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow"
+                       
                         title="Ver Gafete QR"
                     >
                         <FaQrcode />
                     </ITButton>
                     {row.status === 'PENDING' && (
                         <div className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
-                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'ENTERED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" className="text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50" title="Aprobar Ingreso Escaneando">
+                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'ENTERED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" title="Aprobar Ingreso Escaneando">
                                <FaSignInAlt />
                            </ITButton>
-                           <ITButton onClick={() => setUpdatingStatusOf({inv: row, status: 'CANCELLED'})} size="sm" variant="ghost" className="text-red-400 hover:text-red-600" title="Revocar Accesos">
+                           <ITButton onClick={() => setUpdatingStatusOf({inv: row, status: 'CANCELLED'})} size="sm" variant="ghost" title="Revocar Accesos">
                                <FaBan />
                            </ITButton>
                         </div>
@@ -203,7 +203,7 @@ const InvitationsPage = () => {
 
                     {row.status === 'ENTERED' && (
                         <div className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
-                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'EXITED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" className="text-slate-400 hover:text-slate-700 hover:bg-slate-100" title="Aprobar Salida">
+                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'EXITED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" title="Aprobar Salida">
                                <FaSignOutAlt />
                            </ITButton>
                         </div>
@@ -240,7 +240,7 @@ const InvitationsPage = () => {
                                 size="sm"
                                 onClick={() => setSearchTerm("")}
                                 icon={<FaTimes size={14} />}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                               
                             />
                         )}
                     </div>
@@ -264,7 +264,7 @@ const InvitationsPage = () => {
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
                         variant="outlined"
-                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                       
                         size="md"
                         title="Refrescar datos"
                     >
@@ -275,7 +275,7 @@ const InvitationsPage = () => {
                         onClick={() => setIsCreateModalOpen(true)}
                         color="primary"
                         size="md"
-                        className="!rounded-xl"
+                       
                     >
                         <ITFlex align="center" gap={2}><FaPlus className="text-xs" />
                         <span>Crear Pase</span></ITFlex>
@@ -337,7 +337,7 @@ const InvitationsPage = () => {
                     </p>
                     <div className="flex justify-end gap-3">
                         <ITButton variant="outlined" onClick={() => setUpdatingStatusOf(null)}>Volver</ITButton>
-                        <ITButton className="bg-red-600 text-white border-red-600" onClick={confirmStatusUpdate}>Revocar Pase</ITButton>
+                        <ITButton onClick={confirmStatusUpdate}>Revocar Pase</ITButton>
                     </div>
                 </div>
             </ITDialog>
@@ -428,14 +428,14 @@ const InvitationsPage = () => {
                                 variant="text"
                                 color="gray"
                                 onClick={() => setScanningCode(null)}
-                                className="!px-6 !py-3 !rounded-xl font-bold text-slate-500 hover:bg-slate-200/50 transition-all w-full sm:w-auto"
+                               
                             >
                                 Cancelar
                             </ITButton>
                             <ITButton
                                 onClick={confirmScanningCode}
                                 color={scanningCode?.type === 'ENTERED' ? 'success' : 'gray'}
-                                className="!px-8 !py-3 !rounded-xl font-bold text-white shadow-lg w-full sm:w-auto flex items-center justify-center gap-2"
+                               
                             >
                                 {scanningCode?.type === 'ENTERED' ? 'Autorizar y Dar Acceso' : 'Cerrar Visita (Salida)'}
                             </ITButton>

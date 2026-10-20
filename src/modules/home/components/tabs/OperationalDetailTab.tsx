@@ -88,7 +88,7 @@ export const OperationalDetailTab = () => {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex justify-end gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-fit ml-auto">
                 <ITDatePicker name="range" value={dateRange} range onChange={(e: any) => setDateRange(e.target.value)} className="!border-none !bg-transparent !shadow-none !p-0 px-2" />
-                <ITButton onClick={fetchData} size="sm" variant="filled" color="primary" className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center">
+                <ITButton onClick={fetchData} size="sm" variant="filled" color="primary">
                     <FaSync className={loading ? 'animate-spin' : ''} />
                 </ITButton>
             </div>
@@ -221,7 +221,7 @@ export const OperationalDetailTab = () => {
                                     size="md"
                                     variant="filled"
                                     color="primary"
-                                    className="!rounded-2xl !py-2.5 !px-6 !bg-slate-900 hover:!bg-emerald-600 transition-all duration-300 shadow-xl shadow-slate-200 ml-auto"
+                                   
                                     onClick={() => handleViewDetail(item)}
                                 >
                                     <ITFlex align="center" gap={2}><FaEye className="text-sm" />
@@ -383,7 +383,7 @@ export const OperationalDetailTab = () => {
                         )}
                     </div>
                     <div className="px-10 py-6 border-t border-slate-50 bg-white flex justify-end">
-                        <ITButton variant="outlined" color="primary" onClick={() => setIsModalOpen(false)} className="!rounded-[1.25rem] px-12 py-3 !border-2 font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-colors">
+                        <ITButton variant="outlined" color="primary" onClick={() => setIsModalOpen(false)}>
                             Cerrar Historial
                         </ITButton>
                     </div>

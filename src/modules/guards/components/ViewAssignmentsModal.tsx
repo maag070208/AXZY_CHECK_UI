@@ -92,7 +92,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                                 color="gray"
                                 onClick={() => setSelectedAssignment(null)}
                                 icon={<FaArrowLeft />}
-                                className="!rounded-full text-slate-400 transition-all hover:text-[#065911] hover:bg-slate-100"
+                               
                             />
                         )}
                         <div>
@@ -123,7 +123,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                             onClick={fetchAssignments}
                             disabled={loading}
                             icon={<FaSync className={loading ? "animate-spin" : ""} />}
-                            className="hover:bg-slate-100 transition-colors text-[#065911]"
+                           
                         />
                     </div>
                 </div>
@@ -263,7 +263,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                                     {selectedAssignment.status === AssignmentStatus.UNDER_REVIEW && (
                                         <div className="mt-10">
                                             <ITButton 
-                                                className="w-full !bg-[#065911] !rounded-xl py-4 justify-center shadow-lg shadow-[#065911]/20 hover:scale-[1.02] transition-transform"
+                                               
                                                 onClick={() => handleApprove(selectedAssignment.id)}
                                                 disabled={approvingId === selectedAssignment.id} size="md"
                                             >
@@ -342,7 +342,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
 
                 {/* Footer Section */}
                 <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-end sticky bottom-0 z-10">
-                    <ITButton variant="outlined" color="secondary" onClick={onClose} className="!rounded-xl px-10 hover:bg-slate-50">
+                    <ITButton variant="outlined" color="secondary" onClick={onClose}>
                         Cerrar Historial
                     </ITButton>
                 </div>

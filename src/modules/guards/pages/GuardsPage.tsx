@@ -78,7 +78,7 @@ const GuardsPage = () => {
                                 size="sm"
                                 onClick={() => setSearchTerm("")}
                                 icon={<FaTimes size={14} />}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                               
                             />
                         ) : (
                             <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-200" size={14} />
@@ -89,7 +89,7 @@ const GuardsPage = () => {
                         onClick={refreshTable}
                         variant="outlined"
                         color="secondary"
-                        className="h-[42px] !px-4 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 transition-all" size="md"
+                        size="md"
                     >
                         <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Actualizar</span></ITFlex>
@@ -193,7 +193,7 @@ const GuardsPage = () => {
                                         onClick={() => handleViewAssignments(row)} 
                                         size="sm" 
                                         variant="outlined" 
-                                        className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 !rounded-lg"
+                                       
                                         title="Ver Tareas"
                                     >
                                         <FaEye />

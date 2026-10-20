@@ -272,7 +272,7 @@ const IncidentsPage = () => {
                     size="sm"
                     color='secondary'
                     variant="outlined"
-                    className="!p-2"
+                   
                     title="Ver detalles"
                 >
                     <FaEye />
@@ -283,7 +283,7 @@ const IncidentsPage = () => {
                         size="sm"
                         color='success'
                         variant="filled"
-                        className="!p-2"
+                       
                         title="Marcar como atendida"
                         disabled={resolvingId === row.id}
                     >
@@ -296,7 +296,7 @@ const IncidentsPage = () => {
                         size="sm"
                         color='danger'
                         variant="outlined"
-                        className="!p-2 text-red-500 hover:!bg-red-50 border-red-200"
+                       
                         title="Eliminar incidencia"
                         disabled={deletingId === row.id}
                     >
@@ -353,7 +353,7 @@ const IncidentsPage = () => {
                 onClick={() => setShowReportModal(true)}
                 color="primary"
                 variant="outlined"
-                className="h-[42px] px-4 !rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-all"
+               
                 size="md"
                 title="Generar reporte PDF de incidencias"
             >
@@ -364,7 +364,7 @@ const IncidentsPage = () => {
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
-                className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+               
                 size="md"
                 title="Actualizar datos"
             >
@@ -375,7 +375,7 @@ const IncidentsPage = () => {
                 <ITButton
                     onClick={() => setShowCreateModal(true)}
                     color="primary"
-                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm"
+                   
                     title="Nuevo reporte" size="md"
                 >
                     <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO REPORTE
@@ -546,7 +546,7 @@ const IncidentsPage = () => {
                               onClick={() => handleResolve(viewingIncident.id)}
                               variant='filled'
                               color="success"
-                              className="w-full justify-center"
+                             
                           >
                               Marcar como Atendida
                           </ITButton>
@@ -574,10 +574,10 @@ const IncidentsPage = () => {
                 Esta acción registrará que la incidencia ha sido resuelta y quedará marcada como completada en el sistema.
             </p>
             <div className="flex justify-center gap-3">
-                <ITButton variant="outlined" color="secondary" className="px-6" onClick={() => setIncidentToResolveId(null)}>
+                <ITButton variant="outlined" color="secondary" onClick={() => setIncidentToResolveId(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton variant="filled" color="success" className="px-8" onClick={confirmResolve}>
+                <ITButton variant="filled" color="success" onClick={confirmResolve}>
                     Confirmar
                 </ITButton>
             </div>
@@ -599,10 +599,10 @@ const IncidentsPage = () => {
                 Esta acción es irreversible. Se eliminará el reporte <span className="font-bold text-slate-700">"{incidentToDelete?.title}"</span> y toda su evidencia asociada.
             </p>
             <div className="flex justify-center gap-3">
-                <ITButton variant="outlined" color="secondary" className="px-6" onClick={() => setIncidentToDelete(null)}>
+                <ITButton variant="outlined" color="secondary" onClick={() => setIncidentToDelete(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton variant="filled" color="danger" className="px-8" onClick={confirmDelete}>
+                <ITButton variant="filled" color="danger" onClick={confirmDelete}>
                     Eliminar permanentemente
                 </ITButton>
             </div>

@@ -179,7 +179,7 @@ const NewUniformCheckPage = () => {
               color="primary"
               onClick={handleSubmit}
               disabled={submitting}
-              className="!bg-[#065911] hover:!bg-[#04400c] !px-8"
+             
             >
               {submitting ? "Enviando..." : "Registrar Checklist"}
             </ITButton>

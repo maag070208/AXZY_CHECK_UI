@@ -257,7 +257,7 @@ export const CategoryFormModal = ({
             color="secondary"
             onClick={onClose}
             disabled={loading}
-            className="!rounded-xl"
+           
           >
             Cancelar
           </ITButton>
@@ -265,7 +265,7 @@ export const CategoryFormModal = ({
             color="primary"
             onClick={handleSubmit}
             disabled={loading || !name.trim() || !value.trim()}
-            className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c]"
+           
           >
             {loading ? "Guardando..." : editCategory ? "Guardar cambios" : "Crear categoría"}
           </ITButton>

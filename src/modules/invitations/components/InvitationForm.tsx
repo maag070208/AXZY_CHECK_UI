@@ -126,7 +126,7 @@ export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
                 <ITButton type="button" variant="outlined" color="secondary" onClick={onCancel}>
                     Cancelar
                 </ITButton>
-                <ITButton type="submit" variant="solid" className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={formik.isSubmitting}>
+                <ITButton type="submit" variant="solid" disabled={formik.isSubmitting}>
                     {formik.isSubmitting ? "Emitiendo..." : "Generar Invitación QR"}
                 </ITButton>
             </div>

@@ -431,7 +431,7 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                             <ITButton
                                 variant="outlined"
                                 color="secondary"
-                                className="px-6"
+                               
                                 onClick={handleClose}
                                 disabled={generating}
                             >
@@ -440,7 +440,7 @@ const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps
                             <ITButton
                                 variant="filled"
                                 color="primary"
-                                className="px-6 flex items-center gap-2"
+                               
                                 onClick={handleGenerate}
                                 disabled={selectedIds.size === 0 || generating}
                             >

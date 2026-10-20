@@ -370,14 +370,14 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
             </div>
 
             <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-slate-100">
-                <ITButton onClick={onClose} variant="outlined" color="secondary" className="!rounded-xl">
+                <ITButton onClick={onClose} variant="outlined" color="secondary">
                     Descartar
                 </ITButton>
                 <ITButton
                     onClick={handleSave}
                     color="primary"
                     disabled={!canSave}
-                    className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c] disabled:!opacity-40"
+                   
                 >
                     {loading ? "Guardando..." : editConfig ? "Guardar cambios" : "Crear ruta"}
                 </ITButton>

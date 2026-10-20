@@ -168,7 +168,7 @@ const ResidentsPage = () => {
                         onClick={() => setViewingIne(row)} 
                         size="sm" 
                         variant={row.residentProfile?.ineFrontUrl ? "solid" : "outlined"} 
-                        className={row.residentProfile?.ineFrontUrl ? "bg-emerald-500 hover:bg-emerald-600 border-none text-white" : "border-slate-300 text-slate-400 hover:text-slate-500 hover:bg-slate-50"}
+                       
                         title="Ver Identificación"
                     >
                         <FaIdCard />
@@ -177,15 +177,15 @@ const ResidentsPage = () => {
                         onClick={() => setManagingContacts(row)} 
                         size="sm" 
                         variant="outlined" 
-                        className="border-emerald-200 text-emerald-500 hover:bg-emerald-50"
+                       
                         title="Agenda de Contactos"
                     >
                         <FaAddressBook />
                     </ITButton>
-                    <ITButton onClick={() => setEditingResident(row)} size="sm" variant="ghost" className="text-slate-400 hover:text-slate-600">
+                    <ITButton onClick={() => setEditingResident(row)} size="sm" variant="ghost">
                         <FaEdit />
                     </ITButton>
-                    <ITButton onClick={() => setResidentToDelete(row)} size="sm" variant="ghost" className="text-red-300 hover:text-red-500">
+                    <ITButton onClick={() => setResidentToDelete(row)} size="sm" variant="ghost">
                         <FaTrash />
                     </ITButton>
                 </div>
@@ -221,7 +221,7 @@ const ResidentsPage = () => {
                                 onClick={() => setSearchTerm("")}
                                 icon={<FaTimes size={14} />}
                                 title="Limpiar búsqueda"
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                               
                             />
                         )}
                     </div>
@@ -229,7 +229,7 @@ const ResidentsPage = () => {
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
                         variant="outlined"
-                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                       
                         size="md"
                         title="Actualizar tabla"
                     >
@@ -240,7 +240,7 @@ const ResidentsPage = () => {
                         onClick={() => setIsCreateModalOpen(true)}
                         color="primary"
                         size="md"
-                        className="h-[42px] !rounded-xl"
+                       
                     >
                         <ITFlex align="center" gap={2}><FaPlus className="text-xs" />
                         <span>Alta de Residente</span></ITFlex>
@@ -301,7 +301,7 @@ const ResidentsPage = () => {
                     <p className="text-slate-700 mb-6">¿Estás seguro de eliminar el expediente de <span className="font-bold">{residentToDelete?.name} {residentToDelete?.lastName}</span>? Esta acción inhabilitará su acceso a la plataforma.</p>
                     <div className="flex justify-end gap-3">
                         <ITButton variant="outlined" onClick={() => setResidentToDelete(null)}>Cancelar</ITButton>
-                        <ITButton className="bg-red-600 text-white border-red-600" onClick={confirmDelete}>Eliminar Expediente</ITButton>
+                        <ITButton onClick={confirmDelete}>Eliminar Expediente</ITButton>
                     </div>
                 </div>
             </ITDialog>

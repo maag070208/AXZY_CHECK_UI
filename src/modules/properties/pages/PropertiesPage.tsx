@@ -226,10 +226,10 @@ const PropertiesPage = () => {
                     >
                         <FaMapMarkedAlt />
                     </ITButton>
-                    <ITButton onClick={() => setEditingProperty(row)} size="sm" variant="ghost" className="text-slate-400 hover:text-slate-600">
+                    <ITButton onClick={() => setEditingProperty(row)} size="sm" variant="ghost">
                         <FaEdit />
                     </ITButton>
-                    <ITButton onClick={() => setPropertyToDelete(row)} size="sm" variant="ghost" className="text-red-300 hover:text-red-500">
+                    <ITButton onClick={() => setPropertyToDelete(row)} size="sm" variant="ghost">
                         <FaTrash />
                     </ITButton>
                 </div>
@@ -265,7 +265,7 @@ const PropertiesPage = () => {
                                 onClick={() => setSearchTerm("")}
                                 icon={<FaTimes size={14} />}
                                 title="Limpiar búsqueda"
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                               
                             />
                         )}
                     </div>
@@ -273,14 +273,14 @@ const PropertiesPage = () => {
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
                         variant="outlined"
-                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                       
                         size="md"
                         title="Actualizar tabla"
                     >
                         <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
                         <span className="text-xs font-bold text-slate-500">Actualizar</span></ITFlex>
                     </ITButton>
-                    <ITButton variant="outlined" color="secondary" size="sm" onClick={() => setIsImportOpen(true)} className="h-[42px] !rounded-xl">
+                    <ITButton variant="outlined" color="secondary" size="sm" onClick={() => setIsImportOpen(true)}>
                         Importar CSV
                     </ITButton>
                     <ITButton
@@ -360,7 +360,7 @@ const PropertiesPage = () => {
                     <p className="text-slate-700 mb-6">¿Estás seguro de eliminar la propiedad <span className="font-bold">{propertyToDelete?.identifier}</span>?</p>
                     <div className="flex justify-end gap-3">
                         <ITButton variant="outlined" onClick={() => setPropertyToDelete(null)}>Cancelar</ITButton>
-                        <ITButton className="bg-red-600 text-white" onClick={confirmDelete}>Eliminar</ITButton>
+                        <ITButton onClick={confirmDelete}>Eliminar</ITButton>
                     </div>
                 </div>
             </ITDialog>

@@ -538,7 +538,7 @@ const CatalogsPage = () => {
             variant="outlined"
             color="secondary"
             disabled={refreshing || loading}
-            className="!h-[42px] !rounded-xl !border-slate-200 !bg-white !px-3.5 !text-xs !font-bold !text-slate-500 hover:!bg-slate-50"
+           
             title="Actualizar catálogos"
             ariaLabel="Actualizar catálogos"
           >
@@ -550,7 +550,7 @@ const CatalogsPage = () => {
           <ITButton
             onClick={openCreateCategory}
             color="primary"
-            className="!h-[42px] !rounded-xl !bg-[#065911] !px-5 !text-xs !font-bold shadow-sm hover:!bg-[#04400c]"
+           
           >
             <span className="flex items-center gap-2">
               <FaPlus size={10} /> Nueva categoría
@@ -748,7 +748,7 @@ const CatalogsPage = () => {
               <ITButton
                 color="primary"
                 onClick={() => void loadCatalogs()}
-                className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c]"
+               
               >
                 Reintentar
               </ITButton>
@@ -767,7 +767,7 @@ const CatalogsPage = () => {
                   variant="outlined"
                   color="secondary"
                   onClick={clearFilters}
-                  className="!rounded-xl"
+                 
                 >
                   Limpiar filtros
                 </ITButton>
@@ -775,7 +775,7 @@ const CatalogsPage = () => {
                 <ITButton
                   color="primary"
                   onClick={openCreateCategory}
-                  className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c]"
+                 
                 >
                   <span className="flex items-center gap-2">
                     <FaPlus size={10} /> Nueva categoría

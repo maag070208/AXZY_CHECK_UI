@@ -59,7 +59,7 @@ const UniformPage = () => {
       icon={<FaTshirt size={20} />}
       iconColor="#065911"
       actions={
-<ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c]" size="md">
+<ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" size="md">
           <ITFlex align="center" gap={2}><FaPlus size={12} /> Nuevo Checklist
         </ITFlex></ITButton>
       }
@@ -140,7 +140,7 @@ const UniformPage = () => {
                     size="sm"
                     color="secondary"
                     variant="outlined"
-                    className="!p-2"
+                   
                     title="Ver detalles"
                   >
                     <FaEye />

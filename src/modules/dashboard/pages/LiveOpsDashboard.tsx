@@ -76,7 +76,7 @@ export const LiveOpsDashboard = () => {
               Actualizado {dayjs(data.generatedAt).format("HH:mm:ss")}
             </span>
           )}
-          <ITButton onClick={refetch} size="sm" variant="filled" color="primary" className="!rounded-xl !h-9 !w-9 !p-0 flex items-center justify-center">
+          <ITButton onClick={refetch} size="sm" variant="filled" color="primary">
             <FaSync className={loading ? "animate-spin" : ""} size={13} />
           </ITButton>
         </div>

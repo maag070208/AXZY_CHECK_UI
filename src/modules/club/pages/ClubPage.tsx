@@ -266,7 +266,7 @@ const ClubPage = () => {
                     size="sm"
                     color='secondary'
                     variant="outlined"
-                    className="!p-2"
+                   
                     title="Ver detalles"
                 >
                     <FaEye />
@@ -277,7 +277,7 @@ const ClubPage = () => {
                         size="sm"
                         color='success'
                         variant="filled"
-                        className="!p-2"
+                       
                         title="Marcar como atendido"
                         disabled={resolvingId === row.id}
                     >
@@ -290,7 +290,7 @@ const ClubPage = () => {
                         size="sm"
                         color='danger'
                         variant="outlined"
-                        className="!p-2 text-red-500 hover:!bg-red-50 border-red-200"
+                       
                         title="Eliminar reporte"
                         disabled={deletingId === row.id}
                     >
@@ -347,7 +347,7 @@ const ClubPage = () => {
                 onClick={() => setShowReportModal(true)}
                 color="primary"
                 variant="outlined"
-                className="h-[42px] px-4 !rounded-xl border-sky-200 text-sky-700 hover:bg-sky-50 transition-all"
+               
                 size="md"
                 title="Generar reporte PDF de casa club"
             >
@@ -358,7 +358,7 @@ const ClubPage = () => {
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
-                className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+               
                 size="md"
                 title="Actualizar datos"
             >
@@ -369,7 +369,7 @@ const ClubPage = () => {
                 <ITButton
                     onClick={() => setShowCreateModal(true)}
                     color="primary"
-                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm"
+                   
                     title="Nuevo reporte" size="md"
                 >
                     <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO REPORTE
@@ -536,7 +536,7 @@ const ClubPage = () => {
                               onClick={() => handleResolve(viewingClub.id)}
                               variant='filled'
                               color="success"
-                              className="w-full justify-center"
+                             
                           >
                               Marcar como Atendido
                           </ITButton>
@@ -563,10 +563,10 @@ const ClubPage = () => {
                 Esta acción registrará que el reporte ha sido resuelto y quedará marcado como completado en el sistema.
             </p>
             <div className="flex justify-center gap-3">
-                <ITButton variant="outlined" color="secondary" className="px-6" onClick={() => setClubToResolveId(null)}>
+                <ITButton variant="outlined" color="secondary" onClick={() => setClubToResolveId(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton variant="filled" color="success" className="px-8" onClick={confirmResolve}>
+                <ITButton variant="filled" color="success" onClick={confirmResolve}>
                     Confirmar
                 </ITButton>
             </div>
@@ -587,10 +587,10 @@ const ClubPage = () => {
                 Esta acción es irreversible. Se eliminará el reporte <span className="font-bold text-slate-700">"{clubToDelete?.title}"</span> y toda su evidencia asociada.
             </p>
             <div className="flex justify-center gap-3">
-                <ITButton variant="outlined" color="secondary" className="px-6" onClick={() => setClubToDelete(null)}>
+                <ITButton variant="outlined" color="secondary" onClick={() => setClubToDelete(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton variant="filled" color="danger" className="px-8" onClick={confirmDelete}>
+                <ITButton variant="filled" color="danger" onClick={confirmDelete}>
                     Eliminar permanentemente
                 </ITButton>
             </div>

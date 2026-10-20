@@ -107,18 +107,14 @@ export const CatalogDeleteDialog = ({
             color="secondary"
             onClick={onClose}
             disabled={loading}
-            className="!rounded-xl"
+           
           >
             Cancelar
           </ITButton>
           <ITButton
             onClick={onConfirm}
             disabled={loading}
-            className={`!rounded-xl ${
-              active
-                ? "!bg-amber-500 !text-white hover:!bg-amber-600"
-                : "!bg-rose-600 !text-white hover:!bg-rose-700"
-            }`}
+           
           >
             {loading ? "Procesando..." : active ? "Desactivar" : "Eliminar permanentemente"}
           </ITButton>

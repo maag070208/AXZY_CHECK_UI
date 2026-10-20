@@ -107,7 +107,7 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
         <ITInput name="authPerson" label="Buscar persona" value={query} onChange={(e) => void search(e.target.value)} />
         {person && <p className="text-sm text-emerald-700">Seleccionada: {person.firstName} {person.lastName ?? ""}</p>}
         {!person && results.map((p) => (
-          <ITButton key={p.id} variant="ghost" onClick={() => setPerson(p)} className="block w-full text-left">
+          <ITButton key={p.id} variant="ghost" onClick={() => setPerson(p)}>
             {p.firstName} {p.lastName ?? ""}
           </ITButton>
         ))}

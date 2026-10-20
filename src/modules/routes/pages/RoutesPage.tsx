@@ -84,7 +84,7 @@ const RoutesPage = () => {
                         size="sm"
                         onClick={() => setSearchTerm("")}
                         icon={<FaTimes size={14} />}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                       
                     />
                 ) : (
                     <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-200" />
@@ -95,7 +95,7 @@ const RoutesPage = () => {
                onClick={refreshTable}
                variant="outlined"
                color="secondary"
-               className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+              
                size="md"
                title="Actualizar datos"
             >
@@ -106,7 +106,7 @@ const RoutesPage = () => {
             <ITButton
                onClick={handleCreate}
                color="primary"
-               className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm" size="md"
+               size="md"
             >
               <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> AGREGAR RUTA
             </ITFlex></ITButton>
@@ -196,7 +196,7 @@ const RoutesPage = () => {
                     variant="outlined" 
                     color="secondary"
                     size="sm" 
-                    className="!rounded-xl !p-2 !border-slate-200"
+                   
                     title="Editar"
                   >
                     <FaEdit size={14} className="text-slate-500" />
@@ -206,7 +206,7 @@ const RoutesPage = () => {
                     color="danger" 
                     variant="outlined" 
                     size="sm" 
-                    className="!rounded-xl !p-2 text-red-500 hover:!bg-red-50 border-red-200"
+                   
                     title="Eliminar"
                   >
                     <FaTrash size={14} />
@@ -232,10 +232,10 @@ const RoutesPage = () => {
                 ¿Estás seguro de eliminar esta ruta de servicio? Esta acción no se puede deshacer.
             </p>
             <div className="flex justify-end gap-3">
-                <ITButton variant="outlined" color="secondary" onClick={() => setRouteToDeleteId(null)} className="!rounded-lg">
+                <ITButton variant="outlined" color="secondary" onClick={() => setRouteToDeleteId(null)}>
                     Cancelar
                 </ITButton>
-                <ITButton className="!bg-red-600 text-white !rounded-lg" onClick={confirmDelete}>
+                <ITButton onClick={confirmDelete}>
                     Eliminar permanentemente
                 </ITButton>
             </div>

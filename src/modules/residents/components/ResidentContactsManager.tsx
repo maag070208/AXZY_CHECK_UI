@@ -114,14 +114,14 @@ const ResidentContactForm = ({ initialData, residentId, onSubmitSuccess, onCance
                     type="button"
                     variant="outlined"
                     onClick={onCancel}
-                    className="rounded-xl"
+                   
                 >
                     Cancelar
                 </ITButton>
                 <ITButton
                     type="submit"
                     disabled={formik.isSubmitting}
-                    className="bg-emerald-600 text-white px-8 rounded-xl shadow-lg shadow-emerald-500/20"
+                   
                 >
                     {formik.isSubmitting ? "Guardando..." : (initialData ? "Actualizar" : "Guardar Contacto")}
                 </ITButton>
@@ -221,7 +221,7 @@ export const ResidentContactsManager = ({
                     </p>
                     <ITButton
                         onClick={() => handleOpenForm()}
-                        className="bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
+                       
                         size="md"
                     >
                         <ITFlex align="center" gap={2}><FaPlus /> Nuevo Contacto
@@ -304,7 +304,7 @@ export const ResidentContactsManager = ({
                         <ITButton
                             onClick={() => handleOpenForm()}
                             variant="ghost"
-                            className="mt-6 text-emerald-600 font-bold" size="md"
+                            size="md"
                         >
                             <ITFlex align="center" gap={2}><FaPlus className="mr-2" /> Agregar el primero
                         </ITFlex></ITButton>

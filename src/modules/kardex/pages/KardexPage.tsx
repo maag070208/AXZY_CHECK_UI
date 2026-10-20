@@ -163,7 +163,7 @@ const KardexPage = () => {
                         size="sm"
                         color='secondary'
                         variant="outlined"
-                        className="!p-2"
+                       
                     >
                         <FaEye />
                     </ITButton>
@@ -203,7 +203,7 @@ const KardexPage = () => {
                             onClick={() => setSearchTerm("")}
                             icon={<FaTimesCircle className="text-xs" />}
                             title="Limpiar búsqueda"
-                            className="text-slate-300 hover:text-red-400 transition-all"
+                           
                         />
                     )}
                 </div>
@@ -240,7 +240,7 @@ const KardexPage = () => {
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
                         variant="outlined"
-                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                       
                         size="md"
                         title="Actualizar tabla"
                     >

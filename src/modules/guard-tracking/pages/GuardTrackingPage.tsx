@@ -225,7 +225,7 @@ const GuardTrackingPage = () => {
               variant="filled"
               color="primary"
               title="Actualizar"
-              className="!rounded-xl !h-10 !w-10 !p-0 flex items-center justify-center flex-shrink-0"
+             
             >
               <FaSync className={loadingSummary || loadingRounds ? "animate-spin" : ""} />
             </ITButton>

@@ -379,13 +379,13 @@ export const ReportCreateForm = ({
 
           {/* Acciones */}
           <div className="px-5 py-3.5 flex justify-end gap-2.5 border-t border-slate-100 bg-slate-50/60 flex-shrink-0">
-            <ITButton variant="outlined" color="secondary" className="!rounded-xl" onClick={handleClose} disabled={submitting}>
+            <ITButton variant="outlined" color="secondary" onClick={handleClose} disabled={submitting}>
               Cancelar
             </ITButton>
             <ITButton
               variant="filled"
               color="primary"
-              className={`!rounded-xl ${a.submit}`}
+             
               onClick={handleSubmit}
               disabled={submitting || !typeId || isUploading}
             >

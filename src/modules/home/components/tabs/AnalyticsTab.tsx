@@ -236,7 +236,7 @@ export const AnalyticsTab = () => {
                     <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-100">
                         <ITDatePicker name="range" value={dateRange} range onChange={(e: any) => setDateRange(e.target.value)} className="!border-none !bg-transparent !shadow-none !p-0 px-2" />
                     </div>
-                    <ITButton onClick={fetchData} size="sm" variant="filled" color="primary" className="!rounded-xl !h-9 !w-9 !p-0 flex items-center justify-center flex-shrink-0">
+                    <ITButton onClick={fetchData} size="sm" variant="filled" color="primary">
                         <FaSync className={loading ? 'animate-spin' : ''} size={12} />
                     </ITButton>
                 </div>
