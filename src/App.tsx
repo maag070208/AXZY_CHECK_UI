@@ -41,19 +41,6 @@ function App() {
   const [isAppReady, setIsAppReady] = useState(false);
 
   useEffect(() => {
-    window.addEventListener("beforeunload", () => {});
-    window.addEventListener("unload", handleTabClosing);
-    return () => {
-      window.removeEventListener("beforeunload", () => {});
-      window.removeEventListener("unload", handleTabClosing);
-    };
-  });
-
-  const handleTabClosing = () => {
-    localStorage.setItem("token", token);
-  };
-
-  useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken && storedToken !== "null") {
       dispatch(setAuth(storedToken));

@@ -35,6 +35,8 @@ const LoginPage = () => {
         return;
       }
 
+      // El token se guarda al iniciar sesión; signOut lo borra al cerrarla.
+      localStorage.setItem("token", response.data);
       dispatch(setAuth(response.data));
       navigate("/home");
     }

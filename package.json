@@ -15,7 +15,9 @@
     "dev:landing": "vite --config vite.landing.config.ts --port 5004 --strictPort",
     "build:landing": "tsc -b && vite build --config vite.landing.config.ts",
     "preview:landing": "vite preview --config vite.landing.config.ts --port 5004 --strictPort",
-    "deploy:app": "bash scripts/deploy-app.sh"
+    "deploy:app": "bash scripts/deploy-app.sh",
+    "e2e:build": "vite build --mode e2e",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@axzydev/axzy_ui_system": "1.7.0",
@@ -44,6 +46,7 @@
   "devDependencies": {
     "@eslint/js": "^9.19.0",
     "@originjs/vite-plugin-federation": "^1.4.1",
+    "@playwright/test": "1.49.1",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "^22.13.5",
     "@types/react": "19.0.8",

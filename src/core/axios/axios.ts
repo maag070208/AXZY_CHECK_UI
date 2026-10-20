@@ -10,7 +10,7 @@ import { logout } from "../store/auth/auth.slice";
 import store from "../store/store";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:4444/api/v2',
+  baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:4444/api/v1',
 });
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
