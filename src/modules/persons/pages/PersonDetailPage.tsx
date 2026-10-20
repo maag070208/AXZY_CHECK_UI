@@ -1,4 +1,4 @@
-import { ITButton, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITButton, ITInput, ITLoader , ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { addContact, addDocument, documentUrl, listContacts, listDocuments, PersonContact, PersonDocument, uploadPrivateFile } from "../persons.service";
@@ -87,13 +87,17 @@ export const PersonDetailPage = () => {
           {documents.length === 0 && <li className="py-2 text-slate-400">Sin documentos</li>}
         </ul>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
-          <label className="text-sm text-slate-600">Tipo
-            <select className="block w-full border rounded-lg p-2" value={docKind} onChange={(e) => setDocKind(e.target.value)}>
-              <option value="INE">Identificación (INE)</option>
-              <option value="CONTRACT">Contrato</option>
-              <option value="OTHER">Otro</option>
-            </select>
-          </label>
+          <ITSearchSelect
+            label="Tipo"
+            value={docKind}
+            onChange={(value) => setDocKind(String(value))}
+            options={[
+              { label: "Identificación (INE)", value: "INE" },
+              { label: "Contrato", value: "CONTRACT" },
+              { label: "Otro", value: "OTHER" },
+            ]}
+            clearable={false}
+          />
           <ITInput name="docExpiry" label="Vence (AAAA-MM-DD)" value={docExpiry} onChange={(e) => setDocExpiry(e.target.value)} />
           <input type="file" aria-label="Archivo del documento" accept="application/pdf,image/jpeg,image/png" onChange={(e) => setDocFile(e.target.files?.[0] ?? null)} />
           <ITButton onClick={() => void saveDocument()} disabled={!docFile}>Subir documento</ITButton>

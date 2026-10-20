@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITPage , ITInput } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaEdit, FaPlus, FaRoute, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -70,12 +70,12 @@ const RoutesPage = () => {
       actions={
 <div className="flex items-center gap-3">
             <div className="w-64 relative">
-                <input 
-                    type="text"
+                <ITInput
+                    name="searchRoute"
                     placeholder="Buscar por nombre..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-4 pr-10 py-2.5 bg-white border border-slate-100 rounded-xl focus:border-[#065911] outline-none text-sm transition-all shadow-sm font-medium h-[42px]"
+                    className="!py-2.5 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                 />
                 {searchTerm ? (
                     <ITButton

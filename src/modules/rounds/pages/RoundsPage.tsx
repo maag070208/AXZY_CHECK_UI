@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITPage , ITSearchSelect , ITInput } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaStop, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -306,12 +306,13 @@ const RoundsPage = () => {
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Buscar Guardia</label>
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[240px] shadow-sm focus-within:border-emerald-500/50 transition-all">
                     <FaUser className="text-slate-300 text-xs mr-2" />
-                    <input 
-                        type="text"
+                    <ITInput
+                        name="searchRound"
                         placeholder="Nombre o usuario..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full placeholder:text-slate-300 placeholder:font-normal"
+                        containerClassName="w-full"
+                        className="!bg-transparent !border-0 !shadow-none !p-0 text-sm font-bold text-slate-600"
                     />
                     {searchTerm.length > 0 && (
                         <ITButton
@@ -330,18 +331,20 @@ const RoundsPage = () => {
             <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Estado</label>
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[150px] shadow-sm">
-                    <select 
+                    <ITSearchSelect
                         value={statusFilter}
-                        onChange={(e) => {
-                            setStatusFilter(e.target.value);
+                        onChange={(value) => {
+                            setStatusFilter(String(value));
                             setRefreshKey(prev => prev + 1);
                         }}
-                        className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full"
-                    >
-                        <option value="ALL">Todos</option>
-                        <option value="IN_PROGRESS">En curso</option>
-                        <option value="COMPLETED">Finalizadas</option>
-                    </select>
+                        options={[
+                            { label: "Todos", value: "ALL" },
+                            { label: "En curso", value: "IN_PROGRESS" },
+                            { label: "Finalizadas", value: "COMPLETED" },
+                        ]}
+                        clearable={false}
+                        className="w-full"
+                    />
                 </div>
             </div>
 

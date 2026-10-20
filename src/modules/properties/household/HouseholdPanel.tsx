@@ -1,4 +1,4 @@
-import { ITButton, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITButton, ITInput, ITLoader , ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import { addHouseholdResident, HouseholdResident, listHousehold, listResidentKinds, moveOutResident, ResidentKindOption, setPrimaryResident } from "./household.service";
 
@@ -89,11 +89,14 @@ export const HouseholdPanel = ({ propertyId, onChanged }: Props) => {
           <ITInput name="householdFirstName" label="Nombre" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
           <ITInput name="householdLastName" label="Apellidos" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
           <ITInput name="householdPhone" label="Teléfono" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          <label className="text-sm text-slate-600">Tipo
-            <select name="householdKind" className="block w-full border rounded-lg p-2" value={form.kindCode} onChange={(e) => setForm({ ...form, kindCode: e.target.value })}>
-              {kinds.map((k) => <option key={k.code} value={k.code}>{k.name}</option>)}
-            </select>
-          </label>
+          <ITSearchSelect
+            name="householdKind"
+            label="Tipo"
+            value={form.kindCode}
+            onChange={(value) => setForm({ ...form, kindCode: String(value) })}
+            options={kinds.map((k) => ({ label: k.name, value: k.code }))}
+            clearable={false}
+          />
         </div>
 
         {duplicateWarning && (

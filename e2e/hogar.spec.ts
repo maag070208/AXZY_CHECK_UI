@@ -22,7 +22,8 @@ test("A2: agregar un familiar al hogar desde la propiedad y darlo de baja", asyn
   await expect(page.getByRole("heading", { name: "Hogar" })).toBeVisible();
 
   await page.locator('input[name="householdFirstName"]').fill(name);
-  await page.locator('select[name="householdKind"]').selectOption("FAMILY");
+  await page.locator('input[name="householdKind"]').click();
+  await page.getByText("Familiar", { exact: true }).click();
   await page.getByRole("button", { name: "Agregar al hogar" }).click();
 
   const row = page.locator("li", { hasText: name });

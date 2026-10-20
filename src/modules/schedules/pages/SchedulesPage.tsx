@@ -101,12 +101,13 @@ const SchedulesPage = () => {
       actions={
 <div className="flex items-center gap-3">
             <div className="relative">
-                <input 
-                    type="text"
+                <ITInput
+                    name="searchSchedule"
                     placeholder="Buscar horario..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-4 pr-10 py-2.5 bg-white border border-slate-300 rounded-lg w-64 focus:border-[#065911] outline-none text-sm transition-all shadow-sm"
+                    containerClassName="w-64"
+                    className="!pr-10 !py-2.5 !rounded-lg bg-white"
                 />
                 {searchTerm ? (
                     <FaTimes 

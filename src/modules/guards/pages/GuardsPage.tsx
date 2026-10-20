@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ITButton, ITDataTable, ITPage } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITPage , ITInput } from "@axzydev/axzy_ui_system";
 import { FaUserShield, FaClipboardList, FaClock, FaEye, FaSync, FaSearch, FaTimes } from "react-icons/fa";
 import { getPaginatedUsers, User } from "../../users/services/UserService";
 import { AssignmentModal } from "../components/AssignmentModal";
@@ -64,12 +64,12 @@ const GuardsPage = () => {
       actions={
 <div className="flex items-center gap-3">
                     <div className="w-64 relative">
-                        <input 
-                            type="text"
+                        <ITInput
+                            name="searchGuard"
                             placeholder="Buscar guardia..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full py-2 h-[42px] px-4 pr-10 bg-white border border-slate-100 rounded-xl outline-none text-sm focus:border-[#065911] transition-all shadow-sm font-medium text-slate-600"
+                            className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                         />
                         {searchTerm ? (
                             <ITButton

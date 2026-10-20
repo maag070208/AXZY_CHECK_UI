@@ -1,7 +1,7 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader, ITPage , ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { MediaCarousel } from "@core/components/MediaCarousel";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { AgeBadge } from "@core/components/AgeBadge";
@@ -336,15 +336,17 @@ const MaintenancesPage = () => {
             </div>
             <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
                 <FaFilter className="text-slate-400 text-xs mr-2" />
-                <select 
+                <ITSearchSelect
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-transparent text-sm font-medium text-slate-700 outline-none min-w-[120px]"
-                >
-                    <option value="ALL">Todos los estados</option>
-                    <option value="PENDING">Pendientes</option>
-                    <option value="ATTENDED">Atendidos</option>
-                </select>
+                    onChange={(value) => setStatusFilter(String(value))}
+                    options={[
+                        { label: "Todos los estados", value: "ALL" },
+                        { label: "Pendientes", value: "PENDING" },
+                        { label: "Atendidos", value: "ATTENDED" },
+                    ]}
+                    clearable={false}
+                    className="min-w-[160px]"
+                />
             </div>
             <ITButton
                 onClick={() => setShowReportModal(true)}

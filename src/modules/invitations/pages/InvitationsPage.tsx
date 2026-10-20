@@ -1,4 +1,4 @@
-import { ITButton, ITDataTable, ITDialog, ITInput, ITPage } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITInput, ITPage , ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { FaPlus, FaQrcode, FaIdBadge, FaBan, FaSignInAlt, FaSignOutAlt, FaTimes, FaUser, FaMotorcycle, FaSync, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useCallback, useMemo, useState } from "react";
@@ -246,19 +246,19 @@ const InvitationsPage = () => {
                     </div>
                     <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
                         <FaFilter className="text-slate-400 text-xs mr-2" />
-                        <select 
+                        <ITSearchSelect
                             value={statusFilter}
-                            onChange={(e) => {
-                                setStatusFilter(e.target.value);
+                            onChange={(value) => {
+                                setStatusFilter(String(value));
                                 setRefreshKey(prev => prev + 1);
                             }}
-                            className="bg-transparent text-sm font-medium text-slate-700 outline-none min-w-[120px]"
-                        >
-                            <option value="ALL">Todos los estados</option>
-                            {statusCatalog.map(s => (
-                                <option key={s.id} value={s.name}>{s.value}</option>
-                            ))}
-                        </select>
+                            options={[
+                                { label: "Todos los estados", value: "ALL" },
+                                ...statusCatalog.map(s => ({ label: s.value, value: s.name })),
+                            ]}
+                            clearable={false}
+                            className="min-w-[160px]"
+                        />
                     </div>
                     <ITButton
                         onClick={() => setRefreshKey(prev => prev + 1)}

@@ -1,4 +1,5 @@
-import { ITButton, ITInput, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDatePicker, ITInput, ITLoader, ITSearchSelect, ITTimePicker } from "@axzydev/axzy_ui_system";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import { PersonLite, searchPersons } from "@app/modules/persons/persons.service";
 import QRCode from "qrcode";
@@ -112,27 +113,48 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
         ))}
 
         <label className="text-sm text-slate-600">Alcance
-          <select name="scope" className="block w-full border rounded-lg p-2" value={scope} onChange={(e) => setScope(e.target.value as Authorization["scope"])}>
-            <option value="PEDESTRIAN">Peatón</option>
-            <option value="VEHICLE">Vehículo</option>
-            <option value="BOTH">Peatón y vehículo</option>
-          </select>
+          <ITSearchSelect
+            name="scope"
+            value={scope}
+            onChange={(value) => setScope(String(value) as Authorization["scope"])}
+            options={[
+              { label: "Peatón", value: "PEDESTRIAN" },
+              { label: "Vehículo", value: "VEHICLE" },
+              { label: "Peatón y vehículo", value: "BOTH" },
+            ]}
+            clearable={false}
+          />
         </label>
 
         <fieldset className="flex flex-wrap gap-3 text-sm">
           <legend className="text-slate-600 mb-1">Días</legend>
           {DAY_LABELS.map((label, d) => (
-            <label key={label} className="flex items-center gap-1">
-              <input type="checkbox" checked={days.includes(d)} onChange={() => toggleDay(d)} /> {label}
-            </label>
+            <ITInput
+              key={label}
+              name={`day${d}`}
+              type="checkbox"
+              label={label}
+              checked={days.includes(d)}
+              onChange={() => toggleDay(d)}
+            />
           ))}
         </fieldset>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <label className="text-sm text-slate-600">Desde <input type="time" name="startTime" className="block w-full border rounded-lg p-2" value={startTime} onChange={(e) => setStartTime(e.target.value)} /></label>
-          <label className="text-sm text-slate-600">Hasta <input type="time" name="endTime" className="block w-full border rounded-lg p-2" value={endTime} onChange={(e) => setEndTime(e.target.value)} /></label>
-          <label className="text-sm text-slate-600">Vigente desde <input type="date" name="validFrom" className="block w-full border rounded-lg p-2" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} /></label>
-          <label className="text-sm text-slate-600">Hasta (opcional) <input type="date" name="validUntil" className="block w-full border rounded-lg p-2" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} /></label>
+          <ITTimePicker name="startTime" label="Desde" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+          <ITTimePicker name="endTime" label="Hasta" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+          <ITDatePicker
+            name="validFrom"
+            label="Vigente desde"
+            value={validFrom ? dayjs(validFrom).toDate() : undefined}
+            onChange={(e) => setValidFrom(e.target.value ? dayjs(e.target.value as Date).format("YYYY-MM-DD") : "")}
+          />
+          <ITDatePicker
+            name="validUntil"
+            label="Hasta (opcional)"
+            value={validUntil ? dayjs(validUntil).toDate() : undefined}
+            onChange={(e) => setValidUntil(e.target.value ? dayjs(e.target.value as Date).format("YYYY-MM-DD") : "")}
+          />
         </div>
 
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}

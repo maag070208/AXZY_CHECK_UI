@@ -1,7 +1,7 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { translateScanType } from "@app/core/utils/status.utils";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITPage , ITInput } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaBook, FaEye, FaFileAlt, FaLayerGroup, FaMapMarkerAlt, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
@@ -187,12 +187,13 @@ const KardexPage = () => {
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Filtrar por Guardia</label>
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[260px] shadow-sm">
                     <FaUser className="text-slate-300 text-xs mr-2" />
-                    <input 
-                        type="text"
+                    <ITInput
+                        name="searchKardex"
                         placeholder="Nombre de guardia..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-transparent text-sm font-bold text-slate-600 outline-none w-full"
+                        containerClassName="w-full"
+                        className="!bg-transparent !border-0 !shadow-none !p-0 text-sm font-bold text-slate-600"
                     />
                     {searchTerm.length > 0 && (
                         <ITButton

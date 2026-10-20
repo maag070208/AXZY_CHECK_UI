@@ -121,10 +121,13 @@ export const OccupancyModal = ({ isOpen, propertyId, currentCode, onClose, onDon
         <ITInput name="notes" label="Notas (opcional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
 
         {needsRelease && (
-          <label className="flex items-center gap-2 text-sm text-red-700">
-            <input type="checkbox" checked={releaseConfirmed} onChange={(e) => setReleaseConfirmed(e.target.checked)} />
-            Confirmo la baja de los residentes activos de esta propiedad
-          </label>
+          <ITInput
+            name="releaseConfirmed"
+            type="checkbox"
+            label="Confirmo la baja de los residentes activos de esta propiedad"
+            checked={releaseConfirmed}
+            onChange={(e) => setReleaseConfirmed(e.target.checked)}
+          />
         )}
 
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}

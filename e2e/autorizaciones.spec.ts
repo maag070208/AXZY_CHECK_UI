@@ -32,7 +32,8 @@ test("A2: autorizar a una persona en una propiedad, verla en la lista y revocarl
   await expect(page.getByRole("heading", { name: "Personas autorizadas" })).toBeVisible();
   await page.locator('input[name="authPerson"]').fill(name);
   await page.getByRole("button", { name: new RegExp(name) }).click();
-  await page.locator('select[name="scope"]').selectOption("PEDESTRIAN");
+  await page.locator('input[name="scope"]').click();
+  await page.getByText("Peatón", { exact: true }).click();
   await page.getByRole("button", { name: "Autorizar acceso" }).click();
   const row = page.locator("li", { hasText: name });
   await expect(row).toContainText("Peatón");

@@ -1,6 +1,6 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITPage , ITInput } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEdit, FaKey, FaPlus, FaSync, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -73,12 +73,12 @@ const UsersPage = () => {
       actions={
 <div className="flex items-center gap-3">
                     <div className="w-64 relative">
-                        <input 
-                            type="text"
+                        <ITInput
+                            name="searchUser"
                             placeholder="Buscar usuario..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full py-2 h-[42px] px-4 pr-10 bg-white border border-slate-100 rounded-xl outline-none text-sm focus:border-emerald-500 transition-all shadow-sm font-medium text-slate-600"
+                            className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                         />
                         {searchTerm && (
                             <ITButton
