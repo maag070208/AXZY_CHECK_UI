@@ -1,7 +1,7 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { MediaCarousel } from "@core/components/MediaCarousel";
 import { AgeBadge } from "@core/components/AgeBadge";
@@ -353,33 +353,33 @@ const IncidentsPage = () => {
                 onClick={() => setShowReportModal(true)}
                 color="primary"
                 variant="outlined"
-                className="h-[42px] px-4 !rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-all flex items-center gap-2"
-                size="sm"
+                className="h-[42px] px-4 !rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-all"
+                size="md"
                 title="Generar reporte PDF de incidencias"
             >
-                <FaFilePdf className="text-sm" />
-                <span className="text-xs font-bold">Generar Reporte PDF</span>
+                <ITFlex align="center" gap={2}><FaFilePdf className="text-sm" />
+                <span className="text-xs font-bold">Generar Reporte PDF</span></ITFlex>
             </ITButton>
             <ITButton
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
-                className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                size="sm"
+                className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                size="md"
                 title="Actualizar datos"
             >
-                <FaSync className="text-xs text-slate-500" />
-                <span className="text-xs font-bold text-slate-500">Refrescar</span>
+                <ITFlex align="center" gap={2}><FaSync className="text-xs text-slate-500" />
+                <span className="text-xs font-bold text-slate-500">Refrescar</span></ITFlex>
             </ITButton>
             {isAdmin && (
                 <ITButton
                     onClick={() => setShowCreateModal(true)}
                     color="primary"
-                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs flex items-center gap-2 shadow-sm"
-                    title="Nuevo reporte"
+                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm"
+                    title="Nuevo reporte" size="md"
                 >
-                    <FaPlus className="text-xs" /> NUEVO REPORTE
-                </ITButton>
+                    <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO REPORTE
+                </ITFlex></ITButton>
             )}
         </div>
       }

@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITDialog, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDialog, ITLoader , ITFlex } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { FaCalendarAlt, FaCheckCircle, FaClock, FaExclamationTriangle, FaMapMarkerAlt, FaSync, FaImage, FaCheckDouble, FaChevronRight, FaArrowLeft, FaLayerGroup, FaFileAlt } from "react-icons/fa";
 import { getAllAssignmentsByGuard, updateAssignmentStatus } from "../service/guards.service";
@@ -263,14 +263,14 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                                     {selectedAssignment.status === AssignmentStatus.UNDER_REVIEW && (
                                         <div className="mt-10">
                                             <ITButton 
-                                                className="w-full !bg-[#065911] !rounded-xl py-4 flex items-center justify-center gap-3 shadow-lg shadow-[#065911]/20 hover:scale-[1.02] transition-transform"
+                                                className="w-full !bg-[#065911] !rounded-xl py-4 justify-center shadow-lg shadow-[#065911]/20 hover:scale-[1.02] transition-transform"
                                                 onClick={() => handleApprove(selectedAssignment.id)}
-                                                disabled={approvingId === selectedAssignment.id}
+                                                disabled={approvingId === selectedAssignment.id} size="md"
                                             >
-                                                <FaCheckDouble fontSize={18} />
+                                                <ITFlex align="center" gap={2}><FaCheckDouble fontSize={18} />
                                                 <span className="font-bold tracking-tight">
                                                     {approvingId === selectedAssignment.id ? "PROCESANDO..." : "APROBAR Y FINALIZAR"}
-                                                </span>
+                                                </span></ITFlex>
                                             </ITButton>
                                         </div>
                                     )}

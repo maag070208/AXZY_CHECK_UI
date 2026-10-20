@@ -1,7 +1,7 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { translateScanType } from "@app/core/utils/status.utils";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITInput, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITInput, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaBook, FaEye, FaFileAlt, FaLayerGroup, FaMapMarkerAlt, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
@@ -240,12 +240,12 @@ const KardexPage = () => {
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
                         variant="outlined"
-                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                        size="sm"
+                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                        size="md"
                         title="Actualizar tabla"
                     >
-                        <FaSync className={`text-xs text-slate-500`} />
-                        <span className="text-xs font-bold text-slate-600">Refrescar</span>
+                        <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
+                        <span className="text-xs font-bold text-slate-600">Refrescar</span></ITFlex>
                     </ITButton>
                 </div>
             </div>

@@ -273,12 +273,12 @@ const PropertiesPage = () => {
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
                         variant="outlined"
-                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                        size="sm"
+                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                        size="md"
                         title="Actualizar tabla"
                     >
-                        <FaSync className={`text-xs text-slate-500`} />
-                        <span className="text-xs font-bold text-slate-500">Actualizar</span>
+                        <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
+                        <span className="text-xs font-bold text-slate-500">Actualizar</span></ITFlex>
                     </ITButton>
                     <ITButton variant="outlined" color="secondary" size="sm" onClick={() => setIsImportOpen(true)} className="h-[42px] !rounded-xl">
                         Importar CSV

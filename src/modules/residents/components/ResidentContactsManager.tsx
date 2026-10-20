@@ -1,4 +1,4 @@
-import { ITButton, ITDialog, ITLoader, ITInput } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITLoader, ITInput , ITFlex } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import {
   FaPlus,
@@ -221,11 +221,11 @@ export const ResidentContactsManager = ({
                     </p>
                     <ITButton
                         onClick={() => handleOpenForm()}
-                        className="bg-emerald-600 text-white flex items-center gap-2 shadow-lg shadow-emerald-500/20"
-                        size="sm"
+                        className="bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
+                        size="md"
                     >
-                        <FaPlus /> Nuevo Contacto
-                    </ITButton>
+                        <ITFlex align="center" gap={2}><FaPlus /> Nuevo Contacto
+                    </ITFlex></ITButton>
                 </div>
 
                 <div className="p-6">
@@ -304,10 +304,10 @@ export const ResidentContactsManager = ({
                         <ITButton
                             onClick={() => handleOpenForm()}
                             variant="ghost"
-                            className="mt-6 text-emerald-600 font-bold"
+                            className="mt-6 text-emerald-600 font-bold" size="md"
                         >
-                            <FaPlus className="mr-2" /> Agregar el primero
-                        </ITButton>
+                            <ITFlex align="center" gap={2}><FaPlus className="mr-2" /> Agregar el primero
+                        </ITFlex></ITButton>
                         </div>
                     )}
                 </div>

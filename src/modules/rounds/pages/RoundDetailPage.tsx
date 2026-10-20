@@ -1,6 +1,6 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITLoader , ITFlex } from "@axzydev/axzy_ui_system";
 import { useEffect, useMemo, useState } from "react";
 import { FaArrowLeft, FaBuilding, FaCalendarAlt, FaCheckCircle, FaCheckDouble, FaClipboardList, FaClock, FaExclamationTriangle, FaEye, FaFileAlt, FaImage, FaLocationArrow, FaMapMarkedAlt, FaMapMarkerAlt, FaPlay, FaQrcode, FaRoute, FaStopwatch, FaTrash, FaUserShield } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -402,10 +402,10 @@ const RoundDetailPage = () => {
                                 variant="text"
                                 color="gray"
                                 onClick={handleOpenRouteMap}
-                                className="!rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 duration-200 font-medium text-sm gap-2"
+                                className="!rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 duration-200 font-medium text-sm" size="md"
                             >
-                                <FaMapMarkedAlt className="text-blue-600" />
-                                <span>Ver trazo en mapa</span>
+                                <ITFlex align="center" gap={2}><FaMapMarkedAlt className="text-blue-600" />
+                                <span>Ver trazo en mapa</span></ITFlex>
                             </ITButton>
                         </div>
                         

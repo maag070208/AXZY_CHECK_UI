@@ -1,4 +1,4 @@
-import { ITButton, ITDataTable, ITDialog, ITInput, ITPage , ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITInput, ITPage , ITSearchSelect , ITFlex } from "@axzydev/axzy_ui_system";
 import { FaPlus, FaQrcode, FaIdBadge, FaBan, FaSignInAlt, FaSignOutAlt, FaTimes, FaUser, FaMotorcycle, FaSync, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useCallback, useMemo, useState } from "react";
@@ -264,21 +264,21 @@ const InvitationsPage = () => {
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
                         variant="outlined"
-                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                        size="sm"
+                        className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                        size="md"
                         title="Refrescar datos"
                     >
-                        <FaSync className={`text-xs text-slate-500`} />
-                        <span className="text-xs font-bold text-slate-500">Refrescar</span>
+                        <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
+                        <span className="text-xs font-bold text-slate-500">Refrescar</span></ITFlex>
                     </ITButton>
                     <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
                         color="primary"
-                        size="sm"
-                        className="!rounded-xl !flex !items-center !gap-2"
+                        size="md"
+                        className="!rounded-xl"
                     >
-                        <FaPlus className="text-xs" />
-                        <span>Crear Pase</span>
+                        <ITFlex align="center" gap={2}><FaPlus className="text-xs" />
+                        <span>Crear Pase</span></ITFlex>
                     </ITButton>
                 </div>
       }

@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITPage , ITInput } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITPage , ITInput , ITFlex } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaEdit, FaPlus, FaRoute, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -95,21 +95,21 @@ const RoutesPage = () => {
                onClick={refreshTable}
                variant="outlined"
                color="secondary"
-               className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-               size="sm"
+               className="h-[42px] px-4 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+               size="md"
                title="Actualizar datos"
             >
-              <FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} /> 
-              <span className="text-xs font-bold text-slate-500">Refrescar</span>
+              <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} /> 
+              <span className="text-xs font-bold text-slate-500">Refrescar</span></ITFlex>
             </ITButton>
 
             <ITButton
                onClick={handleCreate}
                color="primary"
-               className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs flex items-center gap-2 shadow-sm"
+               className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm" size="md"
             >
-              <FaPlus className="text-xs" /> AGREGAR RUTA
-            </ITButton>
+              <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> AGREGAR RUTA
+            </ITFlex></ITButton>
         </div>
       }
     >

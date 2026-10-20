@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ITButton, ITDataTable, ITPage , ITInput } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITPage , ITInput , ITFlex } from "@axzydev/axzy_ui_system";
 import { FaUserShield, FaClipboardList, FaClock, FaEye, FaSync, FaSearch, FaTimes } from "react-icons/fa";
 import { getPaginatedUsers, User } from "../../users/services/UserService";
 import { AssignmentModal } from "../components/AssignmentModal";
@@ -89,10 +89,10 @@ const GuardsPage = () => {
                         onClick={refreshTable}
                         variant="outlined"
                         color="secondary"
-                        className="h-[42px] !px-4 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 transition-all flex items-center gap-2"
+                        className="h-[42px] !px-4 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 transition-all" size="md"
                     >
-                        <FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Actualizar</span>
+                        <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Actualizar</span></ITFlex>
                     </ITButton>
                 </div>
       }

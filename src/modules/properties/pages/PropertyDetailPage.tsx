@@ -1,4 +1,4 @@
-import { ITButton, ITDialog, ITDataTable, ITBadget, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITDataTable, ITBadget, ITLoader , ITFlex } from "@axzydev/axzy_ui_system";
 import { OccupancyPanel } from "../occupancy/OccupancyPanel";
 import { AuthorizationsPanel } from "../authorizations/AuthorizationsPanel";
 import { HouseholdPanel } from "../household/HouseholdPanel";
@@ -273,21 +273,21 @@ const PropertyDetailPage = () => {
                                 variant="outlined" 
                                 color="secondary" 
                                 onClick={() => setIsEditModalOpen(true)}
-                                className="border-slate-200 hover:border-slate-300"
+                                className="border-slate-200 hover:border-slate-300" size="md"
                             >
-                                <FaEdit className="mr-2" />
+                                <ITFlex align="center" gap={2}><FaEdit className="mr-2" />
                                 Editar
-                            </ITButton>
+                            </ITFlex></ITButton>
                         )}
                         <ITButton 
                             variant="solid" 
                             color="primary" 
                             onClick={handlePrintQR}
-                            className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 text-white"
+                            className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 text-white" size="md"
                         >
-                            <FaQrcode className="mr-2" />
+                            <ITFlex align="center" gap={2}><FaQrcode className="mr-2" />
                             Imprimir QR
-                        </ITButton>
+                        </ITFlex></ITButton>
                     </div>
                 </div>
             </div>
@@ -356,13 +356,13 @@ const PropertyDetailPage = () => {
                                         <ITButton 
                                             variant="ghost" 
                                             className="w-full text-blue-500 hover:bg-blue-50 justify-start h-auto py-3 px-4 rounded-xl"
-                                            onClick={() => window.open(`https://www.google.com/maps?q=${property.latitude},${property.longitude}`, '_blank')}
+                                            onClick={() => window.open(`https://www.google.com/maps?q=${property.latitude},${property.longitude}`, '_blank')} size="md"
                                         >
-                                            <FaMapMarkedAlt className="mr-3" />
+                                            <ITFlex align="center" gap={2}><FaMapMarkedAlt className="mr-3" />
                                             <div className="text-left">
                                                 <p className="text-[10px] font-bold uppercase tracking-wider">Abrir Navegación</p>
                                                 <p className="text-xs font-medium opacity-80 italic">Ver en Google Maps</p>
-                                            </div>
+                                            </div></ITFlex>
                                         </ITButton>
                                     </div>
                                 ) : (

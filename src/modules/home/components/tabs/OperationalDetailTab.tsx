@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { ITDatePicker, ITButton, ITBadget, ITDialog, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
+import { ITDatePicker, ITButton, ITBadget, ITDialog, ITLoader, ITTable , ITFlex } from "@axzydev/axzy_ui_system";
 import { FaSync, FaClock, FaEye, FaExclamationCircle, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import * as ReportService from '../../services/ReportService';
 import dayjs from 'dayjs';
@@ -218,14 +218,14 @@ export const OperationalDetailTab = () => {
                             align: 'right',
                             actions: (item) => (
                                 <ITButton
-                                    size="sm"
+                                    size="md"
                                     variant="filled"
                                     color="primary"
-                                    className="!rounded-2xl !py-2.5 !px-6 !bg-slate-900 hover:!bg-emerald-600 transition-all duration-300 shadow-xl shadow-slate-200 flex items-center gap-2 ml-auto"
+                                    className="!rounded-2xl !py-2.5 !px-6 !bg-slate-900 hover:!bg-emerald-600 transition-all duration-300 shadow-xl shadow-slate-200 ml-auto"
                                     onClick={() => handleViewDetail(item)}
                                 >
-                                    <FaEye className="text-sm" />
-                                    <span className="text-[10px] font-black uppercase tracking-wider">Detalles</span>
+                                    <ITFlex align="center" gap={2}><FaEye className="text-sm" />
+                                    <span className="text-[10px] font-black uppercase tracking-wider">Detalles</span></ITFlex>
                                 </ITButton>
                             ),
                         },

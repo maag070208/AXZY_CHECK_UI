@@ -1,4 +1,4 @@
-import { ITButton, ITInput, ITSearchSelect, ITTabs } from "@axzydev/axzy_ui_system";
+import { ITButton, ITInput, ITSearchSelect, ITTabs , ITFlex } from "@axzydev/axzy_ui_system";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import type { IconType } from "react-icons";
 import {
@@ -372,9 +372,9 @@ const QuoteForm = () => {
         </div>
       </div>
 
-      <ITButton type="submit" color="primary" variant="filled" className="lp-form-submit">
-        <FaWhatsapp size={14} /> Solicitar cotización
-      </ITButton>
+      <ITButton type="submit" color="primary" variant="filled" className="lp-form-submit" size="md">
+        <ITFlex align="center" gap={2}><FaWhatsapp size={14} /> Solicitar cotización
+      </ITFlex></ITButton>
       <p className="lp-form-note">
         {sent
           ? "Abrimos WhatsApp con tus datos. Si no se abrió, escríbenos a aamaro@axzy.dev."
@@ -411,8 +411,8 @@ const ModulePanel = ({ item, onQuote }: ModulePanelProps) => (
             Explorar demo <FaExternalLinkAlt size={10} />
           </span>
         </ITButton>
-        <ITButton variant="text" color="gray" type="button" className="lp-text-link" onClick={onQuote}>
-          Solicitar información <FaArrowRight size={9} />
+        <ITButton variant="text" color="gray" type="button" className="lp-text-link" onClick={onQuote} size="md">
+          <ITFlex align="center" gap={2}>Solicitar información <FaArrowRight size={9} /></ITFlex>
         </ITButton>
       </div>
     </div>
@@ -583,9 +583,9 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <ITButton variant="text" color="gray" type="button" className="lp-scroll-cue" onClick={() => scrollTo("problema")}>
-            <span>Desliza para recorrer</span>
-            <FaChevronDown size={12} />
+          <ITButton variant="text" color="gray" type="button" className="lp-scroll-cue" onClick={() => scrollTo("problema")} size="md">
+            <ITFlex align="center" gap={2}><span>Desliza para recorrer</span>
+            <FaChevronDown size={12} /></ITFlex>
           </ITButton>
         </section>
 
@@ -678,8 +678,8 @@ const LandingPage = () => {
               <p>
                 <strong>No es un GPS. Es la prueba de que el trabajo se hizo.</strong>
               </p>
-              <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("cotizacion")}>
-                Quiero verlo en mi operación <FaArrowRight size={10} />
+              <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("cotizacion")} size="md">
+                <ITFlex align="center" gap={2}>Quiero verlo en mi operación <FaArrowRight size={10} /></ITFlex>
               </ITButton>
             </div>
           </div>
@@ -852,8 +852,8 @@ const LandingPage = () => {
 
             <p className="lp-faq-cta">
               ¿Otra duda?{" "}
-              <ITButton variant="text" color="gray" type="button" onClick={openWhatsApp}>
-                Habla con un especialista <FaArrowRight size={10} />
+              <ITButton variant="text" color="gray" type="button" onClick={openWhatsApp} size="md">
+                <ITFlex align="center" gap={2}>Habla con un especialista <FaArrowRight size={10} /></ITFlex>
               </ITButton>
             </p>
           </div>

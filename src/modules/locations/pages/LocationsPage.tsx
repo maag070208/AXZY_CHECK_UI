@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITInput, ITPage } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITInput, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCar, FaSearchLocation, FaEdit, FaPlus, FaQrcode, FaSync, FaTimes, FaTrash } from "react-icons/fa";
@@ -264,21 +264,21 @@ const LocationsPage = () => {
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
-                className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                size="sm"
+                className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                size="md"
                 title="Actualizar tabla"
             >
-                <FaSync className={`text-xs text-slate-500`} />
-                <span className="text-xs font-bold text-slate-500">Actualizar</span>
+                <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
+                <span className="text-xs font-bold text-slate-500">Actualizar</span></ITFlex>
             </ITButton>
             {user?.role !== "OPERATOR" && (
                 <ITButton
                     onClick={() => setIsModalOpen(true)}
                     color="primary"
-                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs flex items-center gap-2 shadow-sm"
+                    className="h-[42px] !px-6 !py-2.5 !rounded-xl !bg-[#065911] hover:!bg-[#04400c] font-bold text-xs shadow-sm" size="md"
                 >
-                    <FaPlus className="text-xs" /> NUEVA UBICACIÓN
-                </ITButton>
+                    <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVA UBICACIÓN
+                </ITFlex></ITButton>
             )}
         </div>
       }

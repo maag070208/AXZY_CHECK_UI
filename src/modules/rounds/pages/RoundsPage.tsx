@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITPage , ITSearchSelect , ITInput } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITPage , ITSearchSelect , ITInput , ITFlex } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaStop, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -385,12 +385,12 @@ const RoundsPage = () => {
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
                 variant="outlined"
-                className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
-                size="sm"
+                className="h-[42px] px-3 !rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+                size="md"
                 title="Actualizar tabla"
               >
-                <FaSync className={`text-xs text-slate-500`} />
-                <span className="text-xs font-bold text-slate-600">Refrescar</span>
+                <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
+                <span className="text-xs font-bold text-slate-600">Refrescar</span></ITFlex>
           </ITButton>
                 </div>
             </div>

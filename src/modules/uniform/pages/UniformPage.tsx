@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDialog, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
 import { useCallback, useState } from "react";
 import {
   FaBrush,
@@ -59,9 +59,9 @@ const UniformPage = () => {
       icon={<FaTshirt size={20} />}
       iconColor="#065911"
       actions={
-<ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c] !flex !items-center !gap-2">
-          <FaPlus size={12} /> Nuevo Checklist
-        </ITButton>
+<ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" className="!rounded-xl !bg-[#065911] hover:!bg-[#04400c]" size="md">
+          <ITFlex align="center" gap={2}><FaPlus size={12} /> Nuevo Checklist
+        </ITFlex></ITButton>
       }
     >
 

@@ -1,4 +1,4 @@
-import { ITButton, ITDialog, ITInput, ITTimePicker, ITDataTable, ITPage } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITInput, ITTimePicker, ITDataTable, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { FaEdit, FaPlus, FaTrash, FaClock, FaSync, FaSearch, FaTimes } from "react-icons/fa";
 import { Schedule, createSchedule, deleteSchedule, updateSchedule, getPaginatedSchedules } from "../SchedulesService";
@@ -123,18 +123,18 @@ const SchedulesPage = () => {
                onClick={refreshTable}
                variant="outlined"
                color="secondary"
-               className="!px-4 !py-2.5 !rounded-lg !border-slate-400 !text-slate-600 flex items-center gap-2 font-bold text-sm bg-white hover:bg-slate-50"
+               className="!px-4 !py-2.5 !rounded-lg !border-slate-400 !text-slate-600 font-bold text-sm bg-white hover:bg-slate-50" size="md"
             >
-              <FaSync className={refreshKey % 2 === 0 ? '' : 'rotate-180'} /> Actualizar
-            </ITButton>
+              <ITFlex align="center" gap={2}><FaSync className={refreshKey % 2 === 0 ? '' : 'rotate-180'} /> Actualizar
+            </ITFlex></ITButton>
 
             <ITButton
                onClick={() => openModal()}
                color="primary"
-               className="!px-6 !py-2.5 !rounded-lg !bg-[#065911] hover:!bg-[#04400c] font-bold text-sm flex items-center gap-2 shadow-sm"
+               className="!px-6 !py-2.5 !rounded-lg !bg-[#065911] hover:!bg-[#04400c] font-bold text-sm shadow-sm" size="md"
             >
-              <FaPlus className="text-xs" /> Alta de Horario
-            </ITButton>
+              <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> Alta de Horario
+            </ITFlex></ITButton>
         </div>
       }
     >

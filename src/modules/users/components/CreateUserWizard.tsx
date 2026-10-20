@@ -1,6 +1,6 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITInput, ITSearchSelect , ITFlex } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaEyeSlash, FaMagic, FaShieldAlt, FaUser } from "react-icons/fa";
@@ -197,9 +197,9 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
                 />
               </div>
               <div className="mt-3 flex items-center gap-4">
-                <ITButton type="button" variant="text" color="primary" size="sm" onClick={generate} className="!p-0 gap-1.5 font-bold text-emerald-700 hover:text-emerald-800">
-                  <FaMagic size={11} /> Generar contraseña segura
-                </ITButton>
+                <ITButton type="button" variant="text" color="primary" size="md" onClick={generate} className="!p-0 gap-1.5 font-bold text-emerald-700 hover:text-emerald-800">
+                  <ITFlex align="center" gap={2}><FaMagic size={11} /> Generar contraseña segura
+                </ITFlex></ITButton>
                 <ITButton type="button" variant="text" color="gray" size="sm" onClick={() => setShowPassword((v) => !v)} className="!p-0 gap-1.5 font-bold text-slate-500 hover:text-slate-700">
                   {showPassword ? <FaEyeSlash size={12} /> : <FaEye size={12} />} {showPassword ? "Ocultar" : "Mostrar"}
                 </ITButton>
