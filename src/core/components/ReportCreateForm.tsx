@@ -1,4 +1,4 @@
-import { FileTypeEnum, ITButton, ITDialog, ITDropfile, ITLoader } from "@axzydev/axzy_ui_system";
+import { FileTypeEnum, ITButton, ITDialog, ITDropfile, ITFlex, ITLoader, ITText } from "@axzydev/axzy_ui_system";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { ICatalogItem } from "@app/core/types/catalog.types";
 import { showToast } from "@app/core/store/toast/toast.slice";
@@ -81,10 +81,10 @@ const DEFAULT_LNG = -116.9247;
 const SEARCH_THRESHOLD = 14;
 
 const SectionLabel = ({ children, hint }: { children: ReactNode; hint?: ReactNode }) => (
-  <div className="flex items-center justify-between mb-2">
+  <ITFlex align="center" justify="between" className="flex items-center justify-between mb-2">
     <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{children}</label>
     {hint}
-  </div>
+  </ITFlex>
 );
 
 /**
@@ -220,19 +220,19 @@ export const ReportCreateForm = ({
 
   return (
     <ITDialog isOpen={isOpen} onClose={() => !submitting && handleClose()} title={title} className="max-w-xl max-h-[90vh] flex flex-col">
-      <div className="flex items-center gap-3 -mt-2 mb-4">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${a.iconBox}`}>{icon}</div>
-        <p className="text-[11px] text-slate-400">{subtitle}</p>
-      </div>
+      <ITFlex align="center" gap={3} className="flex items-center gap-3 -mt-2 mb-4">
+        <ITFlex direction="column" className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${a.iconBox}`}>{icon}</ITFlex>
+        <ITText as="p" className="text-[11px] text-slate-400">{subtitle}</ITText>
+      </ITFlex>
           {/* Cuerpo */}
-          <div className="px-5 py-4 overflow-y-auto flex-1 space-y-5">
+          <ITFlex direction="column" className="px-5 py-4 overflow-y-auto flex-1 space-y-5">
             <section>
               <SectionLabel
                 hint={
                   typeId ? (
-                    <span className="text-[11px] font-semibold text-slate-400">1 seleccionado</span>
+                    <ITText as="span" className="text-[11px] font-semibold text-slate-400">1 seleccionado</ITText>
                   ) : (
-                    <span className="text-[11px] font-semibold text-red-400">Requerido</span>
+                    <ITText as="span" className="text-[11px] font-semibold text-red-400">Requerido</ITText>
                   )
                 }
               >
@@ -240,7 +240,7 @@ export const ReportCreateForm = ({
               </SectionLabel>
 
               {typesCatalog.length > SEARCH_THRESHOLD && (
-                <div className="relative mb-2.5">
+                <ITFlex direction="column" className="relative mb-2.5">
                   <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={11} />
                   <input
                     value={typeSearch}
@@ -248,10 +248,10 @@ export const ReportCreateForm = ({
                     placeholder="Buscar tipo..."
                     className={`w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 outline-none transition-all ${a.focus}`}
                   />
-                </div>
+                </ITFlex>
               )}
 
-              <div className="flex flex-wrap gap-1.5">
+              <ITFlex className="flex flex-wrap gap-1.5">
                 {visibleTypes.map((type) => {
                   const on = typeId === Number(type.id);
                   return (
@@ -272,13 +272,13 @@ export const ReportCreateForm = ({
                     </button>
                   );
                 })}
-                {visibleTypes.length === 0 && <p className="text-xs text-slate-400 py-2">Sin resultados.</p>}
-              </div>
+                {visibleTypes.length === 0 && <ITText as="p" className="text-xs text-slate-400 py-2">Sin resultados.</ITText>}
+              </ITFlex>
             </section>
 
             <section>
-              <SectionLabel hint={<span className="text-[11px] text-slate-400">Opcional</span>}>Evidencia</SectionLabel>
-              <div className="flex flex-wrap items-center gap-2">
+              <SectionLabel hint={<ITText as="span" className="text-[11px] text-slate-400">Opcional</ITText>}>Evidencia</SectionLabel>
+              <ITFlex align="center" gap={2} className="flex flex-wrap items-center gap-2">
                 <ITDropfile
                   view="button"
                   buttonLabel="Foto"
@@ -303,19 +303,19 @@ export const ReportCreateForm = ({
                     {item.type === "IMAGE" ? (
                       <img src={item.preview} alt="Evidencia" className="w-11 h-11 rounded-xl object-cover border border-slate-200" />
                     ) : (
-                      <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center">
+                      <ITFlex align="center" justify="center" className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center">
                         <FaVideo className="text-white opacity-80" size={14} />
-                      </div>
+                      </ITFlex>
                     )}
                     {item.uploading && (
-                      <div className="absolute inset-0 rounded-xl bg-black/50 flex items-center justify-center">
+                      <ITFlex align="center" justify="center" className="absolute inset-0 rounded-xl bg-black/50 flex items-center justify-center">
                         <ITLoader size="sm" />
-                      </div>
+                      </ITFlex>
                     )}
                     {item.error && (
-                      <div className="absolute inset-0 rounded-xl bg-red-500/40 flex items-center justify-center">
+                      <ITFlex align="center" justify="center" className="absolute inset-0 rounded-xl bg-red-500/40 flex items-center justify-center">
                         <FaTimes className="text-white" size={13} />
-                      </div>
+                      </ITFlex>
                     )}
                     {!item.uploading && (
                       <button
@@ -329,11 +329,11 @@ export const ReportCreateForm = ({
                     )}
                   </div>
                 ))}
-              </div>
+              </ITFlex>
             </section>
 
             <section>
-              <SectionLabel hint={<span className="text-[11px] text-slate-400">Opcional</span>}>Observaciones</SectionLabel>
+              <SectionLabel hint={<ITText as="span" className="text-[11px] text-slate-400">Opcional</ITText>}>Observaciones</SectionLabel>
               <textarea
                 placeholder={placeholder}
                 value={description}
@@ -346,15 +346,15 @@ export const ReportCreateForm = ({
             <section>
               <SectionLabel
                 hint={
-                  <span className={`flex items-center gap-1 text-[10px] font-mono text-slate-500 transition-opacity ${mapTouched ? "opacity-100" : "opacity-40"}`}>
+                  <ITText as="span" className={`flex items-center gap-1 text-[10px] font-mono text-slate-500 transition-opacity ${mapTouched ? "opacity-100" : "opacity-40"}`}>
                     <FaMapMarkerAlt className="text-emerald-500" size={9} />
                     {mapLat.toFixed(5)}, {mapLng.toFixed(5)}
-                  </span>
+                  </ITText>
                 }
               >
                 Ubicación
               </SectionLabel>
-              <div className="relative rounded-xl overflow-hidden border border-slate-200">
+              <ITFlex direction="column" className="relative rounded-xl overflow-hidden border border-slate-200">
                 <GoogleMapComponent
                   lat={mapLat}
                   lng={mapLng}
@@ -367,18 +367,18 @@ export const ReportCreateForm = ({
                   height="180px"
                 />
                 {!mapTouched && (
-                  <div className="absolute inset-x-0 bottom-2 flex justify-center pointer-events-none">
-                    <span className="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow border border-slate-200 text-[11px] font-semibold text-slate-500">
+                  <ITFlex justify="center" className="absolute inset-x-0 bottom-2 flex justify-center pointer-events-none">
+                    <ITText as="span" className="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow border border-slate-200 text-[11px] font-semibold text-slate-500">
                       Toca el mapa o arrastra el pin para marcar la ubicación
-                    </span>
-                  </div>
+                    </ITText>
+                  </ITFlex>
                 )}
-              </div>
+              </ITFlex>
             </section>
-          </div>
+          </ITFlex>
 
           {/* Acciones */}
-          <div className="px-5 py-3.5 flex justify-end gap-2.5 border-t border-slate-100 bg-slate-50/60 flex-shrink-0">
+          <ITFlex justify="end" className="px-5 py-3.5 flex justify-end gap-2.5 border-t border-slate-100 bg-slate-50/60 flex-shrink-0">
             <ITButton variant="outlined" color="secondary" onClick={handleClose} disabled={submitting}>
               Cancelar
             </ITButton>
@@ -390,14 +390,14 @@ export const ReportCreateForm = ({
               disabled={submitting || !typeId || isUploading}
             >
               {submitting ? (
-                <span className="flex items-center gap-2"><ITLoader size="sm" /> Enviando...</span>
+                <ITText as="span" className="flex items-center gap-2"><ITLoader size="sm" /> Enviando...</ITText>
               ) : isUploading ? (
-                <span className="flex items-center gap-2"><FaUpload size={11} /> Subiendo...</span>
+                <ITText as="span" className="flex items-center gap-2"><FaUpload size={11} /> Subiendo...</ITText>
               ) : (
-                <span className="flex items-center gap-2"><FaUpload size={11} /> Enviar reporte</span>
+                <ITText as="span" className="flex items-center gap-2"><FaUpload size={11} /> Enviar reporte</ITText>
               )}
             </ITButton>
-          </div>
+          </ITFlex>
     </ITDialog>
   );
 };
