@@ -1,4 +1,4 @@
-import { ITButton, ITDataTable, ITDialog, ITInput, ITPage , ITSearchSelect , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { FaPlus, FaQrcode, FaIdBadge, FaBan, FaSignInAlt, FaSignOutAlt, FaTimes, FaUser, FaMotorcycle, FaSync, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useCallback, useMemo, useState } from "react";
@@ -101,12 +101,12 @@ const InvitationsPage = () => {
 
     const getStatusUI = (status: string) => {
         switch(status) {
-            case 'PENDING': return <span className="bg-amber-100 text-amber-700 font-bold px-2 py-1 rounded text-xs border border-amber-200">En Espera</span>;
-            case 'ENTERED': return <span className="bg-emerald-100 text-emerald-700 font-bold px-2 py-1 rounded text-xs border border-emerald-200">Dentro (Ingresó)</span>;
-            case 'EXITED': return <span className="bg-slate-100 text-slate-500 font-bold px-2 py-1 rounded text-xs border border-slate-200">Completado (Salió)</span>;
-            case 'EXPIRED': return <span className="bg-red-100 text-red-600 font-bold px-2 py-1 rounded text-xs border border-red-200">Expirada</span>;
-            case 'CANCELLED': return <span className="bg-red-100 text-red-600 font-bold px-2 py-1 rounded text-xs border border-red-200 line-through">Revocada</span>;
-            default: return <span className="text-slate-400">{status}</span>;
+            case 'PENDING': return <ITText as="span" className="bg-amber-100 text-amber-700 font-bold px-2 py-1 rounded text-xs border border-amber-200">En Espera</ITText>;
+            case 'ENTERED': return <ITText as="span" className="bg-emerald-100 text-emerald-700 font-bold px-2 py-1 rounded text-xs border border-emerald-200">Dentro (Ingresó)</ITText>;
+            case 'EXITED': return <ITText as="span" className="bg-slate-100 text-slate-500 font-bold px-2 py-1 rounded text-xs border border-slate-200">Completado (Salió)</ITText>;
+            case 'EXPIRED': return <ITText as="span" className="bg-red-100 text-red-600 font-bold px-2 py-1 rounded text-xs border border-red-200">Expirada</ITText>;
+            case 'CANCELLED': return <ITText as="span" className="bg-red-100 text-red-600 font-bold px-2 py-1 rounded text-xs border border-red-200 line-through">Revocada</ITText>;
+            default: return <ITText as="span" className="text-slate-400">{status}</ITText>;
         }
     };
 
@@ -116,9 +116,9 @@ const InvitationsPage = () => {
             label: "Pase", 
             type: "string", 
             render: (row: Invitation) => (
-                <div className="font-mono bg-slate-100 text-slate-700 font-bold px-2 py-1 rounded inline-block text-sm border border-slate-200">
+                <ITFlex direction="column" className="font-mono bg-slate-100 text-slate-700 font-bold px-2 py-1 rounded inline-block text-sm border border-slate-200">
                     {row.code}
-                </div>
+                </ITFlex>
             )
         },
         { 
@@ -127,18 +127,18 @@ const InvitationsPage = () => {
             type: "string", 
             sortable: true,
             render: (row: Invitation) => (
-                <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <div className="font-bold text-slate-800">{row.guestName}</div>
+                <ITFlex direction="column">
+                    <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-0.5">
+                        <ITFlex direction="column" className="font-bold text-slate-800">{row.guestName}</ITFlex>
                         {row.type?.name === 'PROV' ? (
-                            <span className="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-1"><FaMotorcycle /> {row.type.value}</span>
+                            <ITText as="span" className="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-1"><FaMotorcycle /> {row.type.value}</ITText>
                         ) : (
-                            <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-200 flex items-center gap-1"><FaUser /> {row.type?.value || 'Visita'}</span>
+                            <ITText as="span" className="bg-slate-100 text-slate-500 text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-200 flex items-center gap-1"><FaUser /> {row.type?.value || 'Visita'}</ITText>
                         )}
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">Destino: {row.property?.identifier}</div>
-                    <div className="text-xs text-slate-400 mt-1">Autorizó: {row.createdBy?.name} {row.createdBy?.lastName}</div>
-                </div>
+                    </ITFlex>
+                    <ITFlex direction="column" className="text-xs text-slate-500 font-medium">Destino: {row.property?.identifier}</ITFlex>
+                    <ITFlex direction="column" className="text-xs text-slate-400 mt-1">Autorizó: {row.createdBy?.name} {row.createdBy?.lastName}</ITFlex>
+                </ITFlex>
             )
         },
         { 
@@ -146,10 +146,10 @@ const InvitationsPage = () => {
             label: "Vigencia", 
             type: "string",
             render: (row: Invitation) => (
-                <div className="text-xs text-slate-600">
-                    <div className="font-medium">De: {dayjs(row.validFrom).format('DD MMM YYYY')}</div>
-                    <div>Al: {dayjs(row.validUntil).format('DD MMM YYYY')}</div>
-                </div>
+                <ITFlex direction="column" className="text-xs text-slate-600">
+                    <ITFlex direction="column" className="font-medium">De: {dayjs(row.validFrom).format('DD MMM YYYY')}</ITFlex>
+                    <ITFlex direction="column">Al: {dayjs(row.validUntil).format('DD MMM YYYY')}</ITFlex>
+                </ITFlex>
             )
         },
         {
@@ -163,16 +163,16 @@ const InvitationsPage = () => {
             label: "Entrada / Salida",
             type: "string",
             render: (row: Invitation) => (
-                <div className="text-xs text-slate-600">
-                    <div>
-                        <span className="font-medium text-slate-500 w-6 inline-block">In:</span>
-                        {row.entryTime ? <span className="text-emerald-600 font-medium">{dayjs(row.entryTime).format('DD MMM HH:mm')}</span> : <span className="text-slate-300">-</span>}
-                    </div>
-                    <div>
-                        <span className="font-medium text-slate-500 w-6 inline-block">Out:</span>
-                        {row.exitTime ? <span className="text-slate-600 font-medium">{dayjs(row.exitTime).format('DD MMM HH:mm')}</span> : <span className="text-slate-300">-</span>}
-                    </div>
-                </div>
+                <ITFlex direction="column" className="text-xs text-slate-600">
+                    <ITFlex direction="column">
+                        <ITText as="span" className="font-medium text-slate-500 w-6 inline-block">In:</ITText>
+                        {row.entryTime ? <ITText as="span" className="text-emerald-600 font-medium">{dayjs(row.entryTime).format('DD MMM HH:mm')}</ITText> : <ITText as="span" className="text-slate-300">-</ITText>}
+                    </ITFlex>
+                    <ITFlex direction="column">
+                        <ITText as="span" className="font-medium text-slate-500 w-6 inline-block">Out:</ITText>
+                        {row.exitTime ? <ITText as="span" className="text-slate-600 font-medium">{dayjs(row.exitTime).format('DD MMM HH:mm')}</ITText> : <ITText as="span" className="text-slate-300">-</ITText>}
+                    </ITFlex>
+                </ITFlex>
             )
         },
         {
@@ -180,7 +180,7 @@ const InvitationsPage = () => {
             label: "Acciones",
             type: "actions",
             actions: (row: Invitation) => (
-                <div className="flex items-center gap-2">
+                <ITFlex align="center" gap={2} className="flex items-center gap-2">
                     <ITButton 
                         onClick={() => setViewingQr(row)} 
                         size="sm" 
@@ -191,24 +191,24 @@ const InvitationsPage = () => {
                         <FaQrcode />
                     </ITButton>
                     {row.status === 'PENDING' && (
-                        <div className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
+                        <ITFlex gap={1} className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
                            <ITButton onClick={() => { setScanningCode({inv: row, type: 'ENTERED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" title="Aprobar Ingreso Escaneando">
                                <FaSignInAlt />
                            </ITButton>
                            <ITButton onClick={() => setUpdatingStatusOf({inv: row, status: 'CANCELLED'})} size="sm" variant="ghost" title="Revocar Accesos">
                                <FaBan />
                            </ITButton>
-                        </div>
+                        </ITFlex>
                     )}
 
                     {row.status === 'ENTERED' && (
-                        <div className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
+                        <ITFlex gap={1} className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
                            <ITButton onClick={() => { setScanningCode({inv: row, type: 'EXITED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" title="Aprobar Salida">
                                <FaSignOutAlt />
                            </ITButton>
-                        </div>
+                        </ITFlex>
                     )}
-                </div>
+                </ITFlex>
             )
         }
     ], []);
@@ -223,8 +223,8 @@ const InvitationsPage = () => {
       icon={<FaIdBadge size={20} />}
       iconColor="#065911"
       actions={
-<div className="flex gap-3 items-center">
-                    <div className="w-64 relative">
+<ITFlex align="center" gap={3} className="flex gap-3 items-center">
+                    <ITFlex direction="column" className="w-64 relative">
                         <ITInput
                             placeholder="Buscar código o invitado..."
                             name="search"
@@ -243,8 +243,8 @@ const InvitationsPage = () => {
                                
                             />
                         )}
-                    </div>
-                    <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
+                    </ITFlex>
+                    <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
                         <FaFilter className="text-slate-400 text-xs mr-2" />
                         <ITSearchSelect
                             value={statusFilter}
@@ -259,7 +259,7 @@ const InvitationsPage = () => {
                             clearable={false}
                             className="min-w-[160px]"
                         />
-                    </div>
+                    </ITFlex>
                     <ITButton
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
@@ -269,7 +269,7 @@ const InvitationsPage = () => {
                         title="Refrescar datos"
                     >
                         <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                        <span className="text-xs font-bold text-slate-500">Refrescar</span></ITFlex>
+                        <ITText as="span" className="text-xs font-bold text-slate-500">Refrescar</ITText></ITFlex>
                     </ITButton>
                     <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
@@ -278,13 +278,13 @@ const InvitationsPage = () => {
                        
                     >
                         <ITFlex align="center" gap={2}><FaPlus className="text-xs" />
-                        <span>Crear Pase</span></ITFlex>
+                        <ITText as="span">Crear Pase</ITText></ITFlex>
                     </ITButton>
-                </div>
+                </ITFlex>
       }
     >
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
                   defaultItemsPerPage={50}
                   itemsPerPageOptions={[25, 50, 100]}
@@ -299,7 +299,7 @@ const InvitationsPage = () => {
                     externalFilters={externalFilters as any}
                     title=""
                 />
-            </div>
+            </ITFlex>
 
             {/* Modals */}
             <ITDialog 
@@ -330,16 +330,16 @@ const InvitationsPage = () => {
                 onClose={() => setUpdatingStatusOf(null)} 
                 title="Aviso de Seguridad"
             >
-                <div className="p-6">
-                    <p className="text-slate-700 mb-6">
+                <ITFlex direction="column" className="p-6">
+                    <ITText as="p" className="text-slate-700 mb-6">
                         Estás a punto de alterar el estado operativo del pase <strong>{updatingStatusOf?.inv.code}</strong> a un estado de <strong>REVOCADO (CANCELLED)</strong>.
                         El acceso con este código QR o código alfa será permanentemente denegado en caseta. ¿Proceder?
-                    </p>
-                    <div className="flex justify-end gap-3">
+                    </ITText>
+                    <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
                         <ITButton variant="outlined" onClick={() => setUpdatingStatusOf(null)}>Volver</ITButton>
                         <ITButton onClick={confirmStatusUpdate}>Revocar Pase</ITButton>
-                    </div>
-                </div>
+                    </ITFlex>
+                </ITFlex>
             </ITDialog>
 
             <ITDialog 
@@ -348,65 +348,65 @@ const InvitationsPage = () => {
                 title={scanningCode?.type === 'ENTERED' ? "Validación de Acceso" : "Validación de Salida"}
                 className="max-w-2xl"
             >
-                <div className="p-0">
+                <ITFlex direction="column" className="p-0">
                     {/* Premium Header Card */}
                     {scanningCode && (
-                        <div className={`relative overflow-hidden p-6 sm:p-8 ${scanningCode.type === 'ENTERED' ? 'bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900' : 'bg-gradient-to-br from-slate-800 to-slate-900'}`}>
+                        <ITFlex direction="column" className={`relative overflow-hidden p-6 sm:p-8 ${scanningCode.type === 'ENTERED' ? 'bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900' : 'bg-gradient-to-br from-slate-800 to-slate-900'}`}>
                             {/* Decorative background elements */}
-                            <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-                            <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-48 h-48 bg-emerald-500/20 rounded-full blur-2xl"></div>
+                            <ITFlex direction="column" className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl"></ITFlex>
+                            <ITFlex direction="column" className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-48 h-48 bg-emerald-500/20 rounded-full blur-2xl"></ITFlex>
 
-                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className={`w-2 h-2 rounded-full animate-pulse ${scanningCode.type === 'ENTERED' ? 'bg-emerald-400' : 'bg-slate-400'}`}></div>
-                                        <p className="text-[10px] text-emerald-200/80 font-bold uppercase tracking-[0.2em]">Invitado Autorizado</p>
-                                    </div>
-                                    <p className="text-3xl font-black text-white tracking-tight drop-shadow-md">{scanningCode.inv.guestName}</p>
-                                </div>
-                                <div className="md:text-right bg-black/20 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                                    <p className="text-[10px] text-emerald-200/80 font-bold uppercase tracking-[0.2em] mb-1">Destino</p>
-                                    <p className="text-xl font-bold text-white tracking-wide">{scanningCode.inv.property?.identifier}</p>
-                                    <p className="text-sm text-emerald-100/70 font-medium">{scanningCode.inv.property?.name}</p>
-                                </div>
-                            </div>
+                            <ITFlex direction="column" align="start" justify="between" gap={6} className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                <ITFlex direction="column">
+                                    <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-2">
+                                        <ITFlex direction="column" className={`w-2 h-2 rounded-full animate-pulse ${scanningCode.type === 'ENTERED' ? 'bg-emerald-400' : 'bg-slate-400'}`}></ITFlex>
+                                        <ITText as="p" className="text-[10px] text-emerald-200/80 font-bold uppercase tracking-[0.2em]">Invitado Autorizado</ITText>
+                                    </ITFlex>
+                                    <ITText as="p" className="text-3xl font-black text-white tracking-tight drop-shadow-md">{scanningCode.inv.guestName}</ITText>
+                                </ITFlex>
+                                <ITFlex direction="column" className="md:text-right bg-black/20 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+                                    <ITText as="p" className="text-[10px] text-emerald-200/80 font-bold uppercase tracking-[0.2em] mb-1">Destino</ITText>
+                                    <ITText as="p" className="text-xl font-bold text-white tracking-wide">{scanningCode.inv.property?.identifier}</ITText>
+                                    <ITText as="p" className="text-sm text-emerald-100/70 font-medium">{scanningCode.inv.property?.name}</ITText>
+                                </ITFlex>
+                            </ITFlex>
                             
                             {scanningCode.inv.notes && (
-                                <div className="mt-6 p-4 bg-black/30 border border-amber-400/20 rounded-xl relative z-10 backdrop-blur-md">
-                                    <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block mb-1">Info. Vehículo / Notas:</span>
-                                    <p className="text-sm text-amber-50 font-medium">{scanningCode.inv.notes}</p>
-                                </div>
+                                <ITFlex direction="column" className="mt-6 p-4 bg-black/30 border border-amber-400/20 rounded-xl relative z-10 backdrop-blur-md">
+                                    <ITText as="span" className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block mb-1">Info. Vehículo / Notas:</ITText>
+                                    <ITText as="p" className="text-sm text-amber-50 font-medium">{scanningCode.inv.notes}</ITText>
+                                </ITFlex>
                             )}
 
-                            <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap gap-4 justify-between items-center text-xs text-emerald-100/60 relative z-10">
-                                <span className="flex items-center gap-2">
-                                    <span className="font-bold text-emerald-100/40">Emitió:</span> 
-                                    <span className="bg-white/10 px-2 py-1 rounded-md text-white/90">{scanningCode.inv.createdBy?.name} {scanningCode.inv.createdBy?.lastName}</span>
-                                </span>
-                                <span className="flex items-center gap-2 font-mono">
-                                    <span className="font-bold text-emerald-100/40">Vigencia:</span> 
+                            <ITFlex align="center" justify="between" gap={4} className="mt-6 pt-5 border-t border-white/10 flex flex-wrap gap-4 justify-between items-center text-xs text-emerald-100/60 relative z-10">
+                                <ITText as="span" className="flex items-center gap-2">
+                                    <ITText as="span" className="font-bold text-emerald-100/40">Emitió:</ITText> 
+                                    <ITText as="span" className="bg-white/10 px-2 py-1 rounded-md text-white/90">{scanningCode.inv.createdBy?.name} {scanningCode.inv.createdBy?.lastName}</ITText>
+                                </ITText>
+                                <ITText as="span" className="flex items-center gap-2 font-mono">
+                                    <ITText as="span" className="font-bold text-emerald-100/40">Vigencia:</ITText> 
                                     {dayjs(scanningCode.inv.validFrom).format('DD MMM')} ~ {dayjs(scanningCode.inv.validUntil).format('DD MMM')}
-                                </span>
-                            </div>
-                        </div>
+                                </ITText>
+                            </ITFlex>
+                        </ITFlex>
                     )}
 
                     {/* Scanner Section */}
-                    <div className="p-6 sm:p-8 bg-slate-50">
-                        <div className="text-center mb-6">
-                            <p className="text-slate-500 text-sm font-medium">
+                    <ITFlex direction="column" className="p-6 sm:p-8 bg-slate-50">
+                        <ITFlex direction="column" className="text-center mb-6">
+                            <ITText as="p" className="text-slate-500 text-sm font-medium">
                                 Por favor, posicione la lectora frontalmente o teclee el código para validar la integridad matemática del pase.
-                            </p>
-                        </div>
+                            </ITText>
+                        </ITFlex>
                         
-                        <div className="max-w-md mx-auto mb-8 relative group">
+                        <ITFlex direction="column" className="max-w-md mx-auto mb-8 relative group">
                             {/* Animated scanner frame */}
-                            <div className={`absolute inset-0 rounded-2xl border-2 transition-all duration-500 ${codeInput ? 'border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.3)]' : 'border-dashed border-slate-300 group-hover:border-slate-400'}`}></div>
+                            <ITFlex direction="column" className={`absolute inset-0 rounded-2xl border-2 transition-all duration-500 ${codeInput ? 'border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.3)]' : 'border-dashed border-slate-300 group-hover:border-slate-400'}`}></ITFlex>
                             
-                            <div className="relative p-6 flex flex-col items-center bg-white rounded-2xl">
-                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${codeInput ? 'bg-emerald-50 text-emerald-500 scale-110 shadow-lg shadow-emerald-100' : 'bg-slate-50 text-slate-300'}`}>
+                            <ITFlex direction="column" align="center" className="relative p-6 flex flex-col items-center bg-white rounded-2xl">
+                                <ITFlex direction="column" className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${codeInput ? 'bg-emerald-50 text-emerald-500 scale-110 shadow-lg shadow-emerald-100' : 'bg-slate-50 text-slate-300'}`}>
                                     <FaQrcode className="text-3xl" />
-                                </div>
+                                </ITFlex>
                                 <input
                                     type="text"
                                     autoFocus
@@ -420,10 +420,10 @@ const InvitationsPage = () => {
                                     onKeyDown={(e) => { if(e.key === 'Enter') confirmScanningCode(); }}
                                     className="bg-slate-50/50 border-2 border-slate-100 text-center text-2xl sm:text-3xl font-mono tracking-[0.2em] font-black text-slate-800 rounded-xl px-4 py-4 outline-none focus:bg-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 w-full transition-all uppercase placeholder:font-sans placeholder:text-lg placeholder:tracking-normal placeholder:font-medium placeholder:text-slate-300"
                                 />
-                            </div>
-                        </div>
+                            </ITFlex>
+                        </ITFlex>
 
-                        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
+                        <ITFlex justify="end" gap={3} className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
                             <ITButton
                                 variant="text"
                                 color="gray"
@@ -439,9 +439,9 @@ const InvitationsPage = () => {
                             >
                                 {scanningCode?.type === 'ENTERED' ? 'Autorizar y Dar Acceso' : 'Cerrar Visita (Salida)'}
                             </ITButton>
-                        </div>
-                    </div>
-                </div>
+                        </ITFlex>
+                    </ITFlex>
+                </ITFlex>
             </ITDialog>
 
         </ITPage>
