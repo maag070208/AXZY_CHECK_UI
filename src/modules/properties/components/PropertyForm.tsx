@@ -1,4 +1,4 @@
-import { ITButton, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Property } from "../service/properties.service";
@@ -56,7 +56,7 @@ export const PropertyForm = ({ initialData, onSubmit, onCancel }: PropertyFormPr
 
     return (
         <form onSubmit={formik.handleSubmit} className="p-4 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ITInput
                     label="Identificador Único"
                     name="identifier"
@@ -78,9 +78,9 @@ export const PropertyForm = ({ initialData, onSubmit, onCancel }: PropertyFormPr
                     touched={formik.touched.name}
                     placeholder="Ej. Casa de la Familia Perez"
                 />
-            </div>
+            </ITFlex>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ITSearchSelect
                     label="Tipo de Propiedad"
                     name="typeId"
@@ -101,7 +101,7 @@ export const PropertyForm = ({ initialData, onSubmit, onCancel }: PropertyFormPr
                     touched={formik.touched.mainStreet}
                     placeholder="Ej. Av. Universidad"
                 />
-            </div>
+            </ITFlex>
 
             <ITInput
                 label="Entre Calles (Opcional)"
@@ -122,21 +122,21 @@ export const PropertyForm = ({ initialData, onSubmit, onCancel }: PropertyFormPr
                 touched={formik.touched.statusId}
             />
 
-            <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    <div className="flex flex-col">
-                        <span>Ubicar en el mapa</span>
+            <ITFlex direction="column" className="space-y-4">
+                <ITFlex align="center" justify="between" className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <ITFlex direction="column" className="flex flex-col">
+                        <ITText as="span">Ubicar en el mapa</ITText>
                         {(formik.errors.latitude || formik.errors.longitude) && formik.submitCount > 0 && (
-                            <span className="text-red-500 font-bold lowercase">Debes seleccionar un punto</span>
+                            <ITText as="span" className="text-red-500 font-bold lowercase">Debes seleccionar un punto</ITText>
                         )}
-                    </div>
-                    <div className="flex gap-4 lowercase font-medium text-slate-500">
-                        <span>Lat: <span className="text-emerald-600 font-mono">{formik.values.latitude ? Number(formik.values.latitude).toFixed(6) : "---"}</span></span>
-                        <span>Lng: <span className="text-emerald-600 font-mono">{formik.values.longitude ? Number(formik.values.longitude).toFixed(6) : "---"}</span></span>
-                    </div>
-                </div>
+                    </ITFlex>
+                    <ITFlex gap={4} className="flex gap-4 lowercase font-medium text-slate-500">
+                        <ITText as="span">Lat: <ITText as="span" className="text-emerald-600 font-mono">{formik.values.latitude ? Number(formik.values.latitude).toFixed(6) : "---"}</ITText></ITText>
+                        <ITText as="span">Lng: <ITText as="span" className="text-emerald-600 font-mono">{formik.values.longitude ? Number(formik.values.longitude).toFixed(6) : "---"}</ITText></ITText>
+                    </ITFlex>
+                </ITFlex>
                 
-                <div className={`relative group rounded-xl overflow-hidden border ${formik.errors.latitude && formik.submitCount > 0 ? 'border-red-300' : 'border-slate-200'}`}>
+                <ITFlex direction="column" className={`relative group rounded-xl overflow-hidden border ${formik.errors.latitude && formik.submitCount > 0 ? 'border-red-300' : 'border-slate-200'}`}>
                     <GoogleMapComponent
                         lat={formik.values.latitude ? Number(formik.values.latitude) : 32.4608}
                         lng={formik.values.longitude ? Number(formik.values.longitude) : -116.9247}
@@ -144,20 +144,20 @@ export const PropertyForm = ({ initialData, onSubmit, onCancel }: PropertyFormPr
                         onLocationSelect={handleLocationSelect}
                         height="280px"
                     />
-                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-[10px] font-bold text-emerald-600 pointer-events-none group-hover:opacity-100 transition-opacity">
+                    <ITFlex direction="column" className="absolute top-3 right-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-[10px] font-bold text-emerald-600 pointer-events-none group-hover:opacity-100 transition-opacity">
                         Haz click para marcar ubicación
-                    </div>
-                </div>
-            </div>
+                    </ITFlex>
+                </ITFlex>
+            </ITFlex>
 
-            <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
+            <ITFlex justify="end" gap={3} className="flex justify-end gap-3 pt-6 border-t border-slate-100">
                 <ITButton type="button" variant="outlined" color="secondary" onClick={onCancel}>
                     Cancelar
                 </ITButton>
                 <ITButton type="submit" variant="solid">
                     {initialData ? "Actualizar" : "Guardar"}
                 </ITButton>
-            </div>
+            </ITFlex>
         </form>
     );
 };
