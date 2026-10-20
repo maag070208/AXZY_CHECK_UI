@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ITInput, ITButton } from "@axzydev/axzy_ui_system";
+import { ITButton, ITFlex, ITInput } from "@axzydev/axzy_ui_system";
 
 interface Props {
   onSubmit: (data: { aisle: string; spot: string; number: string; name?: string }) => void;
@@ -58,10 +58,10 @@ export const LocationForm = ({ onSubmit, onCancel, initialData }: Props) => {
         placeholder="Ej: Calle Principal 123"
       />
       
-      <div className="flex justify-end gap-2 mt-4">
+      <ITFlex justify="end" gap={2} className="flex justify-end gap-2 mt-4">
         <ITButton color="secondary" onClick={onCancel} type="button">Cancelar</ITButton>
         <ITButton type="submit">Guardar</ITButton>
-      </div>
+      </ITFlex>
     </form>
   );
 };
