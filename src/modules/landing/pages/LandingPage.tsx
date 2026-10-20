@@ -1,11 +1,13 @@
 import { ITButton, ITTabs } from "@axzydev/axzy_ui_system";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import type { IconType } from "react-icons";
 import {
   FaArrowRight,
   FaBars,
+  FaBuilding,
   FaBell,
   FaCheckCircle,
+  FaChevronDown,
   FaCloudDownloadAlt,
   FaDesktop,
   FaExternalLinkAlt,
@@ -15,9 +17,13 @@ import {
   FaMapMarkerAlt,
   FaMobileAlt,
   FaQrcode,
+  FaQuestionCircle,
   FaShieldAlt,
   FaTimes,
+  FaTimesCircle,
   FaTools,
+  FaUserShield,
+  FaUserTie,
   FaWhatsapp,
 } from "react-icons/fa";
 import logoGreen from "@assets/logo-green.svg";
@@ -44,6 +50,7 @@ const NAV_LINKS = [
   { id: "modulos", label: "Módulos" },
   { id: "pantallas", label: "Pantallas" },
   { id: "como-funciona", label: "Cómo funciona" },
+  { id: "faq", label: "FAQ" },
   { id: "cotizacion", label: "Cotización" },
 ];
 
@@ -116,6 +123,7 @@ const MODULES: ModuleItem[] = [
     description:
       "Para guardias y supervisores: escaneo QR, validación GPS, evidencia multimedia y operación offline desde el celular.",
     bullets: [
+      "Rutas asignadas y arranque de ronda controlado.",
       "Escaneo QR con validación de proximidad GPS.",
       "Fotos y notas de voz como evidencia del punto.",
       "Modo offline con sincronización automática.",
@@ -151,6 +159,84 @@ const SCREENS = [
   },
 ];
 
+const COMPARE_BAD = [
+  "Rondas marcadas en papel o por WhatsApp.",
+  "Reportes que llegan al día siguiente.",
+  "Sin hora, foto ni ubicación del escaneo.",
+  "El cliente pregunta y nadie tiene la respuesta.",
+];
+
+const COMPARE_GOOD = [
+  "Cada escaneo con hora, GPS y evidencia.",
+  "Incidencias y avance de la ronda en tiempo real.",
+  "Alertas de rondas estancadas o sin cobertura.",
+  "Reportes y auditoría listos para tu cliente.",
+];
+
+const PERSONAS: { icon: IconType; role: string; title: string; bullets: string[] }[] = [
+  {
+    icon: FaBuilding,
+    role: "Dirección y administración",
+    title: "Administración",
+    bullets: [
+      "Visibilidad total sin pedir reportes.",
+      "Cumplimiento y auditoría al día.",
+      "Clientes mejor atendidos.",
+    ],
+  },
+  {
+    icon: FaUserTie,
+    role: "Supervisión en campo",
+    title: "Jefe de turno",
+    bullets: [
+      "Rondas y novedades en vivo.",
+      "Entrega de turno clara y firmada.",
+      "Menos llamadas y WhatsApp.",
+    ],
+  },
+  {
+    icon: FaUserShield,
+    role: "Operación diaria",
+    title: "Guardia",
+    bullets: [
+      "Ronda guiada paso a paso.",
+      "Evidencia con foto y voz.",
+      "Funciona sin señal.",
+    ],
+  },
+];
+
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: "¿Necesito señal en todos los puntos?",
+    a: "No. La app registra la ronda aunque no haya internet y sincroniza automáticamente cuando recupera conexión.",
+  },
+  {
+    q: "¿Cuánto tarda la implementación?",
+    a: "Días, no meses. Configuramos rutas, puntos QR, turnos y usuarios contigo, y tu equipo empieza a operar con acompañamiento.",
+  },
+  {
+    q: "¿Se adapta a mi operación?",
+    a: "Sí. Definimos rutas, puntos de control, turnos y catálogos según tu operación; no tienes que cambiar tu forma de trabajar.",
+  },
+  {
+    q: "¿Qué necesito para empezar?",
+    a: "Un celular o tablet por guardia, los puntos QR impresos y tu equipo. Nosotros te ayudamos con la puesta en marcha.",
+  },
+  {
+    q: "¿Cómo se cobra?",
+    a: "La cotización se arma según el número de guardias, ubicaciones y módulos que necesites. Sin costos escondidos ni permanencia forzada.",
+  },
+  {
+    q: "¿Puedo verlo funcionando antes de decidir?",
+    a: "Sí. Coordinamos una demo guiada con tus rutas y datos de ejemplo para que tú y tu equipo vean la operación completa antes de contratar.",
+  },
+  {
+    q: "¿Mis datos están seguros?",
+    a: "Cada usuario entra con su cuenta y rol; cada acción queda registrada con fecha, ubicación y evidencia para auditoría.",
+  },
+];
+
 const STEPS: { icon: IconType; title: string; text: string }[] = [
   {
     icon: FaQrcode,
@@ -170,7 +256,7 @@ const STEPS: { icon: IconType; title: string; text: string }[] = [
 ];
 
 const ScreenCard = ({ screen }: { screen: (typeof SCREENS)[number] }) => (
-  <figure className="lp-screen">
+  <figure className="lp-screen" data-reveal>
     <div className="lp-screen-top">
       <span />
       <span />
@@ -184,6 +270,120 @@ const ScreenCard = ({ screen }: { screen: (typeof SCREENS)[number] }) => (
     </figcaption>
   </figure>
 );
+
+const QuoteForm = () => {
+  const [form, setForm] = useState({
+    name: "",
+    company: "",
+    guards: "",
+    locations: "",
+    contact: "",
+  });
+  const [sent, setSent] = useState(false);
+
+  const update =
+    (field: keyof typeof form) =>
+    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((prev) => ({ ...prev, [field]: event.target.value }));
+    };
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const message = [
+      "Hola, quiero cotizar CheckApp.",
+      `Nombre: ${form.name}`,
+      `Empresa: ${form.company}`,
+      `Guardias: ${form.guards}`,
+      `Ubicaciones: ${form.locations}`,
+      `Contacto: ${form.contact}`,
+    ].join("\n");
+    window.open(
+      `https://wa.me/526647700088?text=${encodeURIComponent(message)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+    setSent(true);
+  };
+
+  return (
+    <form className="lp-quote-form" onSubmit={submit}>
+      <div className="lp-quote-head">
+        <span className="lp-quote-badge">
+          <FaWhatsapp size={11} /> Respuesta el mismo día
+        </span>
+        <h3>Cotiza tu operación</h3>
+        <p>Completa tus datos y te enviamos una propuesta por WhatsApp.</p>
+      </div>
+
+      <div className="lp-form-grid">
+        <label className="lp-field">
+          <span>Nombre</span>
+          <input
+            name="name"
+            required
+            value={form.name}
+            onChange={update("name")}
+            placeholder="Tu nombre"
+          />
+        </label>
+        <label className="lp-field">
+          <span>Empresa</span>
+          <input
+            name="company"
+            required
+            value={form.company}
+            onChange={update("company")}
+            placeholder="Agencia o residencial"
+          />
+        </label>
+        <label className="lp-field">
+          <span>Guardias</span>
+          <select name="guards" required value={form.guards} onChange={update("guards")}>
+            <option value="">Selecciona</option>
+            <option>1 a 20</option>
+            <option>21 a 50</option>
+            <option>51 a 100</option>
+            <option>Más de 100</option>
+          </select>
+        </label>
+        <label className="lp-field">
+          <span>Ubicaciones</span>
+          <select
+            name="locations"
+            required
+            value={form.locations}
+            onChange={update("locations")}
+          >
+            <option value="">Selecciona</option>
+            <option>1 a 5</option>
+            <option>6 a 15</option>
+            <option>16 a 30</option>
+            <option>Más de 30</option>
+          </select>
+        </label>
+        <label className="lp-field lp-form-full">
+          <span>WhatsApp o email</span>
+          <input
+            name="contact"
+            required
+            value={form.contact}
+            onChange={update("contact")}
+            placeholder="Para enviarte la propuesta"
+          />
+        </label>
+      </div>
+
+      <button type="submit" className="lp-form-submit">
+        <FaWhatsapp size={14} /> Solicitar cotización
+      </button>
+      <p className="lp-form-note">
+        {sent
+          ? "Abrimos WhatsApp con tus datos. Si no se abrió, escríbenos a aamaro@axzy.dev."
+          : "Sin compromiso. No compartimos tus datos."}
+      </p>
+    </form>
+  );
+};
 
 type ModulePanelProps = {
   item: ModuleItem;
@@ -223,6 +423,8 @@ const ModulePanel = ({ item, onQuote }: ModulePanelProps) => (
 
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(false);
+  const progressRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -231,6 +433,37 @@ const LandingPage = () => {
       document.title = previousTitle;
     };
   }, []);
+
+  useEffect(() => {
+    const target = document.getElementById("cotizacion");
+    if (!target || !("IntersectionObserver" in window)) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setCtaVisible(entry.isIntersecting),
+      { threshold: 0.18 },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      const value = height > 0 ? Math.min(1, Math.max(0, window.scrollY / height)) : 0;
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleX(${value})`;
+      }
+    };
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    return () => {
+      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("resize", updateProgress);
+    };
+  }, []);
+
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -241,6 +474,9 @@ const LandingPage = () => {
 
   return (
     <div className="checkapp-landing">
+      <div className="lp-progress" aria-hidden="true">
+        <span ref={progressRef} />
+      </div>
       <header className="lp-nav">
         <div className="lp-container lp-nav-inner">
           <button
@@ -266,11 +502,6 @@ const LandingPage = () => {
           </nav>
 
           <div className="lp-nav-actions">
-            <ITButton className="lp-btn-dark" onClick={openWhatsApp}>
-              <span className="lp-cta-inner">
-                Solicitar demo <FaArrowRight size={10} />
-              </span>
-            </ITButton>
             <button
               type="button"
               className="lp-mobile-toggle"
@@ -297,13 +528,6 @@ const LandingPage = () => {
                   {link.label}
                 </button>
               ))}
-              <div className="lp-mobile-actions">
-                <ITButton className="lp-btn-dark" onClick={openWhatsApp}>
-                  <span className="lp-cta-inner">
-                    Solicitar demo <FaArrowRight size={10} />
-                  </span>
-                </ITButton>
-              </div>
             </div>
           </div>
         )}
@@ -333,13 +557,13 @@ const LandingPage = () => {
               </p>
 
               <div className="lp-hero-actions">
-                <ITButton className="lp-btn-primary" onClick={openWhatsApp}>
+                <ITButton className="lp-btn-primary" onClick={() => scrollTo("cotizacion")}>
                   <span className="lp-cta-inner">
-                    Solicitar demo <FaArrowRight size={10} />
+                    Solicitar cotización <FaArrowRight size={10} />
                   </span>
                 </ITButton>
-                <ITButton className="lp-btn-ghost" onClick={() => scrollTo("modulos")}>
-                  <span className="lp-cta-inner">Ver módulos</span>
+                <ITButton className="lp-btn-ghost" onClick={() => scrollTo("como-funciona")}>
+                  <span className="lp-cta-inner">Ver cómo funciona</span>
                 </ITButton>
               </div>
 
@@ -361,10 +585,15 @@ const LandingPage = () => {
               <PhoneMockup />
             </div>
           </div>
+
+          <button type="button" className="lp-scroll-cue" onClick={() => scrollTo("problema")}>
+            <span>Desliza para recorrer</span>
+            <FaChevronDown size={12} />
+          </button>
         </section>
 
         <section className="lp-trust">
-          <div className="lp-container lp-trust-inner">
+          <div className="lp-container lp-trust-inner" data-reveal>
             <span className="lp-trust-label">Diseñado para agencias de seguridad privada</span>
             <div className="lp-trust-stats">
               <div className="lp-trust-stat">
@@ -387,22 +616,94 @@ const LandingPage = () => {
           </div>
         </section>
 
+        <section id="problema" className="lp-section lp-compare-section">
+          <div className="lp-container">
+            <div className="lp-section-head" data-reveal>
+              <span className="lp-eyebrow">
+                <FaTimesCircle size={10} /> Parada 01 · El costo de no ver
+              </span>
+              <h2>El papel no te dice qué está pasando ahora.</h2>
+              <p>
+                Cuando la operación depende de bitácoras y WhatsApp, la evidencia llega tarde y el
+                cliente pierde confianza.
+              </p>
+            </div>
+
+            <div className="lp-shift" data-reveal>
+              <article className="lp-shift-side lp-shift-before">
+                <div className="lp-shift-top">
+                  <span className="lp-shift-tag">Antes</span>
+                  <FaTimesCircle size={22} />
+                </div>
+                <h3>Sin CheckApp</h3>
+                <p className="lp-shift-sub">La operación se sostiene con confianza y mensajes.</p>
+                <ul>
+                  {COMPARE_BAD.map((item) => (
+                    <li key={item}>
+                      <FaTimes size={10} /> {item}
+                    </li>
+                  ))}
+                </ul>
+                <div className="lp-shift-metric">
+                  <span>Reportes</span>
+                  <strong>Al día siguiente</strong>
+                </div>
+              </article>
+
+              <div className="lp-shift-mid" aria-hidden="true">
+                <span>
+                  <FaArrowRight size={16} />
+                </span>
+              </div>
+
+              <article className="lp-shift-side lp-shift-after">
+                <div className="lp-shift-top">
+                  <span className="lp-shift-tag">Después</span>
+                  <FaCheckCircle size={22} />
+                </div>
+                <h3>Con CheckApp</h3>
+                <p className="lp-shift-sub">La operación se sostiene con evidencia y datos.</p>
+                <ul>
+                  {COMPARE_GOOD.map((item) => (
+                    <li key={item}>
+                      <FaCheckCircle size={10} /> {item}
+                    </li>
+                  ))}
+                </ul>
+                <div className="lp-shift-metric">
+                  <span>Reportes</span>
+                  <strong>En vivo</strong>
+                </div>
+              </article>
+            </div>
+
+            <div className="lp-shift-footer" data-reveal>
+              <p>
+                <strong>No es un GPS. Es la prueba de que el trabajo se hizo.</strong>
+              </p>
+              <button type="button" onClick={() => scrollTo("cotizacion")}>
+                Quiero verlo en mi operación <FaArrowRight size={10} />
+              </button>
+            </div>
+          </div>
+        </section>
+
         <section id="beneficios" className="lp-section">
           <div className="lp-container">
-            <div className="lp-section-head">
+            <div className="lp-section-head" data-reveal>
               <span className="lp-eyebrow">
-                <FaLayerGroup size={10} /> Valor operativo
+                <FaLayerGroup size={10} /> Parada 02 · Resultados
               </span>
-              <h2>Lo que cambia cuando tus rondas son digitales</h2>
+              <h2>Lo que ganas cuando tus rondas son digitales.</h2>
               <p>
-                Menos bitácoras en papel, más control sobre lo que pasa en campo. CheckApp conecta
-                a guardias, supervisores y administración en una sola operación.
+                Menos supervisión manual, más evidencia y control sobre lo que pasa en campo.
+                CheckApp conecta a guardias, supervisores y administración en una sola operación.
               </p>
             </div>
 
             <div className="lp-benefits-grid">
               {BENEFITS.map(({ icon: Icon, title, text }, index) => (
-                <article className="lp-benefit" key={title}>
+                <article className="lp-benefit" key={title} data-reveal>
                   <div className="lp-benefit-icon">
                     <Icon size={19} />
                   </div>
@@ -417,9 +718,9 @@ const LandingPage = () => {
 
         <section id="modulos" className="lp-section lp-modules">
           <div className="lp-container">
-            <div className="lp-section-head">
+            <div className="lp-section-head" data-reveal>
               <span className="lp-eyebrow">
-                <FaDesktop size={10} /> Ecosistema completo
+                <FaDesktop size={10} /> Parada 03 · Tu operación
               </span>
               <h2>Dos interfaces. Una sola operación.</h2>
               <p>
@@ -447,9 +748,9 @@ const LandingPage = () => {
 
         <section id="pantallas" className="lp-section lp-screens">
           <div className="lp-container">
-            <div className="lp-section-head">
+            <div className="lp-section-head" data-reveal>
               <span className="lp-eyebrow">
-                <FaDesktop size={10} /> Así se ve
+                <FaDesktop size={10} /> Parada 04 · Así se ve
               </span>
               <h2>Pantallas reales de la operación</h2>
               <p>Un vistazo a la consola que usa tu equipo todos los días.</p>
@@ -464,9 +765,9 @@ const LandingPage = () => {
 
         <section id="como-funciona" className="lp-section lp-steps-section">
           <div className="lp-container">
-            <div className="lp-section-head">
+            <div className="lp-section-head" data-reveal>
               <span className="lp-eyebrow">
-                <FaQrcode size={10} /> Así de simple
+                <FaQrcode size={10} /> Parada 05 · Así de simple
               </span>
               <h2>Una ronda, tres pasos, cero papeleo</h2>
               <p>
@@ -475,7 +776,7 @@ const LandingPage = () => {
               </p>
             </div>
 
-            <div className="lp-steps">
+            <div className="lp-steps" data-reveal>
               {STEPS.map(({ icon: Icon, title, text }, index) => (
                 <div className="lp-step" key={title}>
                   <div className="lp-step-icon">
@@ -490,48 +791,116 @@ const LandingPage = () => {
               ))}
             </div>
 
-            <p className="lp-steps-note">
+            <p className="lp-steps-note" data-reveal>
               <FaCloudDownloadAlt size={13} /> Si no hay señal, la app guarda el registro y lo
               sincroniza al recuperar conexión.
             </p>
           </div>
         </section>
 
+        <section id="para-quien" className="lp-section lp-personas-section">
+          <div className="lp-container">
+            <div className="lp-section-head" data-reveal>
+              <span className="lp-eyebrow">
+                <FaUserShield size={10} /> Parada 06 · Tu equipo
+              </span>
+              <h2>Una operación, tres roles, la misma verdad.</h2>
+              <p>
+                CheckApp no reemplaza a tu gente: le da a cada rol la información que necesita para
+                decidir mejor.
+              </p>
+            </div>
+
+            <div className="lp-personas-grid">
+              {PERSONAS.map(({ icon: Icon, role, title, bullets }) => (
+                <article className="lp-persona" key={title} data-reveal>
+                  <div className="lp-persona-icon">
+                    <Icon size={20} />
+                  </div>
+                  <span className="lp-persona-role">{role}</span>
+                  <h3>{title}</h3>
+                  <ul>
+                    {bullets.map((bullet) => (
+                      <li key={bullet}>
+                        <FaCheckCircle size={10} /> {bullet}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="faq" className="lp-section lp-faq-section">
+          <div className="lp-container">
+            <div className="lp-section-head" data-reveal>
+              <span className="lp-eyebrow">
+                <FaQuestionCircle size={10} /> Parada 07 · Dudas frecuentes
+              </span>
+              <h2>Lo que suelen preguntarnos antes de empezar</h2>
+              <p>Si tu duda no está aquí, escríbenos por WhatsApp y te respondemos hoy.</p>
+            </div>
+
+            <div className="lp-faq-list" data-reveal>
+              {FAQS.map(({ q, a }) => (
+                <details className="lp-faq-item" key={q}>
+                  <summary>
+                    {q} <FaChevronDown size={12} />
+                  </summary>
+                  <p>{a}</p>
+                </details>
+              ))}
+            </div>
+
+            <p className="lp-faq-cta">
+              ¿Otra duda?{" "}
+              <button type="button" onClick={openWhatsApp}>
+                Habla con un especialista <FaArrowRight size={10} />
+              </button>
+            </p>
+          </div>
+        </section>
+
         <section id="cotizacion" className="lp-cta-section">
           <div className="lp-container">
-            <div className="lp-cta">
-              <div>
+            <div className="lp-cta" data-reveal>
+              <div className="lp-cta-copy">
                 <span className="lp-eyebrow lp-eyebrow-light">
-                  <FaWhatsapp size={11} /> Cotización a la medida
+                  <FaWhatsapp size={11} /> Parada 08 · Cotización
                 </span>
                 <h2>¿Listo para tomar el control de tus rondas?</h2>
                 <p>
-                  Cuéntanos cuántos guardias y ubicaciones tienes y armamos una propuesta adaptada a tu
-                  operación. Te respondemos por WhatsApp.
+                  Cuéntanos cuántos guardias y ubicaciones tienes. Te enviamos una propuesta clara,
+                  sin compromiso.
                 </p>
-                <div className="lp-cta-actions">
-                  <ITButton className="lp-btn-white" onClick={openWhatsApp}>
-                    <span className="lp-cta-inner">
-                      <FaWhatsapp size={12} /> Cotizar por WhatsApp
-                    </span>
-                  </ITButton>
+
+                <ul className="lp-cta-list">
+                  <li>
+                    <FaCheckCircle size={12} /> Implementación acompañada en días.
+                  </li>
+                  <li>
+                    <FaCheckCircle size={12} /> Sin hardware especial ni instalaciones.
+                  </li>
+                  <li>
+                    <FaCheckCircle size={12} /> Propuesta según tu operación.
+                  </li>
+                </ul>
+
+                <div className="lp-cta-metrics">
+                  <span>
+                    <strong>1</strong> plataforma
+                  </span>
+                  <span>
+                    <strong>2</strong> interfaces
+                  </span>
+                  <span>
+                    <strong>100%</strong> trazabilidad
+                  </span>
                 </div>
               </div>
 
-              <div className="lp-cta-panel">
-                <div className="lp-cta-stat">
-                  <strong>1</strong>
-                  <span>plataforma central</span>
-                </div>
-                <div className="lp-cta-stat">
-                  <strong>2</strong>
-                  <span>interfaces conectadas</span>
-                </div>
-                <div className="lp-cta-stat">
-                  <strong>100%</strong>
-                  <span>trazabilidad de rondas</span>
-                </div>
-              </div>
+              <QuoteForm />
             </div>
           </div>
         </section>
@@ -634,6 +1003,17 @@ const LandingPage = () => {
           </span>
         </div>
       </footer>
+
+      <a
+        className={`lp-fab${ctaVisible ? " is-hidden" : ""}`}
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Cotizar por WhatsApp"
+      >
+        <FaWhatsapp size={18} />
+        <span>Cotizar</span>
+      </a>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import currentHome from "@assets/landing/current-home-crop.png";
 import currentUsers from "@assets/landing/current-users-crop.png";
-import currentAppHome from "@assets/landing/current-app-home.png";
+import currentAppInicio from "@assets/landing/current-app-inicio.png";
 
 const BrowserTop = () => (
   <div className="lp-browser-top">
@@ -22,7 +22,7 @@ export const DashboardMockup = () => (
 export const PhoneMockup = () => (
   <div className="lp-phone" aria-hidden="true">
     <div className="lp-phone-screen lp-phone-screen-real">
-      <img src={currentAppHome} alt="" />
+      <img src={currentAppInicio} alt="" />
     </div>
   </div>
 );
@@ -39,7 +39,7 @@ export const WebConsoleVisual = () => (
 export const GuardAppVisual = () => (
   <div className="lp-module-phone" aria-hidden="true">
     <div className="lp-module-phone-screen lp-phone-screen-real">
-      <img src={currentAppHome} alt="" />
+      <img src={currentAppInicio} alt="" />
     </div>
   </div>
 );
