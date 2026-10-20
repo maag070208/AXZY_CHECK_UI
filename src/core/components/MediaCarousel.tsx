@@ -40,8 +40,8 @@ export const MediaCarousel = ({ media, initialIndex = 0, title, onDelete, showDe
     const next = () => setIndex((i) => (i + 1) % count);
 
     const renderViewer = (inFullscreen: boolean) => (
-        <ITFlex direction="column" gap={3} className="flex-1 min-h-0">
-            <ITFlex align="center" justify="between" gap={2}>
+        <ITFlex direction="column" gap={3} className={inFullscreen ? "h-full min-h-0 p-6" : "flex-1 min-h-0"}>
+            <ITFlex align="center" justify="between" gap={2} className={inFullscreen ? "pr-14" : undefined}>
                 <ITFlex align="center" gap={2}>
                     {title && <ITText as="span" className="font-medium text-slate-800">{title}</ITText>}
                     <ITText as="span" muted>{`${count} ${count === 1 ? "archivo" : "archivos"}`}</ITText>
