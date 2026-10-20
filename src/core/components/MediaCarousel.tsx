@@ -1,17 +1,9 @@
-import { ITFlex, ITText } from "@axzydev/axzy_ui_system";
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ITButton, ITDialog } from '@axzydev/axzy_ui_system';
-import {
-    FaChevronLeft,
-    FaChevronRight,
-    FaCompress,
-    FaExpand,
-    FaPlay,
-    FaTimes
-} from 'react-icons/fa';
+import { ITButton, ITDialog, ITFlex, ITImage, ITText } from "@axzydev/axzy_ui_system";
+import { useEffect, useState } from "react";
+import { FaChevronLeft, FaChevronRight, FaCompress, FaExpand, FaTrash } from "react-icons/fa";
 
 interface MediaItem {
-    type: 'IMAGE' | 'VIDEO';
+    type: "IMAGE" | "VIDEO";
     url: string;
     key?: string;
     title?: string;
@@ -25,230 +17,92 @@ interface MediaCarouselProps {
     showDelete?: boolean;
 }
 
-export const MediaCarousel: React.FC<MediaCarouselProps> = ({ 
-    media, 
-    initialIndex = 0, 
-    title = "Galería de Medios",
-}) => {
-    const [currentIndex, setCurrentIndex] = useState(initialIndex);
-    const [isFullscreen, setIsFullscreen] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    // --- Navegación ---
-    const nextSlide = useCallback(() => {
-        if (media.length <= 1) return;
-        setCurrentIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
-    }, [media.length]);
-
-    const prevSlide = useCallback(() => {
-        if (media.length <= 1) return;
-        setCurrentIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
-    }, [media.length]);
-
-    // const handleDelete = () => {
-    //     if (onDelete && window.confirm("¿Estás seguro de que deseas eliminar este archivo?")) {
-    //         onDelete(media[currentIndex], currentIndex);
-    //         // If it was the last item, the parent should handle it, 
-    //         // but we might need to adjust local index if the parent doesn't re-render immediately
-    //         if (currentIndex >= media.length - 1 && currentIndex > 0) {
-    //             setCurrentIndex(currentIndex - 1);
-    //         }
-    //     }
-    // };
-
-    // --- Fullscreen ---
-    const toggleFullscreen = async () => {
-        if (!document.fullscreenElement) {
-            try {
-                await containerRef.current?.requestFullscreen();
-                setIsFullscreen(true);
-            } catch (err) {
-                console.error("Error al intentar entrar en pantalla completa", err);
-            }
-        } else {
-            await document.exitFullscreen();
-            setIsFullscreen(false);
-        }
-    };
+/** Visor de evidencias: una pieza a la vez, navegación, miniaturas y pantalla completa. */
+export const MediaCarousel = ({ media, initialIndex = 0, title = "Galería de medios", onDelete, showDelete = false }: MediaCarouselProps) => {
+    const [index, setIndex] = useState(initialIndex);
+    const [fullscreen, setFullscreen] = useState(false);
+    const count = media.length;
 
     useEffect(() => {
-        const handler = () => setIsFullscreen(!!document.fullscreenElement);
-        document.addEventListener('fullscreenchange', handler);
-        return () => document.removeEventListener('fullscreenchange', handler);
-    }, []);
-
-    // --- Teclado ---
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'ArrowRight') nextSlide();
-            if (e.key === 'ArrowLeft') prevSlide();
-            if (e.key === 'Escape' && isFullscreen) toggleFullscreen();
+        if (count < 2) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "ArrowLeft") setIndex((i) => (i - 1 + count) % count);
+            if (e.key === "ArrowRight") setIndex((i) => (i + 1) % count);
         };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [nextSlide, prevSlide, isFullscreen]);
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [count]);
 
-    if (!media || media.length === 0) return null;
+    if (count === 0) return null;
+    const current = media[Math.min(index, count - 1)];
+    const prev = () => setIndex((i) => (i - 1 + count) % count);
+    const next = () => setIndex((i) => (i + 1) % count);
 
-    const currentItem = media[currentIndex];
-
-    const viewer = (
-        <div
-            ref={containerRef}
-            className={`
-                flex flex-col overflow-hidden transition-all duration-500 ease-in-out font-sans group
-                ${isFullscreen ? 'fixed inset-0 z-[100] bg-black' : 'relative rounded-2xl shadow-2xl bg-slate-900 border border-white/10 w-full max-w-5xl mx-auto'}
-            `}
-        >
-            {/* --- Header Superior --- */}
-            <ITFlex direction="column" className={`
-                absolute top-0 left-0 w-full z-20 flex justify-between items-center p-4
-                bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300
-                ${isFullscreen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-            `}>
-                <ITFlex direction="column" className="flex flex-col">
-                    <ITText as="h3" className="text-white font-medium text-lg drop-shadow-md">{title}</ITText>
-                    <ITText as="p" className="text-white/60 text-xs uppercase tracking-widest">
-                        {currentIndex + 1} / {media.length}
-                    </ITText>
+    const renderViewer = (inFullscreen: boolean) => (
+        <ITFlex direction="column" gap={3}>
+            <ITFlex align="center" justify="between" gap={2}>
+                <ITFlex direction="column">
+                    <ITText as="p" className="font-semibold text-slate-800">{title}</ITText>
+                    <ITText as="span" muted>{index + 1} / {count}</ITText>
                 </ITFlex>
-                
-                <ITFlex gap={2} className="flex gap-2">
-                    <ITButton
-                        variant="icon-only"
-                        color="gray"
-                        onClick={toggleFullscreen}
-                        icon={isFullscreen ? <FaCompress /> : <FaExpand />}
-                       
-                    />
-                    {isFullscreen && (
-                        <ITButton
-                            variant="icon-only"
-                            color="danger"
-                            onClick={toggleFullscreen}
-                            icon={<FaTimes />}
-                           
-                        />
+                <ITFlex align="center" gap={2}>
+                    {showDelete && onDelete && (
+                        <ITButton variant="outlined" color="danger" size="md" onClick={() => onDelete(current, index)}>
+                            <ITFlex align="center" gap={2}>
+                                <FaTrash />
+                                <span>Eliminar</span>
+                            </ITFlex>
+                        </ITButton>
                     )}
+                    <ITButton variant="outlined" color="gray" size="md" onClick={() => setFullscreen(!inFullscreen)}>
+                        <ITFlex align="center" gap={2}>
+                            {inFullscreen ? <FaCompress /> : <FaExpand />}
+                            <span>{inFullscreen ? "Salir" : "Pantalla completa"}</span>
+                        </ITFlex>
+                    </ITButton>
                 </ITFlex>
             </ITFlex>
 
-            {/* --- Escenario Principal --- */}
-            <ITFlex direction="column" className={`relative flex-1 flex items-center justify-center select-none ${isFullscreen ? 'h-full' : 'h-[min(420px,50vh)]'}`}>
-                
-                {/* Botones de Navegación */}
-                {media.length > 1 && (
+            <ITFlex align="center" justify="center" className={`relative overflow-hidden rounded-xl bg-slate-900 ${inFullscreen ? "flex-1" : "h-[min(420px,55vh)]"}`}>
+                {current.type === "VIDEO" ? (
+                    <video src={current.url} controls className="max-h-full max-w-full" />
+                ) : (
+                    <ITImage src={current.url} alt={title} className="max-h-full max-w-full object-contain" fallback="No se pudo cargar la imagen" />
+                )}
+                {count > 1 && (
                     <>
-                        <ITButton
-                            variant="icon-only"
-                            color="gray"
-                            onClick={prevSlide}
-                            icon={<FaChevronLeft size={24} />}
-                           
-                        />
-                        <ITButton
-                            variant="icon-only"
-                            color="gray"
-                            onClick={nextSlide}
-                            icon={<FaChevronRight size={24} />}
-                           
-                        />
+                        <ITFlex className="absolute left-3 top-1/2 -translate-y-1/2">
+                            <ITButton variant="filled" color="gray" size="md" onClick={prev}>
+                                <FaChevronLeft />
+                            </ITButton>
+                        </ITFlex>
+                        <ITFlex className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <ITButton variant="filled" color="gray" size="md" onClick={next}>
+                                <FaChevronRight />
+                            </ITButton>
+                        </ITFlex>
                     </>
                 )}
-
-                {/* Contenido Media */}
-                <ITFlex align="center" justify="center" className="w-full h-full flex items-center justify-center p-2 bg-black">
-                    {currentItem.type?.toUpperCase() === 'VIDEO' || currentItem.url.toLowerCase().match(/\.(mp4|webm|mov|ogg|m4v)$/i) ? (
-                        <ITFlex align="center" justify="center" className="relative w-full h-full flex items-center justify-center">
-                            <video 
-                                key={currentItem.url}
-                                src={currentItem.url}
-                                controls 
-                                playsInline
-                                preload="metadata"
-                                className="max-w-full max-h-full rounded-lg shadow-2xl"
-                                autoPlay={isFullscreen}
-                                onLoadedMetadata={(e) => {
-                                    // Sometimes we need to seek to show the first frame
-                                    const video = e.target as HTMLVideoElement;
-                                    if (video.currentTime === 0) video.currentTime = 0.1;
-                                }}
-                            >
-                                Tu navegador no soporta el elemento de video.
-                            </video>
-                        </ITFlex>
-                    ) : (
-                        <img 
-                            src={currentItem.url} 
-                            alt={currentItem.title || "Gallery item"} 
-                            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-fade-in"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Error+al+cargar+imagen';
-                            }}
-                        />
-                    )}
-                </ITFlex>
             </ITFlex>
 
-            {/* --- Tira de Miniaturas (Footer) --- */}
-            <ITFlex direction="column" className={`
-                w-full p-4 border-t border-white/10 bg-slate-950/80 backdrop-blur-xl z-20
-                ${isFullscreen ? 'absolute bottom-0 opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}
-            `}>
-                <ITFlex justify="center" gap={4} className="flex gap-4 overflow-x-auto pb-2 justify-center no-scrollbar">
-                    {media.map((item, idx) => (
-                        <button
-                            key={idx}
-                            onClick={() => setCurrentIndex(idx)}
-                            className={`
-                                relative flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden transition-all duration-300 transform
-                                ${idx === currentIndex 
-                                    ? 'ring-2 ring-blue-500 scale-110 shadow-lg opacity-100' 
-                                    : 'opacity-40 hover:opacity-100 scale-100 grayscale hover:grayscale-0'
-                                }
-                            `}
-                        >
-                            {item.type?.toUpperCase() === 'VIDEO' || item.url.toLowerCase().match(/\.(mp4|webm|mov|ogg|m4v)$/i) ? (
-                                <ITFlex align="center" justify="center" className="w-full h-full bg-slate-800 flex items-center justify-center relative">
-                                    <video 
-                                        src={`${item.url}#t=0.5`} 
-                                        className="absolute inset-0 w-full h-full object-cover opacity-60"
-                                        onLoadedData={(e) => {
-                                            const video = e.target as HTMLVideoElement;
-                                            video.pause();
-                                        }}
-                                        muted
-                                    />
-                                    <ITFlex align="center" justify="center" className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/0 transition-all duration-300">
-                                        <FaPlay className="text-white text-xs drop-shadow-lg scale-125 group-hover:scale-150 transition-transform" />
-                                    </ITFlex>
-                                </ITFlex>
-                            ) : (
-                                <img 
-                                    src={item.url} 
-                                    className="w-full h-full object-cover animate-fade-in" 
-                                    alt="thumbnail"
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src = 'https://placehold.co/100x70?text=Err';
-                                    }}
-                                />
-                            )}
-                        </button>
+            {count > 1 && (
+                <ITFlex align="center" justify="center" gap={2} className="flex-wrap">
+                    {media.map((item, i) => (
+                        <ITButton key={`${item.url}-${i}`} variant="text" color={i === index ? "primary" : "gray"} size="sm" onClick={() => setIndex(i)}>
+                            {item.type === "VIDEO" ? <ITText as="span" muted>Video {i + 1}</ITText> : <ITImage src={item.url} alt={`Miniatura ${i + 1}`} className="h-14 w-20 object-cover rounded" />}
+                        </ITButton>
                     ))}
                 </ITFlex>
-            </ITFlex>
-
-            <style>{`
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
-        </div>
+            )}
+        </ITFlex>
     );
 
-    if (!isFullscreen) return viewer;
     return (
-        <ITDialog isOpen fullScreen onClose={toggleFullscreen}>
-            {viewer}
-        </ITDialog>
+        <>
+            {!fullscreen && renderViewer(false)}
+            <ITDialog isOpen={fullscreen} onClose={() => setFullscreen(false)} fullScreen>
+                {fullscreen && renderViewer(true)}
+            </ITDialog>
+        </>
     );
 };
