@@ -18,7 +18,7 @@ interface MediaCarouselProps {
 }
 
 /** Visor de evidencias: una pieza a la vez, navegación, miniaturas y pantalla completa. */
-export const MediaCarousel = ({ media, initialIndex = 0, title = "Galería de medios", onDelete, showDelete = false }: MediaCarouselProps) => {
+export const MediaCarousel = ({ media, initialIndex = 0, title, onDelete, showDelete = false }: MediaCarouselProps) => {
     const [index, setIndex] = useState(initialIndex);
     const [fullscreen, setFullscreen] = useState(false);
     const [ratio, setRatio] = useState<number | null>(null);
@@ -58,7 +58,7 @@ export const MediaCarousel = ({ media, initialIndex = 0, title = "Galería de me
         <ITFlex direction="column" gap={3}>
             <ITFlex align="center" justify="between" gap={2}>
                 <ITFlex direction="column">
-                    <ITText as="p" className="font-semibold text-slate-800">{title}</ITText>
+                    {title && <ITText as="p" className="font-semibold text-slate-800">{title}</ITText>}
                     <ITText as="span" muted>{index + 1} / {count}</ITText>
                 </ITFlex>
                 <ITFlex align="center" gap={2}>
@@ -83,7 +83,7 @@ export const MediaCarousel = ({ media, initialIndex = 0, title = "Galería de me
                 {current.type === "VIDEO" ? (
                     <video src={current.url} controls className="h-full w-full" />
                 ) : (
-                    <ITImage src={current.url} alt={title} className="h-full w-full" fallback="No se pudo cargar la imagen" />
+                    <ITImage src={current.url} alt={title ?? "Evidencia"} className="h-full w-full" fallback="No se pudo cargar la imagen" />
                 )}
                 {count > 1 && (
                     <>
