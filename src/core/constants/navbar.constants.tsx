@@ -93,6 +93,13 @@ export const useNavigationItems = (): any[] => {
             { id: "persons", label: "Personas", path: "/persons", roles: ["ADMIN"] },
           ],
         },
+        {
+          id: "access",
+          label: "Accesos",
+          items: [
+            { id: "invitations", label: "Invitaciones", path: "/invitations", roles: ["ADMIN", "SHIFT", "GUARD"] },
+          ],
+        },
       ],
     },
     {
