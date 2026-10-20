@@ -1,7 +1,7 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { translateScanType } from "@app/core/utils/status.utils";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITInput, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaBook, FaEye, FaFileAlt, FaLayerGroup, FaMapMarkerAlt, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
@@ -101,10 +101,10 @@ const KardexPage = () => {
             label: "Usuario", 
             type: "string", 
             render: (row: any) => (
-                <div className="flex flex-col">
-                    <span className="font-medium text-slate-700">{row.user?.name} {row.user?.lastName || ''}</span>
-                    <span className="text-xs text-slate-400">{row.user?.username}</span>
-                </div>
+                <ITFlex direction="column" className="flex flex-col">
+                    <ITText as="span" className="font-medium text-slate-700">{row.user?.name} {row.user?.lastName || ''}</ITText>
+                    <ITText as="span" className="text-xs text-slate-400">{row.user?.username}</ITText>
+                </ITFlex>
             )
         },
         { 
@@ -113,10 +113,10 @@ const KardexPage = () => {
             type: "string", 
             sortable: false, 
             render: (row: any) => (
-                <div className="flex items-center gap-1.5">
+                <ITFlex align="center" className="flex items-center gap-1.5">
                     <FaMapMarkerAlt className="text-indigo-400 text-xs" />
-                    <span>{row.location?.name}</span>
-                </div>
+                    <ITText as="span">{row.location?.name}</ITText>
+                </ITFlex>
             )
         },
         { 
@@ -140,16 +140,16 @@ const KardexPage = () => {
             type: "string", 
             sortable: false, 
             render: (row: any) => (
-                <div className="flex items-center gap-1 text-slate-500">
+                <ITFlex align="center" gap={1} className="flex items-center gap-1 text-slate-500">
                     {row.media && row.media.length > 0 ? (
                         <>
                             <FaFileAlt className="text-blue-400" />
-                            <span className="text-xs font-medium">{row.media.length}</span>
+                            <ITText as="span" className="text-xs font-medium">{row.media.length}</ITText>
                         </>
                     ) : (
-                        <span className="text-xs text-slate-300">-</span>
+                        <ITText as="span" className="text-xs text-slate-300">-</ITText>
                     )}
-                </div>
+                </ITFlex>
             )
         },
         {
@@ -157,7 +157,7 @@ const KardexPage = () => {
             label: "Acciones",
             type: "actions",
             actions: (row: any) => (
-                <div className="flex items-center gap-2">
+                <ITFlex align="center" gap={2} className="flex items-center gap-2">
                     <ITButton
                         onClick={() => setViewingEntry(row)}
                         size="sm"
@@ -167,7 +167,7 @@ const KardexPage = () => {
                     >
                         <FaEye />
                     </ITButton>
-                </div>
+                </ITFlex>
             )
         }
     ], [guards, handleDelete]);
@@ -182,10 +182,10 @@ const KardexPage = () => {
       icon={<FaBook size={20} />}
       iconColor="#065911"
       actions={
-<div className="flex items-center gap-3">
-            <div className="flex flex-col gap-1.5">
+<ITFlex align="center" gap={3} className="flex items-center gap-3">
+            <ITFlex direction="column" className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Filtrar por Guardia</label>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[260px] shadow-sm">
+                <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[260px] shadow-sm">
                     <FaUser className="text-slate-300 text-xs mr-2" />
                     <ITInput
                         name="searchKardex"
@@ -206,12 +206,12 @@ const KardexPage = () => {
                            
                         />
                     )}
-                </div>
-            </div>
+                </ITFlex>
+            </ITFlex>
 
-            <div className="flex flex-col gap-1.5">
+            <ITFlex direction="column" className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Periodo</label>
-                <div className="flex items-center gap-3">
+                <ITFlex align="center" gap={3} className="flex items-center gap-3">
                     <ITDatePicker
                         label=""
                         name="date"
@@ -245,16 +245,16 @@ const KardexPage = () => {
                         title="Actualizar tabla"
                     >
                         <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                        <span className="text-xs font-bold text-slate-600">Refrescar</span></ITFlex>
+                        <ITText as="span" className="text-xs font-bold text-slate-600">Refrescar</ITText></ITFlex>
                     </ITButton>
-                </div>
-            </div>
-        </div>
+                </ITFlex>
+            </ITFlex>
+        </ITFlex>
       }
     >
       
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+      <ITFlex direction="column" className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
@@ -268,29 +268,29 @@ const KardexPage = () => {
             fetchData={memoizedFetch as any}
             externalFilters={externalFilters}
         />
-      </div>
+      </ITFlex>
 
       {viewingEntry && (
       <ITDialog isOpen onClose={() => setViewingEntry(null)} title="Detalle de Actividad" className="max-w-4xl max-h-[90vh] flex flex-col">
-        <p className="text-sm text-slate-500 mb-4">Registrado el {dayjs(viewingEntry.timestamp).format("DD [de] MMMM, YYYY [a las] HH:mm a")}</p>
+        <ITText as="p" className="text-sm text-slate-500 mb-4">Registrado el {dayjs(viewingEntry.timestamp).format("DD [de] MMMM, YYYY [a las] HH:mm a")}</ITText>
               
-              <div className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <ITFlex direction="column" className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                <ITFlex direction="column" className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                   
-                  <div className="lg:col-span-8 space-y-8">
+                  <ITFlex direction="column" className="lg:col-span-8 space-y-8">
                     {/* Multimedia Section - Prominent */}
                     <section>
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                            <span className="w-1 h-4 bg-indigo-500 rounded-full block"></span>
+                      <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
+                        <ITText as="h4" className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <ITText as="span" className="w-1 h-4 bg-indigo-500 rounded-full block"></ITText>
                             Evidencia Multimedia
-                        </h4>
+                        </ITText>
                         {viewingEntry.media && viewingEntry.media.length > 0 && 
-                            <span className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
+                            <ITText as="span" className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
                                 {viewingEntry.media.length} elementos
-                            </span>
+                            </ITText>
                         }
-                      </div>
+                      </ITFlex>
         
                       {viewingEntry.media && viewingEntry.media.length > 0 ? (
                         <MediaCarousel 
@@ -299,40 +299,40 @@ const KardexPage = () => {
                           onDelete={handleDeleteMedia}
                         />
                       ) : (
-                        <div className="py-12 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
-                          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                        <ITFlex direction="column" align="center" justify="center" className="py-12 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
+                          <ITFlex align="center" justify="center" className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
                             <FaFileAlt className="text-slate-300" />
-                          </div>
-                          <p className="text-sm font-medium text-slate-500">Sin evidencia adjunta</p>
-                          <p className="text-xs text-slate-400">El usuario no subió fotos ni videos en este reporte.</p>
-                        </div>
+                          </ITFlex>
+                          <ITText as="p" className="text-sm font-medium text-slate-500">Sin evidencia adjunta</ITText>
+                          <ITText as="p" className="text-xs text-slate-400">El usuario no subió fotos ni videos en este reporte.</ITText>
+                        </ITFlex>
                       )}
                     </section>
                     
                     <section className="space-y-3">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                                <h4 className="text-sm font-bold text-slate-800">Observaciones</h4>
-                            </div>
-                            <span className="text-xs font-medium px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200/60">
+                        <ITFlex align="center" justify="between" className="flex items-center justify-between">
+                            <ITFlex align="center" className="flex items-center gap-2.5">
+                                <ITText as="h4" className="text-sm font-bold text-slate-800">Observaciones</ITText>
+                            </ITFlex>
+                            <ITText as="span" className="text-xs font-medium px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200/60">
                                 {viewingEntry.notes ? `${viewingEntry.notes.split('\n').filter(l => l.trim()).length} notas` : 'Vacío'}
-                            </span>
-                        </div>
-                        <div className="bg-white p-5 rounded-xl border border-slate-200/60">
+                            </ITText>
+                        </ITFlex>
+                        <ITFlex direction="column" className="bg-white p-5 rounded-xl border border-slate-200/60">
                             {viewingEntry.notes ? (
-                                <div className="space-y-2.5">
+                                <ITFlex direction="column" className="space-y-2.5">
                                     {viewingEntry.notes.split('\n').map((line, i) => {
                                         if (line.trim().startsWith('[ ]') || line.trim().startsWith('[x]')) {
                                             const isChecked = line.trim().startsWith('[x]');
                                             const text = line.replace(/\[.\]/, '').trim();
                                             return (
                                                 <div key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-emerald-50/50 transition-all">
-                                                    <div className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                                                    <ITFlex direction="column" className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                                                         isChecked ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-slate-300'
                                                     }`}>
                                                         {isChecked && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
-                                                    </div>
-                                                    <span className={`text-sm ${isChecked ? 'text-slate-400 line-through' : 'text-slate-600'}`}>{text}</span>
+                                                    </ITFlex>
+                                                    <ITText as="span" className={`text-sm ${isChecked ? 'text-slate-400 line-through' : 'text-slate-600'}`}>{text}</ITText>
                                                 </div>
                                             );
                                         }
@@ -342,71 +342,71 @@ const KardexPage = () => {
                                             <p key={i} className="text-sm text-slate-700 leading-relaxed pl-2 border-l-2 border-emerald-500/20">{line}</p>
                                         );
                                     })}
-                                </div>
+                                </ITFlex>
                             ) : (
-                                <div className="flex flex-col items-center justify-center py-8 text-center text-slate-400">
+                                <ITFlex direction="column" align="center" justify="center" className="flex flex-col items-center justify-center py-8 text-center text-slate-400">
                                     <FaFileAlt className="text-2xl mb-2 opacity-20" />
-                                    <span className="text-sm font-medium">Sin observaciones registradas</span>
-                                </div>
+                                    <ITText as="span" className="text-sm font-medium">Sin observaciones registradas</ITText>
+                                </ITFlex>
                             )}
-                        </div>
+                        </ITFlex>
                     </section>
-                  </div>
+                  </ITFlex>
         
-                  <div className="lg:col-span-4 space-y-6">
+                  <ITFlex direction="column" className="lg:col-span-4 space-y-6">
                      {viewingEntry.latitude && viewingEntry.longitude ? (
-                         <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                             <h5 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4 flex items-center gap-2">
+                         <ITFlex direction="column" className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+                             <ITText as="h5" className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4 flex items-center gap-2">
                                  <FaMapMarkerAlt className="text-indigo-400" />
                                  Ubicación de Escaneo
-                             </h5>
+                             </ITText>
                              <GoogleMapComponent 
                                  lat={Number(viewingEntry.latitude)} 
                                  lng={Number(viewingEntry.longitude)} 
                                  height="200px"
                              />
-                             <div className="mt-3">
-                                 <p className="text-[10px] text-slate-400 font-medium italic">
+                             <ITFlex direction="column" className="mt-3">
+                                 <ITText as="p" className="text-[10px] text-slate-400 font-medium italic">
                                      GPS: {viewingEntry.latitude.toFixed(6)}, {viewingEntry.longitude.toFixed(6)}
-                                 </p>
-                             </div>
-                         </div>
+                                 </ITText>
+                             </ITFlex>
+                         </ITFlex>
                      ) : null}
   
-                     <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <h5 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</h5>
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500"><FaUser /></div>
-                                <div>
-                                    <p className="text-xs text-slate-400 font-medium">Realizado por</p>
-                                    <p className="text-sm font-bold text-slate-800">{viewingEntry.user?.name} {viewingEntry.user?.lastName || ''}</p>
-                                    <p className="text-xs text-slate-500">{viewingEntry.user?.username}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 text-emerald-500"><FaMapMarkerAlt /></div>
-                                <div>
-                                    <p className="text-xs text-slate-400 font-medium">Ubicación</p>
-                                    <p className="text-sm font-bold text-slate-800">{viewingEntry.location?.name}</p>
-                                    <p className="text-xs text-slate-500">Pasillo {viewingEntry.location?.aisle}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-4">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                     <ITFlex direction="column" className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+                        <ITText as="h5" className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</ITText>
+                        <ITFlex direction="column" className="space-y-4">
+                            <ITFlex align="start" gap={4} className="flex items-start gap-4">
+                                <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500"><FaUser /></ITFlex>
+                                <ITFlex direction="column">
+                                    <ITText as="p" className="text-xs text-slate-400 font-medium">Realizado por</ITText>
+                                    <ITText as="p" className="text-sm font-bold text-slate-800">{viewingEntry.user?.name} {viewingEntry.user?.lastName || ''}</ITText>
+                                    <ITText as="p" className="text-xs text-slate-500">{viewingEntry.user?.username}</ITText>
+                                </ITFlex>
+                            </ITFlex>
+                            <ITFlex align="start" gap={4} className="flex items-start gap-4">
+                                <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 text-emerald-500"><FaMapMarkerAlt /></ITFlex>
+                                <ITFlex direction="column">
+                                    <ITText as="p" className="text-xs text-slate-400 font-medium">Ubicación</ITText>
+                                    <ITText as="p" className="text-sm font-bold text-slate-800">{viewingEntry.location?.name}</ITText>
+                                    <ITText as="p" className="text-xs text-slate-500">Pasillo {viewingEntry.location?.aisle}</ITText>
+                                </ITFlex>
+                            </ITFlex>
+                            <ITFlex align="start" gap={4} className="flex items-start gap-4">
+                                <ITFlex direction="column" className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                                     viewingEntry.scanType === 'ASSIGNMENT' ? 'bg-blue-50 text-blue-500' : 
                                     viewingEntry.scanType === 'RECURRING' ? 'bg-orange-50 text-orange-500' : 'bg-slate-50 text-slate-500'
-                                }`}><FaLayerGroup /></div>
-                                <div>
-                                    <p className="text-xs text-slate-400 font-medium">Clasificación</p>
-                                    <p className="text-sm font-bold text-slate-800">{translateScanType(viewingEntry.scanType)}</p>
-                                </div>
-                            </div>
-                        </div>
-                     </div>
-                  </div>
-                </div>
-              </div>
+                                }`}><FaLayerGroup /></ITFlex>
+                                <ITFlex direction="column">
+                                    <ITText as="p" className="text-xs text-slate-400 font-medium">Clasificación</ITText>
+                                    <ITText as="p" className="text-sm font-bold text-slate-800">{translateScanType(viewingEntry.scanType)}</ITText>
+                                </ITFlex>
+                            </ITFlex>
+                        </ITFlex>
+                     </ITFlex>
+                  </ITFlex>
+                </ITFlex>
+              </ITFlex>
       </ITDialog>
       )}
     </ITPage>
