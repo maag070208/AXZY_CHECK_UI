@@ -1,3 +1,4 @@
+import { ITFlex } from "@axzydev/axzy_ui_system";
 import { AppState } from "@app/core/store/store";
 import LOGO from "@assets/logo.svg";
 import React from "react";
@@ -194,7 +195,7 @@ export const Navbar = () => {
   const navigationItems = useNavigationItems();
 
   return (
-    <div className="flex flex-row space-x-4">
+    <ITFlex className="flex flex-row space-x-4">
       {navigationItems.map((item) => (
         <button
           key={item.id}
@@ -208,7 +209,7 @@ export const Navbar = () => {
           {item.label}
         </button>
       ))}
-    </div>
+    </ITFlex>
   );
 };
 
