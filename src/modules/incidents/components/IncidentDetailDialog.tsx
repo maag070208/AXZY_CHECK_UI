@@ -88,18 +88,18 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
                 <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
                   <FaUserShield />
                 </ITFlex>
-                <div>
+                <ITFlex direction="column">
                   <ITText as="p" className="text-xs text-slate-400">Reportó</ITText>
                   <ITText as="p" className="text-sm font-bold text-slate-800">{reporter}</ITText>
                   {incident.guard?.username && <ITText as="p" className="text-xs text-slate-500">@{incident.guard.username}</ITText>}
-                </div>
+                </ITFlex>
               </ITFlex>
 
               {incident.type && (
-                <div>
+                <ITFlex direction="column">
                   <ITText as="p" className="text-xs text-slate-400">Tipo</ITText>
                   <ITText as="p" className="text-sm font-bold text-slate-800">{incident.type.value}</ITText>
-                </div>
+                </ITFlex>
               )}
             </ITFlex>
           </Card>
@@ -123,7 +123,7 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
                   <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center">
                     <FaCheckCircle />
                   </ITFlex>
-                  <div>
+                  <ITFlex direction="column">
                     <ITText as="p" className="text-xs text-slate-400">Atendida por</ITText>
                     <ITText as="p" className="text-sm font-bold text-slate-800">{incident.resolvedBy.name}</ITText>
                     {incident.resolvedAt && (
@@ -131,7 +131,7 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
                         <FaCalendarAlt /> {dayjs(incident.resolvedAt).format("DD/MM/YYYY HH:mm")}
                       </ITText>
                     )}
-                  </div>
+                  </ITFlex>
                 </ITFlex>
               </Card>
             )
