@@ -1,4 +1,4 @@
-import { ITButton, ITInput, ITLoader , ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { FileTypeEnum, ITButton, ITDropfile, ITInput, ITLoader, ITSearchSelect } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { addContact, addDocument, documentUrl, listContacts, listDocuments, PersonContact, PersonDocument, uploadPrivateFile } from "../persons.service";
@@ -99,7 +99,11 @@ export const PersonDetailPage = () => {
             clearable={false}
           />
           <ITInput name="docExpiry" label="Vence (AAAA-MM-DD)" value={docExpiry} onChange={(e) => setDocExpiry(e.target.value)} />
-          <input type="file" aria-label="Archivo del documento" accept="application/pdf,image/jpeg,image/png" onChange={(e) => setDocFile(e.target.files?.[0] ?? null)} />
+          <ITDropfile
+            view="drop"
+            acceptedFileTypes={[FileTypeEnum.PDF, FileTypeEnum.JPEG, FileTypeEnum.PNG]}
+            onFileSelect={(file) => setDocFile(file)}
+          />
           <ITButton onClick={() => void saveDocument()} disabled={!docFile}>Subir documento</ITButton>
         </div>
         <p className="text-xs text-slate-400">Los documentos son privados: se abren con un enlace temporal.</p>

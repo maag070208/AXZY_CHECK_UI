@@ -1,4 +1,4 @@
-import { ITButton, ITDialog } from "@axzydev/axzy_ui_system";
+import { FileTypeEnum, ITButton, ITDialog, ITDropfile } from "@axzydev/axzy_ui_system";
 import { useState } from "react";
 import { ImportResult, ImportRow, importProperties, parseImportCsv } from "./occupancy.service";
 
@@ -66,7 +66,11 @@ export const ImportPropertiesModal = ({ isOpen, onClose, onDone }: Props) => {
           Columnas: identifier, name, mainStreet, kind (HOUSE, APARTMENT, COMMERCIAL, LOT, COMMON), occupancy (VACANT, OWNER_OCCUPIED, …), floor, unitNumber.
         </p>
         <ITButton variant="ghost" onClick={downloadTemplate}>Descargar plantilla</ITButton>
-        <input type="file" accept=".csv,text/csv" aria-label="Archivo CSV" onChange={(e) => void onFile(e.target.files?.[0])} />
+        <ITDropfile
+          view="drop"
+          acceptedFileTypes={[FileTypeEnum.CSV]}
+          onFileSelect={(file) => void onFile(file ?? undefined)}
+        />
         {fileName && <p className="text-sm text-slate-600">{fileName}: {rows.length} fila(s)</p>}
 
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}

@@ -1,10 +1,10 @@
-import { ITButton, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { FileTypeEnum, ITButton, ITDropfile, ITInput, ITSearchSelect, UploadStatus } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ResidentUser, uploadResidentImage } from "../services/residents.service";
 import { useEffect, useState } from "react";
 import { getPropertiesList, Property } from "@app/modules/properties/service/properties.service";
-import { FaCheck, FaIdCard, FaSpinner, FaUpload } from "react-icons/fa";
+import { FaCheck, FaIdCard } from "react-icons/fa";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { useDispatch } from "react-redux";
 
@@ -74,9 +74,7 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
         },
     });
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back') => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleFileUpload = async (file: File, side: 'front' | 'back') => {
 
         if (side === 'front') setUploadingFront(true);
         else setUploadingBack(true);
@@ -238,44 +236,26 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* INE Frontal */}
                         <div className="relative group rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-400 overflow-hidden bg-slate-50 transition-all">
-                            {formik.values.ineFrontUrl ? (
-                                <div className="relative aspect-video w-full bg-slate-900">
-                                    <img src={formik.values.ineFrontUrl} alt="INE Frontal" className="w-full h-full object-contain" />
-                                    <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <label className="cursor-pointer bg-white text-slate-800 px-4 py-2 rounded-lg font-bold text-sm shadow-xl flex items-center gap-2 hover:scale-105 transition-transform">
-                                            <FaUpload /> Cambiar Frente
-                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'front')} disabled={uploadingFront}/>
-                                        </label>
-                                    </div>
-                                </div>
-                            ) : (
-                                <label className="flex flex-col items-center justify-center p-8 aspect-video cursor-pointer">
-                                    {uploadingFront ? <FaSpinner className="animate-spin text-2xl text-emerald-500 mb-2" /> : <FaUpload className="text-2xl text-slate-300 mb-2 group-hover:text-emerald-500 transition-colors" />}
-                                    <span className="text-sm font-bold text-slate-500 group-hover:text-emerald-600 transition-colors">Subir INE Frontal</span>
-                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'front')} disabled={uploadingFront}/>
-                                </label>
-                            )}
+                            <ITDropfile
+                                view="drop"
+                                acceptedFileTypes={[FileTypeEnum.JPG, FileTypeEnum.JPEG, FileTypeEnum.PNG]}
+                                initialPreviewUrl={formik.values.ineFrontUrl || null}
+                                uploadStatus={uploadingFront ? UploadStatus.UPLOADING : undefined}
+                                onFileSelect={() => undefined}
+                                onSubmit={(file) => void handleFileUpload(file, 'front')}
+                            />
                         </div>
 
                         {/* INE Reverso */}
                         <div className="relative group rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-400 overflow-hidden bg-slate-50 transition-all">
-                            {formik.values.ineBackUrl ? (
-                                <div className="relative aspect-video w-full bg-slate-900">
-                                    <img src={formik.values.ineBackUrl} alt="INE Reverso" className="w-full h-full object-contain" />
-                                    <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <label className="cursor-pointer bg-white text-slate-800 px-4 py-2 rounded-lg font-bold text-sm shadow-xl flex items-center gap-2 hover:scale-105 transition-transform">
-                                            <FaUpload /> Cambiar Reverso
-                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'back')} disabled={uploadingBack}/>
-                                        </label>
-                                    </div>
-                                </div>
-                            ) : (
-                                <label className="flex flex-col items-center justify-center p-8 aspect-video cursor-pointer">
-                                    {uploadingBack ? <FaSpinner className="animate-spin text-2xl text-emerald-500 mb-2" /> : <FaUpload className="text-2xl text-slate-300 mb-2 group-hover:text-emerald-500 transition-colors" />}
-                                    <span className="text-sm font-bold text-slate-500 group-hover:text-emerald-600 transition-colors">Subir INE Reverso</span>
-                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'back')} disabled={uploadingBack}/>
-                                </label>
-                            )}
+                            <ITDropfile
+                                view="drop"
+                                acceptedFileTypes={[FileTypeEnum.JPG, FileTypeEnum.JPEG, FileTypeEnum.PNG]}
+                                initialPreviewUrl={formik.values.ineBackUrl || null}
+                                uploadStatus={uploadingBack ? UploadStatus.UPLOADING : undefined}
+                                onFileSelect={() => undefined}
+                                onSubmit={(file) => void handleFileUpload(file, 'back')}
+                            />
                         </div>
                     </div>
 

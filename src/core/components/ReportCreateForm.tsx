@@ -1,9 +1,9 @@
-import { ITButton, ITLoader } from "@axzydev/axzy_ui_system";
+import { FileTypeEnum, ITButton, ITDropfile, ITLoader } from "@axzydev/axzy_ui_system";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { ICatalogItem } from "@app/core/types/catalog.types";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { FaCamera, FaCheck, FaMapMarkerAlt, FaSearch, FaTimes, FaUpload, FaVideo } from "react-icons/fa";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { FaCheck, FaMapMarkerAlt, FaSearch, FaTimes, FaUpload, FaVideo } from "react-icons/fa";
 import { createPortal } from "react-dom";
 import { useDispatch } from "react-redux";
 
@@ -119,8 +119,6 @@ export const ReportCreateForm = ({
   const [mapLat, setMapLat] = useState(DEFAULT_LAT);
   const [mapLng, setMapLng] = useState(DEFAULT_LNG);
   const [mapTouched, setMapTouched] = useState(false);
-  const photoRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLInputElement>(null);
 
   const handleClose = () => {
     setCategoryId(null);
@@ -165,11 +163,7 @@ export const ReportCreateForm = ({
 
   const isUploading = media.some((m) => m.uploading);
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>, type: "IMAGE" | "VIDEO") => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-
+  const handleFile = async (file: File, type: "IMAGE" | "VIDEO") => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setMedia((prev) => [...prev, { id, preview: URL.createObjectURL(file), type, uploading: true, error: false }]);
 
@@ -302,24 +296,25 @@ export const ReportCreateForm = ({
 
           <section>
             <SectionLabel hint={<span className="text-[11px] text-slate-400">Opcional</span>}>Evidencia</SectionLabel>
-            <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFile(e, "IMAGE")} />
-            <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={(e) => handleFile(e, "VIDEO")} />
-
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => photoRef.current?.click()}
-                className="flex items-center gap-2 h-11 px-4 rounded-xl border border-dashed border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-colors"
-              >
-                <FaCamera className="text-emerald-500" size={14} /> Foto
-              </button>
-              <button
-                type="button"
-                onClick={() => videoRef.current?.click()}
-                className="flex items-center gap-2 h-11 px-4 rounded-xl border border-dashed border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-colors"
-              >
-                <FaVideo className="text-indigo-500" size={14} /> Video
-              </button>
+              <ITDropfile
+                view="button"
+                buttonLabel="Foto"
+                modalTitle="Agregar foto"
+                acceptedFileTypes={[FileTypeEnum.JPG, FileTypeEnum.JPEG, FileTypeEnum.PNG]}
+                onFileSelect={(file) => {
+                  if (file) void handleFile(file, "IMAGE");
+                }}
+              />
+              <ITDropfile
+                view="button"
+                buttonLabel="Video"
+                modalTitle="Agregar video"
+                acceptedFileTypes={[FileTypeEnum.MP4]}
+                onFileSelect={(file) => {
+                  if (file) void handleFile(file, "VIDEO");
+                }}
+              />
 
               {media.map((item) => (
                 <div key={item.id} className="relative group">

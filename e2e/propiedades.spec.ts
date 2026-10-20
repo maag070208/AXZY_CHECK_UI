@@ -21,7 +21,8 @@ test("T-A1-T9: importar un departamento, rentarlo con inquilino y ver el histori
   // 1) Importación desde CSV: una fila válida y una inválida (tipo que no existe).
   await page.goto("/#/properties");
   await page.getByRole("button", { name: "Importar CSV" }).click();
-  await page.getByLabel("Archivo CSV").setInputFiles({ name: "propiedades.csv", mimeType: "text/csv", buffer: Buffer.from(CSV) });
+  await page.locator('input[type="file"]').setInputFiles({ name: "propiedades.csv", mimeType: "text/csv", buffer: Buffer.from(CSV) });
+  await page.getByRole("button", { name: "Confirmar", exact: true }).click();
   await page.getByRole("button", { name: "Importar", exact: true }).click();
   await expect(page.getByText("Creadas: 1")).toBeVisible();
   await expect(page.getByText(/Fila 2: kind: tipo "CASTILLO" no existe/)).toBeVisible();

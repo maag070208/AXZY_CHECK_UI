@@ -1,9 +1,14 @@
 
 import { useEffect, useState } from 'react';
-import { ITDatePicker, ITButton, ITBadget, ITDialog, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITDatePicker, ITButton, ITBadget, ITDialog, ITLoader, ITTable } from "@axzydev/axzy_ui_system";
 import { FaSync, FaClock, FaEye, FaExclamationCircle, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import * as ReportService from '../../services/ReportService';
 import dayjs from 'dayjs';
+
+// ITTable exige filas tipo Record<string, unknown>; el mapeo de la interfaz lo cumple.
+type GuardRow = { [K in keyof ReportService.IGuardDetail]: ReportService.IGuardDetail[K] };
+
+type MissedRow = { [K in keyof ReportService.IMissedPoint]: ReportService.IMissedPoint[K] };
 
 export const OperationalDetailTab = () => {
     const [dateRange, setDateRange] = useState<any>([dayjs().startOf('month').toDate(), dayjs().toDate()]);
@@ -101,96 +106,131 @@ export const OperationalDetailTab = () => {
                 
                 {loading && <ShimmerOverlay label="Actualizando registros..." />}
                 
-                <div className="overflow-x-auto relative">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-50/40">
-                            <tr>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Personal</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Rondas</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Escaneos</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Omitidos</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Cumplimiento</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Eficiencia</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {detail.map((item) => {
-                                const compliance = getCompliance(item);
+                <ITTable<GuardRow>
+                    data={detail}
+                    variant="default"
+                    columns={[
+                        {
+                            key: 'name',
+                            label: 'Personal',
+                            type: 'string',
+                            align: 'left',
+                            render: (item) => {
                                 const roleColor = ROLE_COLORS[item.role] || 'emerald';
-                                
                                 return (
-                                    <tr key={item.guardId} className="hover:bg-slate-50/50 transition-all group">
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-11 h-11 rounded-2xl bg-${roleColor}-50 text-${roleColor}-600 flex items-center justify-center font-black text-xs shadow-sm shadow-${roleColor}-100/50 group-hover:scale-105 transition-transform duration-300`}>
-                                                    {getInitials(item.name, item.lastName)}
-                                                </div>
-                                                <div>
-                                                    <div className="font-black text-slate-700 uppercase text-xs tracking-tight">{item.name} {item.lastName}</div>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <ITBadget color={roleColor as any} size="sm" variant="filled" className="!text-[8px] !px-1.5 !py-0 !rounded-md font-black uppercase !bg-opacity-10 !text-opacity-90 border-none">
-                                                            {ROLE_TRANSLATIONS[item.role] || item.role}
-                                                        </ITBadget>
-                                                        <span className="text-[9px] text-slate-300 font-bold tracking-widest">#{item.guardId}</span>
-                                                    </div>
-                                                </div>
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-11 h-11 rounded-2xl bg-${roleColor}-50 text-${roleColor}-600 flex items-center justify-center font-black text-xs shadow-sm shadow-${roleColor}-100/50`}>
+                                            {getInitials(item.name, item.lastName)}
+                                        </div>
+                                        <div>
+                                            <div className="font-black text-slate-700 uppercase text-xs tracking-tight">{item.name} {item.lastName}</div>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <ITBadget color={roleColor as any} size="sm" variant="filled" className="!text-[8px] !px-1.5 !py-0 !rounded-md font-black uppercase !bg-opacity-10 !text-opacity-90 border-none">
+                                                    {ROLE_TRANSLATIONS[item.role] || item.role}
+                                                </ITBadget>
+                                                <span className="text-[9px] text-slate-300 font-bold tracking-widest">#{item.guardId}</span>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <div className="font-mono text-sm font-black text-slate-600">{item.totalRounds}</div>
-                                            <div className="text-[9px] text-slate-300 font-bold uppercase mt-1">Totales</div>
-                                        </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <div className="font-mono text-sm font-black text-emerald-600">{item.totalScans}</div>
-                                            <div className="text-[9px] text-slate-300 font-bold uppercase mt-1">Escaneos</div>
-                                        </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <div className={`font-mono text-sm font-black ${item.missedScans > 0 ? 'text-red-500' : 'text-slate-300'}`}>
-                                                {item.missedScans}
-                                            </div>
-                                            <div className="text-[9px] text-slate-300 font-bold uppercase mt-1">Omitidos</div>
-                                        </td>
-                                        <td className="px-6 py-6">
-                                            <div className="flex flex-col items-center">
-                                                <div className={`text-xs font-black ${item.totalScans + item.missedScans === 0 ? 'text-slate-300' : getComplianceColor(compliance)}`}>
-                                                    {item.totalScans + item.missedScans === 0 ? '---' : `${compliance}%`}
-                                                </div>
-                                                <div className="w-16 h-1 rounded-full bg-slate-100 mt-2 overflow-hidden">
-                                                    <div 
-                                                        className={`h-full transition-all duration-1000 ${item.totalScans + item.missedScans === 0 ? 'bg-slate-200' : getComplianceBg(compliance)}`} 
-                                                        style={{ width: `${item.totalScans + item.missedScans === 0 ? 0 : compliance}%` }} 
-                                                    />
-                                                </div>
-                                                {item.totalScans + item.missedScans === 0 && (
-                                                    <span className="text-[8px] font-black text-slate-300 uppercase mt-1">Sin Actividad</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-600 w-fit mx-auto">
-                                                <FaClock className="text-slate-300 text-[10px]" />
-                                                {item.avgRoundTimeMinutes} min
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6 text-right">
-                                            <ITButton 
-                                                size="sm" 
-                                                variant="filled" 
-                                                color="primary" 
-                                                className="!rounded-2xl !py-2.5 !px-6 !bg-slate-900 group-hover:!bg-emerald-600 transition-all duration-300 shadow-xl shadow-slate-200 group-hover:shadow-emerald-200 flex items-center gap-2 ml-auto"
-                                                onClick={() => handleViewDetail(item)}
-                                            >
-                                                <FaEye className="text-sm" />
-                                                <span className="text-[10px] font-black uppercase tracking-wider">Detalles</span>
-                                            </ITButton>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                            },
+                        },
+                        {
+                            key: 'totalRounds',
+                            label: 'Rondas',
+                            type: 'number',
+                            align: 'center',
+                            render: (item) => (
+                                <div className="text-center">
+                                    <div className="font-mono text-sm font-black text-slate-600">{item.totalRounds}</div>
+                                    <div className="text-[9px] text-slate-300 font-bold uppercase mt-1">Totales</div>
+                                </div>
+                            ),
+                        },
+                        {
+                            key: 'totalScans',
+                            label: 'Escaneos',
+                            type: 'number',
+                            align: 'center',
+                            render: (item) => (
+                                <div className="text-center">
+                                    <div className="font-mono text-sm font-black text-emerald-600">{item.totalScans}</div>
+                                    <div className="text-[9px] text-slate-300 font-bold uppercase mt-1">Escaneos</div>
+                                </div>
+                            ),
+                        },
+                        {
+                            key: 'missedScans',
+                            label: 'Omitidos',
+                            type: 'number',
+                            align: 'center',
+                            render: (item) => (
+                                <div className="text-center">
+                                    <div className={`font-mono text-sm font-black ${item.missedScans > 0 ? 'text-red-500' : 'text-slate-300'}`}>
+                                        {item.missedScans}
+                                    </div>
+                                    <div className="text-[9px] text-slate-300 font-bold uppercase mt-1">Omitidos</div>
+                                </div>
+                            ),
+                        },
+                        {
+                            key: 'compliance',
+                            label: 'Cumplimiento',
+                            type: 'number',
+                            align: 'center',
+                            render: (item) => {
+                                const compliance = getCompliance(item);
+                                const hasActivity = item.totalScans + item.missedScans > 0;
+                                return (
+                                    <div className="flex flex-col items-center">
+                                        <div className={`text-xs font-black ${hasActivity ? getComplianceColor(compliance) : 'text-slate-300'}`}>
+                                            {hasActivity ? `${compliance}%` : '---'}
+                                        </div>
+                                        <div className="w-16 h-1 rounded-full bg-slate-100 mt-2 overflow-hidden">
+                                            <div
+                                                className={`h-full transition-all duration-1000 ${hasActivity ? getComplianceBg(compliance) : 'bg-slate-200'}`}
+                                                style={{ width: `${hasActivity ? compliance : 0}%` }}
+                                            />
+                                        </div>
+                                        {!hasActivity && (
+                                            <span className="text-[8px] font-black text-slate-300 uppercase mt-1">Sin Actividad</span>
+                                        )}
+                                    </div>
+                                );
+                            },
+                        },
+                        {
+                            key: 'avgRoundTimeMinutes',
+                            label: 'Eficiencia',
+                            type: 'number',
+                            align: 'center',
+                            render: (item) => (
+                                <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-600 w-fit mx-auto">
+                                    <FaClock className="text-slate-300 text-[10px]" />
+                                    {item.avgRoundTimeMinutes} min
+                                </div>
+                            ),
+                        },
+                        {
+                            key: 'actions',
+                            label: 'Acciones',
+                            type: 'actions',
+                            align: 'right',
+                            actions: (item) => (
+                                <ITButton
+                                    size="sm"
+                                    variant="filled"
+                                    color="primary"
+                                    className="!rounded-2xl !py-2.5 !px-6 !bg-slate-900 hover:!bg-emerald-600 transition-all duration-300 shadow-xl shadow-slate-200 flex items-center gap-2 ml-auto"
+                                    onClick={() => handleViewDetail(item)}
+                                >
+                                    <FaEye className="text-sm" />
+                                    <span className="text-[10px] font-black uppercase tracking-wider">Detalles</span>
+                                </ITButton>
+                            ),
+                        },
+                    ]}
+                />
             </div>
 
             {/* DETAIL MODAL - Already redesigned to be consistent */}
@@ -289,42 +329,53 @@ export const OperationalDetailTab = () => {
                                                 <p className="text-[11px] text-slate-400 mt-2">No se detectaron puntos de control omitidos en este periodo.</p>
                                             </div>
                                         ) : (
-                                            <table className="w-full text-left">
-                                                <thead className="bg-slate-50/50">
-                                                    <tr>
-                                                        <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Ubicación del Punto</th>
-                                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Contexto Temporal</th>
-                                                        <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Gravedad</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-slate-50">
-                                                    {breakdown?.missedPoints.map((point, index) => (
-                                                        <tr key={index} className="hover:bg-slate-50/30 transition-colors">
-                                                            <td className="px-8 py-5">
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="w-10 h-10 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-sm shadow-sm">
-                                                                        <FaMapMarkerAlt />
-                                                                    </div>
-                                                                    <div>
-                                                                        <div className="font-black text-slate-700 uppercase text-[11px] tracking-tight">{point.locationName}</div>
-                                                                        <div className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Pasillo: {point.aisle}</div>
-                                                                    </div>
+                                            <ITTable<MissedRow>
+                                                data={breakdown?.missedPoints ?? []}
+                                                variant="default"
+                                                columns={[
+                                                    {
+                                                        key: 'locationName',
+                                                        label: 'Ubicación del Punto',
+                                                        type: 'string',
+                                                        align: 'left',
+                                                        render: (point) => (
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-10 h-10 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-sm shadow-sm">
+                                                                    <FaMapMarkerAlt />
                                                                 </div>
-                                                            </td>
-                                                            <td className="px-6 py-5">
+                                                                <div>
+                                                                    <div className="font-black text-slate-700 uppercase text-[11px] tracking-tight">{point.locationName}</div>
+                                                                    <div className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Pasillo: {point.aisle}</div>
+                                                                </div>
+                                                            </div>
+                                                        ),
+                                                    },
+                                                    {
+                                                        key: 'startTime',
+                                                        label: 'Contexto Temporal',
+                                                        type: 'date',
+                                                        align: 'left',
+                                                        render: (point) => (
+                                                            <div>
                                                                 <div className="font-black text-slate-600 text-[10px] uppercase flex items-center gap-2">
                                                                     <FaCalendarAlt className="text-slate-300" />
                                                                     {dayjs(point.startTime).format("DD/MM/YYYY")}
                                                                 </div>
                                                                 <div className="text-[9px] text-slate-400 font-medium mt-1">Ronda: #{point.roundId} @ {dayjs(point.startTime).format("HH:mm")} hrs</div>
-                                                            </td>
-                                                            <td className="px-8 py-5 text-right">
-                                                                <span className="text-[8px] font-black text-red-600 bg-red-50 border border-red-100 px-3 py-1.5 rounded-full uppercase tracking-widest">Aviso de Omisión</span>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                                            </div>
+                                                        ),
+                                                    },
+                                                    {
+                                                        key: 'roundId',
+                                                        label: 'Gravedad',
+                                                        type: 'string',
+                                                        align: 'right',
+                                                        render: () => (
+                                                            <span className="text-[8px] font-black text-red-600 bg-red-50 border border-red-100 px-3 py-1.5 rounded-full uppercase tracking-widest">Aviso de Omisión</span>
+                                                        ),
+                                                    },
+                                                ]}
+                                            />
                                         )}
                                     </div>
                                 </section>
