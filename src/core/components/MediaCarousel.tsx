@@ -34,6 +34,19 @@ export const MediaCarousel = ({ media, initialIndex = 0, title, onDelete, showDe
         return () => window.removeEventListener("keydown", onKey);
     }, [count]);
 
+    // Esc cierra solo la pantalla completa: se captura antes que el diálogo del detalle.
+    useEffect(() => {
+        if (!fullscreen) return;
+        const onEscape = (e: KeyboardEvent) => {
+            if (e.key !== "Escape") return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            setFullscreen(false);
+        };
+        window.addEventListener("keydown", onEscape, true);
+        return () => window.removeEventListener("keydown", onEscape, true);
+    }, [fullscreen]);
+
     if (count === 0) return null;
     const current = media[safeIndex];
     const prev = () => setIndex((i) => (i - 1 + count) % count);
