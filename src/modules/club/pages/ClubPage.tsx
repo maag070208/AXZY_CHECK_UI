@@ -2,9 +2,8 @@ import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { ITAlert, ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITLoader, ITPage, ITText } from "@axzydev/axzy_ui_system";
-import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
-import { MediaCarousel } from "@core/components/MediaCarousel";
 import { AgeBadge } from "@core/components/AgeBadge";
+import { ReportDetailDialog } from "@core/components/ReportDetailDialog";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilePdf, FaFilter, FaGlassCheers, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
@@ -157,25 +156,25 @@ const ClubPage = () => {
   };
 
   const columns = useMemo(() => [
-    { key: "id", label: "ID", type: "number", sortable: true },
     {
         key: "title",
         label: "Reporte",
         type: "string",
         sortable: true,
+        width: 350,
         render: (row: ClubItem) => (
-            <ITFlex align="start" gap={3} className="flex items-start gap-3">
+            <ITFlex align="start" gap={3} className="flex items-start gap-3 min-w-0">
                 <ITFlex align="center" justify="center" className="mt-1 w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0 text-sky-500">
                     <FaGlassCheers className="text-xs" />
                 </ITFlex>
-                <ITFlex direction="column">
-                    <ITText as="p" className="font-bold text-slate-800 line-clamp-1">{row.title}</ITText>
-                    <ITFlex align="center" gap={1} className="flex gap-1 items-center">
+                <ITFlex direction="column" className="min-w-0 flex-1">
+                    <ITText as="p" className="font-bold text-slate-800 truncate">{row.title}</ITText>
+                    <ITFlex align="center" gap={1} className="flex gap-1 items-center min-w-0">
                         <ITText as="span" className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md uppercase">
                             {row.category?.value || 'General'}
                         </ITText>
                         {row.type && (
-                            <ITText as="span" className="text-[10px] font-medium text-slate-400">
+                            <ITText as="span" className="text-[10px] font-medium text-slate-400 truncate max-w-[140px]">
                                 • {row.type.value}
                             </ITText>
                         )}
@@ -209,6 +208,7 @@ const ClubPage = () => {
         type: "string",
         sortable: false,
         filter: "catalog",
+        minWidth: 180,
         catalogOptions: {
             data: guardsCatalog || [],
             loading: loadingGuards
@@ -379,10 +379,10 @@ const ClubPage = () => {
       }
     >
       {activeCatalogLabel && (
-        <ITAlert variant="info" icon={<FaTag />} className="mb-4">
+        <ITAlert variant="success" icon={<FaTag />} className="mb-4">
           <ITFlex align="center" justify="between" gap={3}>
             <ITText as="span" className="text-sm">Filtrando por catálogo: <strong>{activeCatalogLabel}</strong></ITText>
-            <ITButton variant="text" color="info" size="md" onClick={clearCatalogFilters}>
+            <ITButton variant="text" color="success" size="md" onClick={clearCatalogFilters}>
               <ITFlex align="center" gap={2}>
                 <FaTimes />
                 <ITText as="span">Quitar filtro</ITText>
@@ -411,140 +411,16 @@ const ClubPage = () => {
       </ITFlex>
 
     {viewingClub && (
-      <ITDialog isOpen onClose={() => setViewingClub(null)} title="Detalle de Reporte" className="max-w-4xl max-h-[90vh] flex flex-col">
-        <ITText as="p" className="text-sm text-slate-500 mb-4">Reportado el {dayjs(viewingClub.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</ITText>
-  
-            <ITFlex direction="column" className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
-              <ITFlex direction="column" className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-  
-                <ITFlex direction="column" className="lg:col-span-8 space-y-8">
-                   <ITFlex direction="column" className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                      <ITText as="h4" className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                          <ITText as="span" className="w-1 h-4 bg-sky-400 rounded-full block"></ITText>
-                          {viewingClub.title}
-                      </ITText>
-                      <ITText as="p" className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
-                          {viewingClub.description || "Sin descripción detallada."}
-                      </ITText>
-                   </ITFlex>
-  
-                  <section>
-                    <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-                      <ITText as="h4" className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                          <ITText as="span" className="w-1 h-4 bg-indigo-500 rounded-full block"></ITText>
-                          Evidencia
-                      </ITText>
-                      {viewingClub.media && viewingClub.media.length > 0 &&
-                          <ITText as="span" className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
-                              {viewingClub.media.length} archivos
-                          </ITText>
-                      }
-                    </ITFlex>
-  
-                    {viewingClub.media && viewingClub.media.length > 0 ? (
-                      <MediaCarousel
-                          media={viewingClub.media}
-                          title={viewingClub.title}
-                          showDelete={isAdmin}
-                          onDelete={handleDeleteMedia}
-                      />
-                    ) : (
-                      <ITFlex direction="column" align="center" justify="center" className="py-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
-                        <FaFileAlt className="text-slate-300 mb-2" />
-                        <ITText as="p" className="text-sm font-medium text-slate-400">Sin evidencia adjunta</ITText>
-                      </ITFlex>
-                    )}
-                  </section>
-  
-                  {viewingClub.latitude && viewingClub.longitude && (
-                     <section>
-                       <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-                         <ITText as="h4" className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                             <ITText as="span" className="w-1 h-4 bg-emerald-500 rounded-full block"></ITText>
-                             Ubicación Reportada
-                         </ITText>
-                       </ITFlex>
-                       <GoogleMapComponent
-                           lat={viewingClub.latitude}
-                           lng={viewingClub.longitude}
-                           height="300px"
-                       />
-                     </section>
-                  )}
-                </ITFlex>
-  
-                <ITFlex direction="column" className="lg:col-span-4 space-y-6">
-                   <ITFlex direction="column" className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                      <ITText as="h5" className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</ITText>
-  
-                      <ITFlex direction="column" className="space-y-4">
-                          <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                              <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500">
-                                  <FaUserShield />
-                              </ITFlex>
-                              <ITFlex direction="column">
-                                  <ITText as="p" className="text-xs text-slate-400 font-medium">Reportado por</ITText>
-                                  <ITText as="p" className="text-sm font-bold text-slate-800">{viewingClub.guard?.name} {viewingClub.guard?.lastName}</ITText>
-                                  <ITText as="p" className="text-xs text-slate-500">@{viewingClub.guard?.username}</ITText>
-                              </ITFlex>
-                          </ITFlex>
-  
-                          <ITFlex direction="column" className="w-full h-px bg-slate-50"></ITFlex>
-  
-                          <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                               <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-500">
-                                  <FaGlassCheers />
-                              </ITFlex>
-                              <ITFlex direction="column">
-                                  <ITText as="p" className="text-xs text-slate-400 font-medium">Categoría y Tipo</ITText>
-                                  <ITText as="p" className="text-sm font-bold text-slate-800">
-                                      {viewingClub.category?.value || 'General'}
-                                  </ITText>
-                                  {viewingClub.type && (
-                                      <ITText as="p" className="text-xs text-slate-500">{viewingClub.type.value}</ITText>
-                                  )}
-                              </ITFlex>
-                          </ITFlex>
-  
-                          {viewingClub.status === 'ATTENDED' && viewingClub.resolvedBy && (
-                              <>
-                                  <ITFlex direction="column" className="w-full h-px bg-slate-50"></ITFlex>
-                                  <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                                      <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 text-emerald-500">
-                                          <FaCheckCircle />
-                                      </ITFlex>
-                                      <ITFlex direction="column">
-                                          <ITText as="p" className="text-xs text-slate-400 font-medium">Atendido por</ITText>
-                                          <ITText as="p" className="text-sm font-bold text-slate-800">{viewingClub.resolvedBy.name}</ITText>
-                                          <ITText as="p" className="text-xs text-slate-500">
-                                              {dayjs(viewingClub.resolvedAt).format("DD/MM/YYYY HH:mm")}
-                                          </ITText>
-                                      </ITFlex>
-                                  </ITFlex>
-                              </>
-                          )}
-                      </ITFlex>
-                   </ITFlex>
-  
-                   {viewingClub.status === 'PENDING' && (
-                       <ITFlex direction="column" className="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                          <ITText as="h5" className="text-xs font-bold text-orange-800 mb-2">Acciones Pendientes</ITText>
-                          <ITText as="p" className="text-xs text-orange-700 mb-3">Este reporte requiere atención inmediata.</ITText>
-                          <ITButton
-                              onClick={() => handleResolve(viewingClub.id)}
-                              variant='filled'
-                              color="success"
-                             
-                          >
-                              Marcar como Atendido
-                          </ITButton>
-                       </ITFlex>
-                   )}
-                </ITFlex>
-  
-              </ITFlex>
-            </ITFlex>
-      </ITDialog>
+      <ReportDetailDialog
+        kind="club"
+        report={viewingClub}
+        categoryLabel={viewingClub.category?.value || "General"}
+        typeLabel={viewingClub.type?.value}
+        isAdmin={isAdmin}
+        onClose={() => setViewingClub(null)}
+        onResolve={() => handleResolve(viewingClub.id)}
+        onDeleteMedia={handleDeleteMedia}
+      />
     )}
 
       <ITDialog

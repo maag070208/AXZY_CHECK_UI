@@ -1,10 +1,9 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITAlert, ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITLoader, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
-import { MediaCarousel } from "@core/components/MediaCarousel";
-import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
+import { ITAlert, ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITLoader, ITPage, ITText } from "@axzydev/axzy_ui_system";
 import { AgeBadge } from "@core/components/AgeBadge";
+import { ReportDetailDialog } from "@core/components/ReportDetailDialog";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilePdf, FaFilter, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield, FaWrench } from "react-icons/fa";
@@ -163,20 +162,20 @@ const MaintenancesPage = () => {
   };
 
   const columns = useMemo(() => [
-    { key: "id", label: "ID", type: "number", sortable: true },
     { 
         key: "title", 
         label: "Mantenimiento", 
         type: "string", 
         sortable: true,
+        width: 350,
         render: (row: Maintenance) => (
-            <ITFlex align="start" gap={3} className="flex items-start gap-3">
+            <ITFlex align="start" gap={3} className="flex items-start gap-3 min-w-0">
                 <ITFlex align="center" justify="center" className="mt-1 w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0 text-orange-500">
                     <FaWrench className="text-xs" />
                 </ITFlex>
-                <ITFlex direction="column">
-                    <ITText as="p" className="font-bold text-slate-800 line-clamp-1">{row.title}</ITText>
-                    <ITFlex align="center" gap={1} className="flex gap-1 items-center">
+                <ITFlex direction="column" className="min-w-0 flex-1">
+                    <ITText as="p" className="font-bold text-slate-800 truncate">{row.title}</ITText>
+                    <ITFlex align="center" gap={1} className="flex gap-1 items-center min-w-0">
                         <ITText as="span" className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md uppercase">
                             {row.category || 'General'}
                         </ITText>
@@ -210,6 +209,7 @@ const MaintenancesPage = () => {
         type: "string", 
         sortable: false,
         filter: "catalog",
+        minWidth: 180,
         catalogOptions: {
             data: guardsCatalog || [],
             loading: loadingGuards
@@ -230,7 +230,7 @@ const MaintenancesPage = () => {
         sortable: true,
         render: (row: Maintenance) => (
             <ITBadget 
-                color={row.status === 'ATTENDED' ? 'success' : 'warning'} 
+                color={row.status === 'ATTENDED' ? 'success' : 'danger'} 
                 size="sm" 
                 variant="filled"
             >
@@ -324,29 +324,25 @@ const MaintenancesPage = () => {
                     className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
                 />
                 {searchTerm && (
-                    <ITButton
-                        variant="icon-only"
-                        color="gray"
-                        size="sm"
+                    <button
                         onClick={() => setSearchTerm("")}
-                        icon={<FaTimes size={14} />}
-                       
-                    />
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                    >
+                        <FaTimes size={14} />
+                    </button>
                 )}
             </ITFlex>
             <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
                 <FaFilter className="text-slate-400 text-xs mr-2" />
-                <ITSearchSelect
+                <select
                     value={statusFilter}
-                    onChange={(value) => setStatusFilter(String(value))}
-                    options={[
-                        { label: "Todos los estados", value: "ALL" },
-                        { label: "Pendientes", value: "PENDING" },
-                        { label: "Atendidos", value: "ATTENDED" },
-                    ]}
-                    clearable={false}
-                    className="min-w-[160px]"
-                />
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="bg-transparent text-sm font-medium text-slate-700 outline-none min-w-[120px]"
+                >
+                    <option value="ALL">Todos los estados</option>
+                    <option value="PENDING">Pendientes</option>
+                    <option value="ATTENDED">Atendidos</option>
+                </select>
             </ITFlex>
             <ITButton
                 onClick={() => setShowReportModal(true)}
@@ -416,141 +412,15 @@ const MaintenancesPage = () => {
       </ITFlex>
 
     {viewingMaintenance && (
-      <ITDialog isOpen onClose={() => setViewingMaintenance(null)} title="Detalle de Mantenimiento" className="max-w-4xl max-h-[90vh] flex flex-col">
-        <ITText as="p" className="text-sm text-slate-500 mb-4">Reportado el {dayjs(viewingMaintenance.createdAt).format("DD [de] MMMM, YYYY [a las] HH:mm")}</ITText>
-            
-            <ITFlex direction="column" className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
-              <ITFlex direction="column" className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                
-                <ITFlex direction="column" className="lg:col-span-8 space-y-8">
-                   {/* Descripción */}
-                   <ITFlex direction="column" className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                      <ITText as="h4" className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                          <ITText as="span" className="w-1 h-4 bg-orange-400 rounded-full block"></ITText>
-                          {viewingMaintenance.title}
-                      </ITText>
-                      <ITText as="p" className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
-                          {viewingMaintenance.description || "Sin descripción detallada."}
-                      </ITText>
-                   </ITFlex>
-  
-                  {/* Multimedia Section */}
-                  <section>
-                    <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-                      <ITText as="h4" className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                          <ITText as="span" className="w-1 h-4 bg-orange-500 rounded-full block"></ITText>
-                          Evidencia
-                      </ITText>
-                      {viewingMaintenance.media && viewingMaintenance.media.length > 0 && 
-                          <ITText as="span" className="text-xs bg-orange-50 text-orange-600 px-2.5 py-1 rounded-full font-bold">
-                              {viewingMaintenance.media.length} archivos
-                          </ITText>
-                      }
-                    </ITFlex>
-      
-                    {viewingMaintenance.media && viewingMaintenance.media.length > 0 ? (
-                      <MediaCarousel 
-                          media={viewingMaintenance.media as any} 
-                          title={viewingMaintenance.title} 
-                          showDelete={isAdmin}
-                          onDelete={handleDeleteMedia}
-                      />
-                    ) : (
-                      <ITFlex direction="column" align="center" justify="center" className="py-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
-                        <FaFileAlt className="text-slate-300 mb-2" />
-                        <ITText as="p" className="text-sm font-medium text-slate-400">Sin evidencia adjunta</ITText>
-                      </ITFlex>
-                    )}
-                  </section>
-                  
-                  {/* Location Section */}
-                  {viewingMaintenance.latitude && viewingMaintenance.longitude && (
-                     <section>
-                       <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-                         <ITText as="h4" className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                             <ITText as="span" className="w-1 h-4 bg-emerald-500 rounded-full block"></ITText>
-                             Ubicación Reportada
-                         </ITText>
-                       </ITFlex>
-                       <GoogleMapComponent 
-                           lat={viewingMaintenance.latitude} 
-                           lng={viewingMaintenance.longitude} 
-                           height="300px" 
-                       />
-                     </section>
-                  )}
-                </ITFlex>
-      
-                <ITFlex direction="column" className="lg:col-span-4 space-y-6">
-                   {/* Metadata Cards */}
-                   <ITFlex direction="column" className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                      <ITText as="h5" className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</ITText>
-                      
-                      <ITFlex direction="column" className="space-y-4">
-                          <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                              <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0 text-orange-500">
-                                  <FaUserShield />
-                              </ITFlex>
-                              <ITFlex direction="column">
-                                  <ITText as="p" className="text-xs text-slate-400 font-medium">Reportado por</ITText>
-                                  <ITText as="p" className="text-sm font-bold text-slate-800">{viewingMaintenance.guard?.name} {viewingMaintenance.guard?.lastName}</ITText>
-                                  <ITText as="p" className="text-xs text-slate-500">@{viewingMaintenance.guard?.username}</ITText>
-                              </ITFlex>
-                          </ITFlex>
-  
-                          <ITFlex direction="column" className="w-full h-px bg-slate-50"></ITFlex>
-  
-                          <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                               <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-500">
-                                  <FaWrench />
-                              </ITFlex>
-                              <ITFlex direction="column">
-                                  <ITText as="p" className="text-xs text-slate-400 font-medium">Categoría</ITText>
-                                  <ITText as="p" className="text-sm font-bold text-slate-800">
-                                      {viewingMaintenance.category || 'General'}
-                                  </ITText>
-                              </ITFlex>
-                          </ITFlex>
-  
-                          {viewingMaintenance.status === 'ATTENDED' && viewingMaintenance.resolvedBy && (
-                              <>
-                                  <ITFlex direction="column" className="w-full h-px bg-slate-50"></ITFlex>
-                                  <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                                      <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 text-emerald-500">
-                                          <FaCheckCircle />
-                                      </ITFlex>
-                                      <ITFlex direction="column">
-                                          <ITText as="p" className="text-xs text-slate-400 font-medium">Atendido por</ITText>
-                                          <ITText as="p" className="text-sm font-bold text-slate-800">{viewingMaintenance.resolvedBy.name}</ITText>
-                                          <ITText as="p" className="text-xs text-slate-500">
-                                              {dayjs(viewingMaintenance.resolvedAt).format("DD/MM/YYYY HH:mm")}
-                                          </ITText>
-                                      </ITFlex>
-                                  </ITFlex>
-                              </>
-                          )}
-                      </ITFlex>
-                   </ITFlex>
-  
-                   {viewingMaintenance.status === 'PENDING' && (
-                       <ITFlex direction="column" className="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                          <ITText as="h5" className="text-xs font-bold text-orange-800 mb-2">Acciones Pendientes</ITText>
-                          <ITText as="p" className="text-xs text-orange-700 mb-3">Este mantenimiento requiere atención inmediata.</ITText>
-                          <ITButton 
-                              onClick={() => handleResolve(viewingMaintenance.id)}
-                              variant='filled'
-                              color="success"
-                             
-                          >
-                              Marcar como Atendido
-                          </ITButton>
-                       </ITFlex>
-                   )}
-                </ITFlex>
-  
-              </ITFlex>
-            </ITFlex>
-      </ITDialog>
+      <ReportDetailDialog
+        kind="maintenance"
+        report={viewingMaintenance}
+        categoryLabel={viewingMaintenance.category || "General"}
+        isAdmin={isAdmin}
+        onClose={() => setViewingMaintenance(null)}
+        onResolve={() => handleResolve(viewingMaintenance.id)}
+        onDeleteMedia={handleDeleteMedia}
+      />
     )}
 
       {/* Confirm Resolve Dialog */}

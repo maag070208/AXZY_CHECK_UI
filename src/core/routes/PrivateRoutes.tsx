@@ -50,7 +50,7 @@ export const PrivateRoutes = () => {
       sidebar={{
         navigationItems: navigationItems,
       }}
-      contentClassName="mx-0! px-2! max-w-full! mb-8!"
+      contentClassName="mx-0! px-8! max-w-full! mb-8!"
     >
       <Outlet />
     </ITLayout>

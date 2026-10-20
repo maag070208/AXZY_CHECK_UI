@@ -3,7 +3,6 @@ import { ITFlex, ITLoader } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
-import "./App.css";
 import { PrivateRoutes } from "./core/routes/PrivateRoutes";
 import { RoleRoute } from "./core/routes/RoleRoute";
 import { setAuth } from "./core/store/auth/auth.slice";

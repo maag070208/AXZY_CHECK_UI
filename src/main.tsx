@@ -25,7 +25,7 @@ dayjs.locale("es");
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
   <Provider store={store}>
-    <ITThemeProvider theme={theme} showFab={false}>
+    <ITThemeProvider theme={theme} showFab={false} density={0.9} appearance="flat">
     <ToastProvider>
       <HashRouter>
         <App />

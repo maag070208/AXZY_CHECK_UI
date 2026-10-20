@@ -1,9 +1,17 @@
-import { ITFlex, ITText } from "@axzydev/axzy_ui_system";
+import {
+  ITCard,
+  ITChip,
+  ITEmptyState,
+  ITFlex,
+  ITGrid,
+  ITLineBarChart,
+  ITProgress,
+  ITStack,
+  ITStatCard,
+  ITText,
+} from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import type { ILiveInsights } from "../services/DashboardService";
-
-const CARD = "bg-white rounded-2xl shadow-sm p-5";
 
 const formatMinutes = (m: number | null) => {
   if (m === null) return "—";
@@ -13,133 +21,168 @@ const formatMinutes = (m: number | null) => {
   return r ? `${h} h ${r} min` : `${h} h`;
 };
 
-/** Variación vs ayer. `lowerIsBetter` invierte el color (p. ej. incidencias). */
-const Delta = ({ now, before, lowerIsBetter = false }: { now: number; before: number; lowerIsBetter?: boolean }) => {
+const deltaInfo = (now: number, before: number): { trend: string; direction: "up" | "down" | "neutral" } => {
   const diff = now - before;
-  if (diff === 0) return <ITText as="span" className="text-[10px] font-bold text-slate-400">= que ayer</ITText>;
-  const good = lowerIsBetter ? diff < 0 : diff > 0;
-  return (
-    <ITText as="span" className={`flex items-center gap-1 text-[10px] font-bold ${good ? "text-emerald-600" : "text-red-500"}`}>
-      {diff > 0 ? <FaArrowUp size={9} /> : <FaArrowDown size={9} />}
-      {Math.abs(diff)} vs ayer
-    </ITText>
-  );
+  if (diff === 0) return { trend: "= que ayer", direction: "neutral" };
+  return {
+    trend: `${diff > 0 ? "+" : ""}${diff} vs ayer`,
+    direction: diff > 0 ? "up" : "down",
+  };
 };
-
-const Stat = ({ label, value, children }: { label: string; value: React.ReactNode; children?: React.ReactNode }) => (
-  <ITFlex direction="column" className="bg-slate-50/70 rounded-xl px-4 py-3">
-    <ITText as="p" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</ITText>
-    <ITText as="p" className="text-xl font-black text-slate-800 mt-1">{value}</ITText>
-    <ITFlex direction="column" className="mt-0.5 min-h-[14px]">{children}</ITFlex>
-  </ITFlex>
-);
 
 export const TodaySummary = ({ insights }: { insights: ILiveInsights }) => {
   const { today } = insights;
   const compliance = today.roundsStarted ? Math.round((today.roundsCompleted / today.roundsStarted) * 100) : null;
+  const started = deltaInfo(today.roundsStarted, today.yesterdayRoundsStarted);
+  const completed = deltaInfo(today.roundsCompleted, today.yesterdayRoundsCompleted);
+
   return (
-    <ITFlex direction="column" className={CARD}>
-      <ITText as="h3" className="text-[13px] font-bold text-slate-800 mb-3">Hoy en números</ITText>
-      <ITFlex direction="column" className="grid grid-cols-2 xl:grid-cols-5 gap-3">
-        <Stat label="Rondas iniciadas" value={today.roundsStarted}>
-          <Delta now={today.roundsStarted} before={today.yesterdayRoundsStarted} />
-        </Stat>
-        <Stat label="Rondas completadas" value={today.roundsCompleted}>
-          <Delta now={today.roundsCompleted} before={today.yesterdayRoundsCompleted} />
-        </Stat>
-        <Stat label="Cumplimiento" value={compliance === null ? "—" : `${compliance}%`}>
-          <ITText as="span" className="text-[10px] font-bold text-slate-400">completadas / iniciadas</ITText>
-        </Stat>
-        <Stat label="Duración prom. ronda" value={formatMinutes(insights.avgRoundMinutes)}>
-          <ITText as="span" className="text-[10px] font-bold text-slate-400">últimos 7 días</ITText>
-        </Stat>
-        <Stat label="Tiempo de atención" value={formatMinutes(insights.avgResolutionMinutes)}>
-          <ITText as="span" className="text-[10px] font-bold text-slate-400">incidencias, 7 días</ITText>
-        </Stat>
+    <ITCard title="Hoy en números" className="rounded-3xl" contentClassName="space-y-4">
+      <ITFlex className="flex flex-wrap items-center justify-between gap-2">
+        <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-primary-700">
+          Pulso del día
+        </ITText>
+        <ITChip label="vs ayer" color="secondary" size="sm" variant="soft" />
       </ITFlex>
-    </ITFlex>
+
+      <ITGrid container columns={10} spacing={2}>
+        <ITGrid item xs={5} xl={2}>
+        <ITStatCard
+          label="Rondas iniciadas"
+          value={today.roundsStarted}
+          trend={started.trend}
+          trendDirection={started.direction}
+          color="bg-slate-50 dark:bg-slate-900/40"
+          className="h-full"
+        />
+        </ITGrid>
+        <ITGrid item xs={5} xl={2}>
+        <ITStatCard
+          label="Rondas completadas"
+          value={today.roundsCompleted}
+          trend={completed.trend}
+          trendDirection={completed.direction}
+          color="bg-slate-50 dark:bg-slate-900/40"
+          className="h-full"
+        />
+        </ITGrid>
+        <ITGrid item xs={5} xl={2}>
+        <ITStatCard
+          label="Cumplimiento"
+          value={compliance === null ? "—" : `${compliance}%`}
+          trend="completadas / iniciadas"
+          trendDirection="neutral"
+          color="bg-slate-50 dark:bg-slate-900/40"
+          className="h-full"
+        />
+        </ITGrid>
+        <ITGrid item xs={5} xl={2}>
+        <ITStatCard
+          label="Duración prom. ronda"
+          value={formatMinutes(insights.avgRoundMinutes)}
+          trend="últimos 7 días"
+          trendDirection="neutral"
+          color="bg-slate-50 dark:bg-slate-900/40"
+          className="h-full"
+        />
+        </ITGrid>
+        <ITGrid item xs={5} xl={2}>
+        <ITStatCard
+          label="Tiempo de atención"
+          value={formatMinutes(insights.avgResolutionMinutes)}
+          trend="incidencias, 7 días"
+          trendDirection="neutral"
+          color="bg-slate-50 dark:bg-slate-900/40"
+          className="h-full"
+        />
+        </ITGrid>
+      </ITGrid>
+    </ITCard>
   );
 };
 
-/** Barras agrupadas: iniciadas vs completadas por día (últimos 7 días). */
+/** Rondas iniciadas vs completadas de los últimos 7 días. */
 export const RoundsTrend = ({ insights }: { insights: ILiveInsights }) => {
-  const max = Math.max(1, ...insights.roundsByDay.map((d) => d.started));
+  const data = insights.roundsByDay.map((d) => ({
+    label: dayjs(d.date).format("dd D"),
+    bar: d.started,
+    line: d.completed,
+  }));
+
   return (
-    <ITFlex direction="column" className={CARD}>
-      <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-        <ITText as="h3" className="text-[13px] font-bold text-slate-800">Rondas — últimos 7 días</ITText>
-        <ITFlex align="center" gap={3} className="flex items-center gap-3 text-[10px] font-bold text-slate-400">
-          <ITText as="span" className="flex items-center gap-1"><ITText as="span" className="w-2 h-2 rounded-sm bg-slate-300" /> Iniciadas</ITText>
-          <ITText as="span" className="flex items-center gap-1"><ITText as="span" className="w-2 h-2 rounded-sm bg-emerald-500" /> Completadas</ITText>
-        </ITFlex>
-      </ITFlex>
-      <ITFlex align="end" gap={3} className="flex items-end gap-3 h-36">
-        {insights.roundsByDay.map((d) => (
-          <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-            <ITFlex align="end" justify="center" gap={1} className="flex items-end gap-1 w-full h-full justify-center">
-              <div className="w-1/3 max-w-[14px] bg-slate-300 rounded-t" style={{ height: `${(d.started / max) * 100}%` }} title={`${d.started} iniciadas`} />
-              <div className="w-1/3 max-w-[14px] bg-emerald-500 rounded-t" style={{ height: `${(d.completed / max) * 100}%` }} title={`${d.completed} completadas`} />
-            </ITFlex>
-            <ITText as="span" className="text-[9px] font-bold text-slate-400 uppercase">{dayjs(d.date).format("dd D")}</ITText>
-          </div>
-        ))}
-      </ITFlex>
-    </ITFlex>
+    <ITCard title="Rondas — últimos 7 días" className="h-full rounded-3xl" contentClassName="space-y-3">
+      <ITLineBarChart
+        data={data}
+        ariaLabel="Rondas iniciadas y completadas en los últimos 7 días"
+        barLabel="Iniciadas"
+        lineLabel="Completadas"
+        barColor="#94a3b8"
+        lineColor="#10b981"
+        height={180}
+      />
+    </ITCard>
   );
 };
 
 export const IncidentsByCategory = ({ insights }: { insights: ILiveInsights }) => {
   const rows = insights.incidentsByCategory;
   const max = Math.max(1, ...rows.map((r) => r.count));
+
   return (
-    <ITFlex direction="column" className={CARD}>
-      <ITText as="h3" className="text-[13px] font-bold text-slate-800 mb-4">Incidencias por tipo <ITText as="span" className="text-slate-400 font-medium">· 7 días</ITText></ITText>
+    <ITCard title="Incidencias por tipo" className="h-full rounded-3xl" contentClassName="space-y-3">
+      <ITText as="p" className="text-[10px] font-semibold text-slate-400">
+        Últimos 7 días
+      </ITText>
       {rows.length === 0 ? (
-        <ITText as="p" className="text-xs text-slate-400 py-6 text-center">Sin incidencias en los últimos 7 días.</ITText>
+        <ITEmptyState title="Sin incidencias en los últimos 7 días." />
       ) : (
-        <ITFlex direction="column" className="space-y-3">
+        <ITStack spacing={3}>
           {rows.map((r) => (
-            <div key={r.name}>
-              <ITFlex justify="between" className="flex justify-between text-[11px] font-bold text-slate-600 mb-1">
-                <ITText as="span" className="truncate pr-2">{r.name}</ITText>
-                <ITText as="span">{r.count}</ITText>
+            <ITFlex key={r.name} direction="column" gap={1}>
+              <ITFlex justify="between" align="center" gap={2}>
+                <ITText as="span" className="truncate text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                  {r.name}
+                </ITText>
+                <ITText as="span" className="text-[11px] font-black text-slate-400">
+                  {r.count}
+                </ITText>
               </ITFlex>
-              <ITFlex direction="column" className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <ITFlex direction="column" className="h-full bg-orange-400 rounded-full" style={{ width: `${(r.count / max) * 100}%` }} />
-              </ITFlex>
-            </div>
+              <ITProgress value={r.count} max={max} color="warning" size="sm" />
+            </ITFlex>
           ))}
-        </ITFlex>
+        </ITStack>
       )}
-    </ITFlex>
+    </ITCard>
   );
 };
 
 export const IncidentsByHour = ({ insights }: { insights: ILiveInsights }) => {
   const max = Math.max(1, ...insights.incidentsByHour.map((h) => h.count));
   const total = insights.incidentsByHour.reduce((a, h) => a + h.count, 0);
+  const topHours = [...insights.incidentsByHour].sort((a, b) => b.count - a.count).slice(0, 6);
+
   return (
-    <ITFlex direction="column" className={CARD}>
-      <ITText as="h3" className="text-[13px] font-bold text-slate-800 mb-4">Incidencias por hora del día <ITText as="span" className="text-slate-400 font-medium">· 7 días</ITText></ITText>
+    <ITCard title="Incidencias por hora" className="h-full rounded-3xl" contentClassName="space-y-3">
+      <ITText as="p" className="text-[10px] font-semibold text-slate-400">
+        Top 6 horas · últimos 7 días
+      </ITText>
       {total === 0 ? (
-        <ITText as="p" className="text-xs text-slate-400 py-6 text-center">Sin incidencias en los últimos 7 días.</ITText>
+        <ITEmptyState title="Sin incidencias en los últimos 7 días." />
       ) : (
-        <>
-          <ITFlex align="end" className="flex items-end gap-[3px] h-28">
-            {insights.incidentsByHour.map((h) => (
-              <div
-                key={h.hour}
-                className={`flex-1 rounded-t ${h.count === max ? "bg-orange-500" : "bg-orange-200"}`}
-                style={{ height: `${Math.max(h.count ? 6 : 2, (h.count / max) * 100)}%` }}
-                title={`${String(h.hour).padStart(2, "0")}:00 — ${h.count}`}
-              />
-            ))}
-          </ITFlex>
-          <ITFlex justify="between" className="flex justify-between text-[9px] font-bold text-slate-400 mt-1.5">
-            <ITText as="span">00h</ITText><ITText as="span">06h</ITText><ITText as="span">12h</ITText><ITText as="span">18h</ITText><ITText as="span">23h</ITText>
-          </ITFlex>
-        </>
+        <ITStack spacing={2}>
+          {topHours.map((h) => (
+            <ITFlex key={h.hour} align="center" gap={2} className="flex items-center gap-2">
+              <ITText as="span" className="w-8 shrink-0 text-[10px] font-bold text-slate-400">
+                {String(h.hour).padStart(2, "0")}h
+              </ITText>
+              <ITProgress value={h.count} max={max} color="warning" size="sm" className="flex-1" />
+              <ITText as="span" className="w-5 shrink-0 text-right text-[10px] font-black text-slate-500">
+                {h.count}
+              </ITText>
+            </ITFlex>
+          ))}
+        </ITStack>
       )}
-    </ITFlex>
+    </ITCard>
   );
 };

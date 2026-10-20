@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react';
-import { ITBadget, ITButton, ITDatePicker, ITFlex, ITText } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDatePicker, ITFlex, ITSegmentedControl, ITText } from "@axzydev/axzy_ui_system";
 import { FaSync, FaExclamationTriangle, FaQrcode, FaTimesCircle, FaChartLine } from 'react-icons/fa';
 import { Chart, registerables } from 'chart.js';
 import * as ReportService from '../../services/ReportService';
@@ -17,7 +17,7 @@ type AnalyticsSubTab = 'resumen' | 'carga';
  * apilar las 4 tarjetas grandes + 3 gráficas una tras otra.
  */
 export const AnalyticsTab = () => {
-    const [dateRange, setDateRange] = useState<any>([dayjs().startOf('month').toDate(), dayjs().toDate()]);
+    const [dateRange, setDateRange] = useState<any>([dayjs().startOf('year').toDate(), dayjs().toDate()]);
     const [stats, setStats] = useState<ReportService.IGuardStats | null>(null);
     const [topPerformers, setTopPerformers] = useState<ReportService.ITopPerformance[]>([]);
     const [workloadData, setWorkloadData] = useState<ReportService.IGuardWorkload[]>([]);
@@ -225,7 +225,7 @@ export const AnalyticsTab = () => {
     };
 
     return (
-        <ITFlex direction="column" className="pt-4 border-t border-slate-100 space-y-4 animate-in fade-in duration-500">
+        <ITFlex direction="column" className="w-full pt-4 border-t border-slate-100 space-y-4 animate-in fade-in duration-500">
             {/* Encabezado + filtro de fechas */}
             <ITFlex align="end" justify="between" gap={3} className="flex flex-wrap items-end justify-between gap-3">
                 <ITFlex direction="column">
@@ -242,21 +242,17 @@ export const AnalyticsTab = () => {
                 </ITFlex>
             </ITFlex>
 
-            {/* Sub-pestañas */}
-            <ITFlex direction="column" className="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-                <button
-                    onClick={() => setSubTab('resumen')}
-                    className={`text-[11px] font-black px-3.5 py-1.5 rounded-lg transition-colors ${subTab === 'resumen' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}
-                >
-                    Resumen
-                </button>
-                <button
-                    onClick={() => setSubTab('carga')}
-                    className={`text-[11px] font-black px-3.5 py-1.5 rounded-lg transition-colors ${subTab === 'carga' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}
-                >
-                    Carga de Trabajo
-                </button>
-            </ITFlex>
+            {/* Sub-pestañas — UI System */}
+            <ITSegmentedControl
+                className="self-start"
+                size="sm"
+                options={[
+                    { value: 'resumen', label: 'Resumen' },
+                    { value: 'carga', label: 'Carga de Trabajo' },
+                ]}
+                value={subTab}
+                onChange={(value) => setSubTab(value as AnalyticsSubTab)}
+            />
 
             {/* Resumen: estadísticas compactas + 2 gráficas */}
             <ITFlex direction="column" className={subTab === 'resumen' ? 'space-y-4' : 'hidden'}>

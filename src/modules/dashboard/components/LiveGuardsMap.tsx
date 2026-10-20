@@ -62,7 +62,7 @@ export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className =
         <Map
           defaultCenter={center}
           defaultZoom={points.length === 1 ? 16 : 14}
-          gestureHandling={'greedy'}
+          gestureHandling={'cooperative'}
           disableDefaultUI={false}
           mapId="bf3fcca21542f575"
         >
