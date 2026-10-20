@@ -1,6 +1,6 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITInput, ITSearchSelect , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITButton, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaEyeSlash, FaMagic, FaShieldAlt, FaUser } from "react-icons/fa";
@@ -28,11 +28,11 @@ const randomPassword = (length = 10) => {
 
 const Section = ({ icon, title, hint, children }: { icon: ReactNode; title: string; hint?: string; children: ReactNode }) => (
   <section>
-    <div className="flex items-center gap-2 mb-3">
-      <span className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-[11px]">{icon}</span>
-      <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">{title}</h4>
-      {hint && <span className="text-[11px] text-slate-400 font-medium">· {hint}</span>}
-    </div>
+    <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-3">
+      <ITText as="span" className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-[11px]">{icon}</ITText>
+      <ITText as="h4" className="text-xs font-bold text-slate-700 uppercase tracking-wider">{title}</ITText>
+      {hint && <ITText as="span" className="text-[11px] text-slate-400 font-medium">· {hint}</ITText>}
+    </ITFlex>
     {children}
   </section>
 );
@@ -138,21 +138,21 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
 
   return (
     <form onSubmit={formik.handleSubmit} noValidate className="w-full">
-      <div className="px-6 py-5 space-y-6">
+      <ITFlex direction="column" className="px-6 py-5 space-y-6">
         <Section icon={<FaUser />} title="Datos personales">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <ITFlex direction="column" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <ITInput label="Nombre(s)" placeholder="Ej. Roberto" {...fieldProps("name")} />
             <ITInput label="Apellidos" placeholder="Ej. García López" {...fieldProps("lastName")} />
-          </div>
-          <div className="mt-4">
+          </ITFlex>
+          <ITFlex direction="column" className="mt-4">
             <ITInput label="Usuario" placeholder="Ej. rgarcia" {...fieldProps("username")} />
-            <p className="text-[11px] text-slate-400 mt-1.5">Alias único con el que inicia sesión.</p>
-          </div>
+            <ITText as="p" className="text-[11px] text-slate-400 mt-1.5">Alias único con el que inicia sesión.</ITText>
+          </ITFlex>
         </Section>
 
         <Section icon={<FaShieldAlt />} title="Acceso" hint={isEditing ? "la contraseña se cambia desde la tabla" : "contraseña temporal"}>
-          <div className="mb-4">
-            <p className="text-sm font-medium text-slate-700 mb-2">Rol</p>
+          <ITFlex direction="column" className="mb-4">
+            <ITText as="p" className="text-sm font-medium text-slate-700 mb-2">Rol</ITText>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Rol">
               {visibleRoles.map((r) => {
                 const on = String(r.id) === formik.values.roleId;
@@ -177,12 +177,12 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
                 );
               })}
             </div>
-            {roleError && <p className="text-xs text-red-500 mt-1.5">{formik.errors.roleId}</p>}
-          </div>
+            {roleError && <ITText as="p" className="text-xs text-red-500 mt-1.5">{formik.errors.roleId}</ITText>}
+          </ITFlex>
 
           {!isEditing && (
-            <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <ITFlex direction="column" className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+              <ITFlex direction="column" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <ITInput
                   label="Contraseña"
                   type={showPassword ? "text" : "password"}
@@ -195,16 +195,16 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
                   placeholder="Repite la contraseña"
                   {...fieldProps("confirmPassword")}
                 />
-              </div>
-              <div className="mt-3 flex items-center gap-4">
+              </ITFlex>
+              <ITFlex align="center" gap={4} className="mt-3 flex items-center gap-4">
                 <ITButton type="button" variant="text" color="primary" size="md" onClick={generate}>
                   <ITFlex align="center" gap={2}><FaMagic size={11} /> Generar contraseña segura
                 </ITFlex></ITButton>
                 <ITButton type="button" variant="text" color="gray" size="sm" onClick={() => setShowPassword((v) => !v)}>
                   {showPassword ? <FaEyeSlash size={12} /> : <FaEye size={12} />} {showPassword ? "Ocultar" : "Mostrar"}
                 </ITButton>
-              </div>
-            </div>
+              </ITFlex>
+            </ITFlex>
           )}
         </Section>
 
@@ -222,16 +222,16 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
             />
           </Section>
         )}
-      </div>
+      </ITFlex>
 
-      <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/60 rounded-b-2xl">
+      <ITFlex justify="end" gap={3} className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/60 rounded-b-2xl">
         <ITButton type="button" color="secondary" variant="outlined" onClick={onCancel} disabled={formik.isSubmitting}>
           Cancelar
         </ITButton>
         <ITButton type="submit" disabled={formik.isSubmitting}>
           {formik.isSubmitting ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear usuario"}
         </ITButton>
-      </div>
+      </ITFlex>
     </form>
   );
 };
