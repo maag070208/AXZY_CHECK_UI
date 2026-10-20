@@ -1,4 +1,4 @@
-import { FileTypeEnum, ITButton, ITDialog, ITDropfile } from "@axzydev/axzy_ui_system";
+import { FileTypeEnum, ITButton, ITDialog, ITDropfile, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import { useState } from "react";
 import { ImportResult, ImportRow, importProperties, parseImportCsv } from "./occupancy.service";
 
@@ -61,23 +61,23 @@ export const ImportPropertiesModal = ({ isOpen, onClose, onDone }: Props) => {
 
   return (
     <ITDialog isOpen={isOpen} onClose={() => { reset(); onClose(); }} title="Importar propiedades (CSV)" className="w-[680px] max-w-[95vw]">
-      <div className="space-y-4 p-2">
-        <p className="text-sm text-slate-500">
+      <ITFlex direction="column" className="space-y-4 p-2">
+        <ITText as="p" className="text-sm text-slate-500">
           Columnas: identifier, name, mainStreet, kind (HOUSE, APARTMENT, COMMERCIAL, LOT, COMMON), occupancy (VACANT, OWNER_OCCUPIED, …), floor, unitNumber.
-        </p>
+        </ITText>
         <ITButton variant="ghost" onClick={downloadTemplate}>Descargar plantilla</ITButton>
         <ITDropfile
           view="drop"
           acceptedFileTypes={[FileTypeEnum.CSV]}
           onFileSelect={(file) => void onFile(file ?? undefined)}
         />
-        {fileName && <p className="text-sm text-slate-600">{fileName}: {rows.length} fila(s)</p>}
+        {fileName && <ITText as="p" className="text-sm text-slate-600">{fileName}: {rows.length} fila(s)</ITText>}
 
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
         {result && (
-          <div className="space-y-2 text-sm">
-            <p className="text-emerald-700 font-semibold">Creadas: {result.created}</p>
+          <ITFlex direction="column" className="space-y-2 text-sm">
+            <ITText as="p" className="text-emerald-700 font-semibold">Creadas: {result.created}</ITText>
             {result.errors.length > 0 && (
               <ul className="list-disc pl-5 text-red-700">
                 {result.errors.map((e) => (
@@ -85,16 +85,16 @@ export const ImportPropertiesModal = ({ isOpen, onClose, onDone }: Props) => {
                 ))}
               </ul>
             )}
-          </div>
+          </ITFlex>
         )}
 
-        <div className="flex justify-end gap-2 pt-2">
+        <ITFlex justify="end" gap={2} className="flex justify-end gap-2 pt-2">
           <ITButton variant="outlined" onClick={() => { reset(); onClose(); }}>Cerrar</ITButton>
           <ITButton onClick={() => void send()} disabled={busy || rows.length === 0}>
             {busy ? "Importando…" : "Importar"}
           </ITButton>
-        </div>
-      </div>
+        </ITFlex>
+      </ITFlex>
     </ITDialog>
   );
 };
