@@ -1,4 +1,4 @@
-import { ITBadget, ITButton, ITDatePicker, ITSearchSelect, ITPage } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDatePicker, ITFlex, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -24,14 +24,14 @@ const ROLE_TRANSLATIONS: Record<string, string> = {
 };
 
 const Skeleton = ({ className = "" }: { className?: string }) => (
-  <div className={`animate-pulse bg-slate-100 rounded-xl ${className}`} />
+  <ITFlex direction="column" className={`animate-pulse bg-slate-100 rounded-xl ${className}`} />
 );
 
 const LiveDot = () => (
-  <span className="relative flex h-2 w-2">
-    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-  </span>
+  <ITText as="span" className="relative flex h-2 w-2">
+    <ITText as="span" className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+    <ITText as="span" className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+  </ITText>
 );
 
 /**
@@ -192,18 +192,18 @@ const GuardTrackingPage = () => {
       iconColor="#065911"
       actions={
         isLiveGuard ? (
-          <span className="inline-flex items-center gap-1.5 text-emerald-600 text-xs font-bold">
+          <ITText as="span" className="inline-flex items-center gap-1.5 text-emerald-600 text-xs font-bold">
             <LiveDot /> en ronda ahora
-          </span>
+          </ITText>
         ) : undefined
       }
     >
-      <div className="space-y-6">
+      <ITFlex direction="column" className="space-y-6">
         {/* Barra de filtros + guardias en ronda */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-4">
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex-1 min-w-[220px] max-w-sm">
-              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Guardia</p>
+        <ITFlex direction="column" className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-4">
+          <ITFlex align="end" gap={3} className="flex flex-wrap items-end gap-3">
+            <ITFlex direction="column" className="flex-1 min-w-[220px] max-w-sm">
+              <ITText as="p" className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Guardia</ITText>
               <ITSearchSelect
                 name="guard"
                 placeholder="Selecciona un guardia..."
@@ -211,11 +211,11 @@ const GuardTrackingPage = () => {
                 value={selectedGuardId ? String(selectedGuardId) : ""}
                 onChange={(val) => setSelectedGuardId(val ? Number(val) : null)}
               />
-            </div>
-            <div className="flex-1 min-w-[220px] max-w-xs">
-              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Periodo</p>
+            </ITFlex>
+            <ITFlex direction="column" className="flex-1 min-w-[220px] max-w-xs">
+              <ITText as="p" className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Periodo</ITText>
               <ITDatePicker name="range" value={dateRange} range onChange={(e: any) => setDateRange(e.target.value)} />
-            </div>
+            </ITFlex>
             <ITButton
               onClick={() => {
                 loadSummary();
@@ -229,13 +229,13 @@ const GuardTrackingPage = () => {
             >
               <FaSync className={loadingSummary || loadingRounds ? "animate-spin" : ""} />
             </ITButton>
-          </div>
+          </ITFlex>
 
           {liveActiveRounds.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100">
-              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+            <ITFlex align="center" gap={2} className="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100">
+              <ITText as="span" className="text-[11px] font-black text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
                 <LiveDot /> En ronda ahora
-              </span>
+              </ITText>
               {liveActiveRounds.map((r) => (
                 <button
                   key={r.roundId}
@@ -249,22 +249,22 @@ const GuardTrackingPage = () => {
                   {r.guard.name} {r.guard.lastName ?? ""}
                 </button>
               ))}
-            </div>
+            </ITFlex>
           )}
-        </div>
+        </ITFlex>
 
         {!selectedGuardId && (
-          <div className="bg-white border border-dashed border-slate-200 rounded-2xl py-14 flex flex-col items-center gap-2 text-slate-400">
+          <ITFlex direction="column" align="center" gap={2} className="bg-white border border-dashed border-slate-200 rounded-2xl py-14 flex flex-col items-center gap-2 text-slate-400">
             <FaUserShield size={28} className="text-slate-300" />
-            <p className="text-sm font-medium">Selecciona un guardia para ver su seguimiento.</p>
-            <p className="text-xs">Verás su resumen del periodo, sus rondas y el recorrido en el mapa.</p>
-          </div>
+            <ITText as="p" className="text-sm font-medium">Selecciona un guardia para ver su seguimiento.</ITText>
+            <ITText as="p" className="text-xs">Verás su resumen del periodo, sus rondas y el recorrido en el mapa.</ITText>
+          </ITFlex>
         )}
 
         {selectedGuardId && (
           <>
             {/* Resumen del periodo */}
-            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+            <ITFlex direction="column" className="grid grid-cols-2 xl:grid-cols-4 gap-3">
               <SummaryCard title="Rondas" value={summary?.totalRounds} icon={<FaRoute />} color="emerald" loading={loadingSummary && !summary} />
               <SummaryCard title="Escaneos" value={summary?.totalScans} icon={<FaMapMarkerAlt />} color="sky" loading={loadingSummary && !summary} />
               <SummaryCard title="Omitidos" value={summary?.missedScans} icon={<FaExclamationCircle />} color="red" loading={loadingSummary && !summary} />
@@ -275,27 +275,27 @@ const GuardTrackingPage = () => {
                 color="indigo"
                 loading={loadingSummary && !summary}
               />
-            </div>
+            </ITFlex>
 
             {breakdown && breakdown.incompleteRounds.length > 0 && (
-              <div className="shadow-sm border border-amber-100 bg-amber-50 rounded-2xl p-4">
-                <p className="text-xs font-black text-amber-700 uppercase tracking-wide mb-2">
+              <ITFlex direction="column" className="shadow-sm border border-amber-100 bg-amber-50 rounded-2xl p-4">
+                <ITText as="p" className="text-xs font-black text-amber-700 uppercase tracking-wide mb-2">
                   {breakdown.incompleteRounds.length} ronda(s) incompleta(s) en este periodo
-                </p>
-                <p className="text-[11px] text-amber-600">
+                </ITText>
+                <ITText as="p" className="text-[11px] text-amber-600">
                   {breakdown.incompleteRounds
                     .map((r) => `${dayjs(r.startTime).format("DD/MM")} (${r.missedCount} omitidos)`)
                     .join(" · ")}
-                </p>
-              </div>
+                </ITText>
+              </ITFlex>
             )}
 
             {/* Rondas (izquierda en desktop) + Detalle de la ronda con mapa (derecha, siempre visible) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-7 order-1 lg:order-2 lg:sticky lg:top-6">
-                <div className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-800">Mapa y Línea de Tiempo</h3>
+            <ITFlex direction="column" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <ITFlex direction="column" className="lg:col-span-7 order-1 lg:order-2 lg:sticky lg:top-6">
+                <ITFlex direction="column" className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
+                  <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
+                    <ITText as="h3" className="text-sm font-bold text-slate-800">Mapa y Línea de Tiempo</ITText>
                     {selectedRound && (
                       <ITBadget
                         color={selectedRound.status === "IN_PROGRESS" ? "primary" : "secondary"}
@@ -307,24 +307,24 @@ const GuardTrackingPage = () => {
                         {dayjs(selectedRound.startTime).format("DD/MM HH:mm")}
                       </ITBadget>
                     )}
-                  </div>
+                  </ITFlex>
 
                   {loadingRounds ? (
-                    <div className="space-y-3">
+                    <ITFlex direction="column" className="space-y-3">
                       <Skeleton className="h-[320px] w-full" />
-                    </div>
+                    </ITFlex>
                   ) : !selectedRoundId ? (
-                    <div className="flex items-center justify-center h-[320px] bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm">
+                    <ITFlex align="center" justify="center" className="flex items-center justify-center h-[320px] bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm">
                       Este guardia no tiene rondas en el periodo seleccionado.
-                    </div>
+                    </ITFlex>
                   ) : loadingRoundDetail ? (
-                    <div className="space-y-3">
+                    <ITFlex direction="column" className="space-y-3">
                       <Skeleton className="h-[320px] w-full" />
-                    </div>
+                    </ITFlex>
                   ) : (
-                    <div className="space-y-4">
+                    <ITFlex direction="column" className="space-y-4">
                       <RoundRouteMap points={routePoints} />
-                      <div className="max-h-[320px] overflow-y-auto pr-1 space-y-2">
+                      <ITFlex direction="column" className="max-h-[320px] overflow-y-auto pr-1 space-y-2">
                         {roundDetail?.timeline.map((event, i) => {
                           const prev = i > 0 ? roundDetail.timeline[i - 1] : null;
                           const deltaMin = prev
@@ -332,39 +332,39 @@ const GuardTrackingPage = () => {
                             : 0;
                           return (
                             <div key={i} className="flex items-start gap-3 bg-slate-50/60 border border-slate-100 rounded-xl px-4 py-2.5">
-                              <div className="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-[10px] font-black flex-shrink-0 mt-0.5">
+                              <ITFlex align="center" justify="center" className="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-[10px] font-black flex-shrink-0 mt-0.5">
                                 {event.type === "SCAN" ? i : event.type === "START" ? "▶" : "■"}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-bold text-slate-700 truncate">{event.description}</p>
-                                <p className="text-[10px] text-slate-400 flex items-center gap-2">
+                              </ITFlex>
+                              <ITFlex direction="column" className="flex-1 min-w-0">
+                                <ITText as="p" className="text-xs font-bold text-slate-700 truncate">{event.description}</ITText>
+                                <ITText as="p" className="text-[10px] text-slate-400 flex items-center gap-2">
                                   <FaClock className="text-slate-300" />
                                   {dayjs(event.timestamp).format("HH:mm:ss")}
-                                  {i > 0 && <span className="text-sky-500 font-bold">+{deltaMin} min</span>}
-                                </p>
-                              </div>
+                                  {i > 0 && <ITText as="span" className="text-sky-500 font-bold">+{deltaMin} min</ITText>}
+                                </ITText>
+                              </ITFlex>
                             </div>
                           );
                         })}
-                      </div>
-                    </div>
+                      </ITFlex>
+                    </ITFlex>
                   )}
-                </div>
-              </div>
+                </ITFlex>
+              </ITFlex>
 
-              <div className="lg:col-span-5 order-2 lg:order-1">
-                <div className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
-                  <h3 className="text-sm font-bold text-slate-800 mb-4">Rondas del Periodo</h3>
+              <ITFlex direction="column" className="lg:col-span-5 order-2 lg:order-1">
+                <ITFlex direction="column" className="shadow-sm border border-slate-100 bg-white rounded-2xl p-5">
+                  <ITText as="h3" className="text-sm font-bold text-slate-800 mb-4">Rondas del Periodo</ITText>
                   {loadingRounds ? (
-                    <div className="space-y-2">
+                    <ITFlex direction="column" className="space-y-2">
                       <Skeleton className="h-16 w-full" />
                       <Skeleton className="h-16 w-full" />
                       <Skeleton className="h-16 w-full" />
-                    </div>
+                    </ITFlex>
                   ) : rounds.length === 0 ? (
-                    <p className="text-sm text-slate-400 py-6 text-center">Sin rondas en este rango de fechas.</p>
+                    <ITText as="p" className="text-sm text-slate-400 py-6 text-center">Sin rondas en este rango de fechas.</ITText>
                   ) : (
-                    <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1">
+                    <ITFlex direction="column" className="space-y-2 max-h-[520px] overflow-y-auto pr-1">
                       {rounds.map((round) => {
                         const isActive = round.status === "IN_PROGRESS";
                         const isSelected = selectedRoundId === round.id;
@@ -382,15 +382,15 @@ const GuardTrackingPage = () => {
                                   : "bg-slate-50/60 border-slate-100 hover:bg-slate-50"
                             }`}
                           >
-                            <div>
-                              <p className="text-sm font-black text-slate-700 flex items-center gap-2">
+                            <ITFlex direction="column">
+                              <ITText as="p" className="text-sm font-black text-slate-700 flex items-center gap-2">
                                 {isActive && <LiveDot />}
                                 {dayjs(round.startTime).format("DD [de] MMM, YYYY · HH:mm")}
-                              </p>
-                              <p className="text-[11px] text-slate-400 font-medium">
+                              </ITText>
+                              <ITText as="p" className="text-[11px] text-slate-400 font-medium">
                                 {round.recurringConfiguration?.title ?? "Sin ruta"}
-                              </p>
-                            </div>
+                              </ITText>
+                            </ITFlex>
                             <ITBadget
                               color={isActive ? "primary" : "secondary"}
                               variant="outlined"
@@ -402,14 +402,14 @@ const GuardTrackingPage = () => {
                           </button>
                         );
                       })}
-                    </div>
+                    </ITFlex>
                   )}
-                </div>
-              </div>
-            </div>
+                </ITFlex>
+              </ITFlex>
+            </ITFlex>
           </>
         )}
-      </div>
+      </ITFlex>
     </ITPage>
   );
 };
@@ -434,13 +434,13 @@ const SummaryCard = ({
     indigo: "bg-indigo-50 text-indigo-600",
   };
   return (
-    <div className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm px-4 py-3.5 min-w-0">
-      <div className={`w-10 h-10 rounded-xl ${colorClasses[color]} flex items-center justify-center text-base flex-shrink-0`}>{icon}</div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate">{title}</p>
-        {loading ? <Skeleton className="h-6 w-14 mt-1" /> : <h4 className="text-xl font-black text-slate-800 leading-tight">{value ?? 0}</h4>}
-      </div>
-    </div>
+    <ITFlex align="center" gap={3} className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm px-4 py-3.5 min-w-0">
+      <ITFlex direction="column" className={`w-10 h-10 rounded-xl ${colorClasses[color]} flex items-center justify-center text-base flex-shrink-0`}>{icon}</ITFlex>
+      <ITFlex direction="column" className="min-w-0">
+        <ITText as="p" className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate">{title}</ITText>
+        {loading ? <Skeleton className="h-6 w-14 mt-1" /> : <ITText as="h4" className="text-xl font-black text-slate-800 leading-tight">{value ?? 0}</ITText>}
+      </ITFlex>
+    </ITFlex>
   );
 };
 
