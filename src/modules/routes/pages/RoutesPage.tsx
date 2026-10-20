@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITPage , ITInput , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaEdit, FaPlus, FaRoute, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -68,8 +68,8 @@ const RoutesPage = () => {
       icon={<FaRoute size={20} />}
       iconColor="#065911"
       actions={
-<div className="flex items-center gap-3">
-            <div className="w-64 relative">
+<ITFlex align="center" gap={3} className="flex items-center gap-3">
+            <ITFlex direction="column" className="w-64 relative">
                 <ITInput
                     name="searchRoute"
                     placeholder="Buscar por nombre..."
@@ -89,7 +89,7 @@ const RoutesPage = () => {
                 ) : (
                     <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-200" />
                 )}
-            </div>
+            </ITFlex>
 
             <ITButton
                onClick={refreshTable}
@@ -100,7 +100,7 @@ const RoutesPage = () => {
                title="Actualizar datos"
             >
               <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} /> 
-              <span className="text-xs font-bold text-slate-500">Refrescar</span></ITFlex>
+              <ITText as="span" className="text-xs font-bold text-slate-500">Refrescar</ITText></ITFlex>
             </ITButton>
 
             <ITButton
@@ -110,11 +110,11 @@ const RoutesPage = () => {
             >
               <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> AGREGAR RUTA
             </ITFlex></ITButton>
-        </div>
+        </ITFlex>
       }
     >
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
@@ -134,9 +134,9 @@ const RoutesPage = () => {
               type: "number",
               sortable: true,
               render: (row: any) => (
-                <div className="text-xs font-bold text-slate-400 py-4">
+                <ITFlex direction="column" className="text-xs font-bold text-slate-400 py-4">
                   #{row.id}
-                </div>
+                </ITFlex>
               ),
             },
             {
@@ -145,19 +145,19 @@ const RoutesPage = () => {
               type: "string",
               sortable: true,
               render: (row: any) => (
-                <div className="flex items-start gap-3">
-                    <div className="mt-1 w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0 text-[#065911]">
+                <ITFlex align="start" gap={3} className="flex items-start gap-3">
+                    <ITFlex align="center" justify="center" className="mt-1 w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0 text-[#065911]">
                         <FaRoute className="text-xs" />
-                    </div>
-                    <div>
-                        <p className="font-bold text-slate-800 line-clamp-1 uppercase">{row.title}</p>
-                        <div className="flex gap-1 items-center">
-                            <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md uppercase">
+                    </ITFlex>
+                    <ITFlex direction="column">
+                        <ITText as="p" className="font-bold text-slate-800 line-clamp-1 uppercase">{row.title}</ITText>
+                        <ITFlex align="center" gap={1} className="flex gap-1 items-center">
+                            <ITText as="span" className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md uppercase">
                                 RUTA DE SERVICIO
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                            </ITText>
+                        </ITFlex>
+                    </ITFlex>
+                </ITFlex>
               ),
             },
             {
@@ -165,14 +165,14 @@ const RoutesPage = () => {
               label: "UBICACIÓN / PUNTOS",
               type: "string",
               render: (row: any) => (
-                <div className="flex flex-col py-2">
-                    <span className="font-bold text-slate-700 text-xs leading-tight uppercase">
+                <ITFlex direction="column" className="flex flex-col py-2">
+                    <ITText as="span" className="font-bold text-slate-700 text-xs leading-tight uppercase">
                         {row.recurringLocations?.[0]?.location?.name || 'SIN UBICACIÓN'}
-                    </span>
-                    <span className="text-slate-400 text-[10px] font-medium">
+                    </ITText>
+                    <ITText as="span" className="text-slate-400 text-[10px] font-medium">
                         {row.recurringLocations?.length || 0} Puntos registrados en sistema
-                    </span>
-                </div>
+                    </ITText>
+                </ITFlex>
               ),
             },
             {
@@ -180,9 +180,9 @@ const RoutesPage = () => {
               label: "ESTADO",
               type: "string",
               render: (row: any) => (
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${row.active ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                <ITText as="span" className={`px-3 py-1 rounded-full text-[10px] font-bold border ${row.active ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
                     {row.active ? "ACTIVA" : "INACTIVA"}
-                </span>
+                </ITText>
               ),
             },
             {
@@ -190,7 +190,7 @@ const RoutesPage = () => {
               label: "ACCIONES",
               type: "actions",
               actions: (row: any) => (
-                <div className="flex items-center gap-2">
+                <ITFlex align="center" gap={2} className="flex items-center gap-2">
                   <ITButton 
                     onClick={() => handleEdit(row)}
                     variant="outlined" 
@@ -211,12 +211,12 @@ const RoutesPage = () => {
                   >
                     <FaTrash size={14} />
                   </ITButton>
-                </div>
+                </ITFlex>
               ),
             },
           ]}
         />
-      </div>
+      </ITFlex>
 
       <CreateRouteModal
         isOpen={isCreateModalOpen}
@@ -227,19 +227,19 @@ const RoutesPage = () => {
 
       {/* Confirm Delete Dialog */}
       <ITDialog isOpen={!!routeToDeleteId} onClose={() => setRouteToDeleteId(null)} title="Eliminar Registro">
-        <div className="p-6">
-            <p className="text-slate-600 mb-6 text-sm">
+        <ITFlex direction="column" className="p-6">
+            <ITText as="p" className="text-slate-600 mb-6 text-sm">
                 ¿Estás seguro de eliminar esta ruta de servicio? Esta acción no se puede deshacer.
-            </p>
-            <div className="flex justify-end gap-3">
+            </ITText>
+            <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
                 <ITButton variant="outlined" color="secondary" onClick={() => setRouteToDeleteId(null)}>
                     Cancelar
                 </ITButton>
                 <ITButton onClick={confirmDelete}>
                     Eliminar permanentemente
                 </ITButton>
-            </div>
-        </div>
+            </ITFlex>
+        </ITFlex>
       </ITDialog>
     </ITPage>
   );
