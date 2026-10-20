@@ -1,4 +1,4 @@
-import { ITButton, ITDialog } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import { FaExclamationTriangle, FaPowerOff } from "react-icons/fa";
 import type { CatalogCategory, CatalogType } from "../services/CatalogAdminService";
 import { getCategoryColor } from "./catalogVisuals";
@@ -43,20 +43,20 @@ export const CatalogDeleteDialog = ({
 
   return (
     <ITDialog isOpen onClose={loading ? () => undefined : onClose} title={title} className="!w-full !max-w-md">
-      <div className="p-6">
-        <div className="flex items-start gap-3">
-          <div
+      <ITFlex direction="column" className="p-6">
+        <ITFlex align="start" gap={3} className="flex items-start gap-3">
+          <ITFlex direction="column"
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
               active ? "bg-amber-50 text-amber-600" : "bg-rose-50 text-rose-600"
             }`}
           >
             {active ? <FaPowerOff size={17} /> : <FaExclamationTriangle size={17} />}
-          </div>
-          <div className="min-w-0">
-            <h3 className="text-base font-black leading-tight text-slate-800">
+          </ITFlex>
+          <ITFlex direction="column" className="min-w-0">
+            <ITText as="h3" className="text-base font-black leading-tight text-slate-800">
               {active ? "El registro dejará de estar disponible" : "Esta acción no se puede deshacer"}
-            </h3>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-slate-500">
+            </ITText>
+            <ITText as="p" className="mt-1 text-[12.5px] leading-relaxed text-slate-500">
               {active
                 ? isCategory
                   ? "La categoría y sus tipos se ocultarán de la app para nuevos registros. El historial se conserva y puedes reactivarla cuando quieras."
@@ -66,42 +66,42 @@ export const CatalogDeleteDialog = ({
                       typeCount > 0 ? ` junto con sus ${typeCount} ${typeCount === 1 ? "tipo" : "tipos"}` : ""
                     }.`
                   : "El tipo se borrará definitivamente de la base de datos."}
-            </p>
-          </div>
-        </div>
+            </ITText>
+          </ITFlex>
+        </ITFlex>
 
-        <div className="mt-5 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 !px-3.5 py-3">
+        <ITFlex align="center" gap={3} className="mt-5 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 !px-3.5 py-3">
           <span
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[11px] font-black uppercase"
             style={{ backgroundColor: `${color}1F`, borderColor: `${color}38`, color }}
           >
             {label.charAt(0)}
           </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-bold text-slate-700">{label}</p>
-            <p className="truncate font-mono text-[10px] uppercase tracking-wide text-slate-400">
+          <ITFlex direction="column" className="min-w-0 flex-1">
+            <ITText as="p" className="truncate text-sm font-bold text-slate-700">{label}</ITText>
+            <ITText as="p" className="truncate font-mono text-[10px] uppercase tracking-wide text-slate-400">
               {code}
-            </p>
-          </div>
-          <span
+            </ITText>
+          </ITFlex>
+          <ITText as="span"
             className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${
               active ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-500"
             }`}
           >
             {active ? "Activa" : "Inactiva"}
-          </span>
-        </div>
+          </ITText>
+        </ITFlex>
 
         {!active && (
-          <div className="mt-4 rounded-xl border border-rose-100 bg-rose-50 !px-3.5 py-2.5 text-[11px] leading-relaxed text-rose-600">
-            <span className="font-bold">Importante:</span>{" "}
+          <ITFlex direction="column" className="mt-4 rounded-xl border border-rose-100 bg-rose-50 !px-3.5 py-2.5 text-[11px] leading-relaxed text-rose-600">
+            <ITText as="span" className="font-bold">Importante:</ITText>{" "}
             {isCategory
               ? "si la categoría o sus tipos tienen registros históricos asociados, el sistema podría impedir el borrado."
               : "si el tipo tiene incidencias o mantenimientos asociados, el sistema podría impedir el borrado."}
-          </div>
+          </ITFlex>
         )}
 
-        <div className="mt-6 flex justify-end gap-2.5">
+        <ITFlex justify="end" className="mt-6 flex justify-end gap-2.5">
           <ITButton
             variant="outlined"
             color="secondary"
@@ -118,8 +118,8 @@ export const CatalogDeleteDialog = ({
           >
             {loading ? "Procesando..." : active ? "Desactivar" : "Eliminar permanentemente"}
           </ITButton>
-        </div>
-      </div>
+        </ITFlex>
+      </ITFlex>
     </ITDialog>
   );
 };
