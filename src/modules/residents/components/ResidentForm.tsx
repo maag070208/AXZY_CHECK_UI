@@ -1,4 +1,4 @@
-import { FileTypeEnum, ITButton, ITDropfile, ITInput, ITSearchSelect, UploadStatus } from "@axzydev/axzy_ui_system";
+import { FileTypeEnum, ITButton, ITDropfile, ITFlex, ITInput, ITSearchSelect, ITText, UploadStatus } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ResidentUser, uploadResidentImage } from "../services/residents.service";
@@ -99,8 +99,8 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
         {
             label: "Datos Personales",
             content: (
-                <div className="flex flex-col gap-4 p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ITFlex direction="column" gap={4} className="flex flex-col gap-4 p-4">
+                    <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <ITInput
                             label="Nombres de Pila"
                             name="name"
@@ -149,14 +149,14 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                             onBlur={formik.handleBlur}
                             placeholder="Ej. juan@correo.com"
                         />
-                    </div>
-                </div>
+                    </ITFlex>
+                </ITFlex>
             )
         },
         {
             label: "Asignación y Acceso",
             content: (
-                <div className="flex flex-col gap-4 p-4">
+                <ITFlex direction="column" gap={4} className="flex flex-col gap-4 p-4">
                     <ITSearchSelect
                         label="Propiedad Asignada"
                         name="propertyId"
@@ -167,14 +167,14 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                         touched={formik.touched.propertyId}
                     />
                     
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-2 mb-2">
-                        <div className="flex items-center gap-2 mb-3">
+                    <ITFlex direction="column" className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-2 mb-2">
+                        <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-3">
                             <FaIdCard className="text-emerald-600" />
-                            <h4 className="font-bold text-slate-800 text-sm">Credenciales de la App Vecinal</h4>
-                        </div>
-                        <p className="text-xs text-slate-500 mb-4">Ingresa el usuario y la contraseña segura con la cual el residente podrá iniciar sesión en la app vecinal, levantar mantenimientos y estar al tanto de notificaciones.</p>
+                            <ITText as="h4" className="font-bold text-slate-800 text-sm">Credenciales de la App Vecinal</ITText>
+                        </ITFlex>
+                        <ITText as="p" className="text-xs text-slate-500 mb-4">Ingresa el usuario y la contraseña segura con la cual el residente podrá iniciar sesión en la app vecinal, levantar mantenimientos y estar al tanto de notificaciones.</ITText>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <ITInput
                                 label="Usuario (App)"
                                 name="username"
@@ -196,16 +196,16 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                                 touched={formik.touched.password}
                                 placeholder={initialData ? "Dejar vacío para no cambiar" : "Contraseña segura"}
                             />
-                        </div>
-                    </div>
-                </div>
+                        </ITFlex>
+                    </ITFlex>
+                </ITFlex>
             )
         },
         {
             label: "Seguridad y Contactos",
             content: (
-                <div className="flex flex-col gap-4 p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ITFlex direction="column" gap={4} className="flex flex-col gap-4 p-4">
+                    <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <ITInput
                             label="Contacto de Emergencia"
                             name="emergencyContact"
@@ -225,17 +225,17 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                             placeholder="Ej. 5559876543"
                             maxLength={10}
                         />
-                    </div>
-                </div>
+                    </ITFlex>
+                </ITFlex>
             )
         },
         {
             label: "Identificación Oficial",
             content: (
-                <div className="flex flex-col gap-4 p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ITFlex direction="column" gap={4} className="flex flex-col gap-4 p-4">
+                    <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* INE Frontal */}
-                        <div className="relative group rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-400 overflow-hidden bg-slate-50 transition-all">
+                        <ITFlex direction="column" className="relative group rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-400 overflow-hidden bg-slate-50 transition-all">
                             <ITDropfile
                                 view="drop"
                                 acceptedFileTypes={[FileTypeEnum.JPG, FileTypeEnum.JPEG, FileTypeEnum.PNG]}
@@ -244,10 +244,10 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                                 onFileSelect={() => undefined}
                                 onSubmit={(file) => void handleFileUpload(file, 'front')}
                             />
-                        </div>
+                        </ITFlex>
 
                         {/* INE Reverso */}
-                        <div className="relative group rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-400 overflow-hidden bg-slate-50 transition-all">
+                        <ITFlex direction="column" className="relative group rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-400 overflow-hidden bg-slate-50 transition-all">
                             <ITDropfile
                                 view="drop"
                                 acceptedFileTypes={[FileTypeEnum.JPG, FileTypeEnum.JPEG, FileTypeEnum.PNG]}
@@ -256,10 +256,10 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                                 onFileSelect={() => undefined}
                                 onSubmit={(file) => void handleFileUpload(file, 'back')}
                             />
-                        </div>
-                    </div>
+                        </ITFlex>
+                    </ITFlex>
 
-                    <div className="mt-4">
+                    <ITFlex direction="column" className="mt-4">
                         <ITInput
                             label="Notas Administrativas"
                             name="notes"
@@ -268,8 +268,8 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                             onBlur={formik.handleBlur}
                             placeholder="Observaciones internas, notas de recepción, etc."
                         />
-                    </div>
-                </div>
+                    </ITFlex>
+                </ITFlex>
             )
         }
     ];
@@ -327,14 +327,14 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
     };
 
     return (
-        <div className="w-full">
+        <ITFlex direction="column" className="w-full">
             {/* Stepper Header */}
-            <div className="flex justify-between mb-10 px-6 mt-6 relative">
+            <ITFlex justify="between" className="flex justify-between mb-10 px-6 mt-6 relative">
                 {/* Progress Line Background */}
-                <div className="absolute top-5 left-0 w-full h-[2px] bg-slate-100 -z-0 mx-auto px-12" style={{ width: 'calc(100% - 4rem)', left: '2rem' }} />
+                <ITFlex direction="column" className="absolute top-5 left-0 w-full h-[2px] bg-slate-100 -z-0 mx-auto px-12" style={{ width: 'calc(100% - 4rem)', left: '2rem' }} />
                 
                 {/* Active Progress Line */}
-                <div 
+                <ITFlex direction="column" 
                     className="absolute top-5 left-0 h-[2px] bg-emerald-500 transition-all duration-500 ease-in-out -z-0" 
                     style={{ 
                         width: `calc(${(currentStep / (steps.length - 1)) * 100}% - ${currentStep === 0 ? '0px' : '2rem'})`,
@@ -344,35 +344,35 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
 
                 {steps.map((step, index) => (
                     <div key={index} className="flex flex-col items-center flex-1 relative z-10">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
+                        <ITFlex direction="column" className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
                             index === currentStep ? 'border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-100 scale-110' : 
                             index < currentStep ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-200 bg-white text-slate-400'
                         }`}>
                             {index < currentStep ? <FaCheck className="text-xs" /> : index + 1}
-                        </div>
-                        <div className="absolute -bottom-7 w-max">
-                            <span className={`text-[10px] uppercase tracking-wider font-bold transition-colors duration-300 ${index === currentStep ? 'text-emerald-700' : 'text-slate-400'}`}>
+                        </ITFlex>
+                        <ITFlex direction="column" className="absolute -bottom-7 w-max">
+                            <ITText as="span" className={`text-[10px] uppercase tracking-wider font-bold transition-colors duration-300 ${index === currentStep ? 'text-emerald-700' : 'text-slate-400'}`}>
                                 {step.label}
-                            </span>
-                        </div>
+                            </ITText>
+                        </ITFlex>
                     </div>
                 ))}
-            </div>
+            </ITFlex>
 
             {/* Step Content */}
-            <div className="min-h-[300px] mt-10">
+            <ITFlex direction="column" className="min-h-[300px] mt-10">
                 {steps[currentStep].content}
-            </div>
+            </ITFlex>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between px-4 pt-6 pb-2 border-t border-slate-100 mt-4 rounded-b-xl">
-                <div>
+            <ITFlex justify="between" className="flex justify-between px-4 pt-6 pb-2 border-t border-slate-100 mt-4 rounded-b-xl">
+                <ITFlex direction="column">
                      {currentStep === 0 ? (
                         <ITButton type="button" color="secondary" variant="outlined" onClick={onCancel}>Cancelar</ITButton>
                      ) : (
                         <ITButton type="button" color="secondary" variant="outlined" onClick={handleBack}>Atrás</ITButton>
                      )}
-                </div>
+                </ITFlex>
                 <ITButton 
                     type="button" 
                     onClick={handleNext} 
@@ -383,7 +383,7 @@ export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormPr
                         formik.isSubmitting ? 'Guardando...' : (initialData ? 'Guardar Cambios' : 'Confirmar Registro')
                     ) : 'Siguiente'}
                 </ITButton>
-            </div>
-        </div>
+            </ITFlex>
+        </ITFlex>
     );
 };
