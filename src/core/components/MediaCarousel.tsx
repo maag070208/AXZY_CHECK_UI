@@ -21,7 +21,18 @@ interface MediaCarouselProps {
 export const MediaCarousel = ({ media, initialIndex = 0, title = "Galería de medios", onDelete, showDelete = false }: MediaCarouselProps) => {
     const [index, setIndex] = useState(initialIndex);
     const [fullscreen, setFullscreen] = useState(false);
+    const [ratio, setRatio] = useState<number | null>(null);
     const count = media.length;
+    const current = media[Math.min(index, Math.max(count - 1, 0))];
+
+    // Proporción real de la pieza: el escenario la toma para que la foto quepa completa, sin recorte.
+    useEffect(() => {
+        setRatio(null);
+        if (!current || current.type !== "IMAGE") return;
+        const img = new window.Image();
+        img.onload = () => { if (img.naturalWidth && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight); };
+        img.src = current.url;
+    }, [current?.url, current?.type]);
 
     useEffect(() => {
         if (count < 2) return;
@@ -34,9 +45,14 @@ export const MediaCarousel = ({ media, initialIndex = 0, title = "Galería de me
     }, [count]);
 
     if (count === 0) return null;
-    const current = media[Math.min(index, count - 1)];
     const prev = () => setIndex((i) => (i - 1 + count) % count);
     const next = () => setIndex((i) => (i + 1) % count);
+
+    const stageStyle = (inFullscreen: boolean): React.CSSProperties => {
+        const maxH = inFullscreen ? Math.max(200, window.innerHeight - 220) : 320;
+        if (!ratio) return { width: "100%", height: inFullscreen ? maxH : 280 };
+        return { width: `min(100%, ${maxH * ratio}px)`, aspectRatio: String(ratio) };
+    };
 
     const renderViewer = (inFullscreen: boolean) => (
         <ITFlex direction="column" gap={3}>
@@ -63,7 +79,7 @@ export const MediaCarousel = ({ media, initialIndex = 0, title = "Galería de me
                 </ITFlex>
             </ITFlex>
 
-            <ITFlex align="center" justify="center" className={`relative overflow-hidden rounded-xl bg-slate-900 w-full ${inFullscreen ? "h-[calc(100vh-220px)]" : "h-[280px] sm:h-[320px]"}`}>
+            <ITFlex align="center" justify="center" className="relative overflow-hidden rounded-xl bg-slate-900" style={stageStyle(inFullscreen)}>
                 {current.type === "VIDEO" ? (
                     <video src={current.url} controls className="h-full w-full" />
                 ) : (
