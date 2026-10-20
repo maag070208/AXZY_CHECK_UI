@@ -63,11 +63,11 @@ export const MediaCarousel = ({ media, initialIndex = 0, title = "Galería de me
                 </ITFlex>
             </ITFlex>
 
-            <ITFlex align="center" justify="center" className={`relative overflow-hidden rounded-xl bg-slate-900 ${inFullscreen ? "flex-1" : "h-[min(420px,55vh)]"}`}>
+            <ITFlex align="center" justify="center" className={`relative overflow-hidden rounded-xl bg-slate-900 w-full ${inFullscreen ? "h-[calc(100vh-220px)]" : "h-[280px] sm:h-[320px]"}`}>
                 {current.type === "VIDEO" ? (
-                    <video src={current.url} controls className="max-h-full max-w-full" />
+                    <video src={current.url} controls className="h-full w-full" />
                 ) : (
-                    <ITImage src={current.url} alt={title} className="max-h-full max-w-full object-contain" fallback="No se pudo cargar la imagen" />
+                    <ITImage src={current.url} alt={title} className="h-full w-full" fallback="No se pudo cargar la imagen" />
                 )}
                 {count > 1 && (
                     <>
