@@ -1,4 +1,4 @@
-import { ITPage } from "@axzydev/axzy_ui_system";
+import { ITFlex, ITPage } from "@axzydev/axzy_ui_system";
 import { FaComments } from "react-icons/fa";
 import { ChatPanel } from "../components/ChatPanel";
 
@@ -18,9 +18,9 @@ const ChatPage = () => {
       iconColor="#065911"
     >
       {/* Altura fija: el chat hace scroll por dentro y el input siempre queda visible. */}
-      <div className="h-[calc(100vh-17rem)] min-h-[380px] w-full">
+      <ITFlex direction="column" className="h-[calc(100vh-17rem)] min-h-[380px] w-full">
         <ChatPanel variant="page" />
-      </div>
+      </ITFlex>
     </ITPage>
   );
 };
