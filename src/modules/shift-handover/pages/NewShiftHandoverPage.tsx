@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDatePicker, ITInput, ITSearchSelect, ITSlideToggle, ITTimePicker } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDatePicker, ITFlex, ITInput, ITSearchSelect, ITSlideToggle, ITText, ITTimePicker } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import {
@@ -152,10 +152,10 @@ const NewShiftHandoverPage = () => {
   };
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+    <ITFlex direction="column" className="p-6 bg-[#f8fafc] min-h-screen">
+      <ITFlex direction="column" className="max-w-7xl mx-auto">
+        <ITFlex align="center" justify="between" gap={4} className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <ITFlex align="center" gap={3} className="flex items-center gap-3">
             <button
               onClick={() => navigate("/shift-handover")}
               className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
@@ -163,22 +163,22 @@ const NewShiftHandoverPage = () => {
             >
               <FaArrowLeft />
             </button>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+            <ITFlex direction="column">
+              <ITText as="h1" className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
                 <FaSwatchbook className="text-[#065911]" />
                 Nueva Entrega de Turno
-              </h1>
-              <p className="text-slate-500 text-sm mt-1">
+              </ITText>
+              <ITText as="p" className="text-slate-500 text-sm mt-1">
                 Reporte de cambio de turno: caseta, elementos y verificación.
-              </p>
-            </div>
-          </div>
-        </div>
+              </ITText>
+            </ITFlex>
+          </ITFlex>
+        </ITFlex>
 
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">1. Turno</p>
-            <div className="flex gap-2">
+        <ITFlex direction="column" className="space-y-6">
+          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">1. Turno</ITText>
+            <ITFlex gap={2} className="flex gap-2">
               {(["NOCTURNO", "MATUTINO"] as const).map((type) => (
                 <button
                   key={type}
@@ -191,15 +191,15 @@ const NewShiftHandoverPage = () => {
                   {type === "NOCTURNO" ? "Nocturno" : "Matutino"}
                 </button>
               ))}
-            </div>
-            <div className="mt-4">
+            </ITFlex>
+            <ITFlex direction="column" className="mt-4">
               <ITDatePicker name="handoverDate" value={handoverDate} onChange={(e: any) => setHandoverDate(e.target.value)} />
-            </div>
-          </div>
+            </ITFlex>
+          </ITFlex>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">2. Caseta</p>
-            <div className="grid grid-cols-2 gap-3">
+          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">2. Caseta</ITText>
+            <ITFlex direction="column" className="grid grid-cols-2 gap-3">
               <ITInput
                 name="credentialsCount"
                 type="number"
@@ -216,8 +216,8 @@ const NewShiftHandoverPage = () => {
                 onChange={(e: any) => setTarjetonesCount(e.target.value)}
                 onBlur={noop}
               />
-            </div>
-            <div className="mt-3">
+            </ITFlex>
+            <ITFlex direction="column" className="mt-3">
               <ITInput
                 name="novedades"
                 type="textarea"
@@ -226,15 +226,15 @@ const NewShiftHandoverPage = () => {
                 onChange={(e: any) => setNovedades(e.target.value)}
                 onBlur={noop}
               />
-            </div>
-          </div>
+            </ITFlex>
+          </ITFlex>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">3. Registro por elemento</p>
+          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">3. Registro por elemento</ITText>
 
-            <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_200px_auto] gap-3 items-end">
-                <div>
+            <ITFlex direction="column" className="bg-slate-50 rounded-2xl border border-slate-100 p-4 mb-4">
+              <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-[1fr_200px_auto] gap-3 items-end">
+                <ITFlex direction="column">
                   <ITSearchSelect
                     name="pickerGuard"
                     label="Guardia"
@@ -243,7 +243,7 @@ const NewShiftHandoverPage = () => {
                     value={pickerGuardId}
                     onChange={(val) => setPickerGuardId(String(val))}
                   />
-                </div>
+                </ITFlex>
                 <ITTimePicker
                   name="pickerEntryTime"
                   label="Hora de entrada"
@@ -258,34 +258,34 @@ const NewShiftHandoverPage = () => {
                   variant="filled"
                  
                 >
-                  <div className="flex items-center gap-2">
+                  <ITFlex align="center" gap={2} className="flex items-center gap-2">
                     <FaPlus size={12} /> Agregar
 
-                  </div>
+                  </ITFlex>
                 </ITButton>
-              </div>
-            </div>
+              </ITFlex>
+            </ITFlex>
 
             {elements.length > 0 ? (
-              <div className="space-y-2">
+              <ITFlex direction="column" className="space-y-2">
                 {elements.map((el, index) => (
                   <div key={index} className="flex items-center gap-3 bg-white border border-slate-100 rounded-xl px-4 py-3 shadow-sm">
-                    <div className="w-9 h-9 rounded-full bg-emerald-50 text-[#065911] font-bold flex items-center justify-center text-xs border border-emerald-100 flex-shrink-0">
+                    <ITFlex align="center" justify="center" className="w-9 h-9 rounded-full bg-emerald-50 text-[#065911] font-bold flex items-center justify-center text-xs border border-emerald-100 flex-shrink-0">
                       {el.guardLabel
                         .split(" ")
                         .filter(Boolean)
                         .slice(0, 2)
                         .map((w) => w[0]?.toUpperCase())
                         .join("") || "—"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-slate-700 truncate">{el.guardLabel}</p>
-                      <p className="text-[10px] text-slate-400 font-semibold flex items-center gap-1.5">
+                    </ITFlex>
+                    <ITFlex direction="column" className="flex-1 min-w-0">
+                      <ITText as="p" className="text-xs font-bold text-slate-700 truncate">{el.guardLabel}</ITText>
+                      <ITText as="p" className="text-[10px] text-slate-400 font-semibold flex items-center gap-1.5">
                         <FaClock className="text-slate-300" /> Entrada: {el.entryTime}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Puntual</span>
+                      </ITText>
+                    </ITFlex>
+                    <ITFlex align="center" gap={2} className="flex items-center gap-2">
+                      <ITText as="span" className="text-[9px] font-bold text-slate-400 uppercase">Puntual</ITText>
                       <ITSlideToggle
                         size="sm"
                         isOn={el.punctual}
@@ -293,7 +293,7 @@ const NewShiftHandoverPage = () => {
                           setElements((prev) => prev.map((e, i) => (i === index ? { ...e, punctual: v } : e)))
                         }
                       />
-                    </div>
+                    </ITFlex>
                     <ITButton
                       variant="icon-only"
                       color="gray"
@@ -304,23 +304,23 @@ const NewShiftHandoverPage = () => {
                     />
                   </div>
                 ))}
-              </div>
+              </ITFlex>
             ) : (
-              <p className="text-[11px] text-slate-400 italic text-center py-3 font-medium tracking-wide bg-slate-50 rounded-xl border border-dashed border-slate-200">
+              <ITText as="p" className="text-[11px] text-slate-400 italic text-center py-3 font-medium tracking-wide bg-slate-50 rounded-xl border border-dashed border-slate-200">
                 Aún no se registran elementos. Agrega los guardias con su hora de entrada.
-              </p>
+              </ITText>
             )}
-          </div>
+          </ITFlex>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">4. Verificación de entrega de turno</p>
-            <div className="bg-slate-50 rounded-xl divide-y divide-slate-100">
+          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">4. Verificación de entrega de turno</ITText>
+            <ITFlex direction="column" className="bg-slate-50 rounded-xl divide-y divide-slate-100">
               {CHECKLIST_LABELS.map((item) => (
                 <div key={item.key} className="flex items-center justify-between px-4 py-2.5">
-                  <span className="text-sm font-semibold text-slate-700 flex items-center gap-2.5">
+                  <ITText as="span" className="text-sm font-semibold text-slate-700 flex items-center gap-2.5">
                     <item.icon className="text-slate-400" />
                     {item.label}
-                  </span>
+                  </ITText>
                   <ITSlideToggle
                     size="sm"
                     isOn={checklist[item.key as keyof ChecklistState]}
@@ -328,17 +328,17 @@ const NewShiftHandoverPage = () => {
                   />
                 </div>
               ))}
-            </div>
+            </ITFlex>
 
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3 mt-4">
-              <span className="flex-1 text-sm font-semibold text-emerald-800">
+            <ITFlex align="center" gap={3} className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3 mt-4">
+              <ITText as="span" className="flex-1 text-sm font-semibold text-emerald-800">
                 Se reportaron las novedades a la administración
-              </span>
+              </ITText>
               <ITSlideToggle isOn={reportedToAdmin} onToggle={setReportedToAdmin} />
-            </div>
-          </div>
+            </ITFlex>
+          </ITFlex>
 
-          <div className="flex justify-end gap-3 pb-10">
+          <ITFlex justify="end" gap={3} className="flex justify-end gap-3 pb-10">
             <ITButton variant="outlined" color="secondary" onClick={() => navigate("/shift-handover")}>
               Cancelar
             </ITButton>
@@ -351,10 +351,10 @@ const NewShiftHandoverPage = () => {
             >
               {submitting ? "Enviando..." : "Enviar Reporte de Turno"}
             </ITButton>
-          </div>
-        </div>
-      </div>
-    </div>
+          </ITFlex>
+        </ITFlex>
+      </ITFlex>
+    </ITFlex>
   );
 };
 
