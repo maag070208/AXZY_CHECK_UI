@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { useEffect, useState } from "react";
-import { ITPage } from "@axzydev/axzy_ui_system";
+import { ITFlex, ITPage } from "@axzydev/axzy_ui_system";
 import { FaHome, FaBook, FaClock, FaExclamationTriangle, FaListAlt, FaRoute, FaUserShield, FaWrench } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -99,11 +99,11 @@ const HomePage = () => {
       icon={<FaHome size={20} />}
       iconColor="#065911"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {homeCardItem.map((item, index) => (
           <HomeCardItem key={index} item={item} index={index} />
         ))}
-      </div>
+      </ITFlex>
     </ITPage>
   );
 };
