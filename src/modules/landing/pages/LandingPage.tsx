@@ -1,4 +1,4 @@
-import { ITButton, ITTabs } from "@axzydev/axzy_ui_system";
+import { ITButton, ITInput, ITSearchSelect, ITTabs } from "@axzydev/axzy_ui_system";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import type { IconType } from "react-icons";
 import {
@@ -316,66 +316,65 @@ const QuoteForm = () => {
       </div>
 
       <div className="lp-form-grid">
-        <label className="lp-field">
-          <span>Nombre</span>
-          <input
-            name="name"
-            required
-            value={form.name}
-            onChange={update("name")}
-            placeholder="Tu nombre"
-          />
-        </label>
-        <label className="lp-field">
-          <span>Empresa</span>
-          <input
-            name="company"
-            required
-            value={form.company}
-            onChange={update("company")}
-            placeholder="Agencia o residencial"
-          />
-        </label>
-        <label className="lp-field">
-          <span>Guardias</span>
-          <select name="guards" required value={form.guards} onChange={update("guards")}>
-            <option value="">Selecciona</option>
-            <option>1 a 20</option>
-            <option>21 a 50</option>
-            <option>51 a 100</option>
-            <option>Más de 100</option>
-          </select>
-        </label>
-        <label className="lp-field">
-          <span>Ubicaciones</span>
-          <select
-            name="locations"
-            required
-            value={form.locations}
-            onChange={update("locations")}
-          >
-            <option value="">Selecciona</option>
-            <option>1 a 5</option>
-            <option>6 a 15</option>
-            <option>16 a 30</option>
-            <option>Más de 30</option>
-          </select>
-        </label>
-        <label className="lp-field lp-form-full">
-          <span>WhatsApp o email</span>
-          <input
+        <ITInput
+          name="name"
+          label="Nombre"
+          required
+          value={form.name}
+          onChange={update("name")}
+          placeholder="Tu nombre"
+        />
+        <ITInput
+          name="company"
+          label="Empresa"
+          required
+          value={form.company}
+          onChange={update("company")}
+          placeholder="Agencia o residencial"
+        />
+        <ITSearchSelect
+          name="guards"
+          label="Guardias"
+          required
+          value={form.guards}
+          onChange={(value) => setForm((prev) => ({ ...prev, guards: String(value) }))}
+          options={[
+            { label: "1 a 20", value: "1 a 20" },
+            { label: "21 a 50", value: "21 a 50" },
+            { label: "51 a 100", value: "51 a 100" },
+            { label: "Más de 100", value: "Más de 100" },
+          ]}
+          clearable={false}
+        />
+        <ITSearchSelect
+          name="locations"
+          label="Ubicaciones"
+          required
+          value={form.locations}
+          onChange={(value) => setForm((prev) => ({ ...prev, locations: String(value) }))}
+          options={[
+            { label: "1 a 5", value: "1 a 5" },
+            { label: "6 a 15", value: "6 a 15" },
+            { label: "16 a 30", value: "16 a 30" },
+            { label: "Más de 30", value: "Más de 30" },
+          ]}
+          clearable={false}
+        />
+        <div className="lp-form-full">
+          <ITInput
             name="contact"
+            label="WhatsApp o email"
             required
             value={form.contact}
             onChange={update("contact")}
             placeholder="Para enviarte la propuesta"
           />
-        </label>
+        </div>
       </div>
 
-      <button type="submit" className="lp-form-submit">
+      <ITButton type="submit" color="primary" variant="filled" className="lp-form-submit">
         <FaWhatsapp size={14} /> Solicitar cotización
-      </button>
+      </ITButton>
       <p className="lp-form-note">
         {sent
           ? "Abrimos WhatsApp con tus datos. Si no se abrió, escríbenos a aamaro@axzy.dev."
@@ -412,9 +411,9 @@ const ModulePanel = ({ item, onQuote }: ModulePanelProps) => (
             Explorar demo <FaExternalLinkAlt size={10} />
           </span>
         </ITButton>
-        <button type="button" className="lp-text-link" onClick={onQuote}>
+        <ITButton variant="text" color="gray" type="button" className="lp-text-link" onClick={onQuote}>
           Solicitar información <FaArrowRight size={9} />
-        </button>
+        </ITButton>
       </div>
     </div>
     <div className="lp-visual">{item.visual}</div>
@@ -479,39 +478,37 @@ const LandingPage = () => {
       </div>
       <header className="lp-nav">
         <div className="lp-container lp-nav-inner">
-          <button
+          <ITButton variant="text" color="gray"
             type="button"
             className="lp-logo"
-            aria-label="CheckApp, ir al inicio"
+            ariaLabel="CheckApp, ir al inicio"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             <img src={logoGreen} alt="CheckApp" />
-          </button>
+          </ITButton>
 
           <nav className="lp-nav-links" aria-label="Navegación principal">
             {NAV_LINKS.map((link) => (
-              <button
+              <ITButton variant="text" color="gray"
                 key={link.id}
                 type="button"
                 className="lp-nav-link"
                 onClick={() => scrollTo(link.id)}
               >
                 {link.label}
-              </button>
+              </ITButton>
             ))}
           </nav>
 
           <div className="lp-nav-actions">
-            <button
+            <ITButton variant="text" color="gray"
               type="button"
               className="lp-mobile-toggle"
-              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-              aria-expanded={menuOpen}
-              aria-controls="lp-mobile-menu"
+              ariaLabel={menuOpen ? "Cerrar menú" : "Abrir menú"}
               onClick={() => setMenuOpen((open) => !open)}
             >
               {menuOpen ? <FaTimes /> : <FaBars />}
-            </button>
+            </ITButton>
           </div>
         </div>
 
@@ -519,14 +516,14 @@ const LandingPage = () => {
           <div className="lp-mobile-panel" id="lp-mobile-menu">
             <div className="lp-container">
               {NAV_LINKS.map((link) => (
-                <button
+                <ITButton variant="text" color="gray"
                   key={link.id}
                   type="button"
                   className="lp-mobile-link"
                   onClick={() => scrollTo(link.id)}
                 >
                   {link.label}
-                </button>
+                </ITButton>
               ))}
             </div>
           </div>
@@ -586,10 +583,10 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <button type="button" className="lp-scroll-cue" onClick={() => scrollTo("problema")}>
+          <ITButton variant="text" color="gray" type="button" className="lp-scroll-cue" onClick={() => scrollTo("problema")}>
             <span>Desliza para recorrer</span>
             <FaChevronDown size={12} />
-          </button>
+          </ITButton>
         </section>
 
         <section className="lp-trust">
@@ -681,9 +678,9 @@ const LandingPage = () => {
               <p>
                 <strong>No es un GPS. Es la prueba de que el trabajo se hizo.</strong>
               </p>
-              <button type="button" onClick={() => scrollTo("cotizacion")}>
+              <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("cotizacion")}>
                 Quiero verlo en mi operación <FaArrowRight size={10} />
-              </button>
+              </ITButton>
             </div>
           </div>
         </section>
@@ -855,9 +852,9 @@ const LandingPage = () => {
 
             <p className="lp-faq-cta">
               ¿Otra duda?{" "}
-              <button type="button" onClick={openWhatsApp}>
+              <ITButton variant="text" color="gray" type="button" onClick={openWhatsApp}>
                 Habla con un especialista <FaArrowRight size={10} />
-              </button>
+              </ITButton>
             </p>
           </div>
         </section>
@@ -929,19 +926,19 @@ const LandingPage = () => {
 
           <div>
             <h4>Producto</h4>
-            <button type="button" className="lp-footer-link" onClick={() => scrollTo("beneficios")}>
+            <ITButton variant="text" color="gray" type="button" className="lp-footer-link" onClick={() => scrollTo("beneficios")}>
               Beneficios
-            </button>
-            <button type="button" className="lp-footer-link" onClick={() => scrollTo("modulos")}>
+            </ITButton>
+            <ITButton variant="text" color="gray" type="button" className="lp-footer-link" onClick={() => scrollTo("modulos")}>
               Módulos
-            </button>
-            <button
+            </ITButton>
+            <ITButton variant="text" color="gray"
               type="button"
               className="lp-footer-link"
               onClick={() => scrollTo("como-funciona")}
             >
               Cómo funciona
-            </button>
+            </ITButton>
             <a className="lp-footer-link" href={DEMO_URL} target="_blank" rel="noreferrer">
               Explorar demo
             </a>
@@ -955,9 +952,9 @@ const LandingPage = () => {
             <a className="lp-footer-link" href="mailto:aamaro@axzy.dev">
               aamaro@axzy.dev
             </a>
-            <button type="button" className="lp-footer-link" onClick={() => scrollTo("cotizacion")}>
+            <ITButton variant="text" color="gray" type="button" className="lp-footer-link" onClick={() => scrollTo("cotizacion")}>
               Solicitar cotización
-            </button>
+            </ITButton>
           </div>
 
           <div>
