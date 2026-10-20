@@ -1,7 +1,7 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ITInput, ITButton, ITLoader } from "@axzydev/axzy_ui_system";
+import { ITButton, ITFlex, ITInput, ITLoader, ITText } from "@axzydev/axzy_ui_system";
 import { resetPassword, User } from "../services/UserService";
 import { useDispatch } from "react-redux";
 import { showToast } from "@app/core/store/toast/toast.slice";
@@ -42,25 +42,25 @@ export const ChangePasswordModal: React.FC<Props> = ({ user, onCancel, onSuccess
   });
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <ITFlex direction="column" gap={4} className="flex flex-col gap-4 p-4">
       {/* Title Header */}
-      <div className="mb-4 px-4 text-center mt-2">
-          <h2 className="text-2xl font-bold text-slate-800">
+      <ITFlex direction="column" className="mb-4 px-4 text-center mt-2">
+          <ITText as="h2" className="text-2xl font-bold text-slate-800">
               Cambiar Contraseña
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">
+          </ITText>
+          <ITText as="p" className="text-sm text-slate-500 mt-1">
               Asigna una nueva contraseña de acceso
-          </p>
-      </div>
+          </ITText>
+      </ITFlex>
 
       {loading && <ITLoader />}
       
-      <div className="bg-orange-50 p-4 rounded-lg border border-orange-100">
-        <p className="text-sm text-orange-800">
+      <ITFlex direction="column" className="bg-orange-50 p-4 rounded-lg border border-orange-100">
+        <ITText as="p" className="text-sm text-orange-800">
             Estás cambiando la contraseña para el usuario <strong>{user.username}</strong>. 
             Esta acción no requiere la contraseña anterior.
-        </p>
-      </div>
+        </ITText>
+      </ITFlex>
 
       <ITInput
         label="Nueva Contraseña"
@@ -81,10 +81,10 @@ export const ChangePasswordModal: React.FC<Props> = ({ user, onCancel, onSuccess
         error={formik.errors.confirmPassword}
       />
 
-      <div className="flex justify-end gap-3 mt-4">
+      <ITFlex justify="end" gap={3} className="flex justify-end gap-3 mt-4">
         <ITButton variant="outlined" color="secondary" onClick={onCancel}>Cancelar</ITButton>
         <ITButton onClick={formik.submitForm} disabled={loading} color="warning">Cambiar Contraseña</ITButton>
-      </div>
-    </div>
+      </ITFlex>
+    </ITFlex>
   );
 };
