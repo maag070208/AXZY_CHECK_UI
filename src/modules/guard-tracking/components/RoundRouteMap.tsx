@@ -1,3 +1,4 @@
+import { ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow, Polyline, useMap } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 
@@ -29,24 +30,24 @@ export const RoundRouteMap = ({ points, height = '420px', className = '' }: Roun
 
   if (!apiKey) {
     return (
-      <div className="flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 text-slate-400 text-sm italic" style={{ height }}>
+      <ITFlex align="center" justify="center" className="flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 text-slate-400 text-sm italic" style={{ height }}>
         Google Maps API Key no configurada
-      </div>
+      </ITFlex>
     );
   }
 
   if (points.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm" style={{ height }}>
-        <span>Esta ronda no tiene escaneos con ubicación registrada</span>
-      </div>
+      <ITFlex direction="column" align="center" justify="center" gap={2} className="flex flex-col items-center justify-center gap-2 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm" style={{ height }}>
+        <ITText as="span">Esta ronda no tiene escaneos con ubicación registrada</ITText>
+      </ITFlex>
     );
   }
 
   const center = points.length === 1 ? { lat: points[0].lat, lng: points[0].lng } : DEFAULT_CENTER;
 
   return (
-    <div className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm ${className}`} style={{ height }}>
+    <ITFlex direction="column" className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm ${className}`} style={{ height }}>
       <APIProvider apiKey={apiKey}>
         <Map
           defaultCenter={center}
@@ -72,16 +73,16 @@ export const RoundRouteMap = ({ points, height = '420px', className = '' }: Roun
           ))}
           {activePoint && (
             <InfoWindow position={{ lat: activePoint.lat, lng: activePoint.lng }} onCloseClick={() => setActivePoint(null)}>
-              <div className="text-xs">
-                <p className="font-bold text-slate-700">#{activePoint.seq} · {activePoint.label}</p>
-                <p className="text-slate-400">{new Date(activePoint.timestamp).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
-              </div>
+              <ITFlex direction="column" className="text-xs">
+                <ITText as="p" className="font-bold text-slate-700">#{activePoint.seq} · {activePoint.label}</ITText>
+                <ITText as="p" className="text-slate-400">{new Date(activePoint.timestamp).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</ITText>
+              </ITFlex>
             </InfoWindow>
           )}
           <FitBounds points={points} />
         </Map>
       </APIProvider>
-    </div>
+    </ITFlex>
   );
 };
 
