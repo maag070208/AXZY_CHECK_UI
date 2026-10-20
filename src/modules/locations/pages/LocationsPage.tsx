@@ -1,6 +1,6 @@
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITInput, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCar, FaSearchLocation, FaEdit, FaPlus, FaQrcode, FaSync, FaTimes, FaTrash } from "react-icons/fa";
@@ -150,9 +150,9 @@ const LocationsPage = () => {
           type: "number", 
           sortable: true,
           render: (row: any) => (
-              <div className="font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded inline-block text-xs">
+              <ITFlex direction="column" className="font-bold text-slate-800 bg-slate-50 px-2 py-1 rounded inline-block text-xs">
                   {row.id}
-              </div>
+              </ITFlex>
           )
       },
       { 
@@ -161,7 +161,7 @@ const LocationsPage = () => {
           type: "string", 
           sortable: true,
           render: (row: Location) => (
-              <div className="font-bold text-slate-800">{row.name}</div>
+              <ITFlex direction="column" className="font-bold text-slate-800">{row.name}</ITFlex>
           )
       },
       { 
@@ -169,28 +169,28 @@ const LocationsPage = () => {
           label: "Sección", 
           type: "string", 
           sortable: true,
-          render: (row: any) => <div className="text-slate-600 font-medium">{row.aisle}</div>
+          render: (row: any) => <ITFlex direction="column" className="text-slate-600 font-medium">{row.aisle}</ITFlex>
       },
       { 
           key: "spot", 
           label: "# Consecutivo", 
           type: "string", 
           sortable: true,
-          render: (row: any) => <div className="text-slate-500">{row.spot}</div>
+          render: (row: any) => <ITFlex direction="column" className="text-slate-500">{row.spot}</ITFlex>
       },
       { 
           key: "number", 
           label: "Referencia", 
           type: "string", 
           sortable: true,
-          render: (row: any) => <div className="text-xs text-slate-400 italic">{row.number}</div>
+          render: (row: any) => <ITFlex direction="column" className="text-xs text-slate-400 italic">{row.number}</ITFlex>
       },
       {
           key: "actions",
           label: "Acciones",
           type: "actions",
           actions: (row: Location) => (
-              <div className="flex items-center gap-2">
+              <ITFlex align="center" gap={2} className="flex items-center gap-2">
                   <ITButton
                       onClick={() => handlePrintQR(row)}
                       size="sm"
@@ -223,7 +223,7 @@ const LocationsPage = () => {
                           </ITButton>
                        </>
                    )}
-              </div>
+              </ITFlex>
           )
       }
   ], [user]);
@@ -238,8 +238,8 @@ const LocationsPage = () => {
       icon={<FaSearchLocation size={20} />}
       iconColor="#065911"
       actions={
-<div className="flex items-center gap-3">
-            <div className="w-64 relative">
+<ITFlex align="center" gap={3} className="flex items-center gap-3">
+            <ITFlex direction="column" className="w-64 relative">
                 <ITInput
                     placeholder="Buscar por nombre..."
                     name="search"
@@ -259,7 +259,7 @@ const LocationsPage = () => {
                        
                     />
                 )}
-            </div>
+            </ITFlex>
             <ITButton
                 onClick={() => setRefreshKey(prev => prev + 1)}
                 color="secondary"
@@ -269,7 +269,7 @@ const LocationsPage = () => {
                 title="Actualizar tabla"
             >
                 <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                <span className="text-xs font-bold text-slate-500">Actualizar</span></ITFlex>
+                <ITText as="span" className="text-xs font-bold text-slate-500">Actualizar</ITText></ITFlex>
             </ITButton>
             {user?.role !== "OPERATOR" && (
                 <ITButton
@@ -280,12 +280,12 @@ const LocationsPage = () => {
                     <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVA UBICACIÓN
                 </ITFlex></ITButton>
             )}
-        </div>
+        </ITFlex>
       }
     >
       
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
@@ -299,7 +299,7 @@ const LocationsPage = () => {
             fetchData={memoizedFetch as any}
             externalFilters={externalFilters}
         />
-      </div>
+      </ITFlex>
 
       {/* Create Modal */}
       <ITDialog isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Locación">
@@ -324,48 +324,48 @@ const LocationsPage = () => {
         title={`Autos en ${viewingLocation?.name}`}
         className="max-w-3xl w-full"
       >
-        <div className="p-4">
+        <ITFlex direction="column" className="p-4">
             {viewingLocation?.entries && viewingLocation.entries.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+                <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
                     {viewingLocation.entries.map((entry: any) => (
                         <div key={entry.id} className="border rounded-lg p-3 flex gap-3 items-center bg-gray-50 border-[#e1e4d5]">
-                            <div className="bg-[#f1f6eb] p-2.5 rounded-full text-[#065911]">
+                            <ITFlex direction="column" className="bg-[#f1f6eb] p-2.5 rounded-full text-[#065911]">
                                 <FaCar />
-                            </div>
-                            <div>
-                                <p className="font-bold text-[#1b1b1f]">{entry.brand} {entry.model}</p>
-                                <p className="text-sm text-[#54634d]">Placas: <span className="font-mono font-bold">{entry.plates}</span></p>
-                                <p className="text-xs text-gray-500">Color: {entry.color}</p>
-                            </div>
+                            </ITFlex>
+                            <ITFlex direction="column">
+                                <ITText as="p" className="font-bold text-[#1b1b1f]">{entry.brand} {entry.model}</ITText>
+                                <ITText as="p" className="text-sm text-[#54634d]">Placas: <ITText as="span" className="font-mono font-bold">{entry.plates}</ITText></ITText>
+                                <ITText as="p" className="text-xs text-gray-500">Color: {entry.color}</ITText>
+                            </ITFlex>
                         </div>
                     ))}
-                </div>
+                </ITFlex>
             ) : (
-                <div className="text-center py-10 text-gray-500">
-                    <p>No hay vehículos en esta zona.</p>
-                </div>
+                <ITFlex direction="column" className="text-center py-10 text-gray-500">
+                    <ITText as="p">No hay vehículos en esta zona.</ITText>
+                </ITFlex>
             )}
-            <div className="mt-6 flex justify-end">
+            <ITFlex justify="end" className="mt-6 flex justify-end">
                 <ITButton color="secondary" onClick={() => setViewingLocation(null)}>Cerrar</ITButton>
-            </div>
-        </div>
+            </ITFlex>
+        </ITFlex>
       </ITDialog>
 
       {/* Delete Confirmation Modal */}
       <ITDialog isOpen={!!locationToDelete} onClose={() => setLocationToDelete(null)} title="Confirmar Eliminación">
-        <div className="p-6">
-            <p className="text-[#1b1b1f] text-base mb-6">
-                ¿Estás seguro de que deseas eliminar la zona <span className="font-bold text-red-600">{locationToDelete?.name}</span>? Esta acción no se puede deshacer.
-            </p>
-            <div className="flex justify-end gap-3">
+        <ITFlex direction="column" className="p-6">
+            <ITText as="p" className="text-[#1b1b1f] text-base mb-6">
+                ¿Estás seguro de que deseas eliminar la zona <ITText as="span" className="font-bold text-red-600">{locationToDelete?.name}</ITText>? Esta acción no se puede deshacer.
+            </ITText>
+            <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
                 <ITButton variant="outlined" color="secondary" onClick={() => setLocationToDelete(null)}>
                     Cancelar
                 </ITButton>
                 <ITButton variant="solid" onClick={confirmDelete}>
                     Eliminar
                 </ITButton>
-            </div>
-        </div>
+            </ITFlex>
+        </ITFlex>
       </ITDialog>
     </ITPage>
   );
