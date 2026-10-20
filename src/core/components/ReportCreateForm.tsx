@@ -1,10 +1,9 @@
-import { FileTypeEnum, ITButton, ITDropfile, ITLoader } from "@axzydev/axzy_ui_system";
+import { FileTypeEnum, ITButton, ITDialog, ITDropfile, ITLoader } from "@axzydev/axzy_ui_system";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { ICatalogItem } from "@app/core/types/catalog.types";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { FaCheck, FaMapMarkerAlt, FaSearch, FaTimes, FaUpload, FaVideo } from "react-icons/fa";
-import { createPortal } from "react-dom";
 import { useDispatch } from "react-redux";
 
 /** Clases completas por acento: Tailwind solo genera clases escritas como literal. */
@@ -219,205 +218,186 @@ export const ReportCreateForm = ({
     }
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => !submitting && handleClose()} />
-
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-100">
-        {/* Encabezado */}
-        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 flex-shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${a.iconBox}`}>{icon}</div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-bold text-slate-800 leading-tight">{title}</h3>
-              <p className="text-[11px] text-slate-400 truncate">{subtitle}</p>
-            </div>
-          </div>
-          <button
-            onClick={handleClose}
-            aria-label="Cerrar"
-            className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-          >
-            <FaTimes size={13} />
-          </button>
-        </div>
-
-        {/* Cuerpo */}
-        <div className="px-5 py-4 overflow-y-auto flex-1 space-y-5">
-          <section>
-            <SectionLabel
-              hint={
-                typeId ? (
-                  <span className="text-[11px] font-semibold text-slate-400">1 seleccionado</span>
-                ) : (
-                  <span className="text-[11px] font-semibold text-red-400">Requerido</span>
-                )
-              }
-            >
-              {typeLabel}
-            </SectionLabel>
-
-            {typesCatalog.length > SEARCH_THRESHOLD && (
-              <div className="relative mb-2.5">
-                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={11} />
-                <input
-                  value={typeSearch}
-                  onChange={(e) => setTypeSearch(e.target.value)}
-                  placeholder="Buscar tipo..."
-                  className={`w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 outline-none transition-all ${a.focus}`}
-                />
-              </div>
-            )}
-
-            <div className="flex flex-wrap gap-1.5">
-              {visibleTypes.map((type) => {
-                const on = typeId === Number(type.id);
-                return (
-                  <button
-                    key={type.id}
-                    type="button"
-                    onClick={() => {
-                      setTypeId(Number(type.id));
-                      setCategoryId(Number(type.categoryId));
-                    }}
-                    aria-pressed={on}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
-                      on ? a.chipOn : `bg-white border-slate-200 text-slate-600 ${a.chipOff}`
-                    }`}
-                  >
-                    {on && <FaCheck size={9} />}
-                    {type.value}
-                  </button>
-                );
-              })}
-              {visibleTypes.length === 0 && <p className="text-xs text-slate-400 py-2">Sin resultados.</p>}
-            </div>
-          </section>
-
-          <section>
-            <SectionLabel hint={<span className="text-[11px] text-slate-400">Opcional</span>}>Evidencia</SectionLabel>
-            <div className="flex flex-wrap items-center gap-2">
-              <ITDropfile
-                view="button"
-                buttonLabel="Foto"
-                modalTitle="Agregar foto"
-                acceptedFileTypes={[FileTypeEnum.JPG, FileTypeEnum.JPEG, FileTypeEnum.PNG]}
-                onFileSelect={(file) => {
-                  if (file) void handleFile(file, "IMAGE");
-                }}
-              />
-              <ITDropfile
-                view="button"
-                buttonLabel="Video"
-                modalTitle="Agregar video"
-                acceptedFileTypes={[FileTypeEnum.MP4]}
-                onFileSelect={(file) => {
-                  if (file) void handleFile(file, "VIDEO");
-                }}
-              />
-
-              {media.map((item) => (
-                <div key={item.id} className="relative group">
-                  {item.type === "IMAGE" ? (
-                    <img src={item.preview} alt="Evidencia" className="w-11 h-11 rounded-xl object-cover border border-slate-200" />
+  return (
+    <ITDialog isOpen={isOpen} onClose={() => !submitting && handleClose()} title={title} className="max-w-xl">
+      <div className="flex items-center gap-3 -mt-2 mb-4">
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${a.iconBox}`}>{icon}</div>
+        <p className="text-[11px] text-slate-400">{subtitle}</p>
+      </div>
+          {/* Cuerpo */}
+          <div className="px-5 py-4 overflow-y-auto flex-1 space-y-5">
+            <section>
+              <SectionLabel
+                hint={
+                  typeId ? (
+                    <span className="text-[11px] font-semibold text-slate-400">1 seleccionado</span>
                   ) : (
-                    <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center">
-                      <FaVideo className="text-white opacity-80" size={14} />
-                    </div>
-                  )}
-                  {item.uploading && (
-                    <div className="absolute inset-0 rounded-xl bg-black/50 flex items-center justify-center">
-                      <ITLoader size="sm" />
-                    </div>
-                  )}
-                  {item.error && (
-                    <div className="absolute inset-0 rounded-xl bg-red-500/40 flex items-center justify-center">
-                      <FaTimes className="text-white" size={13} />
-                    </div>
-                  )}
-                  {!item.uploading && (
-                    <button
-                      type="button"
-                      onClick={() => removeMedia(item.id)}
-                      aria-label="Quitar evidencia"
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-white rounded-full shadow border border-slate-200 flex items-center justify-center text-red-400 hover:text-red-600"
-                    >
-                      <FaTimes size={8} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+                    <span className="text-[11px] font-semibold text-red-400">Requerido</span>
+                  )
+                }
+              >
+                {typeLabel}
+              </SectionLabel>
 
-          <section>
-            <SectionLabel hint={<span className="text-[11px] text-slate-400">Opcional</span>}>Observaciones</SectionLabel>
-            <textarea
-              placeholder={placeholder}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className={`w-full px-3.5 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 placeholder-slate-400 resize-none outline-none focus:bg-white transition-all ${a.focus}`}
-            />
-          </section>
-
-          <section>
-            <SectionLabel
-              hint={
-                <span className={`flex items-center gap-1 text-[10px] font-mono text-slate-500 transition-opacity ${mapTouched ? "opacity-100" : "opacity-40"}`}>
-                  <FaMapMarkerAlt className="text-emerald-500" size={9} />
-                  {mapLat.toFixed(5)}, {mapLng.toFixed(5)}
-                </span>
-              }
-            >
-              Ubicación
-            </SectionLabel>
-            <div className="relative rounded-xl overflow-hidden border border-slate-200">
-              <GoogleMapComponent
-                lat={mapLat}
-                lng={mapLng}
-                isEditable={true}
-                onLocationSelect={(lat: number, lng: number) => {
-                  setMapLat(lat);
-                  setMapLng(lng);
-                  setMapTouched(true);
-                }}
-                height="180px"
-              />
-              {!mapTouched && (
-                <div className="absolute inset-x-0 bottom-2 flex justify-center pointer-events-none">
-                  <span className="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow border border-slate-200 text-[11px] font-semibold text-slate-500">
-                    Toca el mapa o arrastra el pin para marcar la ubicación
-                  </span>
+              {typesCatalog.length > SEARCH_THRESHOLD && (
+                <div className="relative mb-2.5">
+                  <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={11} />
+                  <input
+                    value={typeSearch}
+                    onChange={(e) => setTypeSearch(e.target.value)}
+                    placeholder="Buscar tipo..."
+                    className={`w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 outline-none transition-all ${a.focus}`}
+                  />
                 </div>
               )}
-            </div>
-          </section>
-        </div>
 
-        {/* Acciones */}
-        <div className="px-5 py-3.5 flex justify-end gap-2.5 border-t border-slate-100 bg-slate-50/60 flex-shrink-0">
-          <ITButton variant="outlined" color="secondary" className="!rounded-xl" onClick={handleClose} disabled={submitting}>
-            Cancelar
-          </ITButton>
-          <ITButton
-            variant="filled"
-            color="primary"
-            className={`!rounded-xl ${a.submit}`}
-            onClick={handleSubmit}
-            disabled={submitting || !typeId || isUploading}
-          >
-            {submitting ? (
-              <span className="flex items-center gap-2"><ITLoader size="sm" /> Enviando...</span>
-            ) : isUploading ? (
-              <span className="flex items-center gap-2"><FaUpload size={11} /> Subiendo...</span>
-            ) : (
-              <span className="flex items-center gap-2"><FaUpload size={11} /> Enviar reporte</span>
-            )}
-          </ITButton>
-        </div>
-      </div>
-    </div>,
-    document.body,
+              <div className="flex flex-wrap gap-1.5">
+                {visibleTypes.map((type) => {
+                  const on = typeId === Number(type.id);
+                  return (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => {
+                        setTypeId(Number(type.id));
+                        setCategoryId(Number(type.categoryId));
+                      }}
+                      aria-pressed={on}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                        on ? a.chipOn : `bg-white border-slate-200 text-slate-600 ${a.chipOff}`
+                      }`}
+                    >
+                      {on && <FaCheck size={9} />}
+                      {type.value}
+                    </button>
+                  );
+                })}
+                {visibleTypes.length === 0 && <p className="text-xs text-slate-400 py-2">Sin resultados.</p>}
+              </div>
+            </section>
+
+            <section>
+              <SectionLabel hint={<span className="text-[11px] text-slate-400">Opcional</span>}>Evidencia</SectionLabel>
+              <div className="flex flex-wrap items-center gap-2">
+                <ITDropfile
+                  view="button"
+                  buttonLabel="Foto"
+                  modalTitle="Agregar foto"
+                  acceptedFileTypes={[FileTypeEnum.JPG, FileTypeEnum.JPEG, FileTypeEnum.PNG]}
+                  onFileSelect={(file) => {
+                    if (file) void handleFile(file, "IMAGE");
+                  }}
+                />
+                <ITDropfile
+                  view="button"
+                  buttonLabel="Video"
+                  modalTitle="Agregar video"
+                  acceptedFileTypes={[FileTypeEnum.MP4]}
+                  onFileSelect={(file) => {
+                    if (file) void handleFile(file, "VIDEO");
+                  }}
+                />
+
+                {media.map((item) => (
+                  <div key={item.id} className="relative group">
+                    {item.type === "IMAGE" ? (
+                      <img src={item.preview} alt="Evidencia" className="w-11 h-11 rounded-xl object-cover border border-slate-200" />
+                    ) : (
+                      <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center">
+                        <FaVideo className="text-white opacity-80" size={14} />
+                      </div>
+                    )}
+                    {item.uploading && (
+                      <div className="absolute inset-0 rounded-xl bg-black/50 flex items-center justify-center">
+                        <ITLoader size="sm" />
+                      </div>
+                    )}
+                    {item.error && (
+                      <div className="absolute inset-0 rounded-xl bg-red-500/40 flex items-center justify-center">
+                        <FaTimes className="text-white" size={13} />
+                      </div>
+                    )}
+                    {!item.uploading && (
+                      <button
+                        type="button"
+                        onClick={() => removeMedia(item.id)}
+                        aria-label="Quitar evidencia"
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-white rounded-full shadow border border-slate-200 flex items-center justify-center text-red-400 hover:text-red-600"
+                      >
+                        <FaTimes size={8} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <SectionLabel hint={<span className="text-[11px] text-slate-400">Opcional</span>}>Observaciones</SectionLabel>
+              <textarea
+                placeholder={placeholder}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                className={`w-full px-3.5 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 placeholder-slate-400 resize-none outline-none focus:bg-white transition-all ${a.focus}`}
+              />
+            </section>
+
+            <section>
+              <SectionLabel
+                hint={
+                  <span className={`flex items-center gap-1 text-[10px] font-mono text-slate-500 transition-opacity ${mapTouched ? "opacity-100" : "opacity-40"}`}>
+                    <FaMapMarkerAlt className="text-emerald-500" size={9} />
+                    {mapLat.toFixed(5)}, {mapLng.toFixed(5)}
+                  </span>
+                }
+              >
+                Ubicación
+              </SectionLabel>
+              <div className="relative rounded-xl overflow-hidden border border-slate-200">
+                <GoogleMapComponent
+                  lat={mapLat}
+                  lng={mapLng}
+                  isEditable={true}
+                  onLocationSelect={(lat: number, lng: number) => {
+                    setMapLat(lat);
+                    setMapLng(lng);
+                    setMapTouched(true);
+                  }}
+                  height="180px"
+                />
+                {!mapTouched && (
+                  <div className="absolute inset-x-0 bottom-2 flex justify-center pointer-events-none">
+                    <span className="bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow border border-slate-200 text-[11px] font-semibold text-slate-500">
+                      Toca el mapa o arrastra el pin para marcar la ubicación
+                    </span>
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* Acciones */}
+          <div className="px-5 py-3.5 flex justify-end gap-2.5 border-t border-slate-100 bg-slate-50/60 flex-shrink-0">
+            <ITButton variant="outlined" color="secondary" className="!rounded-xl" onClick={handleClose} disabled={submitting}>
+              Cancelar
+            </ITButton>
+            <ITButton
+              variant="filled"
+              color="primary"
+              className={`!rounded-xl ${a.submit}`}
+              onClick={handleSubmit}
+              disabled={submitting || !typeId || isUploading}
+            >
+              {submitting ? (
+                <span className="flex items-center gap-2"><ITLoader size="sm" /> Enviando...</span>
+              ) : isUploading ? (
+                <span className="flex items-center gap-2"><FaUpload size={11} /> Subiendo...</span>
+              ) : (
+                <span className="flex items-center gap-2"><FaUpload size={11} /> Enviar reporte</span>
+              )}
+            </ITButton>
+          </div>
+    </ITDialog>
   );
 };
