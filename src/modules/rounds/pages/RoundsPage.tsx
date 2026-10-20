@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITPage , ITSearchSelect , ITInput , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITFlex, ITInput, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaStop, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -164,11 +164,11 @@ const RoundsPage = () => {
         type: "string",
         sortable: true,
         render: (row: any) => (
-          <span className="font-semibold text-slate-700">
+          <ITText as="span" className="font-semibold text-slate-700">
             {row.recurringConfiguration?.title ||
               routesMap[row.recurringConfigurationId] ||
               "Ronda General"}
-          </span>
+          </ITText>
         ),
       },
       {
@@ -176,9 +176,9 @@ const RoundsPage = () => {
         label: "Guardia",
         type: "string",
         render: (row: IRound) => (
-          <div className="font-medium text-slate-700">
+          <ITFlex direction="column" className="font-medium text-slate-700">
             {row.guard.name} {row.guard.lastName}
-          </div>
+          </ITFlex>
         ),
       },
       {
@@ -187,9 +187,9 @@ const RoundsPage = () => {
         type: "string",
         sortable: true,
         render: (row: IRound) => (
-          <span className="text-slate-600 text-sm">
+          <ITText as="span" className="text-slate-600 text-sm">
             {new Date(row.startTime).toLocaleString()}
-          </span>
+          </ITText>
         ),
       },
       {
@@ -198,9 +198,9 @@ const RoundsPage = () => {
         type: "string",
         sortable: true,
         render: (row: IRound) => (
-          <span className="text-slate-600 text-sm">
+          <ITText as="span" className="text-slate-600 text-sm">
             {row.endTime ? new Date(row.endTime).toLocaleString() : "-"}
-          </span>
+          </ITText>
         ),
       },
       {
@@ -224,21 +224,21 @@ const RoundsPage = () => {
         type: "string",
         render: (row: IRound) => {
           if (row.totalLocations == null || row.progressPercent == null) {
-            return <span className="text-xs text-slate-300">—</span>;
+            return <ITText as="span" className="text-xs text-slate-300">—</ITText>;
           }
           return (
-            <div className="min-w-[120px]">
-              <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 mb-1">
-                <span>{row.scannedCount}/{row.totalLocations} puntos</span>
-                <span>{row.progressPercent}%</span>
-              </div>
-              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div
+            <ITFlex direction="column" className="min-w-[120px]">
+              <ITFlex align="center" justify="between" className="flex items-center justify-between text-[10px] font-bold text-slate-500 mb-1">
+                <ITText as="span">{row.scannedCount}/{row.totalLocations} puntos</ITText>
+                <ITText as="span">{row.progressPercent}%</ITText>
+              </ITFlex>
+              <ITFlex direction="column" className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <ITFlex direction="column"
                   className={`h-full rounded-full ${PROGRESS_BAR_COLOR[row.progressStatus ?? "MALO"]}`}
                   style={{ width: `${row.progressPercent}%` }}
                 />
-              </div>
-            </div>
+              </ITFlex>
+            </ITFlex>
           );
         },
       },
@@ -252,7 +252,7 @@ const RoundsPage = () => {
               {row.progressStatus}
             </ITBadget>
           ) : (
-            <span className="text-xs text-slate-300">—</span>
+            <ITText as="span" className="text-xs text-slate-300">—</ITText>
           ),
       },
       {
@@ -260,7 +260,7 @@ const RoundsPage = () => {
         label: "Acciones",
         type: "actions",
         actions: (row: IRound) => (
-          <div className="flex gap-2">
+          <ITFlex gap={2} className="flex gap-2">
             <ITButton
               onClick={() => navigate(`/rounds/${row.id}`)}
               size="sm"
@@ -284,7 +284,7 @@ const RoundsPage = () => {
                 <FaStop />
               </ITButton>
             )}
-          </div>
+          </ITFlex>
         ),
       },
     ],
@@ -301,10 +301,10 @@ const RoundsPage = () => {
       icon={<FaClock size={20} />}
       iconColor="#065911"
       actions={
-<div className="flex items-center gap-3">
-            <div className="flex flex-col gap-1.5">
+<ITFlex align="center" gap={3} className="flex items-center gap-3">
+            <ITFlex direction="column" className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Buscar Guardia</label>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[240px] shadow-sm focus-within:border-emerald-500/50 transition-all">
+                <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[240px] shadow-sm focus-within:border-emerald-500/50 transition-all">
                     <FaUser className="text-slate-300 text-xs mr-2" />
                     <ITInput
                         name="searchRound"
@@ -325,12 +325,12 @@ const RoundsPage = () => {
                            
                         />
                     )}
-                </div>
-            </div>
+                </ITFlex>
+            </ITFlex>
 
-            <div className="flex flex-col gap-1.5">
+            <ITFlex direction="column" className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Estado</label>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[150px] shadow-sm">
+                <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[150px] shadow-sm">
                     <ITSearchSelect
                         value={statusFilter}
                         onChange={(value) => {
@@ -345,12 +345,12 @@ const RoundsPage = () => {
                         clearable={false}
                         className="w-full"
                     />
-                </div>
-            </div>
+                </ITFlex>
+            </ITFlex>
 
-            <div className="flex flex-col gap-1.5">
+            <ITFlex direction="column" className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Periodo</label>
-                <div className="flex items-center gap-3">
+                <ITFlex align="center" gap={3} className="flex items-center gap-3">
           <ITDatePicker
             label=""
             name="date"
@@ -390,15 +390,15 @@ const RoundsPage = () => {
                 title="Actualizar tabla"
               >
                 <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                <span className="text-xs font-bold text-slate-600">Refrescar</span></ITFlex>
+                <ITText as="span" className="text-xs font-bold text-slate-600">Refrescar</ITText></ITFlex>
           </ITButton>
-                </div>
-            </div>
-        </div>
+                </ITFlex>
+            </ITFlex>
+        </ITFlex>
       }
     >
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <ITFlex direction="column" className="bg-white rounded-xl shadow-sm overflow-hidden">
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
@@ -412,7 +412,7 @@ const RoundsPage = () => {
           fetchData={memoizedFetch as any}
           externalFilters={externalFilters}
         />
-      </div>
+      </ITFlex>
 
 
       {/* End Round Confirmation Modal */}
@@ -421,12 +421,12 @@ const RoundsPage = () => {
         onClose={() => setRoundToFinishId(null)}
         title="Confirmar Finalización"
       >
-        <div className="p-6">
-          <p className="text-[#1b1b1f] text-base mb-6">
+        <ITFlex direction="column" className="p-6">
+          <ITText as="p" className="text-[#1b1b1f] text-base mb-6">
             ¿Seguro que deseas FINALIZAR esta ronda manualmente? Esta acción no
             se puede deshacer.
-          </p>
-          <div className="flex justify-end gap-3">
+          </ITText>
+          <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
             <ITButton
               variant="outlined"
               color="secondary"
@@ -437,8 +437,8 @@ const RoundsPage = () => {
             <ITButton variant="solid" color="danger" onClick={confirmEndRound}>
               Finalizar Ronda
             </ITButton>
-          </div>
-        </div>
+          </ITFlex>
+        </ITFlex>
       </ITDialog>
     </ITPage>
   );
