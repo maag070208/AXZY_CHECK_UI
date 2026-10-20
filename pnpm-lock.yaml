@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@axzydev/axzy_ui_system':
-        specifier: 1.7.0
-        version: 1.7.0(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: file:/Users/axzy/DEV/AXZY/AXZY_UI_SYSTEM
+        version: file:../../../AXZY/AXZY_UI_SYSTEM(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@reduxjs/toolkit':
         specifier: ^2.5.1
         version: 2.12.0(react-redux@9.3.0(@types/react@19.0.8)(react@19.0.0)(redux@5.0.1))(react@19.0.0)
@@ -126,8 +126,8 @@ packages:
   '@ably/msgpack-js@0.4.1':
     resolution: {integrity: sha512-Sjxj6SOr17hExAVrsycN7u6oV4PhZcK7Z2S8dM71CH/butgO47cSo/TL6FJPCXUyDAzKkOWjMUpJGyZkEpyu4Q==}
 
-  '@axzydev/axzy_ui_system@1.7.0':
-    resolution: {integrity: sha512-KAyndYCT6c04UeHiGPBHyTSfmcB+WjKG1Wc/FjVElgA+goyjKi0p+vX8Np642xVbbMvs7AjPigf3vV+sr+C8LQ==}
+  '@axzydev/axzy_ui_system@file:../../../AXZY/AXZY_UI_SYSTEM':
+    resolution: {directory: ../../../AXZY/AXZY_UI_SYSTEM, type: directory}
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
@@ -1908,7 +1908,7 @@ snapshots:
     dependencies:
       bops: 1.0.1
 
-  '@axzydev/axzy_ui_system@1.7.0(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@axzydev/axzy_ui_system@file:../../../AXZY/AXZY_UI_SYSTEM(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       clsx: 2.1.1
       date-fns: 4.4.0
