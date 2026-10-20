@@ -1,3 +1,4 @@
+import { ITFlex } from "@axzydev/axzy_ui_system";
 import { APIProvider, Map, AdvancedMarker, Pin, useMap } from '@vis.gl/react-google-maps';
 import { useEffect } from 'react';
 
@@ -35,9 +36,9 @@ export const GoogleMapComponent = ({
 
     if (!apiKey) {
         return (
-            <div className="flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 text-slate-400 text-sm italic" style={{ height }}>
+            <ITFlex align="center" justify="center" className="flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 text-slate-400 text-sm italic" style={{ height }}>
                 Google Maps API Key no configurada
-            </div>
+            </ITFlex>
         );
     }
 
@@ -56,7 +57,7 @@ export const GoogleMapComponent = ({
     };
 
     return (
-        <div className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm ${className}`} style={{ height }}>
+        <ITFlex direction="column" className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm ${className}`} style={{ height }}>
             <APIProvider apiKey={apiKey}>
                 <Map
                     defaultCenter={{ lat, lng }}
@@ -76,6 +77,6 @@ export const GoogleMapComponent = ({
                     <MapHandler lat={lat} lng={lng} />
                 </Map>
             </APIProvider>
-        </div>
+        </ITFlex>
     );
 };
