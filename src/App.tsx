@@ -1,5 +1,5 @@
 import LoginPage from "@app/modules/auth/pages/LoginPage";
-import { ITLoader } from "@axzydev/axzy_ui_system";
+import { ITFlex, ITLoader } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -52,9 +52,9 @@ function App() {
 
   if (!isAppReady) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <ITFlex align="center" justify="center" className="flex h-screen items-center justify-center">
         <ITLoader size="lg" />
-      </div>
+      </ITFlex>
     );
   }
 
