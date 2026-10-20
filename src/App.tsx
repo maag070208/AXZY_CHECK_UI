@@ -1,5 +1,4 @@
 import LoginPage from "@app/modules/auth/pages/LoginPage";
-import RegisterPage from "@app/modules/auth/pages/RegisterPage";
 import { ITLoader } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -74,7 +73,6 @@ function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     );

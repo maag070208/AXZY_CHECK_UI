@@ -1,14 +1,33 @@
 import { ITLayout } from "@axzydev/axzy_ui_system";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { NAVBAR_LOGO, useNavigationItems } from "../constants/navbar.constants";
-import { isAuthenticated } from "../store/auth/auth.slice";
-import { AppState } from "../store/store";
+import { post } from "../axios/axios";
+import { isAuthenticated, logout as logoutAction } from "../store/auth/auth.slice";
+import { AppState, AppDispatch } from "../store/store";
+
+/**
+ * Cierre de sesión real (F9 · T-F9-10): avisa al API (marca isLoggedIn=false),
+ * limpia el estado de Redux y borra el token persistido. Antes solo navegaba a
+ * /login, y el token seguía guardado en localStorage.
+ */
+const signOut = async (dispatch: AppDispatch, navigate: (to: string) => void) => {
+  try {
+    await post("/users/logout", {});
+  } catch {
+    // Si el API no responde, igual cerramos la sesión local.
+  } finally {
+    localStorage.removeItem("token");
+    dispatch(logoutAction());
+    navigate("/login");
+  }
+};
 
 export const PrivateRoutes = () => {
   const isAuth = useSelector(isAuthenticated);
   const user = useSelector((state: AppState) => state.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const navigationItems = useNavigationItems();
 
   return isAuth ? (
@@ -22,7 +41,7 @@ export const PrivateRoutes = () => {
             {
               label: "Cerrar Sesión",
               onClick: () => {
-                navigate("/login");
+                void signOut(dispatch, navigate);
               },
             },
           ],
