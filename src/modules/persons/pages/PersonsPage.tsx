@@ -1,4 +1,4 @@
-import { ITButton, ITDialog, ITInput } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITFlex, ITInput, ITText } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPerson, PersonLite, searchPersons } from "../persons.service";
@@ -42,14 +42,14 @@ export const PersonsPage = () => {
   };
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">Personas</h1>
+    <ITFlex direction="column" className="p-8 space-y-6">
+      <ITFlex align="center" justify="between" className="flex items-center justify-between">
+        <ITText as="h1" className="text-2xl font-bold text-slate-800">Personas</ITText>
         <ITButton onClick={() => setCreating(true)}>Nueva persona</ITButton>
-      </div>
-      <p className="text-sm text-slate-500 -mt-4">
+      </ITFlex>
+      <ITText as="p" className="text-sm text-slate-500 -mt-4">
         Personas del residencial: titulares, inquilinos, residentes y visitas. Busca una para ver su ficha o crea una nueva.
-      </p>
+      </ITText>
 
       <ITInput name="q" label="Buscar por nombre o teléfono" value={q} onChange={(e) => setQ(e.target.value)} />
 
@@ -62,8 +62,8 @@ export const PersonsPage = () => {
               onClick={() => navigate(`/persons/${p.id}`)}
              
             >
-              <span className="font-semibold text-slate-800">{p.firstName} {p.lastName ?? ""}</span>
-              <span className="ml-3 text-sm text-slate-500">{p.phone ?? ""}</span>
+              <ITText as="span" className="font-semibold text-slate-800">{p.firstName} {p.lastName ?? ""}</ITText>
+              <ITText as="span" className="ml-3 text-sm text-slate-500">{p.phone ?? ""}</ITText>
             </ITButton>
           </li>
         ))}
@@ -75,7 +75,7 @@ export const PersonsPage = () => {
       </ul>
 
       <ITDialog isOpen={creating} onClose={() => { setCreating(false); setDuplicates([]); setError(null); }} title="Nueva persona" className="w-[560px] max-w-[95vw]">
-        <div className="space-y-3 p-2">
+        <ITFlex direction="column" className="space-y-3 p-2">
           <ITInput name="firstName" label="Nombre" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
           <ITInput name="lastName" label="Apellidos" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
           <ITInput name="phone" label="Teléfono" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
@@ -83,7 +83,7 @@ export const PersonsPage = () => {
 
           {duplicates.length > 0 && (
             <div role="alert" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800 space-y-2">
-              <p>Ya existe alguien con estos datos:</p>
+              <ITText as="p">Ya existe alguien con estos datos:</ITText>
               <ul className="list-disc pl-5">
                 {duplicates.map((d) => <li key={d.id}>{d.firstName} {d.lastName ?? ""} {d.phone ?? ""}</li>)}
               </ul>
@@ -92,12 +92,12 @@ export const PersonsPage = () => {
           )}
           {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
-          <div className="flex justify-end gap-2">
+          <ITFlex justify="end" gap={2} className="flex justify-end gap-2">
             <ITButton variant="outlined" onClick={() => setCreating(false)}>Cancelar</ITButton>
             <ITButton onClick={() => void save(false)} disabled={!form.firstName.trim()}>Guardar</ITButton>
-          </div>
-        </div>
+          </ITFlex>
+        </ITFlex>
       </ITDialog>
-    </div>
+    </ITFlex>
   );
 };
