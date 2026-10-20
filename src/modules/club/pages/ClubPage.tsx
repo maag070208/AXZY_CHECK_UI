@@ -1,7 +1,7 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITInput, ITLoader, ITPage , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITAlert, ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITLoader, ITPage } from "@axzydev/axzy_ui_system";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
 import { MediaCarousel } from "@core/components/MediaCarousel";
 import { AgeBadge } from "@core/components/AgeBadge";
@@ -379,19 +379,17 @@ const ClubPage = () => {
       }
     >
       {activeCatalogLabel && (
-        <div className="mb-4 flex items-center gap-3 bg-sky-50 border border-sky-200 text-sky-800 rounded-xl px-4 py-3">
-          <FaTag className="text-sky-600" />
-          <span className="text-sm">
-            Filtrando por catálogo: <strong>{activeCatalogLabel}</strong>
-          </span>
-          <button
-            type="button"
-            onClick={clearCatalogFilters}
-            className="ml-auto flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:text-sky-900"
-          >
-            <FaTimes size={12} /> Quitar filtro
-          </button>
-        </div>
+        <ITAlert variant="info" icon={<FaTag />} className="mb-4">
+          <ITFlex align="center" justify="between" gap={3}>
+            <span className="text-sm">Filtrando por catálogo: <strong>{activeCatalogLabel}</strong></span>
+            <ITButton variant="text" color="info" size="md" onClick={clearCatalogFilters}>
+              <ITFlex align="center" gap={2}>
+                <FaTimes />
+                <span>Quitar filtro</span>
+              </ITFlex>
+            </ITButton>
+          </ITFlex>
+        </ITAlert>
       )}
       
 
