@@ -1,5 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDialog, ITInput, ITSearchSelect } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import { FaCamera, FaCheck, FaMinus, FaPlus, FaPrint, FaRoute, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -194,7 +194,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
             title={editConfig ? "Ajustar ruta" : "Nueva ruta"}
             className="!w-full !max-w-5xl !rounded-3xl"
         >
-            <div className="flex flex-col lg:flex-row gap-6 h-[66vh] min-h-[420px] px-1 pt-1">
+            <ITFlex direction="column" gap={6} className="flex flex-col lg:flex-row gap-6 h-[66vh] min-h-[420px] px-1 pt-1">
 
                 {/* Izquierda: nombre y personal */}
                 <aside className="lg:w-[300px] flex-shrink-0 flex flex-col gap-5 lg:border-r border-slate-100 lg:pr-6 min-h-0">
@@ -207,12 +207,12 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                         onBlur={() => {}}
                     />
 
-                    <div className="flex-1 flex flex-col min-h-0">
-                        <div className="flex items-center justify-between mb-2">
-                            <div>
-                                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Personal</h3>
-                                <p className="text-[11px] text-slate-400">{selectedGuards.length} de {allGuards.length} asignados</p>
-                            </div>
+                    <ITFlex direction="column" className="flex-1 flex flex-col min-h-0">
+                        <ITFlex align="center" justify="between" className="flex items-center justify-between mb-2">
+                            <ITFlex direction="column">
+                                <ITText as="h3" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Personal</ITText>
+                                <ITText as="p" className="text-[11px] text-slate-400">{selectedGuards.length} de {allGuards.length} asignados</ITText>
+                            </ITFlex>
                             <button
                                 type="button"
                                 onClick={toggleAllGuards}
@@ -220,9 +220,9 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                             >
                                 {selectedGuards.length === allGuards.length ? "Limpiar" : "Marcar todos"}
                             </button>
-                        </div>
+                        </ITFlex>
 
-                        <div className="flex-1 min-h-0 overflow-y-auto space-y-1 pr-1">
+                        <ITFlex direction="column" className="flex-1 min-h-0 overflow-y-auto space-y-1 pr-1">
                             {allGuards.map(guard => {
                                 const on = selectedGuards.includes(guard.id);
                                 return (
@@ -235,29 +235,29 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                                             on ? "bg-emerald-50/60 border-emerald-200" : "bg-white border-transparent hover:bg-slate-50"
                                         }`}
                                     >
-                                        <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${on ? "bg-[#065911] text-white" : "bg-slate-100 text-slate-400"}`}>
+                                        <ITText as="span" className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${on ? "bg-[#065911] text-white" : "bg-slate-100 text-slate-400"}`}>
                                             {guard.name[0]}{guard.lastName?.[0] || ""}
-                                        </span>
-                                        <span className={`flex-1 min-w-0 truncate text-[13px] font-semibold ${on ? "text-slate-800" : "text-slate-500"}`}>
+                                        </ITText>
+                                        <ITText as="span" className={`flex-1 min-w-0 truncate text-[13px] font-semibold ${on ? "text-slate-800" : "text-slate-500"}`}>
                                             {guard.name} {guard.lastName}
-                                        </span>
-                                        <span className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${on ? "bg-[#065911] border-[#065911]" : "border-slate-300 bg-white"}`}>
+                                        </ITText>
+                                        <ITText as="span" className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${on ? "bg-[#065911] border-[#065911]" : "border-slate-300 bg-white"}`}>
                                             {on && <FaCheck className="text-white" size={8} />}
-                                        </span>
+                                        </ITText>
                                     </button>
                                 );
                             })}
-                        </div>
-                    </div>
+                        </ITFlex>
+                    </ITFlex>
                 </aside>
 
                 {/* Derecha: puntos de control */}
                 <section className="flex-1 min-w-0 flex flex-col min-h-0">
-                    <div className="flex items-center justify-between gap-3 mb-3">
-                        <div>
-                            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Puntos de control</h3>
-                            <p className="text-[11px] text-slate-400">{addedLocations.length} {addedLocations.length === 1 ? "punto" : "puntos"} en el recorrido</p>
-                        </div>
+                    <ITFlex align="center" justify="between" gap={3} className="flex items-center justify-between gap-3 mb-3">
+                        <ITFlex direction="column">
+                            <ITText as="h3" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Puntos de control</ITText>
+                            <ITText as="p" className="text-[11px] text-slate-400">{addedLocations.length} {addedLocations.length === 1 ? "punto" : "puntos"} en el recorrido</ITText>
+                        </ITFlex>
                         <button
                             type="button"
                             onClick={handlePrintQRs}
@@ -267,10 +267,10 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                         >
                             <FaPrint size={12} /> Imprimir QRs
                         </button>
-                    </div>
+                    </ITFlex>
 
-                    <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
-                        <div className="flex-1 min-w-0">
+                    <ITFlex align="center" gap={2} className="flex items-center gap-2 pb-4 border-b border-slate-100">
+                        <ITFlex direction="column" className="flex-1 min-w-0">
                             <ITSearchSelect
                                 placeholder="Busca una ubicación para agregarla..."
                                 noResultsMessage="No hay ubicaciones disponibles"
@@ -281,25 +281,25 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                                     value: String(l.id),
                                 }))}
                             />
-                        </div>
+                        </ITFlex>
                         <ITButton onClick={handleAddLocation} disabled={!selectedLocId} color="primary" variant="filled">
-                            <span className="flex items-center gap-1.5"><FaPlus size={10} /> Añadir</span>
+                            <ITText as="span" className="flex items-center gap-1.5"><FaPlus size={10} /> Añadir</ITText>
                         </ITButton>
-                    </div>
+                    </ITFlex>
 
-                    <div className="flex-1 min-h-0 overflow-y-auto pt-4 pr-1 space-y-3">
+                    <ITFlex direction="column" className="flex-1 min-h-0 overflow-y-auto pt-4 pr-1 space-y-3">
                         {addedLocations.map((loc, idx) => (
                             <div key={loc.locationId} className="rounded-2xl border border-slate-100 bg-white shadow-sm">
-                                <div className="flex items-center gap-3 px-4 py-3">
-                                    <span className="w-8 h-8 rounded-lg bg-emerald-50 text-[#065911] text-sm font-black flex items-center justify-center flex-shrink-0">
+                                <ITFlex align="center" gap={3} className="flex items-center gap-3 px-4 py-3">
+                                    <ITText as="span" className="w-8 h-8 rounded-lg bg-emerald-50 text-[#065911] text-sm font-black flex items-center justify-center flex-shrink-0">
                                         {idx + 1}
-                                    </span>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="text-sm font-bold text-slate-800 truncate">{loc.locationName}</h4>
-                                        <p className="text-[11px] text-slate-400">
+                                    </ITText>
+                                    <ITFlex direction="column" className="flex-1 min-w-0">
+                                        <ITText as="h4" className="text-sm font-bold text-slate-800 truncate">{loc.locationName}</ITText>
+                                        <ITText as="p" className="text-[11px] text-slate-400">
                                             {loc.tasks.length === 0 ? "Sin consignas" : `${loc.tasks.length} ${loc.tasks.length === 1 ? "consigna" : "consignas"}`}
-                                        </p>
-                                    </div>
+                                        </ITText>
+                                    </ITFlex>
                                     <button
                                         type="button"
                                         onClick={() => handleAddTask(idx)}
@@ -315,13 +315,13 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                                     >
                                         <FaTrash size={12} />
                                     </button>
-                                </div>
+                                </ITFlex>
 
                                 {loc.tasks.length > 0 && (
-                                    <div className="px-4 pb-3 space-y-2">
+                                    <ITFlex direction="column" className="px-4 pb-3 space-y-2">
                                         {loc.tasks.map((task, tIdx) => (
                                             <div key={tIdx} className="flex items-center gap-2">
-                                                <div className="flex-1 min-w-0">
+                                                <ITFlex direction="column" className="flex-1 min-w-0">
                                                     <ITInput
                                                         name={`task-${idx}-${tIdx}`}
                                                         placeholder="Instrucción para el guardia..."
@@ -329,7 +329,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                                                         onChange={(e) => handleTaskChange(idx, tIdx, e.target.value)}
                                                         onBlur={() => {}}
                                                     />
-                                                </div>
+                                                </ITFlex>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleTaskPhoto(idx, tIdx)}
@@ -351,25 +351,25 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                                                 </button>
                                             </div>
                                         ))}
-                                    </div>
+                                    </ITFlex>
                                 )}
                             </div>
                         ))}
 
                         {addedLocations.length === 0 && (
-                            <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center">
-                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
+                            <ITFlex direction="column" align="center" justify="center" className="h-full min-h-[220px] flex flex-col items-center justify-center text-center">
+                                <ITFlex align="center" justify="center" className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
                                     <FaRoute size={26} />
-                                </div>
-                                <h5 className="text-slate-700 font-bold mb-1">Ruta vacía</h5>
-                                <p className="text-slate-400 text-xs max-w-xs">Busca y agrega los puntos de control que forman este recorrido.</p>
-                            </div>
+                                </ITFlex>
+                                <ITText as="h5" className="text-slate-700 font-bold mb-1">Ruta vacía</ITText>
+                                <ITText as="p" className="text-slate-400 text-xs max-w-xs">Busca y agrega los puntos de control que forman este recorrido.</ITText>
+                            </ITFlex>
                         )}
-                    </div>
+                    </ITFlex>
                 </section>
-            </div>
+            </ITFlex>
 
-            <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-slate-100">
+            <ITFlex justify="end" gap={3} className="flex justify-end gap-3 mt-5 pt-4 border-t border-slate-100">
                 <ITButton onClick={onClose} variant="outlined" color="secondary">
                     Descartar
                 </ITButton>
@@ -381,7 +381,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                 >
                     {loading ? "Guardando..." : editConfig ? "Guardar cambios" : "Crear ruta"}
                 </ITButton>
-            </div>
+            </ITFlex>
         </ITDialog>
     );
 };
