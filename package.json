@@ -11,7 +11,11 @@
     "build": "tsc -b && vite build --mode development",
     "build:prod": "tsc -b && vite build --mode production",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:landing": "vite --config vite.landing.config.ts --port 5004 --strictPort",
+    "build:landing": "tsc -b && vite build --config vite.landing.config.ts",
+    "preview:landing": "vite preview --config vite.landing.config.ts --port 5004 --strictPort",
+    "deploy:app": "bash scripts/deploy-app.sh"
   },
   "dependencies": {
     "@axzydev/axzy_ui_system": "1.7.0",

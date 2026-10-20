@@ -37,7 +37,7 @@ export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className =
 
   if (!apiKey) {
     return (
-      <div className="flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 text-slate-400 text-sm italic" style={{ height }}>
+      <div className="flex items-center justify-center bg-slate-100 rounded-xl text-slate-400 text-sm italic" style={{ height }}>
         Google Maps API Key no configurada
       </div>
     );
@@ -45,7 +45,7 @@ export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className =
 
   if (points.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm" style={{ height }}>
+      <div className="flex flex-col items-center justify-center gap-2 bg-slate-50 rounded-xl text-slate-400 text-sm" style={{ height }}>
         <span>Sin ubicaciones recientes de guardias activos</span>
       </div>
     );
@@ -56,7 +56,7 @@ export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className =
     : DEFAULT_CENTER;
 
   return (
-    <div className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm ${className}`} style={{ height }}>
+    <div className={`rounded-xl overflow-hidden shadow-sm ${className}`} style={{ height }}>
       <APIProvider apiKey={apiKey}>
         <Map
           defaultCenter={center}

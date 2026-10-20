@@ -64,7 +64,7 @@ export const LiveOpsDashboard = () => {
       onRetry={refetch}
       actions={
         <div className="flex items-center gap-3">
-          <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full uppercase tracking-widest">
+          <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full uppercase tracking-widest">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -83,7 +83,7 @@ export const LiveOpsDashboard = () => {
       }
     >
       {error && data && (
-        <div className="bg-red-50 border border-red-100 text-red-600 text-sm font-semibold rounded-2xl px-6 py-4 mb-4">
+        <div className="bg-red-50 text-red-600 text-sm font-semibold rounded-2xl px-6 py-4 mb-4">
           {error}
         </div>
       )}
@@ -128,7 +128,7 @@ export const LiveOpsDashboard = () => {
 
                     {/* Mapa + Alertas */}
                     <div>
-                      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                      <div className="bg-white rounded-2xl shadow-sm p-5">
                         <h3 className="text-[13px] font-bold text-slate-800 mb-3 flex items-center gap-2">
                           <FaMapMarkedAlt className="text-sky-500" /> Última Ubicación Conocida
                         </h3>
@@ -176,7 +176,7 @@ const KpiCard = ({ title, value, hint, icon, color, loading }: { title: string; 
     amber: "bg-amber-50 text-amber-600",
   };
   return (
-    <div className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm px-4 py-3.5 min-w-0">
+    <div className="flex items-center gap-3 bg-white rounded-2xl shadow-sm px-4 py-3.5 min-w-0">
       <div className={`w-10 h-10 rounded-xl ${colorClasses[color]} flex items-center justify-center text-base flex-shrink-0`}>{icon}</div>
       <div className="min-w-0">
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate">{title}</p>

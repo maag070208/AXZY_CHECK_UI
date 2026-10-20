@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import type { ILiveInsights } from "../services/DashboardService";
 
-const CARD = "bg-white rounded-2xl border border-slate-100 shadow-sm p-5";
+const CARD = "bg-white rounded-2xl shadow-sm p-5";
 
 const formatMinutes = (m: number | null) => {
   if (m === null) return "—";
@@ -26,7 +26,7 @@ const Delta = ({ now, before, lowerIsBetter = false }: { now: number; before: nu
 };
 
 const Stat = ({ label, value, children }: { label: string; value: React.ReactNode; children?: React.ReactNode }) => (
-  <div className="bg-slate-50/70 border border-slate-100 rounded-xl px-4 py-3">
+  <div className="bg-slate-50/70 rounded-xl px-4 py-3">
     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
     <p className="text-xl font-black text-slate-800 mt-1">{value}</p>
     <div className="mt-0.5 min-h-[14px]">{children}</div>

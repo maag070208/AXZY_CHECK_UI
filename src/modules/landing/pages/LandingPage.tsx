@@ -5,7 +5,6 @@ import {
   FaArrowRight,
   FaBars,
   FaBell,
-  FaBuilding,
   FaCheckCircle,
   FaCloudDownloadAlt,
   FaDesktop,
@@ -19,23 +18,23 @@ import {
   FaShieldAlt,
   FaTimes,
   FaTools,
-  FaUserShield,
   FaWhatsapp,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import logoGreen from "@assets/logo-green.svg";
+import homeShot from "@assets/landing/current-home-gallery-crop.png";
+import usersShot from "@assets/landing/current-users-crop.png";
+import catalogsShot from "@assets/landing/current-catalogs-crop.png";
+import roundsShot from "@assets/landing/current-rounds-crop.png";
 import {
-  ClientPortalVisual,
   DashboardMockup,
   GuardAppVisual,
   PhoneMockup,
-  SupervisorAppVisual,
   WebConsoleVisual,
 } from "../components/LandingVisuals";
 import "../landing.css";
 
 const WHATSAPP_URL = `https://wa.me/526647700088?text=${encodeURIComponent(
-  "Hola, me gustaría recibir una cotización de CheckApp. Tengo una empresa de seguridad con ___ guardias y ___ clientes.",
+  "Hola, me gustaría recibir una cotización de CheckApp. Tengo una empresa de seguridad con ___ guardias y ___ ubicaciones.",
 )}`;
 
 const DEMO_URL = "https://cfsp.axzy.dev";
@@ -43,6 +42,7 @@ const DEMO_URL = "https://cfsp.axzy.dev";
 const NAV_LINKS = [
   { id: "beneficios", label: "Beneficios" },
   { id: "modulos", label: "Módulos" },
+  { id: "pantallas", label: "Pantallas" },
   { id: "como-funciona", label: "Cómo funciona" },
   { id: "cotizacion", label: "Cotización" },
 ];
@@ -50,8 +50,8 @@ const NAV_LINKS = [
 const BENEFITS: { icon: IconType; title: string; text: string }[] = [
   {
     icon: FaEye,
-    title: "Transparencia para tus clientes",
-    text: "Tus clientes entran a un portal exclusivo y verifican en tiempo real el avance y cumplimiento de los patrullajes contratados.",
+    title: "Transparencia operativa",
+    text: "Cada ronda, escaneo y evidencia queda registrada y disponible para auditoría de la administración.",
   },
   {
     icon: FaShieldAlt,
@@ -99,7 +99,7 @@ const MODULES: ModuleItem[] = [
     eyebrow: "Administración",
     title: "La consola que centraliza toda tu operación",
     description:
-      "El centro de control para tu equipo administrativo: clientes, rutas, puntos QR, guardias y métricas de cumplimiento en una sola pantalla.",
+      "El centro de control para tu equipo administrativo: propiedades, rutas, puntos QR, guardias y métricas de cumplimiento en una sola pantalla.",
     bullets: [
       "Rutas secuenciales, puntos QR y cuadrantes de turno.",
       "Cobertura, cumplimiento y actividad en tiempo real.",
@@ -108,13 +108,13 @@ const MODULES: ModuleItem[] = [
     visual: <WebConsoleVisual />,
   },
   {
-    id: "guard",
-    label: "App guardia",
+    id: "app",
+    label: "App móvil",
     icon: FaMobileAlt,
-    eyebrow: "Campo",
+    eyebrow: "Campo y supervisión",
     title: "La app que guía al guardia en cada ronda",
     description:
-      "Diseñada para operar en calle: escaneo QR, validación GPS y evidencia multimedia, incluso cuando no hay señal.",
+      "Para guardias y supervisores: escaneo QR, validación GPS, evidencia multimedia y operación offline desde el celular.",
     bullets: [
       "Escaneo QR con validación de proximidad GPS.",
       "Fotos y notas de voz como evidencia del punto.",
@@ -122,35 +122,32 @@ const MODULES: ModuleItem[] = [
     ],
     visual: <GuardAppVisual />,
   },
+];
+
+const SCREENS = [
   {
-    id: "supervisor",
-    label: "App supervisor",
-    icon: FaUserShield,
-    eyebrow: "Supervisión",
-    title: "Control del turno desde el celular",
-    description:
-      "La herramienta para coordinadores que necesitan mover guardias, revisar rutas y resolver consignas sin regresar a la oficina.",
-    bullets: [
-      "Alta de clientes y puntos QR desde el celular.",
-      "Asignación de guardias y rutas en vivo.",
-      "Alertas de rondas incompletas o fuera de horario.",
-    ],
-    visual: <SupervisorAppVisual />,
+    id: "home",
+    image: homeShot,
+    title: "Monitoreo en vivo",
+    text: "Rondas, guardias e incidencias en tiempo real.",
   },
   {
-    id: "client",
-    label: "Portal cliente",
-    icon: FaBuilding,
-    eyebrow: "Cliente",
-    title: "Un portal que demuestra el servicio",
-    description:
-      "Dale a tus clientes corporativos acceso de solo lectura a bitácoras, reportes y personal asignado. Transparencia que se convierte en renovación.",
-    bullets: [
-      "Bitácoras y reportes descargables en PDF.",
-      "Cumplimiento y cobertura por propiedad.",
-      "Personal asignado y evidencia de cada ronda.",
-    ],
-    visual: <ClientPortalVisual />,
+    id: "users",
+    image: usersShot,
+    title: "Directorio de usuarios",
+    text: "Altas, roles y accesos del personal.",
+  },
+  {
+    id: "catalogs",
+    image: catalogsShot,
+    title: "Catálogos",
+    text: "Categorías y tipos de incidencia.",
+  },
+  {
+    id: "rounds",
+    image: roundsShot,
+    title: "Historial de recorridos",
+    text: "Avance y desempeño de cada ronda.",
   },
 ];
 
@@ -171,6 +168,22 @@ const STEPS: { icon: IconType; title: string; text: string }[] = [
     text: "Tú y tu cliente ven la ronda completada en la consola web, al instante.",
   },
 ];
+
+const ScreenCard = ({ screen }: { screen: (typeof SCREENS)[number] }) => (
+  <figure className="lp-screen">
+    <div className="lp-screen-top">
+      <span />
+      <span />
+      <span />
+      <span className="lp-screen-url">checkapp / {screen.title}</span>
+    </div>
+    <img src={screen.image} alt={`Pantalla de ${screen.title} en CheckApp`} loading="lazy" />
+    <figcaption>
+      <strong>{screen.title}</strong>
+      <span>{screen.text}</span>
+    </figcaption>
+  </figure>
+);
 
 type ModulePanelProps = {
   item: ModuleItem;
@@ -225,7 +238,6 @@ const LandingPage = () => {
   };
 
   const openWhatsApp = () => window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
-  const openDemo = () => window.open(DEMO_URL, "_blank", "noopener,noreferrer");
 
   return (
     <div className="checkapp-landing">
@@ -254,9 +266,6 @@ const LandingPage = () => {
           </nav>
 
           <div className="lp-nav-actions">
-            <Link to="/login" className="lp-login">
-              Iniciar sesión
-            </Link>
             <ITButton className="lp-btn-dark" onClick={openWhatsApp}>
               <span className="lp-cta-inner">
                 Solicitar demo <FaArrowRight size={10} />
@@ -289,9 +298,6 @@ const LandingPage = () => {
                 </button>
               ))}
               <div className="lp-mobile-actions">
-                <Link to="/login" className="lp-login" onClick={() => setMenuOpen(false)}>
-                  Iniciar sesión
-                </Link>
                 <ITButton className="lp-btn-dark" onClick={openWhatsApp}>
                   <span className="lp-cta-inner">
                     Solicitar demo <FaArrowRight size={10} />
@@ -366,7 +372,7 @@ const LandingPage = () => {
                 <span>guardias por operación</span>
               </div>
               <div className="lp-trust-stat">
-                <strong>4</strong>
+                <strong>2</strong>
                 <span>interfaces conectadas</span>
               </div>
               <div className="lp-trust-stat">
@@ -390,7 +396,7 @@ const LandingPage = () => {
               <h2>Lo que cambia cuando tus rondas son digitales</h2>
               <p>
                 Menos bitácoras en papel, más control sobre lo que pasa en campo. CheckApp conecta
-                a guardias, supervisores y clientes en una sola operación.
+                a guardias, supervisores y administración en una sola operación.
               </p>
             </div>
 
@@ -415,7 +421,7 @@ const LandingPage = () => {
               <span className="lp-eyebrow">
                 <FaDesktop size={10} /> Ecosistema completo
               </span>
-              <h2>Cuatro interfaces. Una sola operación.</h2>
+              <h2>Dos interfaces. Una sola operación.</h2>
               <p>
                 Cada actor de la operación tiene la herramienta que necesita, conectada al mismo
                 centro de control.
@@ -436,6 +442,23 @@ const LandingPage = () => {
                 };
               })}
             />
+          </div>
+        </section>
+
+        <section id="pantallas" className="lp-section lp-screens">
+          <div className="lp-container">
+            <div className="lp-section-head">
+              <span className="lp-eyebrow">
+                <FaDesktop size={10} /> Así se ve
+              </span>
+              <h2>Pantallas reales de la operación</h2>
+              <p>Un vistazo a la consola que usa tu equipo todos los días.</p>
+            </div>
+            <div className="lp-screens-grid">
+              {SCREENS.map((screen) => (
+                <ScreenCard key={screen.id} screen={screen} />
+              ))}
+            </div>
           </div>
         </section>
 
@@ -483,18 +506,13 @@ const LandingPage = () => {
                 </span>
                 <h2>¿Listo para tomar el control de tus rondas?</h2>
                 <p>
-                  Cuéntanos cuántos guardias y clientes tienes y armamos una propuesta adaptada a tu
+                  Cuéntanos cuántos guardias y ubicaciones tienes y armamos una propuesta adaptada a tu
                   operación. Te respondemos por WhatsApp.
                 </p>
                 <div className="lp-cta-actions">
                   <ITButton className="lp-btn-white" onClick={openWhatsApp}>
                     <span className="lp-cta-inner">
                       <FaWhatsapp size={12} /> Cotizar por WhatsApp
-                    </span>
-                  </ITButton>
-                  <ITButton className="lp-btn-outline-light" onClick={openDemo}>
-                    <span className="lp-cta-inner">
-                      Ver demo <FaExternalLinkAlt size={10} />
                     </span>
                   </ITButton>
                 </div>
@@ -506,7 +524,7 @@ const LandingPage = () => {
                   <span>plataforma central</span>
                 </div>
                 <div className="lp-cta-stat">
-                  <strong>4</strong>
+                  <strong>2</strong>
                   <span>interfaces conectadas</span>
                 </div>
                 <div className="lp-cta-stat">
@@ -525,7 +543,7 @@ const LandingPage = () => {
             <img src={logoGreen} alt="CheckApp" />
             <p>
               La plataforma integral para digitalizar la gestión de personal de seguridad en calle:
-              rondas, evidencia y transparencia para tus clientes.
+              rondas, evidencia y transparencia operativa.
             </p>
             <div className="lp-footer-points">
               <span>

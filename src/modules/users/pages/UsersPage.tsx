@@ -145,7 +145,7 @@ const UsersPage = () => {
                             key: "roleId",
                             label: "ROL / CATEGORÍA",
                             type: "string",
-                            filter: "catalog",
+                            filter: "search",
                             catalogOptions: {
                                 data: roleFilterOptions,
                                 loading: loadingRoles

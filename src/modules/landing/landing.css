@@ -1491,6 +1491,97 @@
   opacity: 0.8;
 }
 
+/* ============================ SCREENS ============================ */
+.lp-screens {
+  background: var(--lp-bg);
+}
+
+.lp-screens-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.lp-screen {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--lp-line);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(6, 89, 17, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.lp-screen:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 48px rgba(6, 89, 17, 0.1);
+}
+
+.lp-screen-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef3ee;
+  background: #f9fbf8;
+}
+
+.lp-screen-top > span:not(.lp-screen-url) {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d5e0d7;
+}
+
+.lp-screen-url {
+  flex: 1;
+  min-height: 14px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #eef4ef;
+  display: flex;
+  align-items: center;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #93a196;
+}
+
+.lp-screen img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+}
+
+.lp-screen figcaption {
+  padding: 16px 18px 18px;
+}
+
+.lp-screen figcaption strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--lp-ink);
+}
+
+.lp-screen figcaption span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--lp-muted);
+}
+
+@media (max-width: 760px) {
+  .lp-screens-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ============================ STEPS ============================ */
 .lp-steps-section {
   background: linear-gradient(180deg, var(--lp-bg), #eef7ef);

@@ -25,3 +25,8 @@ dist-ssr
 
 .env
 .env.production
+# Deployment credentials (FTP)
+.deploy.env
+
+# Standalone landing build
+dist-landing

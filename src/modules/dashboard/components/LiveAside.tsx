@@ -52,7 +52,7 @@ const Empty = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
 const AlertItem = ({ alert }: { alert: ILiveAlert }) => {
   const high = alert.severity === "high";
   return (
-    <li className={`flex gap-3 rounded-xl p-3 border ${high ? "bg-red-50/70 border-red-100" : "bg-amber-50/70 border-amber-100"}`}>
+    <li className={`flex gap-3 rounded-xl p-3 ${high ? "bg-red-50/70" : "bg-amber-50/70"}`}>
       <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${high ? "bg-red-100 text-red-500" : "bg-amber-100 text-amber-500"}`}>
         <FaExclamationTriangle size={11} />
       </span>
@@ -71,8 +71,8 @@ const RoundItem = ({ round, onClick }: { round: ILiveActiveRound; onClick: () =>
     <li>
       <button
         onClick={onClick}
-        className={`w-full text-left rounded-xl border p-3 transition-colors hover:border-slate-300 ${
-          round.stale ? "bg-red-50/50 border-red-100" : "bg-white border-slate-100"
+        className={`w-full text-left rounded-xl p-3 transition-colors ${
+          round.stale ? "bg-red-50/50" : "bg-slate-50/60"
         }`}
       >
         <div className="flex items-center gap-2.5">
@@ -153,8 +153,8 @@ export const LiveAside = ({ data, loading }: { data: ILiveDashboard | null; load
   ];
 
   return (
-    <aside className="flex flex-col h-[calc(100vh-11rem)] min-h-[420px] bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
-      <nav className="grid grid-cols-4 border-b border-slate-100 flex-shrink-0" role="tablist">
+    <aside className="flex flex-col h-[calc(100vh-11rem)] min-h-[420px] bg-white rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden">
+      <nav className="grid grid-cols-4 flex-shrink-0" role="tablist">
         {tabs.map((t) => {
           const active = tab === t.id;
           return (

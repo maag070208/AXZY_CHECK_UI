@@ -1,10 +1,11 @@
 import type { ICatalogItem } from "@app/core/types/catalog.types";
 
 /**
- * Roles válidos para BARCELONA. El catálogo `role` puede traer roles de otros
- * proyectos (por ejemplo CLIENT); aquí solo dejamos los que usa esta operación.
+ * Roles de staff que se administran desde el WEB de BARCELONA.
+ * CLIENT y RESDN no se ofrecen aquí: el catálogo puede traerlos de otros
+ * proyectos y el WEB no gestiona residentes.
  */
-export const BARCELONA_ROLE_ORDER = ["ADMIN", "GUARD", "SHIFT", "MAINT", "RESDN"] as const;
+export const BARCELONA_ROLE_ORDER = ["ADMIN", "GUARD", "SHIFT", "MAINT"] as const;
 
 const ROLE_ORDER: string[] = [...BARCELONA_ROLE_ORDER];
 
