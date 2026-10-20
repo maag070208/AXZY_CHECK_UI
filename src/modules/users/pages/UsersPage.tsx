@@ -1,6 +1,6 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITPage , ITInput , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEdit, FaKey, FaPlus, FaSync, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -71,8 +71,8 @@ const UsersPage = () => {
       icon={<FaUserShield size={20} />}
       iconColor="#065911"
       actions={
-<div className="flex items-center gap-3">
-                    <div className="w-64 relative">
+<ITFlex align="center" gap={3} className="flex items-center gap-3">
+                    <ITFlex direction="column" className="w-64 relative">
                         <ITInput
                             name="searchUser"
                             placeholder="Buscar usuario..."
@@ -90,7 +90,7 @@ const UsersPage = () => {
                                
                             />
                         )}
-                    </div>
+                    </ITFlex>
                     <ITButton
                         onClick={refreshTable}
                         color="secondary"
@@ -99,7 +99,7 @@ const UsersPage = () => {
                         size="md"
                     >
                         <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
-                        <span className="text-xs font-bold text-slate-500">Actualizar</span></ITFlex>
+                        <ITText as="span" className="text-xs font-bold text-slate-500">Actualizar</ITText></ITFlex>
                     </ITButton>
                     <ITButton
                         onClick={() => setIsCreateModalOpen(true)}
@@ -108,11 +108,11 @@ const UsersPage = () => {
                     >
                         <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO USUARIO
                     </ITFlex></ITButton>
-                </div>
+                </ITFlex>
       }
     >
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <ITDataTable
                   defaultItemsPerPage={50}
                   itemsPerPageOptions={[25, 50, 100]}
@@ -132,15 +132,15 @@ const UsersPage = () => {
                             type: "string",
                             sortable: true,
                             render: (row: User) => (
-                                <div className="flex items-center gap-3 py-2">
-                                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200 text-sm">
+                                <ITFlex align="center" gap={3} className="flex items-center gap-3 py-2">
+                                    <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200 text-sm">
                                         {row.name.charAt(0)}{row.lastName?.charAt(0) || ''}
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-slate-800 text-sm">{row.name} {row.lastName}</div>
-                                        <div className="text-xs text-slate-500 font-medium">@{row.username}</div>
-                                    </div>
-                                </div>
+                                    </ITFlex>
+                                    <ITFlex direction="column">
+                                        <ITFlex direction="column" className="font-bold text-slate-800 text-sm">{row.name} {row.lastName}</ITFlex>
+                                        <ITFlex direction="column" className="text-xs text-slate-500 font-medium">@{row.username}</ITFlex>
+                                    </ITFlex>
+                                </ITFlex>
                             )
                         },
                         {
@@ -165,11 +165,11 @@ const UsersPage = () => {
                                 if (roleName === 'RESDN') badgeClass = "bg-slate-50 text-slate-500 border-slate-100";
 
                                 return (
-                                    <div className="flex items-center">
-                                        <span className={`px-2 py-1 font-bold text-[10px] rounded border uppercase tracking-wider ${badgeClass}`}>
+                                    <ITFlex align="center" className="flex items-center">
+                                        <ITText as="span" className={`px-2 py-1 font-bold text-[10px] rounded border uppercase tracking-wider ${badgeClass}`}>
                                             {roleValue}
-                                        </span>
-                                    </div>
+                                        </ITText>
+                                    </ITFlex>
                                 );
                             }
                         },
@@ -179,15 +179,15 @@ const UsersPage = () => {
                             type: "string",
                             render: (row: User) => (
                                 row.schedule ? (
-                                    <div className="text-sm text-slate-600">
-                                        <div className="flex items-center gap-1.5 font-medium">
+                                    <ITFlex direction="column" className="text-sm text-slate-600">
+                                        <ITFlex align="center" className="flex items-center gap-1.5 font-medium">
                                             <FaClock className="text-slate-400 text-xs" />
                                             {row.schedule.name}
-                                        </div>
-                                        <div className="text-xs text-slate-400 mt-0.5 ml-5">{row.schedule.startTime} - {row.schedule.endTime}</div>
-                                    </div>
+                                        </ITFlex>
+                                        <ITFlex direction="column" className="text-xs text-slate-400 mt-0.5 ml-5">{row.schedule.startTime} - {row.schedule.endTime}</ITFlex>
+                                    </ITFlex>
                                 ) : (
-                                    <span className="text-xs italic text-slate-400">Sin Horario</span>
+                                    <ITText as="span" className="text-xs italic text-slate-400">Sin Horario</ITText>
                                 )
                             )
                         },
@@ -196,12 +196,12 @@ const UsersPage = () => {
                             label: "ESTADO",
                             type: "string",
                             render: (row: User) => (
-                                <div className="text-sm text-slate-600">
-                                    <div className={`flex items-center gap-1.5 font-medium ${row.active ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                        <div className={`w-1.5 h-1.5 rounded-full ${row.active ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                                <ITFlex direction="column" className="text-sm text-slate-600">
+                                    <ITFlex direction="column" className={`flex items-center gap-1.5 font-medium ${row.active ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                        <ITFlex direction="column" className={`w-1.5 h-1.5 rounded-full ${row.active ? 'bg-emerald-500' : 'bg-slate-300'}`}></ITFlex>
                                         {row.active ? 'Activo' : 'Inactivo'}
-                                    </div>
-                                </div>
+                                    </ITFlex>
+                                </ITFlex>
                             )
                         },
                         {
@@ -209,7 +209,7 @@ const UsersPage = () => {
                             label: "ACCIONES",
                             type: "actions",
                             actions: (row: User) => (
-                                <div className="flex items-center gap-2">
+                                <ITFlex align="center" gap={2} className="flex items-center gap-2">
                                     <ITButton 
                                         onClick={() => setChangingPasswordUser(row)} 
                                         size="sm" 
@@ -237,12 +237,12 @@ const UsersPage = () => {
                                     >
                                         <FaTrash />
                                     </ITButton>
-                                </div>
+                                </ITFlex>
                             )
                         }
                     ] as any}
                 />
-            </div>
+            </ITFlex>
 
             {/* Modals matching the high-end style */}
             <ITDialog 
@@ -284,13 +284,13 @@ const UsersPage = () => {
                 onClose={() => setUserToDeleteId(null)} 
                 title="Confirmar Eliminación"
             >
-                <div className="p-6">
-                    <p className="text-slate-700 mb-6">¿Estás seguro de eliminar el usuario seleccionado? Esta acción inhabilitará su acceso a la plataforma de forma permanente.</p>
-                    <div className="flex justify-end gap-3">
+                <ITFlex direction="column" className="p-6">
+                    <ITText as="p" className="text-slate-700 mb-6">¿Estás seguro de eliminar el usuario seleccionado? Esta acción inhabilitará su acceso a la plataforma de forma permanente.</ITText>
+                    <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
                         <ITButton variant="outlined" onClick={() => setUserToDeleteId(null)}>Cancelar</ITButton>
                         <ITButton onClick={confirmDelete}>Eliminar Usuario</ITButton>
-                    </div>
-                </div>
+                    </ITFlex>
+                </ITFlex>
             </ITDialog>
         </ITPage>
     );
