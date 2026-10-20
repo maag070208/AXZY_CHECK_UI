@@ -42,8 +42,11 @@ export const MediaCarousel = ({ media, initialIndex = 0, title, onDelete, showDe
     const renderViewer = (inFullscreen: boolean) => (
         <ITFlex direction="column" gap={3} className="flex-1 min-h-0">
             <ITFlex align="center" justify="between" gap={2}>
-                <ITText as="span" className="font-medium text-slate-800">{title ?? ""}</ITText>
-                <ITButton variant="outlined" color="gray" size="md" onClick={() => setFullscreen(!inFullscreen)}>
+                <ITFlex align="center" gap={2}>
+                    {title && <ITText as="span" className="font-medium text-slate-800">{title}</ITText>}
+                    <ITText as="span" muted>{`${count} ${count === 1 ? "archivo" : "archivos"}`}</ITText>
+                </ITFlex>
+                <ITButton variant="outlined" color="secondary" size="md" onClick={() => setFullscreen(!inFullscreen)}>
                     <ITFlex align="center" gap={2}>
                         {inFullscreen ? <FaCompress /> : <FaExpand />}
                         <span>{inFullscreen ? "Salir" : "Pantalla completa"}</span>
@@ -51,7 +54,7 @@ export const MediaCarousel = ({ media, initialIndex = 0, title, onDelete, showDe
                 </ITButton>
             </ITFlex>
 
-            <ITFlex align="center" justify="center" className="relative flex-1 min-h-[280px] overflow-hidden rounded-xl bg-slate-900">
+            <ITFlex align="center" justify="center" className={`relative w-full overflow-hidden rounded-xl bg-slate-900 ${inFullscreen ? "h-[calc(100vh-180px)]" : "h-[min(520px,52vh)]"}`}>
                 {current.type === "VIDEO" ? (
                     <video src={current.url} controls className="h-full w-full" />
                 ) : (

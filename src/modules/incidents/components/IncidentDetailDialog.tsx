@@ -34,7 +34,7 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
       <ITFlex className="min-h-0 flex-1">
         <ITFlex direction="column" className="min-h-0 min-w-0 flex-[3] border-r border-slate-200 p-6">
           {hasMedia ? (
-            <MediaCarousel media={incident.media!} showDelete={isAdmin} onDelete={(item) => onDeleteMedia(item)} />
+            <MediaCarousel media={incident.media!} title="Evidencia" showDelete={isAdmin} onDelete={(item) => onDeleteMedia(item)} />
           ) : (
             <ITFlex direction="column" align="center" justify="center" className="flex-1 rounded-xl border border-dashed border-slate-200">
               <ITText as="span" muted>Sin evidencia adjunta</ITText>
@@ -97,7 +97,7 @@ export const IncidentDetailDialog = ({ incident, isAdmin, onClose, onResolve, on
       <ITFlex align="center" justify="between" gap={3} className="border-t border-slate-200 px-6 py-4">
         <ITText as="span" muted>{reportedAgo}</ITText>
         <ITFlex align="center" gap={2}>
-          <ITButton variant="outlined" color="gray" size="md" onClick={onClose}>Cerrar</ITButton>
+          <ITButton variant="outlined" color="secondary" size="md" onClick={onClose}>Cerrar</ITButton>
           {isPending && (
             <ITButton onClick={() => onResolve(incident.id)} color="success" variant="filled" size="md">
               <ITFlex align="center" gap={2}>
