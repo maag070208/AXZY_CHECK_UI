@@ -1,3 +1,4 @@
+import { ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 
@@ -37,17 +38,17 @@ export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className =
 
   if (!apiKey) {
     return (
-      <div className="flex items-center justify-center bg-slate-100 rounded-xl text-slate-400 text-sm italic" style={{ height }}>
+      <ITFlex align="center" justify="center" className="flex items-center justify-center bg-slate-100 rounded-xl text-slate-400 text-sm italic" style={{ height }}>
         Google Maps API Key no configurada
-      </div>
+      </ITFlex>
     );
   }
 
   if (points.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 bg-slate-50 rounded-xl text-slate-400 text-sm" style={{ height }}>
-        <span>Sin ubicaciones recientes de guardias activos</span>
-      </div>
+      <ITFlex direction="column" align="center" justify="center" gap={2} className="flex flex-col items-center justify-center gap-2 bg-slate-50 rounded-xl text-slate-400 text-sm" style={{ height }}>
+        <ITText as="span">Sin ubicaciones recientes de guardias activos</ITText>
+      </ITFlex>
     );
   }
 
@@ -56,7 +57,7 @@ export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className =
     : DEFAULT_CENTER;
 
   return (
-    <div className={`rounded-xl overflow-hidden shadow-sm ${className}`} style={{ height }}>
+    <ITFlex direction="column" className={`rounded-xl overflow-hidden shadow-sm ${className}`} style={{ height }}>
       <APIProvider apiKey={apiKey}>
         <Map
           defaultCenter={center}
@@ -83,13 +84,13 @@ export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className =
               position={{ lat: activePoint.lat, lng: activePoint.lng }}
               onCloseClick={() => setActivePoint(null)}
             >
-              <span className="text-xs font-bold text-slate-700">{activePoint.label}</span>
+              <ITText as="span" className="text-xs font-bold text-slate-700">{activePoint.label}</ITText>
             </InfoWindow>
           )}
           <FitBounds points={points} />
         </Map>
       </APIProvider>
-    </div>
+    </ITFlex>
   );
 };
 
