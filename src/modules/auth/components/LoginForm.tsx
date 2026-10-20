@@ -1,10 +1,5 @@
 import { IAuthLogin } from "@app/core/types/auth.types";
-import {
-  createValidationSchema,
-  FieldConfig,
-  ITButton,
-  ITFormBuilder,
-} from "@axzydev/axzy_ui_system";
+import { FieldConfig, ITButton, ITFlex, ITFormBuilder, createValidationSchema } from "@axzydev/axzy_ui_system";
 import { Form, Formik } from "formik";
 
 import { useState } from "react";
@@ -79,11 +74,11 @@ const LoginFormComponent = ({
             touched={touched}
             errors={errors}
           />
-          <div className="mt-4">
+          <ITFlex direction="column" className="mt-4">
             <ITButton disabled={!isValid} type="submit">
               Iniciar Sesión
             </ITButton>
-          </div>
+          </ITFlex>
         </Form>
       )}
     </Formik>
