@@ -75,13 +75,14 @@ export const getOccupancyStats = () => get<OccupancyStats>("/properties/stats/oc
 export const changeOccupancy = (
   propertyId: number,
   body: { status: string; tenantPersonId?: number | null; releaseResidents?: boolean; notes?: string | null },
-) => post<unknown>(`/properties/${propertyId}/occupancy`, body);
+) => post<unknown>(`/properties/${propertyId}/occupancy`, body).catch((error) => error as { success: false; code?: string; messages?: string[] });
 
-export const importProperties = (rows: ImportRow[]) => post<ImportResult>("/properties/import", { rows });
+export const importProperties = (rows: ImportRow[]) =>
+  post<ImportResult>("/properties/import", { rows }).catch((error) => error as { success: false; messages?: string[] });
 
 export const searchPersons = (q: string) => get<PersonLite[]>(`/persons?q=${encodeURIComponent(q)}`);
 export const createPerson = (body: { firstName: string; lastName?: string | null; phone?: string | null; email?: string | null; confirmNewPerson?: boolean }) =>
-  post<PersonLite>("/persons", body);
+  post<PersonLite>("/persons", body).catch((error) => error as { success: false; code?: string; messages?: string[]; candidates?: PersonLite[] });
 
 /** CSV sencillo (encabezado obligatorio, separador coma, sin comillas con comas dentro). */
 export const parseImportCsv = (text: string): ImportRow[] => {

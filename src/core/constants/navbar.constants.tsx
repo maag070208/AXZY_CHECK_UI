@@ -107,6 +107,7 @@ export const useNavigationItems = (): any[] => {
             { id: "schedule", label: "Horarios", path: "/schedules", roles: ["ADMIN"] },
             { id: "uniform", label: "Uniforme", path: "/uniform", roles: ["ADMIN", "SHIFT"] },
             { id: "users", label: "Usuarios", path: "/users", roles: ["ADMIN"] },
+            { id: "persons", label: "Personas", path: "/persons", roles: ["ADMIN"] },
           ],
         },
       ],
