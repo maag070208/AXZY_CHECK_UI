@@ -1,3 +1,4 @@
+import { ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useState } from "react";
 import {
@@ -43,23 +44,23 @@ const timeAgo = (value: string | null | undefined) => {
 };
 
 const Empty = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex flex-col items-center justify-center gap-2 py-12 text-slate-400">
-    <span className="text-2xl text-slate-300">{icon}</span>
-    <p className="text-xs font-medium text-center">{text}</p>
-  </div>
+  <ITFlex direction="column" align="center" justify="center" gap={2} className="flex flex-col items-center justify-center gap-2 py-12 text-slate-400">
+    <ITText as="span" className="text-2xl text-slate-300">{icon}</ITText>
+    <ITText as="p" className="text-xs font-medium text-center">{text}</ITText>
+  </ITFlex>
 );
 
 const AlertItem = ({ alert }: { alert: ILiveAlert }) => {
   const high = alert.severity === "high";
   return (
     <li className={`flex gap-3 rounded-xl p-3 ${high ? "bg-red-50/70" : "bg-amber-50/70"}`}>
-      <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${high ? "bg-red-100 text-red-500" : "bg-amber-100 text-amber-500"}`}>
+      <ITText as="span" className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${high ? "bg-red-100 text-red-500" : "bg-amber-100 text-amber-500"}`}>
         <FaExclamationTriangle size={11} />
-      </span>
-      <div className="min-w-0">
-        <p className={`text-xs font-semibold leading-snug ${high ? "text-red-800" : "text-amber-800"}`}>{alert.message}</p>
-        {alert.at && <p className="text-[10px] font-medium text-slate-400 mt-1">{timeAgo(alert.at)}</p>}
-      </div>
+      </ITText>
+      <ITFlex direction="column" className="min-w-0">
+        <ITText as="p" className={`text-xs font-semibold leading-snug ${high ? "text-red-800" : "text-amber-800"}`}>{alert.message}</ITText>
+        {alert.at && <ITText as="p" className="text-[10px] font-medium text-slate-400 mt-1">{timeAgo(alert.at)}</ITText>}
+      </ITFlex>
     </li>
   );
 };
@@ -75,37 +76,37 @@ const RoundItem = ({ round, onClick }: { round: ILiveActiveRound; onClick: () =>
           round.stale ? "bg-red-50/50" : "bg-slate-50/60"
         }`}
       >
-        <div className="flex items-center gap-2.5">
-          <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black flex-shrink-0 ${round.stale ? "bg-red-100 text-red-600" : "bg-emerald-50 text-emerald-600"}`}>
+        <ITFlex align="center" className="flex items-center gap-2.5">
+          <ITText as="span" className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black flex-shrink-0 ${round.stale ? "bg-red-100 text-red-600" : "bg-emerald-50 text-emerald-600"}`}>
             {initials}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-black text-slate-800 uppercase truncate">
+          </ITText>
+          <ITFlex direction="column" className="min-w-0 flex-1">
+            <ITText as="p" className="text-xs font-black text-slate-800 uppercase truncate">
               {round.guard.name} {round.guard.lastName}
-            </p>
-            <p className="text-[10px] font-medium text-slate-400 truncate">{round.routeTitle ?? "Sin ruta asignada"}</p>
-          </div>
+            </ITText>
+            <ITText as="p" className="text-[10px] font-medium text-slate-400 truncate">{round.routeTitle ?? "Sin ruta asignada"}</ITText>
+          </ITFlex>
           {round.stale && (
-            <span className="text-[9px] font-black text-red-600 bg-red-100 rounded-md px-1.5 py-0.5 uppercase flex-shrink-0">Estancada</span>
+            <ITText as="span" className="text-[9px] font-black text-red-600 bg-red-100 rounded-md px-1.5 py-0.5 uppercase flex-shrink-0">Estancada</ITText>
           )}
-        </div>
+        </ITFlex>
 
         {pct !== null && (
-          <div className="mt-3 flex items-center gap-2">
-            <div className="h-1.5 flex-1 bg-slate-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full ${round.stale ? "bg-red-400" : "bg-emerald-500"}`} style={{ width: `${pct}%` }} />
-            </div>
-            <span className="text-[10px] font-black text-slate-500 w-8 text-right">{pct}%</span>
-          </div>
+          <ITFlex align="center" gap={2} className="mt-3 flex items-center gap-2">
+            <ITFlex direction="column" className="h-1.5 flex-1 bg-slate-100 rounded-full overflow-hidden">
+              <ITFlex direction="column" className={`h-full rounded-full ${round.stale ? "bg-red-400" : "bg-emerald-500"}`} style={{ width: `${pct}%` }} />
+            </ITFlex>
+            <ITText as="span" className="text-[10px] font-black text-slate-500 w-8 text-right">{pct}%</ITText>
+          </ITFlex>
         )}
 
-        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-semibold text-slate-500">
-          <span className="flex items-center gap-1"><FaClock className="text-slate-300" size={9} /> {formatDuration(round.elapsedMinutes)}</span>
-          <span>{pct !== null ? `${round.scannedCount}/${round.totalLocations} puntos` : `${round.scannedCount} escaneos`}</span>
-        </div>
-        <p className="mt-1 text-[10px] text-slate-400 truncate">
+        <ITFlex align="center" className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-semibold text-slate-500">
+          <ITText as="span" className="flex items-center gap-1"><FaClock className="text-slate-300" size={9} /> {formatDuration(round.elapsedMinutes)}</ITText>
+          <ITText as="span">{pct !== null ? `${round.scannedCount}/${round.totalLocations} puntos` : `${round.scannedCount} escaneos`}</ITText>
+        </ITFlex>
+        <ITText as="p" className="mt-1 text-[10px] text-slate-400 truncate">
           {round.lastScan ? `${round.lastScan.locationName} · ${timeAgo(round.lastScan.timestamp)}` : "Sin escaneos aún"}
-        </p>
+        </ITText>
       </button>
     </li>
   );
@@ -122,14 +123,14 @@ const TimelineItem = ({ event, last }: { event: ILiveTimelineEvent; last: boolea
   const style = TIMELINE_STYLE[event.type];
   return (
     <li className="flex gap-3">
-      <div className="flex flex-col items-center">
-        <span className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${style.color}`}>{style.icon}</span>
-        {!last && <span className="w-px flex-1 bg-slate-100 my-1" />}
-      </div>
-      <div className="pb-4 min-w-0">
-        <p className="text-xs font-semibold text-slate-700 leading-snug">{event.message}</p>
-        <p className="text-[10px] font-medium text-slate-400 mt-0.5">{dayjs(event.at).format("DD MMM · HH:mm")}</p>
-      </div>
+      <ITFlex direction="column" align="center" className="flex flex-col items-center">
+        <ITText as="span" className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${style.color}`}>{style.icon}</ITText>
+        {!last && <ITText as="span" className="w-px flex-1 bg-slate-100 my-1" />}
+      </ITFlex>
+      <ITFlex direction="column" className="pb-4 min-w-0">
+        <ITText as="p" className="text-xs font-semibold text-slate-700 leading-snug">{event.message}</ITText>
+        <ITText as="p" className="text-[10px] font-medium text-slate-400 mt-0.5">{dayjs(event.at).format("DD MMM · HH:mm")}</ITText>
+      </ITFlex>
     </li>
   );
 };
@@ -167,16 +168,16 @@ export const LiveAside = ({ data, loading }: { data: ILiveDashboard | null; load
                 active ? "text-emerald-700" : "text-slate-400 hover:text-slate-600"
               }`}
             >
-              <span className="relative text-sm">
+              <ITText as="span" className="relative text-sm">
                 {t.icon}
                 {!!t.count && (
-                  <span className={`absolute -top-2 -right-3 min-w-[15px] h-[15px] px-1 rounded-full text-[8px] leading-[15px] text-white text-center ${t.tone}`}>
+                  <ITText as="span" className={`absolute -top-2 -right-3 min-w-[15px] h-[15px] px-1 rounded-full text-[8px] leading-[15px] text-white text-center ${t.tone}`}>
                     {t.count}
-                  </span>
+                  </ITText>
                 )}
-              </span>
+              </ITText>
               {t.label}
-              {active && <span className="absolute bottom-0 inset-x-3 h-0.5 rounded-full bg-emerald-600" />}
+              {active && <ITText as="span" className="absolute bottom-0 inset-x-3 h-0.5 rounded-full bg-emerald-600" />}
             </button>
           );
         })}
@@ -184,9 +185,9 @@ export const LiveAside = ({ data, loading }: { data: ILiveDashboard | null; load
 
       <div className="flex-1 min-h-0 overflow-y-auto p-3" hidden={tab === "chat"}>
         {loading && !data ? (
-          <div className="space-y-2">
+          <ITFlex direction="column" className="space-y-2">
             {[0, 1, 2].map((i) => <div key={i} className="h-16 rounded-xl bg-slate-100 animate-pulse" />)}
-          </div>
+          </ITFlex>
         ) : tab === "alerts" ? (
           alerts.length === 0 ? (
             <Empty icon={<FaCheckCircle className="text-emerald-400" />} text="Todo en orden — sin alertas activas." />
@@ -194,9 +195,9 @@ export const LiveAside = ({ data, loading }: { data: ILiveDashboard | null; load
             <>
               <ul className="space-y-2">{alerts.map((a, i) => <AlertItem key={i} alert={a} />)}</ul>
               {!!data?.uncoveredRoutes.length && (
-                <p className="text-[10px] text-slate-400 mt-3 px-1">
+                <ITText as="p" className="text-[10px] text-slate-400 mt-3 px-1">
                   Sin nadie recorriéndolas ahora: {data.uncoveredRoutes.map((r) => r.title).join(", ")}
-                </p>
+                </ITText>
               )}
             </>
           )
