@@ -133,7 +133,7 @@ export const MediaCarousel: React.FC<MediaCarouselProps> = ({
             </div>
 
             {/* --- Escenario Principal --- */}
-            <div className={`relative flex-1 flex items-center justify-center select-none ${isFullscreen ? 'h-full' : 'aspect-video'}`}>
+            <div className={`relative flex-1 flex items-center justify-center select-none ${isFullscreen ? 'h-full' : 'h-[min(420px,50vh)]'}`}>
                 
                 {/* Botones de Navegación */}
                 {media.length > 1 && (
