@@ -1,4 +1,4 @@
-import { ITButton, ITDialog, ITLoader, ITInput , ITFlex } from "@axzydev/axzy_ui_system";
+import { ITButton, ITDialog, ITFlex, ITInput, ITLoader, ITText } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import {
   FaPlus,
@@ -73,7 +73,7 @@ const ResidentContactForm = ({ initialData, residentId, onSubmitSuccess, onCance
 
     return (
         <form onSubmit={formik.handleSubmit} className="p-6">
-            <div className="space-y-4">
+            <ITFlex direction="column" className="space-y-4">
                 <ITInput
                     label="Nombre Completo"
                     name="name"
@@ -85,7 +85,7 @@ const ResidentContactForm = ({ initialData, residentId, onSubmitSuccess, onCance
                     touched={formik.touched.name}
                     required
                 />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <ITInput
                         label="Teléfono"
                         name="phone"
@@ -107,9 +107,9 @@ const ResidentContactForm = ({ initialData, residentId, onSubmitSuccess, onCance
                         error={formik.errors.email}
                         touched={formik.touched.email}
                     />
-                </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-10">
+                </ITFlex>
+            </ITFlex>
+            <ITFlex justify="end" gap={3} className="flex justify-end gap-3 mt-10">
                 <ITButton
                     type="button"
                     variant="outlined"
@@ -125,7 +125,7 @@ const ResidentContactForm = ({ initialData, residentId, onSubmitSuccess, onCance
                 >
                     {formik.isSubmitting ? "Guardando..." : (initialData ? "Actualizar" : "Guardar Contacto")}
                 </ITButton>
-            </div>
+            </ITFlex>
         </form>
     );
 };
@@ -189,19 +189,19 @@ export const ResidentContactsManager = ({
   };
 
   const title = (
-    <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 transition-all">
+    <ITFlex align="center" gap={3} className="flex items-center gap-3">
+        <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 transition-all">
             {view === 'list' ? <FaAddressBook /> : <FaUserPlus />}
-        </div>
-        <div>
-            <h3 className="text-lg font-bold text-slate-800">
+        </ITFlex>
+        <ITFlex direction="column">
+            <ITText as="h3" className="text-lg font-bold text-slate-800">
                 {view === 'list' ? "Agenda de Contactos" : (editingContact ? "Editar Contacto" : "Nuevo Contacto")}
-            </h3>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+            </ITText>
+            <ITText as="p" className="text-xs font-medium text-slate-400 uppercase tracking-wider">
                 {resident?.name} {resident?.lastName || ""}
-            </p>
-        </div>
-    </div>
+            </ITText>
+        </ITFlex>
+    </ITFlex>
   );
 
   return (
@@ -211,14 +211,14 @@ export const ResidentContactsManager = ({
       title={title as any}
       className={view === 'list' ? "w-[800px] max-w-[95vw]" : "w-[500px] max-w-[95vw]"}
     >
-      <div className="p-0 transition-all duration-300">
+      <ITFlex direction="column" className="p-0 transition-all duration-300">
         {view === 'list' ? (
             <>
-                <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
-                    <p className="text-slate-500 text-sm">
+                <ITFlex align="center" justify="between" className="px-6 py-4 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
+                    <ITText as="p" className="text-slate-500 text-sm">
                         Gestiona los contactos frecuentes para que el residente genere pases
                         más rápido.
-                    </p>
+                    </ITText>
                     <ITButton
                         onClick={() => handleOpenForm()}
                        
@@ -226,27 +226,27 @@ export const ResidentContactsManager = ({
                     >
                         <ITFlex align="center" gap={2}><FaPlus /> Nuevo Contacto
                     </ITFlex></ITButton>
-                </div>
+                </ITFlex>
 
-                <div className="p-6">
+                <ITFlex direction="column" className="p-6">
                     {loading ? (
-                        <div className="py-20 flex justify-center">
+                        <ITFlex justify="center" className="py-20 flex justify-center">
                         <ITLoader />
-                        </div>
+                        </ITFlex>
                     ) : contacts.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {contacts.map((contact) => (
                             <div
                             key={contact.id}
                             className="group bg-white border border-slate-100 rounded-2xl p-4 hover:shadow-xl hover:shadow-slate-200/50 hover:border-emerald-100 transition-all duration-300"
                             >
-                            <div className="flex justify-between items-start mb-3">
-                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                <span className="text-sm font-bold uppercase">
+                            <ITFlex align="start" justify="between" className="flex justify-between items-start mb-3">
+                                <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                                <ITText as="span" className="text-sm font-bold uppercase">
                                     {contact.name.charAt(0)}
-                                </span>
-                                </div>
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                </ITText>
+                                </ITFlex>
+                                <ITFlex gap={1} className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                     onClick={() => handleOpenForm(contact)}
                                     className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
@@ -261,46 +261,46 @@ export const ResidentContactsManager = ({
                                 >
                                     <FaTrash size={14} />
                                 </button>
-                                </div>
-                            </div>
+                                </ITFlex>
+                            </ITFlex>
 
-                            <h4 className="font-bold text-slate-800 uppercase tracking-tighter mb-2 group-hover:text-emerald-700 transition-colors">
+                            <ITText as="h4" className="font-bold text-slate-800 uppercase tracking-tighter mb-2 group-hover:text-emerald-700 transition-colors">
                                 {contact.name}
-                            </h4>
+                            </ITText>
 
-                            <div className="space-y-1.5">
+                            <ITFlex direction="column" className="space-y-1.5">
                                 {contact.phone && (
-                                <div className="flex items-center gap-2 text-slate-500 text-sm">
-                                    <div className="w-5 h-5 rounded-full bg-slate-50 flex items-center justify-center text-[10px]">
+                                <ITFlex align="center" gap={2} className="flex items-center gap-2 text-slate-500 text-sm">
+                                    <ITFlex align="center" justify="center" className="w-5 h-5 rounded-full bg-slate-50 flex items-center justify-center text-[10px]">
                                     <FaPhone />
-                                    </div>
+                                    </ITFlex>
                                     {contact.phone}
-                                </div>
+                                </ITFlex>
                                 )}
                                 {contact.email && (
-                                <div className="flex items-center gap-2 text-slate-400 text-xs">
-                                    <div className="w-5 h-5 rounded-full bg-slate-50 flex items-center justify-center text-[10px]">
+                                <ITFlex align="center" gap={2} className="flex items-center gap-2 text-slate-400 text-xs">
+                                    <ITFlex align="center" justify="center" className="w-5 h-5 rounded-full bg-slate-50 flex items-center justify-center text-[10px]">
                                     <FaEnvelope />
-                                    </div>
+                                    </ITFlex>
                                     {contact.email}
-                                </div>
+                                </ITFlex>
                                 )}
-                            </div>
+                            </ITFlex>
                             </div>
                         ))}
-                        </div>
+                        </ITFlex>
                     ) : (
-                        <div className="bg-slate-50 rounded-3xl py-16 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200">
-                        <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-sm mb-4 border border-slate-100">
+                        <ITFlex direction="column" align="center" justify="center" className="bg-slate-50 rounded-3xl py-16 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200">
+                        <ITFlex align="center" justify="center" className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-sm mb-4 border border-slate-100">
                             <FaUserPlus className="text-3xl text-slate-200" />
-                        </div>
-                        <p className="font-bold text-slate-600 text-lg">
+                        </ITFlex>
+                        <ITText as="p" className="font-bold text-slate-600 text-lg">
                             Sin contactos registrados
-                        </p>
-                        <p className="text-sm max-w-[280px] text-center mt-1">
+                        </ITText>
+                        <ITText as="p" className="text-sm max-w-[280px] text-center mt-1">
                             Los contactos guardados facilitan la creación de pases por parte
                             del residente.
-                        </p>
+                        </ITText>
                         <ITButton
                             onClick={() => handleOpenForm()}
                             variant="ghost"
@@ -308,9 +308,9 @@ export const ResidentContactsManager = ({
                         >
                             <ITFlex align="center" gap={2}><FaPlus className="mr-2" /> Agregar el primero
                         </ITFlex></ITButton>
-                        </div>
+                        </ITFlex>
                     )}
-                </div>
+                </ITFlex>
             </>
         ) : (
             resident && (
@@ -325,7 +325,7 @@ export const ResidentContactsManager = ({
                 />
             )
         )}
-      </div>
+      </ITFlex>
     </ITDialog>
   );
 };
