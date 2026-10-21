@@ -19,7 +19,9 @@ export interface IRound {
          location: {
            id: number;
            name: string;
-         }
+         };
+         lastLatitude?: number | null;
+         lastLongitude?: number | null;
       }>;
   };
   guard: {

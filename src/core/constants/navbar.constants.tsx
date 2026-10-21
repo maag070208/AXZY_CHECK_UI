@@ -91,7 +91,6 @@ export const useNavigationItems = (): any[] => {
           items: [
             { id: "properties", label: "Propiedades", path: "/properties", roles: ["ADMIN", "SHIFT"] },
             { id: "residents", label: "Residentes", path: "/residents", roles: ["ADMIN"] },
-            { id: "persons", label: "Personas", path: "/persons", roles: ["ADMIN"] },
           ],
         },
         {

@@ -1,8 +1,19 @@
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITPage, ITText } from "@axzydev/axzy_ui_system";
+import {
+  ITBadget,
+  ITButton,
+  ITCard,
+  ITDataTable,
+  ITDialog,
+  ITFlex,
+  ITGrid,
+  ITPage,
+  ITText,
+} from "@axzydev/axzy_ui_system";
 import { useCallback, useState } from "react";
 import {
   FaBook,
   FaBroadcastTower,
+  FaCheck,
   FaClipboardList,
   FaEye,
   FaKey,
@@ -10,14 +21,12 @@ import {
   FaPlus,
   FaSwatchbook,
   FaTabletAlt,
+  FaTimes,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import {
-  getPaginatedShiftHandovers,
-  getShiftHandoverDetail,
-} from "../services/ShiftHandoverService";
+import { getPaginatedShiftHandovers, getShiftHandoverDetail } from "../services/ShiftHandoverService";
 
-const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<{ className?: string; size?: number }> }[] = [
   { key: "checklistPhones", label: "Teléfonos", icon: FaPhone },
   { key: "checklistTablet", label: "Tablet", icon: FaTabletAlt },
   { key: "checklistRadios", label: "Radios", icon: FaBroadcastTower },
@@ -26,10 +35,9 @@ const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<
   { key: "checklistConsignas", label: "Consignas", icon: FaClipboardList },
 ];
 
-/**
- * "4.2 Entrega de turno" — historial + detalle desde WEB. La captura ahora
- * vive en su propia pantalla (`/shift-handover/nuevo`).
- */
+const initials = (name?: string, lastName?: string | null) =>
+  `${(name || "?").charAt(0)}${(lastName || "").charAt(0) || ""}`.toUpperCase();
+
 const ShiftHandoverPage = () => {
   const navigate = useNavigate();
   const [detail, setDetail] = useState<any>(null);
@@ -45,9 +53,13 @@ const ShiftHandoverPage = () => {
     }
   };
 
+  const elements = detail?.elements || [];
+  const punctualCount = elements.filter((e: any) => e.punctual).length;
+  const isNocturno = detail?.shiftType === "NOCTURNO";
+
   return (
     <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Entrega de Turno"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Entrega de Turno" }]}
@@ -55,18 +67,18 @@ const ShiftHandoverPage = () => {
       icon={<FaSwatchbook size={20} />}
       iconColor="#065911"
       actions={
-<ITButton onClick={() => navigate("/shift-handover/nuevo")} color="primary" size="md">
-          <ITFlex align="center" gap={2}><FaPlus size={12} /> Nueva Entrega de Turno
-        </ITFlex></ITButton>
+        <ITButton onClick={() => navigate("/shift-handover/nuevo")} color="primary" size="md" icon={<FaPlus />}>
+          Nueva entrega de turno
+        </ITButton>
       }
     >
-
-      <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
           layout="fixed"
           density="compact"
+          showViewToggle={false}
           virtualized
           virtualizedMaxHeight={400}
           rowHeight={50}
@@ -78,7 +90,7 @@ const ShiftHandoverPage = () => {
               label: "FECHA",
               type: "string",
               render: (row: any) => (
-                <ITText as="span" className="text-xs font-bold text-slate-700">
+                <ITText as="span" className="text-xs font-bold text-slate-700 dark:text-slate-200">
                   {new Date(row.handoverDate).toLocaleDateString("es-MX")}
                 </ITText>
               ),
@@ -89,10 +101,12 @@ const ShiftHandoverPage = () => {
               type: "string",
               render: (row: any) => (
                 <ITBadget
-                  label={row.shiftType === "NOCTURNO" ? "Nocturno" : "Matutino"}
                   color={row.shiftType === "NOCTURNO" ? "primary" : "success"}
                   variant="filled"
-                />
+                  size="sm"
+                >
+                  {row.shiftType === "NOCTURNO" ? "Nocturno" : "Matutino"}
+                </ITBadget>
               ),
             },
             {
@@ -100,7 +114,7 @@ const ShiftHandoverPage = () => {
               label: "JEFE OPERATIVO",
               type: "string",
               render: (row: any) => (
-                <ITText as="span" className="text-xs font-semibold text-slate-600">
+                <ITText as="span" className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                   {row.createdBy?.name} {row.createdBy?.lastName}
                 </ITText>
               ),
@@ -109,36 +123,37 @@ const ShiftHandoverPage = () => {
               key: "elements",
               label: "ELEMENTOS",
               type: "number",
-              render: (row: any) => <ITText as="span" className="text-xs">{row._count?.elements || 0}</ITText>,
+              render: (row: any) => (
+                <ITText as="span" className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                  {row._count?.elements || 0}
+                </ITText>
+              ),
             },
             {
               key: "reportedToAdmin",
               label: "NOVEDADES REPORTADAS",
               type: "string",
               render: (row: any) => (
-                <ITBadget
-                  label={row.reportedToAdmin ? "Sí" : "No"}
-                  color={row.reportedToAdmin ? "success" : "danger"}
-                  variant="filled"
-                />
+                <ITBadget color={row.reportedToAdmin ? "success" : "danger"} variant="filled" size="sm">
+                  {row.reportedToAdmin ? "Sí" : "No"}
+                </ITBadget>
               ),
             },
             {
               key: "actions",
-              label: "Acciones",
+              label: "ACCIONES",
               type: "actions",
               actions: (row: any) => (
-                <ITFlex align="center" gap={2} className="flex items-center gap-2">
+                <ITFlex align="center" gap={2}>
                   <ITButton
                     onClick={() => openDetail(row.id)}
-                    size="sm"
+                    size="md"
                     color="secondary"
-                    variant="outlined"
-                   
+                    variant="icon-only"
+                    icon={<FaEye />}
+                    ariaLabel="Ver detalles"
                     title="Ver detalles"
-                  >
-                    <FaEye />
-                  </ITButton>
+                  />
                 </ITFlex>
               ),
             },
@@ -146,167 +161,148 @@ const ShiftHandoverPage = () => {
         />
       </ITFlex>
 
-      {/* Detalle de solo lectura */}
-      <ITDialog isOpen={detailOpen} onClose={() => setDetailOpen(false)} title="Detalle de entrega de turno" className="!max-w-3xl">
+      <ITDialog
+        isOpen={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        title="Detalle de entrega de turno"
+        className="max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+      >
         {detail && (
-          <ITFlex direction="column" className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
-            {(() => {
-              const isNocturno = detail.shiftType === "NOCTURNO";
-              const reported = detail.reportedToAdmin;
-              const elements = detail.elements || [];
-              const punctualCount = elements.filter((e: any) => e.punctual).length;
-              const init = (n?: string, l?: string | null) =>
-                `${(n || "?").charAt(0)}${(l || "").charAt(0) || ""}`.toUpperCase();
-
-              const stat = (value: any, label: string, color: string) => (
-                <ITFlex align="center" gap={3} className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex items-center gap-3">
-                  <ITFlex direction="column" className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center text-sm font-black flex-shrink-0`}>
-                    {value ?? "—"}
-                  </ITFlex>
-                  <ITText as="p" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</ITText>
+          <ITFlex direction="column" gap={4}>
+            <ITFlex align="start" justify="between" gap={3} wrap="wrap">
+              <ITFlex align="center" gap={3}>
+                <ITFlex
+                  align="center"
+                  justify="center"
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-xl ${
+                    isNocturno ? "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200" : "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
+                  }`}
+                >
+                  {isNocturno ? "🌙" : "☀️"}
                 </ITFlex>
-              );
+                <ITFlex direction="column">
+                  <ITText as="h3" className="text-lg font-black text-slate-900 dark:text-white">
+                    Turno {isNocturno ? "Nocturno" : "Matutino"}
+                  </ITText>
+                  <ITText as="p" className="text-xs capitalize text-slate-500">
+                    {new Date(detail.handoverDate).toLocaleDateString("es-MX", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </ITText>
+                </ITFlex>
+              </ITFlex>
 
-              return (
-                <>
-                  {/* Banner */}
-                  <ITFlex direction="column"
-                    className={`rounded-3xl p-6 text-white ${
-                      isNocturno ? "bg-slate-900" : "bg-[#065911]"
-                    }`}
-                  >
-                    <ITFlex align="center" gap={4} className="flex items-center gap-4">
-                      <ITFlex align="center" justify="center" className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center text-2xl">
-                        {isNocturno ? "🌙" : "☀️"}
-                      </ITFlex>
-                      <ITFlex direction="column" className="flex-1">
-                        <ITText as="p" className="text-2xl font-black">Turno {isNocturno ? "Nocturno" : "Matutino"}</ITText>
-                        <ITText as="p" className="text-white/75 text-sm font-medium capitalize">
-                          {new Date(detail.handoverDate).toLocaleDateString("es-MX", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </ITText>
-                      </ITFlex>
-                    </ITFlex>
-                    <ITFlex direction="column"
-                      className={`inline-flex items-center gap-2 mt-5 rounded-full px-4 py-1.5 text-xs font-black ${
-                        reported ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
-                      }`}
-                    >
-                      {reported ? "✓ Novedades reportadas" : "⚠ Novedades NO reportadas"}
-                    </ITFlex>
-                  </ITFlex>
+              <ITBadget color={detail.reportedToAdmin ? "success" : "warning"} variant="filled" size="sm">
+                {detail.reportedToAdmin ? "Novedades reportadas" : "Novedades no reportadas"}
+              </ITBadget>
+            </ITFlex>
 
-                  {/* Jefe operativo */}
-                  <ITFlex align="center" gap={3} className="flex items-center gap-3 bg-white border border-slate-100 rounded-2xl p-4">
-                    <ITFlex align="center" justify="center" className="w-11 h-11 rounded-full bg-[#065911] text-white font-black flex items-center justify-center">
-                      {init(detail.createdBy?.name, detail.createdBy?.lastName)}
+            <ITGrid container columns={12} spacing={3}>
+              {[
+                { value: elements.length, label: "Elementos", color: "bg-emerald-50 text-[#065911] dark:bg-emerald-950/30 dark:text-emerald-400" },
+                { value: punctualCount, label: "Puntuales", color: "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400" },
+                { value: detail.credentialsCount ?? "—", label: "Credenciales", color: "bg-sky-50 text-sky-700 dark:bg-sky-950/30 dark:text-sky-400" },
+                { value: detail.tarjetonesCount ?? "—", label: "Tarjetones", color: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
+              ].map((stat) => (
+                <ITGrid item xs={6} lg={3} key={stat.label}>
+                  <ITCard className="h-full rounded-2xl border-0! bg-slate-50/40! shadow-none!" contentClassName="p-3!">
+                    <ITFlex align="center" gap={2}>
+                      <ITText as="span" className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black ${stat.color}`}>
+                        {stat.value}
+                      </ITText>
+                      <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                        {stat.label}
+                      </ITText>
+                    </ITFlex>
+                  </ITCard>
+                </ITGrid>
+              ))}
+            </ITGrid>
+
+            <ITGrid container columns={12} spacing={4}>
+              <ITGrid item xs={12} lg={6}>
+                <ITCard title="Jefe y caseta" className="h-full rounded-2xl border-0! bg-slate-50/40! shadow-none!" contentClassName="space-y-4 p-4!">
+                  <ITFlex align="center" gap={3}>
+                    <ITFlex align="center" justify="center" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white">
+                      {initials(detail.createdBy?.name, detail.createdBy?.lastName)}
                     </ITFlex>
                     <ITFlex direction="column">
-                      <ITText as="p" className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Jefe Operativo</ITText>
-                      <ITText as="p" className="text-sm font-bold text-slate-800">
+                      <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Jefe operativo</ITText>
+                      <ITText as="p" className="text-sm font-bold text-slate-800 dark:text-slate-100">
                         {detail.createdBy?.name} {detail.createdBy?.lastName}
                       </ITText>
                     </ITFlex>
                   </ITFlex>
 
-                  {/* Stats */}
-                  <ITFlex direction="column" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    {stat(elements.length, "Elementos", "bg-emerald-100 text-[#065911]")}
-                    {stat(punctualCount, "Puntuales", "bg-green-100 text-green-700")}
-                    {stat(detail.credentialsCount ?? "—", "Credenciales", "bg-sky-100 text-sky-700")}
-                    {stat(detail.tarjetonesCount ?? "—", "Tarjetones", "bg-amber-100 text-amber-700")}
-                  </ITFlex>
-
-                  {/* Caseta */}
-                  <ITFlex direction="column" className="bg-white border border-slate-100 rounded-2xl p-5">
-                    <ITText as="p" className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Caseta</ITText>
-                    <ITFlex direction="column" className="space-y-2 text-sm">
-                      <ITText as="p" className="text-slate-600">
-                        <ITText as="span" className="font-bold text-slate-800">Credenciales:</ITText> {detail.credentialsCount ?? "—"}
-                      </ITText>
-                      <ITText as="p" className="text-slate-600">
-                        <ITText as="span" className="font-bold text-slate-800">Tarjetones:</ITText> {detail.tarjetonesCount ?? "—"}
-                      </ITText>
-                      <ITText as="p" className="text-slate-600">
-                        <ITText as="span" className="font-bold text-slate-800">Novedades:</ITText>{" "}
-                        {detail.novedades || "Sin novedades"}
-                      </ITText>
+                  <ITFlex direction="column" gap={2}>
+                    <ITFlex justify="between">
+                      <ITText as="span" className="text-xs text-slate-500">Credenciales</ITText>
+                      <ITText as="span" className="text-xs font-bold text-slate-800 dark:text-slate-100">{detail.credentialsCount ?? "—"}</ITText>
+                    </ITFlex>
+                    <ITFlex justify="between">
+                      <ITText as="span" className="text-xs text-slate-500">Tarjetones</ITText>
+                      <ITText as="span" className="text-xs font-bold text-slate-800 dark:text-slate-100">{detail.tarjetonesCount ?? "—"}</ITText>
+                    </ITFlex>
+                    <ITFlex direction="column" gap={1} className="rounded-xl bg-white p-3 dark:bg-slate-900/40">
+                      <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Novedades</ITText>
+                      <ITText as="p" className="text-xs text-slate-600 dark:text-slate-300">{detail.novedades || "Sin novedades"}</ITText>
                     </ITFlex>
                   </ITFlex>
+                </ITCard>
+              </ITGrid>
 
-                  {/* Verificación */}
-                  <ITFlex direction="column" className="bg-white border border-slate-100 rounded-2xl p-5">
-                    <ITText as="p" className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
-                      Verificación de entrega
-                    </ITText>
-                    <ITFlex direction="column" className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-                      {CHECKLIST_LABELS.map((item) => {
-                        const ok = !!detail[item.key];
-                        return (
-                          <div
-                            key={item.key}
-                            className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm ${
-                              ok
-                                ? "bg-emerald-50 border-emerald-100 text-emerald-800"
-                                : "bg-slate-50 border-slate-100 text-slate-400"
-                            }`}
-                          >
-                            <item.icon className={ok ? "text-emerald-600" : "text-slate-400"} />
-                            <ITText as="span" className="flex-1 font-semibold">{item.label}</ITText>
-                            {ok ? "✓" : "✕"}
-                          </div>
-                        );
-                      })}
-                    </ITFlex>
-                  </ITFlex>
-
-                  {/* Elementos */}
-                  <ITFlex direction="column">
-                    <ITText as="p" className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
-                      Elementos ({elements.length})
-                    </ITText>
-                    {elements.length === 0 ? (
-                      <ITText as="p" className="text-sm text-slate-400 text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        Sin elementos registrados.
-                      </ITText>
-                    ) : (
-                      <ITFlex direction="column" className="space-y-2">
-                        {elements.map((el: any) => (
-                          <div
-                            key={el.id}
-                            className="flex items-center gap-3 bg-white border border-slate-100 rounded-2xl px-4 py-3"
-                          >
-                            <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 text-[#065911] font-black flex items-center justify-center text-xs border border-emerald-100">
-                              {init(el.guard?.name, el.guard?.lastName)}
-                            </ITFlex>
-                            <ITFlex direction="column" className="flex-1 min-w-0">
-                              <ITText as="p" className="text-sm font-bold text-slate-800">
-                                {el.guard?.name} {el.guard?.lastName}
-                              </ITText>
-                              <ITText as="p" className="text-xs text-slate-400">
-                                Entrada: {el.entryTime}
-                                {el.observations ? ` · ${el.observations}` : ""}
-                              </ITText>
-                            </ITFlex>
-                            <ITText as="span"
-                              className={`text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider ${
-                                el.punctual ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                              }`}
-                            >
-                              {el.punctual ? "Puntual" : "Retraso"}
-                            </ITText>
-                          </div>
-                        ))}
+              <ITGrid item xs={12} lg={6}>
+                <ITCard title="Verificación de entrega" className="h-full rounded-2xl border-0! bg-slate-50/40! shadow-none!" contentClassName="space-y-2 p-4!">
+                  {CHECKLIST_LABELS.map((item) => {
+                    const ok = !!detail[item.key];
+                    return (
+                      <ITFlex key={item.key} align="center" gap={2} className="rounded-lg bg-white px-3 py-2 dark:bg-slate-900/40">
+                        <item.icon className={ok ? "text-emerald-600" : "text-slate-300"} size={12} />
+                        <ITText as="span" className="flex-1 text-xs font-semibold text-slate-700 dark:text-slate-200">{item.label}</ITText>
+                        <ITFlex
+                          align="center"
+                          justify="center"
+                          className={`flex h-4 w-4 items-center justify-center rounded ${
+                            ok ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800"
+                          }`}
+                        >
+                          {ok ? <FaCheck size={8} /> : <FaTimes size={8} />}
+                        </ITFlex>
                       </ITFlex>
-                    )}
+                    );
+                  })}
+                </ITCard>
+              </ITGrid>
+            </ITGrid>
+
+            <ITCard title={`Elementos (${elements.length})`} className="rounded-2xl border-0! bg-slate-50/40! shadow-none!" contentClassName="space-y-2 p-4!">
+              {elements.length === 0 ? (
+                <ITText as="p" className="py-6 text-center text-xs text-slate-400">Sin elementos registrados.</ITText>
+              ) : (
+                elements.map((el: any) => (
+                  <ITFlex key={el.id} align="center" gap={3} className="rounded-xl bg-white px-3 py-2.5 dark:bg-slate-900/40">
+                    <ITFlex align="center" justify="center" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#065911] text-xs font-black dark:bg-emerald-950/30 dark:text-emerald-400">
+                      {initials(el.guard?.name, el.guard?.lastName)}
+                    </ITFlex>
+                    <ITFlex direction="column" className="min-w-0 flex-1">
+                      <ITText as="p" className="truncate text-sm font-bold text-slate-800 dark:text-slate-100">
+                        {el.guard?.name} {el.guard?.lastName}
+                      </ITText>
+                      <ITText as="p" className="text-[11px] text-slate-400">
+                        Entrada: {el.entryTime}
+                        {el.observations ? ` · ${el.observations}` : ""}
+                      </ITText>
+                    </ITFlex>
+                    <ITBadget color={el.punctual ? "success" : "warning"} variant="filled" size="sm">
+                      {el.punctual ? "Puntual" : "Retraso"}
+                    </ITBadget>
                   </ITFlex>
-                </>
-              );
-            })()}
+                ))
+              )}
+            </ITCard>
           </ITFlex>
         )}
       </ITDialog>

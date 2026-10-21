@@ -81,6 +81,7 @@ export interface ResidentContact {
     name: string;
     phone?: string;
     email?: string;
+    relationship?: string;
     active: boolean;
     createdAt: string;
     updatedAt: string;

@@ -1,9 +1,19 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
+import {
+  ITBadget,
+  ITButton,
+  ITDataTable,
+  ITDialog,
+  ITFlex,
+  ITInput,
+  ITPage,
+  ITSegmentedControl,
+  ITText,
+} from "@axzydev/axzy_ui_system";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaBuilding, FaEdit, FaEye, FaHome, FaMapMarkedAlt, FaPlus, FaQrcode, FaSync, FaTimes, FaTrash } from "react-icons/fa";
+import { FaBuilding, FaEdit, FaEye, FaHome, FaMapMarkedAlt, FaPlus, FaQrcode, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { PropertyForm } from "../components/PropertyForm";
@@ -18,6 +28,7 @@ const PropertiesPage = () => {
     const [isImportOpen, setIsImportOpen] = useState(false);
     const [editingProperty, setEditingProperty] = useState<Property | null>(null);
     const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null);
+    const [view, setView] = useState<"summary" | "properties">("summary");
 
     const { data: propertyTypes, loading: loadingTypes, error: errorTypes } = useCatalog('property_type');
 
@@ -198,19 +209,25 @@ const PropertiesPage = () => {
             label: "Acciones",
             type: "actions",
             actions: (row: any) => (
-                <ITFlex align="center" gap={2} className="flex items-center gap-2">
+                <ITFlex align="center" gap={2}>
                     <ITButton
                         onClick={() => navigate(`/properties/${row.id}`)}
-                        size="sm"
-                        variant="outlined"
+                        size="md"
+                        variant="icon-only"
                         color="secondary"
-                        title="Ver Detalles"
-                    >
-                        <FaEye />
-                    </ITButton>
-                    <ITButton onClick={() => handlePrintQR(row)} size="sm" variant="outlined" color="primary" title="Imprimir QR de Ronda">
-                        <FaQrcode />
-                    </ITButton>
+                        icon={<FaEye />}
+                        ariaLabel="Ver detalles"
+                        title="Ver detalles"
+                    />
+                    <ITButton
+                        onClick={() => handlePrintQR(row)}
+                        size="md"
+                        variant="icon-only"
+                        color="primary"
+                        icon={<FaQrcode />}
+                        ariaLabel="Imprimir QR"
+                        title="Imprimir QR"
+                    />
                     <ITButton
                         onClick={() => {
                             if (row.latitude && row.longitude) {
@@ -219,19 +236,31 @@ const PropertiesPage = () => {
                                 dispatch(showToast({ message: "Propiedad sin coordenadas GPS", type: "warning" }));
                             }
                         }}
-                        size="sm"
-                        variant="outlined"
+                        size="md"
+                        variant="icon-only"
                         color="secondary"
+                        icon={<FaMapMarkedAlt />}
+                        ariaLabel="Ver en Google Maps"
                         title="Ver en Google Maps"
-                    >
-                        <FaMapMarkedAlt />
-                    </ITButton>
-                    <ITButton onClick={() => setEditingProperty(row)} size="sm" variant="ghost">
-                        <FaEdit />
-                    </ITButton>
-                    <ITButton onClick={() => setPropertyToDelete(row)} size="sm" variant="ghost">
-                        <FaTrash />
-                    </ITButton>
+                    />
+                    <ITButton
+                        onClick={() => setEditingProperty(row)}
+                        size="md"
+                        variant="icon-only"
+                        color="secondary"
+                        icon={<FaEdit />}
+                        ariaLabel="Editar"
+                        title="Editar"
+                    />
+                    <ITButton
+                        onClick={() => setPropertyToDelete(row)}
+                        size="md"
+                        variant="icon-only"
+                        color="danger"
+                        icon={<FaTrash />}
+                        ariaLabel="Eliminar"
+                        title="Eliminar"
+                    />
                 </ITFlex>
             )
         }
@@ -239,7 +268,7 @@ const PropertiesPage = () => {
 
     return (
         <ITPage
-            className="m-0! px-4! max-w-screen!"
+            className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
             noPadding
             title="Propiedades"
             breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Propiedades" }]}
@@ -247,76 +276,85 @@ const PropertiesPage = () => {
             icon={<FaHome size={20} />}
             iconColor="#065911"
             actions={
-                <ITFlex align="center" gap={3} className="flex items-center gap-3">
-                    <ITFlex direction="column" className="w-64 relative">
+                <ITFlex align="center" gap={2} wrap="wrap" justify="end" className="w-full justify-end">
+                    <ITFlex align="center" gap={1} className="w-64 shrink-0">
                         <ITInput
                             placeholder="Buscar por ID o nombre..."
                             name="search"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onBlur={() => { }}
-                            className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
+                            iconLeft={<FaSearch />}
+                            size="md"
                         />
                         {searchTerm && (
                             <ITButton
                                 variant="icon-only"
-                                color="gray"
+                                color="secondary"
                                 size="sm"
                                 onClick={() => setSearchTerm("")}
-                                icon={<FaTimes size={14} />}
+                                icon={<FaTimes size={12} />}
+                                ariaLabel="Limpiar búsqueda"
                                 title="Limpiar búsqueda"
-                               
                             />
                         )}
                     </ITFlex>
                     <ITButton
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
-                        variant="outlined"
-                       
+                        variant="icon-only"
                         size="md"
+                        icon={<FaSync />}
+                        ariaLabel="Actualizar tabla"
                         title="Actualizar tabla"
-                    >
-                        <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                        <ITText as="span" className="text-xs font-bold text-slate-500">Actualizar</ITText></ITFlex>
-                    </ITButton>
-                    <ITButton variant="outlined" color="secondary" size="sm" onClick={() => setIsImportOpen(true)}>
+                    />
+                    <ITButton variant="outlined" color="secondary" size="md" onClick={() => setIsImportOpen(true)}>
                         Importar CSV
                     </ITButton>
-                    <ITButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                        color="primary"
-                        size="md"
-                    >
-                        <ITFlex align="center" gap={2}>
-                            <FaPlus className="text-xs" />
-                            <ITText as="span">Agregar Propiedad</ITText>
-                        </ITFlex>
+                    <ITButton onClick={() => setIsCreateModalOpen(true)} color="primary" size="md" icon={<FaPlus />}>
+                        Agregar propiedad
                     </ITButton>
                 </ITFlex>
             }
         >
 
+            <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
+                <ITFlex align="center" justify="between" gap={3} wrap="wrap">
+                    <ITSegmentedControl
+                        size="sm"
+                        options={[
+                            { value: "summary", label: "Resumen" },
+                            { value: "properties", label: "Propiedades" },
+                        ]}
+                        value={view}
+                        onChange={(value) => setView(value as "summary" | "properties")}
+                    />
+                    <ITText as="span" className="text-[10px] font-semibold text-slate-500">
+                        {view === "summary"
+                            ? "Vista general de ocupación y estado del catálogo habitacional."
+                            : "Listado completo de casas y departamentos."}
+                    </ITText>
+                </ITFlex>
 
-            <ITFlex direction="column" className="mb-6">
-                <OccupancyDashboard key={refreshKey} />
-            </ITFlex>
-
-            <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <ITDataTable
-                    defaultItemsPerPage={50}
-                    itemsPerPageOptions={[25, 50, 100]}
-                    layout="fixed"
-                    density="compact"
-                    virtualized
-                    virtualizedMaxHeight={400}
-                    rowHeight={50}
-                    key={refreshKey}
-                    columns={columns as any}
-                    fetchData={memoizedFetch as any}
-                    externalFilters={externalFilters}
-                    title=""
-                />
+                {view === "summary" ? (
+                    <OccupancyDashboard key={refreshKey} />
+                ) : (
+                    <ITDataTable
+                        defaultItemsPerPage={50}
+                        itemsPerPageOptions={[25, 50, 100]}
+                        layout="fixed"
+                        density="compact"
+                        showViewToggle={false}
+                        virtualized
+                        virtualizedMaxHeight={400}
+                        rowHeight={50}
+                        key={refreshKey}
+                        columns={columns as any}
+                        fetchData={memoizedFetch as any}
+                        externalFilters={externalFilters}
+                        title=""
+                    />
+                )}
             </ITFlex>
 
             {/* Modals */}
@@ -354,13 +392,20 @@ const PropertiesPage = () => {
             <ITDialog
                 isOpen={!!propertyToDelete}
                 onClose={() => setPropertyToDelete(null)}
-                title="Confirmar Eliminación"
+                title="Eliminar propiedad"
             >
-                <ITFlex direction="column" className="p-6">
-                    <ITText as="p" className="text-slate-700 mb-6">¿Estás seguro de eliminar la propiedad <ITText as="span" className="font-bold">{propertyToDelete?.identifier}</ITText>?</ITText>
-                    <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
-                        <ITButton variant="outlined" onClick={() => setPropertyToDelete(null)}>Cancelar</ITButton>
-                        <ITButton onClick={confirmDelete}>Eliminar</ITButton>
+                <ITFlex direction="column" gap={4}>
+                    <ITText as="p" className="text-sm text-slate-600 dark:text-slate-300">
+                        ¿Estás seguro de eliminar la propiedad{" "}
+                        <ITText as="span" className="font-bold">{propertyToDelete?.identifier}</ITText>?
+                    </ITText>
+                    <ITFlex justify="end" gap={2}>
+                        <ITButton variant="outlined" color="secondary" onClick={() => setPropertyToDelete(null)}>
+                            Cancelar
+                        </ITButton>
+                        <ITButton color="danger" onClick={confirmDelete}>
+                            Eliminar propiedad
+                        </ITButton>
                     </ITFlex>
                 </ITFlex>
             </ITDialog>

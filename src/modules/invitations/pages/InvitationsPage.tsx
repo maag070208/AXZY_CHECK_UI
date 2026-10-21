@@ -1,5 +1,5 @@
-import { ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
-import { FaPlus, FaQrcode, FaIdBadge, FaBan, FaSignInAlt, FaSignOutAlt, FaTimes, FaUser, FaMotorcycle, FaSync, FaFilter } from "react-icons/fa";
+import { ITBadget, ITButton, ITCard, ITDataTable, ITDialog, ITFlex, ITGrid, ITInput, ITPage, ITSearchSelect, ITText, ITTextarea } from "@axzydev/axzy_ui_system";
+import { FaPlus, FaQrcode, FaIdBadge, FaBan, FaSignInAlt, FaSignOutAlt, FaTimes, FaSync } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useCallback, useMemo, useState } from "react";
 import { showToast } from "@app/core/store/toast/toast.slice";
@@ -18,6 +18,7 @@ const InvitationsPage = () => {
     const [codeInput, setCodeInput] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("ALL");
+    const [revokeReason, setRevokeReason] = useState("");
     const { data: statusCatalog } = useCatalog('invitation_status');
     
     const dispatch = useDispatch();
@@ -63,8 +64,12 @@ const InvitationsPage = () => {
 
     const confirmStatusUpdate = async () => {
         if (!updatingStatusOf) return;
+        if (updatingStatusOf.status === "CANCELLED" && !revokeReason.trim()) {
+            dispatch(showToast({ message: "Escribe el motivo de la revocación", type: "warning" }));
+            return;
+        }
         try {
-            const res = await updateInvitationStatus(updatingStatusOf.inv.id, updatingStatusOf.status);
+            const res = await updateInvitationStatus(updatingStatusOf.inv.id, updatingStatusOf.status, revokeReason.trim() || undefined);
             if (res.success) {
                 dispatch(showToast({ message: "Estado de la invitación actualizado", type: "success" }));
                 setUpdatingStatusOf(null);
@@ -101,12 +106,12 @@ const InvitationsPage = () => {
 
     const getStatusUI = (status: string) => {
         switch(status) {
-            case 'PENDING': return <ITText as="span" className="bg-amber-100 text-amber-700 font-bold px-2 py-1 rounded text-xs border border-amber-200">En Espera</ITText>;
-            case 'ENTERED': return <ITText as="span" className="bg-emerald-100 text-emerald-700 font-bold px-2 py-1 rounded text-xs border border-emerald-200">Dentro (Ingresó)</ITText>;
-            case 'EXITED': return <ITText as="span" className="bg-slate-100 text-slate-500 font-bold px-2 py-1 rounded text-xs border border-slate-200">Completado (Salió)</ITText>;
-            case 'EXPIRED': return <ITText as="span" className="bg-red-100 text-red-600 font-bold px-2 py-1 rounded text-xs border border-red-200">Expirada</ITText>;
-            case 'CANCELLED': return <ITText as="span" className="bg-red-100 text-red-600 font-bold px-2 py-1 rounded text-xs border border-red-200 line-through">Revocada</ITText>;
-            default: return <ITText as="span" className="text-slate-400">{status}</ITText>;
+            case 'PENDING': return <ITBadget color="warning" variant="filled" size="sm">En espera</ITBadget>;
+            case 'ENTERED': return <ITBadget color="success" variant="filled" size="sm">Dentro</ITBadget>;
+            case 'EXITED': return <ITBadget color="secondary" variant="filled" size="sm">Completado</ITBadget>;
+            case 'EXPIRED': return <ITBadget color="danger" variant="filled" size="sm">Expirada</ITBadget>;
+            case 'CANCELLED': return <ITBadget color="danger" variant="filled" size="sm">Revocada</ITBadget>;
+            default: return <ITBadget color="secondary" variant="filled" size="sm">{status}</ITBadget>;
         }
     };
 
@@ -116,9 +121,9 @@ const InvitationsPage = () => {
             label: "Pase", 
             type: "string", 
             render: (row: Invitation) => (
-                <ITFlex direction="column" className="font-mono bg-slate-100 text-slate-700 font-bold px-2 py-1 rounded inline-block text-sm border border-slate-200">
+                <ITBadget color="secondary" variant="filled" size="sm" className="font-mono">
                     {row.code}
-                </ITFlex>
+                </ITBadget>
             )
         },
         { 
@@ -127,18 +132,26 @@ const InvitationsPage = () => {
             type: "string", 
             sortable: false,
             render: (row: Invitation) => (
-                <ITFlex direction="column">
-                    <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-0.5">
-                        <ITFlex direction="column" className="font-bold text-slate-800">{row.guestName}</ITFlex>
-                        {row.type?.name === 'PROV' ? (
-                            <ITText as="span" className="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-1"><FaMotorcycle /> {row.type.value}</ITText>
-                        ) : (
-                            <ITText as="span" className="bg-slate-100 text-slate-500 text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-200 flex items-center gap-1"><FaUser /> {row.type?.value || 'Visita'}</ITText>
-                        )}
-                    </ITFlex>
-                    <ITFlex direction="column" className="text-xs text-slate-500 font-medium">Destino: {row.property?.identifier}</ITFlex>
-                    <ITFlex direction="column" className="text-xs text-slate-400 mt-1">Autorizó: {row.createdBy?.name} {row.createdBy?.lastName}</ITFlex>
+                <ITFlex align="center" gap={1} className="min-w-0">
+                    <ITText as="span" className="truncate font-bold text-slate-800 dark:text-slate-100">
+                        {row.guestName}
+                    </ITText>
+                    <ITText as="span" className="shrink-0 text-[10px] text-slate-400">
+                        {row.property?.identifier}
+                    </ITText>
                 </ITFlex>
+            )
+        },
+        {
+            key: "type",
+            label: "Tipo",
+            type: "string",
+            render: (row: Invitation) => (
+                row.type?.name === "PROV" ? (
+                    <ITBadget color="primary" variant="filled" size="sm">{row.type.value}</ITBadget>
+                ) : (
+                    <ITBadget color="secondary" variant="filled" size="sm">{row.type?.value || "Visita"}</ITBadget>
+                )
             )
         },
         { 
@@ -146,10 +159,9 @@ const InvitationsPage = () => {
             label: "Vigencia", 
             type: "string",
             render: (row: Invitation) => (
-                <ITFlex direction="column" className="text-xs text-slate-600">
-                    <ITFlex direction="column" className="font-medium">De: {dayjs(row.validFrom).format('DD MMM YYYY')}</ITFlex>
-                    <ITFlex direction="column">Al: {dayjs(row.validUntil).format('DD MMM YYYY')}</ITFlex>
-                </ITFlex>
+                <ITText as="span" className="text-xs font-medium text-slate-600">
+                    {dayjs(row.validFrom).format("DD MMM")} → {dayjs(row.validUntil).format("DD MMM")}
+                </ITText>
             )
         },
         {
@@ -160,19 +172,12 @@ const InvitationsPage = () => {
         },
         {
             key: "logs",
-            label: "Entrada / Salida",
+            label: "Registro",
             type: "string",
             render: (row: Invitation) => (
-                <ITFlex direction="column" className="text-xs text-slate-600">
-                    <ITFlex direction="column">
-                        <ITText as="span" className="font-medium text-slate-500 w-6 inline-block">In:</ITText>
-                        {row.entryTime ? <ITText as="span" className="text-emerald-600 font-medium">{dayjs(row.entryTime).format('DD MMM HH:mm')}</ITText> : <ITText as="span" className="text-slate-300">-</ITText>}
-                    </ITFlex>
-                    <ITFlex direction="column">
-                        <ITText as="span" className="font-medium text-slate-500 w-6 inline-block">Out:</ITText>
-                        {row.exitTime ? <ITText as="span" className="text-slate-600 font-medium">{dayjs(row.exitTime).format('DD MMM HH:mm')}</ITText> : <ITText as="span" className="text-slate-300">-</ITText>}
-                    </ITFlex>
-                </ITFlex>
+                <ITText as="span" className="whitespace-nowrap text-[11px] text-slate-500">
+                    In: {row.entryTime ? dayjs(row.entryTime).format("DD MMM HH:mm") : "—"} · Out: {row.exitTime ? dayjs(row.exitTime).format("DD MMM HH:mm") : "—"}
+                </ITText>
             )
         },
         {
@@ -180,33 +185,48 @@ const InvitationsPage = () => {
             label: "Acciones",
             type: "actions",
             actions: (row: Invitation) => (
-                <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                    <ITButton 
-                        onClick={() => setViewingQr(row)} 
-                        size="sm" 
-                        variant="solid" 
-                       
-                        title="Ver Gafete QR"
-                    >
-                        <FaQrcode />
-                    </ITButton>
+                <ITFlex align="center" gap={2}>
+                    <ITButton
+                        onClick={() => setViewingQr(row)}
+                        size="md"
+                        variant="icon-only"
+                        color="primary"
+                        icon={<FaQrcode />}
+                        ariaLabel="Ver gafete QR"
+                        title="Ver gafete QR"
+                    />
                     {row.status === 'PENDING' && (
-                        <ITFlex gap={1} className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
-                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'ENTERED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" title="Aprobar Ingreso Escaneando">
-                               <FaSignInAlt />
-                           </ITButton>
-                           <ITButton onClick={() => setUpdatingStatusOf({inv: row, status: 'CANCELLED'})} size="sm" variant="ghost" title="Revocar Accesos">
-                               <FaBan />
-                           </ITButton>
-                        </ITFlex>
+                        <>
+                            <ITButton
+                                onClick={() => { setScanningCode({inv: row, type: 'ENTERED'}); setCodeInput("AXZ-"); }}
+                                size="md"
+                                variant="icon-only"
+                                color="secondary"
+                                icon={<FaSignInAlt />}
+                                ariaLabel="Aprobar ingreso"
+                                title="Aprobar ingreso"
+                            />
+                            <ITButton
+                                onClick={() => { setRevokeReason(""); setUpdatingStatusOf({inv: row, status: 'CANCELLED'}); }}
+                                size="md"
+                                variant="icon-only"
+                                color="danger"
+                                icon={<FaBan />}
+                                ariaLabel="Revocar acceso"
+                                title="Revocar acceso"
+                            />
+                        </>
                     )}
-
                     {row.status === 'ENTERED' && (
-                        <ITFlex gap={1} className="flex gap-1 ml-2 border-l pl-2 border-slate-200">
-                           <ITButton onClick={() => { setScanningCode({inv: row, type: 'EXITED'}); setCodeInput("AXZ-"); }} size="sm" variant="ghost" title="Aprobar Salida">
-                               <FaSignOutAlt />
-                           </ITButton>
-                        </ITFlex>
+                        <ITButton
+                            onClick={() => { setScanningCode({inv: row, type: 'EXITED'}); setCodeInput("AXZ-"); }}
+                            size="md"
+                            variant="icon-only"
+                            color="secondary"
+                            icon={<FaSignOutAlt />}
+                            ariaLabel="Aprobar salida"
+                            title="Aprobar salida"
+                        />
                     )}
                 </ITFlex>
             )
@@ -215,7 +235,7 @@ const InvitationsPage = () => {
 
     return (
         <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Directorio de Invitados"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Directorio de Invitados" }]}
@@ -223,83 +243,93 @@ const InvitationsPage = () => {
       icon={<FaIdBadge size={20} />}
       iconColor="#065911"
       actions={
-<ITFlex align="center" gap={3} className="flex gap-3 items-center">
-                    <ITFlex direction="column" className="w-64 relative">
-                        <ITInput
-                            placeholder="Buscar código o invitado..."
-                            name="search"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onBlur={() => {}}
-                            className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
-                        />
-                        {searchTerm && (
-                            <ITButton
-                                variant="icon-only"
-                                color="gray"
-                                size="sm"
-                                onClick={() => setSearchTerm("")}
-                                icon={<FaTimes size={14} />}
-                               
-                            />
-                        )}
-                    </ITFlex>
-                    <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
-                        <FaFilter className="text-slate-400 text-xs mr-2" />
-                        <ITSearchSelect
-                            value={statusFilter}
-                            onChange={(value) => {
-                                setStatusFilter(String(value));
-                                setRefreshKey(prev => prev + 1);
-                            }}
-                            options={[
-                                { label: "Todos los estados", value: "ALL" },
-                                ...statusCatalog.map(s => ({ label: s.value, value: s.name })),
-                            ]}
-                            clearable={false}
-                            className="min-w-[160px]"
-                        />
-                    </ITFlex>
-                    <ITButton
-                        onClick={() => setRefreshKey(prev => prev + 1)}
-                        color="secondary"
-                        variant="outlined"
-                       
-                        size="md"
-                        title="Refrescar datos"
-                    >
-                        <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                        <ITText as="span" className="text-xs font-bold text-slate-500">Refrescar</ITText></ITFlex>
-                    </ITButton>
-                    <ITButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                        color="primary"
-                        size="md"
-                       
-                    >
-                        <ITFlex align="center" gap={2}><FaPlus className="text-xs" />
-                        <ITText as="span">Crear Pase</ITText></ITFlex>
-                    </ITButton>
-                </ITFlex>
+        <ITButton color="primary" size="md" icon={<FaPlus />} onClick={() => setIsCreateModalOpen(true)}>
+          Crear pase
+        </ITButton>
       }
     >
-
-            <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <ITDataTable
-                  defaultItemsPerPage={50}
-                  itemsPerPageOptions={[25, 50, 100]}
-                  layout="fixed"
-                  density="compact"
-                  virtualized
-                  virtualizedMaxHeight={400}
-                  rowHeight={50}
-                    key={refreshKey}
-                    columns={columns as any}
-                    fetchData={memoizedFetch as any}
-                    externalFilters={externalFilters as any}
-                    title=""
+      <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
+        <ITCard className="rounded-3xl" contentClassName="p-4!">
+          <ITGrid container columns={12} spacing={3} className="items-end">
+            <ITGrid item xs={12} md={6}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Buscar pase
+                </ITText>
+                <ITFlex align="center" gap={1}>
+                  <ITInput
+                    placeholder="Buscar código o invitado..."
+                    name="search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onBlur={() => {}}
+                    iconLeft={<FaQrcode />}
+                    size="md"
+                  />
+                  {searchTerm && (
+                    <ITButton
+                      variant="icon-only"
+                      color="secondary"
+                      size="sm"
+                      onClick={() => setSearchTerm("")}
+                      icon={<FaTimes size={12} />}
+                      ariaLabel="Limpiar búsqueda"
+                      title="Limpiar búsqueda"
+                    />
+                  )}
+                </ITFlex>
+              </ITFlex>
+            </ITGrid>
+            <ITGrid item xs={12} md={4}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Estado
+                </ITText>
+                <ITSearchSelect
+                  value={statusFilter}
+                  onChange={(value) => {
+                    setStatusFilter(String(value));
+                    setRefreshKey(prev => prev + 1);
+                  }}
+                  options={[
+                    { label: "Todos los estados", value: "ALL" },
+                    ...statusCatalog.map(s => ({ label: s.value, value: s.name })),
+                  ]}
+                  clearable={false}
                 />
-            </ITFlex>
+              </ITFlex>
+            </ITGrid>
+            <ITGrid item xs={12} md={2}>
+              <ITFlex align="end" justify="end" className="h-full">
+                <ITButton
+                  onClick={() => setRefreshKey(prev => prev + 1)}
+                  color="secondary"
+                  variant="icon-only"
+                  size="md"
+                  icon={<FaSync />}
+                  ariaLabel="Refrescar datos"
+                  title="Refrescar datos"
+                />
+              </ITFlex>
+            </ITGrid>
+          </ITGrid>
+        </ITCard>
+
+        <ITDataTable
+          defaultItemsPerPage={50}
+          itemsPerPageOptions={[25, 50, 100]}
+          layout="fixed"
+          density="compact"
+          showViewToggle={false}
+          virtualized
+          virtualizedMaxHeight={400}
+          rowHeight={50}
+          key={refreshKey}
+          columns={columns as any}
+          fetchData={memoizedFetch as any}
+          externalFilters={externalFilters as any}
+        />
+      </ITFlex>
 
             {/* Modals */}
             <ITDialog 
@@ -330,118 +360,142 @@ const InvitationsPage = () => {
                 onClose={() => setUpdatingStatusOf(null)} 
                 title="Aviso de Seguridad"
             >
-                <ITFlex direction="column" className="p-6">
-                    <ITText as="p" className="text-slate-700 mb-6">
-                        Estás a punto de alterar el estado operativo del pase <strong>{updatingStatusOf?.inv.code}</strong> a un estado de <strong>REVOCADO (CANCELLED)</strong>.
-                        El acceso con este código QR o código alfa será permanentemente denegado en caseta. ¿Proceder?
+                <ITFlex direction="column" gap={4}>
+                    <ITText as="p" className="text-sm text-slate-600 dark:text-slate-300">
+                        Estás a punto de alterar el estado del pase{" "}
+                        <ITText as="span" className="font-bold">{updatingStatusOf?.inv.code}</ITText> a{" "}
+                        <ITText as="span" className="font-bold">REVOCADO</ITText>. El acceso con este código QR
+                        quedará denegado permanentemente en caseta. ¿Proceder?
                     </ITText>
-                    <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
-                        <ITButton variant="outlined" onClick={() => setUpdatingStatusOf(null)}>Volver</ITButton>
-                        <ITButton onClick={confirmStatusUpdate}>Revocar Pase</ITButton>
+                    <ITTextarea
+                        name="revokeReason"
+                        label="Motivo de la revocación"
+                        rows={3}
+                        value={revokeReason}
+                        onChange={(value: string) => setRevokeReason(value)}
+                        placeholder="Ej. El invitado canceló, datos incorrectos, intento de acceso no autorizado..."
+                    />
+                    <ITFlex justify="end" gap={2}>
+                        <ITButton variant="outlined" color="secondary" onClick={() => setUpdatingStatusOf(null)}>
+                            Volver
+                        </ITButton>
+                        <ITButton color="danger" onClick={confirmStatusUpdate} disabled={!revokeReason.trim()}>
+                            Revocar pase
+                        </ITButton>
                     </ITFlex>
                 </ITFlex>
             </ITDialog>
 
-            <ITDialog 
-                isOpen={!!scanningCode} 
-                onClose={() => setScanningCode(null)} 
-                title={scanningCode?.type === 'ENTERED' ? "Validación de Acceso" : "Validación de Salida"}
-                className="max-w-2xl"
+            <ITDialog
+                isOpen={!!scanningCode}
+                onClose={() => setScanningCode(null)}
+                title={scanningCode?.type === "ENTERED" ? "Validación de acceso" : "Validación de salida"}
+                className="max-w-lg w-full"
             >
-                <ITFlex direction="column" className="p-0">
-                    {/* Premium Header Card */}
-                    {scanningCode && (
-                        <ITFlex direction="column" className={`relative overflow-hidden p-6 sm:p-8 ${scanningCode.type === 'ENTERED' ? 'bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900' : 'bg-gradient-to-br from-slate-800 to-slate-900'}`}>
-                            {/* Decorative background elements */}
-                            <ITFlex direction="column" className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl"></ITFlex>
-                            <ITFlex direction="column" className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-48 h-48 bg-emerald-500/20 rounded-full blur-2xl"></ITFlex>
+                {scanningCode && (
+                    <ITFlex direction="column" gap={4}>
+                        <ITCard className="rounded-2xl border-0! bg-emerald-50/60! shadow-none!" contentClassName="p-4!">
+                            <ITFlex align="center" gap={3}>
+                                <ITFlex
+                                    align="center"
+                                    justify="center"
+                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white"
+                                >
+                                    {scanningCode.inv.guestName.split(" ").slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
+                                </ITFlex>
+                                <ITFlex direction="column" className="min-w-0 flex-1">
+                                    <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-emerald-700/70">
+                                        Invitado autorizado
+                                    </ITText>
+                                    <ITText as="p" className="truncate text-lg font-black text-emerald-950 dark:text-emerald-100">
+                                        {scanningCode.inv.guestName}
+                                    </ITText>
+                                </ITFlex>
+                                <ITBadget color={scanningCode.inv.type?.name === "PROV" ? "primary" : "secondary"} variant="filled" size="sm">
+                                    {scanningCode.inv.type?.name === "PROV" ? "Proveedor" : "Visita"}
+                                </ITBadget>
+                            </ITFlex>
 
-                            <ITFlex direction="column" align="start" justify="between" gap={6} className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                <ITFlex direction="column">
-                                    <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-2">
-                                        <ITFlex direction="column" className={`w-2 h-2 rounded-full animate-pulse ${scanningCode.type === 'ENTERED' ? 'bg-emerald-400' : 'bg-slate-400'}`}></ITFlex>
-                                        <ITText as="p" className="text-[10px] text-emerald-200/80 font-bold uppercase tracking-[0.2em]">Invitado Autorizado</ITText>
+                            <ITGrid container columns={12} spacing={2} className="mt-3">
+                                <ITGrid item xs={6}>
+                                    <ITFlex direction="column" gap={0.5} className="rounded-xl bg-white/70 p-2.5 dark:bg-slate-900/40">
+                                        <ITText as="p" className="text-[8px] font-black uppercase tracking-widest text-slate-400">Destino</ITText>
+                                        <ITText as="p" className="text-xs font-bold text-slate-800 dark:text-slate-100">{scanningCode.inv.property?.identifier}</ITText>
+                                        <ITText as="p" className="text-[10px] text-slate-500">{scanningCode.inv.property?.name}</ITText>
                                     </ITFlex>
-                                    <ITText as="p" className="text-3xl font-black text-white tracking-tight drop-shadow-md">{scanningCode.inv.guestName}</ITText>
-                                </ITFlex>
-                                <ITFlex direction="column" className="md:text-right bg-black/20 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                                    <ITText as="p" className="text-[10px] text-emerald-200/80 font-bold uppercase tracking-[0.2em] mb-1">Destino</ITText>
-                                    <ITText as="p" className="text-xl font-bold text-white tracking-wide">{scanningCode.inv.property?.identifier}</ITText>
-                                    <ITText as="p" className="text-sm text-emerald-100/70 font-medium">{scanningCode.inv.property?.name}</ITText>
-                                </ITFlex>
-                            </ITFlex>
-                            
-                            {scanningCode.inv.notes && (
-                                <ITFlex direction="column" className="mt-6 p-4 bg-black/30 border border-amber-400/20 rounded-xl relative z-10 backdrop-blur-md">
-                                    <ITText as="span" className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block mb-1">Info. Vehículo / Notas:</ITText>
-                                    <ITText as="p" className="text-sm text-amber-50 font-medium">{scanningCode.inv.notes}</ITText>
-                                </ITFlex>
-                            )}
+                                </ITGrid>
+                                <ITGrid item xs={6}>
+                                    <ITFlex direction="column" gap={0.5} className="rounded-xl bg-white/70 p-2.5 dark:bg-slate-900/40">
+                                        <ITText as="p" className="text-[8px] font-black uppercase tracking-widest text-slate-400">Vigencia</ITText>
+                                        <ITText as="p" className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                                            {dayjs(scanningCode.inv.validFrom).format("DD MMM")} → {dayjs(scanningCode.inv.validUntil).format("DD MMM")}
+                                        </ITText>
+                                    </ITFlex>
+                                </ITGrid>
+                                <ITGrid item xs={6}>
+                                    <ITFlex direction="column" gap={0.5} className="rounded-xl bg-white/70 p-2.5 dark:bg-slate-900/40">
+                                        <ITText as="p" className="text-[8px] font-black uppercase tracking-widest text-slate-400">Autorizó</ITText>
+                                        <ITText as="p" className="truncate text-xs font-bold text-slate-800 dark:text-slate-100">
+                                            {scanningCode.inv.createdBy?.name} {scanningCode.inv.createdBy?.lastName}
+                                        </ITText>
+                                    </ITFlex>
+                                </ITGrid>
+                                <ITGrid item xs={6}>
+                                    <ITFlex direction="column" gap={0.5} className="rounded-xl bg-white/70 p-2.5 dark:bg-slate-900/40">
+                                        <ITText as="p" className="text-[8px] font-black uppercase tracking-widest text-slate-400">Acción</ITText>
+                                        <ITBadget color={scanningCode.type === "ENTERED" ? "success" : "secondary"} variant="filled" size="sm">
+                                            {scanningCode.type === "ENTERED" ? "Dar acceso" : "Registrar salida"}
+                                        </ITBadget>
+                                    </ITFlex>
+                                </ITGrid>
+                            </ITGrid>
+                        </ITCard>
 
-                            <ITFlex align="center" justify="between" gap={4} className="mt-6 pt-5 border-t border-white/10 flex flex-wrap gap-4 justify-between items-center text-xs text-emerald-100/60 relative z-10">
-                                <ITText as="span" className="flex items-center gap-2">
-                                    <ITText as="span" className="font-bold text-emerald-100/40">Emitió:</ITText> 
-                                    <ITText as="span" className="bg-white/10 px-2 py-1 rounded-md text-white/90">{scanningCode.inv.createdBy?.name} {scanningCode.inv.createdBy?.lastName}</ITText>
-                                </ITText>
-                                <ITText as="span" className="flex items-center gap-2 font-mono">
-                                    <ITText as="span" className="font-bold text-emerald-100/40">Vigencia:</ITText> 
-                                    {dayjs(scanningCode.inv.validFrom).format('DD MMM')} ~ {dayjs(scanningCode.inv.validUntil).format('DD MMM')}
-                                </ITText>
-                            </ITFlex>
-                        </ITFlex>
-                    )}
+                        {scanningCode.inv.notes && (
+                            <ITCard className="rounded-2xl border-0! bg-amber-50! shadow-none!" contentClassName="p-3!">
+                                <ITText as="p" className="text-[8px] font-black uppercase tracking-widest text-amber-700">Notas / vehículo</ITText>
+                                <ITText as="p" className="mt-1 text-xs text-amber-800">{scanningCode.inv.notes}</ITText>
+                            </ITCard>
+                        )}
 
-                    {/* Scanner Section */}
-                    <ITFlex direction="column" className="p-6 sm:p-8 bg-slate-50">
-                        <ITFlex direction="column" className="text-center mb-6">
-                            <ITText as="p" className="text-slate-500 text-sm font-medium">
-                                Por favor, posicione la lectora frontalmente o teclee el código para validar la integridad matemática del pase.
-                            </ITText>
-                        </ITFlex>
-                        
-                        <ITFlex direction="column" className="max-w-md mx-auto mb-8 relative group">
-                            {/* Animated scanner frame */}
-                            <ITFlex direction="column" className={`absolute inset-0 rounded-2xl border-2 transition-all duration-500 ${codeInput ? 'border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.3)]' : 'border-dashed border-slate-300 group-hover:border-slate-400'}`}></ITFlex>
-                            
-                            <ITFlex direction="column" align="center" className="relative p-6 flex flex-col items-center bg-white rounded-2xl">
-                                <ITFlex direction="column" className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${codeInput ? 'bg-emerald-50 text-emerald-500 scale-110 shadow-lg shadow-emerald-100' : 'bg-slate-50 text-slate-300'}`}>
-                                    <FaQrcode className="text-3xl" />
+                        <ITCard className="rounded-2xl" contentClassName="p-4!">
+                            <ITFlex direction="column" align="center" gap={3}>
+                                <ITFlex
+                                    align="center"
+                                    justify="center"
+                                    className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400"
+                                >
+                                    <FaQrcode size={20} />
                                 </ITFlex>
-                                <input
-                                    type="text"
-                                    autoFocus
-                                    placeholder="Escribe AXZ-XXXX..."
+                                <ITText as="p" className="text-center text-xs text-slate-500">
+                                    Escanea o teclea el código del pase para validar el acceso.
+                                </ITText>
+                                <ITInput
+                                    name="code"
                                     value={codeInput}
                                     onChange={(e) => {
                                         let val = e.target.value.toUpperCase();
-                                        if (!val.startsWith('AXZ-')) val = 'AXZ-'; 
+                                        if (!val.startsWith("AXZ-")) val = "AXZ-";
                                         setCodeInput(val);
                                     }}
-                                    onKeyDown={(e) => { if(e.key === 'Enter') confirmScanningCode(); }}
-                                    className="bg-slate-50/50 border-2 border-slate-100 text-center text-2xl sm:text-3xl font-mono tracking-[0.2em] font-black text-slate-800 rounded-xl px-4 py-4 outline-none focus:bg-white focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 w-full transition-all uppercase placeholder:font-sans placeholder:text-lg placeholder:tracking-normal placeholder:font-medium placeholder:text-slate-300"
+                                    onKeyDown={(e: any) => {
+                                        if (e.key === "Enter") confirmScanningCode();
+                                    }}
+                                    placeholder="AXZ-XXXX"
+                                    className="w-full text-center font-mono text-xl font-black tracking-[0.2em]"
                                 />
+                                <ITFlex justify="end" gap={2} className="w-full">
+                                    <ITButton variant="outlined" color="secondary" onClick={() => setScanningCode(null)}>
+                                        Cancelar
+                                    </ITButton>
+                                    <ITButton color="primary" onClick={confirmScanningCode}>
+                                        {scanningCode.type === "ENTERED" ? "Autorizar acceso" : "Registrar salida"}
+                                    </ITButton>
+                                </ITFlex>
                             </ITFlex>
-                        </ITFlex>
-
-                        <ITFlex justify="end" gap={3} className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
-                            <ITButton
-                                variant="text"
-                                color="gray"
-                                onClick={() => setScanningCode(null)}
-                               
-                            >
-                                Cancelar
-                            </ITButton>
-                            <ITButton
-                                onClick={confirmScanningCode}
-                                color={scanningCode?.type === 'ENTERED' ? 'success' : 'gray'}
-                               
-                            >
-                                {scanningCode?.type === 'ENTERED' ? 'Autorizar y Dar Acceso' : 'Cerrar Visita (Salida)'}
-                            </ITButton>
-                        </ITFlex>
+                        </ITCard>
                     </ITFlex>
-                </ITFlex>
+                )}
             </ITDialog>
 
         </ITPage>

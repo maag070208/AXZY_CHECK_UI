@@ -1,7 +1,19 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDialog, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
+import {
+  ITAvatar,
+  ITBadget,
+  ITButton,
+  ITCard,
+  ITDialog,
+  ITEmptyState,
+  ITFlex,
+  ITGrid,
+  ITInput,
+  ITSearchSelect,
+  ITText,
+} from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
-import { FaCamera, FaCheck, FaMinus, FaPlus, FaPrint, FaRoute, FaTrash } from "react-icons/fa";
+import { FaArrowLeft, FaCheck, FaMinus, FaPlus, FaPrint, FaRoute, FaTrash, FaUserShield } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { getLocations, Location } from "../../locations/service/locations.service";
 import { getUsers, User } from "../../users/services/UserService";
@@ -9,379 +21,407 @@ import { printLocationQRs } from "@core/utils/printLocationQRs";
 import { createRoute, ILocationCreate, updateRoute } from "../services/RoutesService";
 
 interface CreateRouteModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSuccess: () => void;
-    editConfig?: any; // If editing
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  editConfig?: any;
 }
 
+const AVATAR_COLORS = ["#047857", "#0284c7", "#4f46e5", "#d97706", "#e11d48", "#0d9488"];
+
 export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: CreateRouteModalProps) => {
-    const dispatch = useDispatch();
-    const [title, setTitle] = useState("");
-    const [addedLocations, setAddedLocations] = useState<ILocationCreate[]>([]);
-    const [selectedGuards, setSelectedGuards] = useState<number[]>([]);
-    
-    // Data sources
-    const [allLocations, setAllLocations] = useState<Location[]>([]);
-    const [allGuards, setAllGuards] = useState<User[]>([]);
-    
-    // UI Local State
-    const [selectedLocId, setSelectedLocId] = useState<string>("");
-    const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const [title, setTitle] = useState("");
+  const [addedLocations, setAddedLocations] = useState<ILocationCreate[]>([]);
+  const [selectedGuards, setSelectedGuards] = useState<number[]>([]);
 
-    useEffect(() => {
-        if (isOpen) {
-            fetchInitialData();
-        }
-    }, [isOpen]);
+  const [allLocations, setAllLocations] = useState<Location[]>([]);
+  const [allGuards, setAllGuards] = useState<User[]>([]);
 
-    useEffect(() => {
-        if (isOpen && editConfig) {
-            setTitle(editConfig.title);
-            const mapped = editConfig.recurringLocations.map((rl: any) => ({
-                locationId: rl.location.id,
-                locationName: rl.location.name,
-                tasks: rl.tasks.map((t: any) => ({
-                    description: t.description,
-                    reqPhoto: t.reqPhoto
-                }))
-            }));
-            setAddedLocations(mapped);
-            if (editConfig.guards) {
-                setSelectedGuards(editConfig.guards.map((g: any) => g.id));
-            } else {
-                setSelectedGuards([]);
-            }
-        } else if (isOpen) {
-            setTitle("");
-            setAddedLocations([]);
-            if (allGuards.length > 0) {
-                 setSelectedGuards(allGuards.map(g => g.id));
-            }
-        }
-    }, [isOpen, editConfig, allGuards]);
+  const [selectedLocId, setSelectedLocId] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
-    const fetchInitialData = async () => {
-        const [locRes, usersRes] = await Promise.all([
-            getLocations(),
-            getUsers()
-        ]);
+  useEffect(() => {
+    if (isOpen) fetchInitialData();
+  }, [isOpen]);
 
-        if (locRes.success && locRes.data) {
-            setAllLocations(locRes.data);
-        }
-        
-        if (usersRes.success && usersRes.data) {
-            const guards = usersRes.data.filter(u => {
-                const roleName = typeof u.role === 'object' ? u.role.name : u.role;
-                return (roleName === 'GUARD' || roleName === 'SHIFT' || roleName === 'MAINT') && u.active;
-            });
-            setAllGuards(guards);
-            if (!editConfig) {
-                setSelectedGuards(guards.map(g => g.id));
-            }
-        }
-    };
+  useEffect(() => {
+    if (isOpen && editConfig) {
+      setTitle(editConfig.title);
+      const mapped = editConfig.recurringLocations.map((rl: any) => ({
+        locationId: rl.location.id,
+        locationName: rl.location.name,
+        tasks: rl.tasks.map((t: any) => ({
+          description: t.description,
+          reqPhoto: t.reqPhoto,
+        })),
+      }));
+      setAddedLocations(mapped);
+      setSelectedGuards(editConfig.guards ? editConfig.guards.map((g: any) => g.id) : []);
+    } else if (isOpen) {
+      setTitle("");
+      setAddedLocations([]);
+      if (allGuards.length > 0) setSelectedGuards(allGuards.map((g) => g.id));
+    }
+  }, [isOpen, editConfig, allGuards]);
 
-    const handleAddLocation = () => {
-        if (!selectedLocId) return;
-        const locIdNum = Number(selectedLocId);
-        if (addedLocations.find(l => l.locationId === locIdNum)) {
-            dispatch(showToast({ message: "La ubicación ya está en la lista", type: "warning" }));
-            return;
-        }
-        const locObj = allLocations.find(l => l.id === locIdNum);
-        if (!locObj) return;
-        setAddedLocations([...addedLocations, {
-            locationId: locIdNum,
-            locationName: locObj.name,
-            tasks: []
-        }]);
-        setSelectedLocId("");
-    };
+  const fetchInitialData = async () => {
+    const [locRes, usersRes] = await Promise.all([getLocations(), getUsers()]);
 
-    const handleRemoveLocation = (index: number) => {
-        const copy = [...addedLocations];
-        copy.splice(index, 1);
-        setAddedLocations(copy);
-    };
+    if (locRes.success && locRes.data) setAllLocations(locRes.data);
 
-    const handleAddTask = (locIndex: number) => {
-        const copy = [...addedLocations];
-        copy[locIndex].tasks.push({ description: "", reqPhoto: false });
-        setAddedLocations(copy);
-    };
+    if (usersRes.success && usersRes.data) {
+      const guards = usersRes.data.filter((u) => {
+        const roleName = typeof u.role === "object" ? u.role.name : u.role;
+        return (roleName === "GUARD" || roleName === "SHIFT" || roleName === "MAINT") && u.active;
+      });
+      setAllGuards(guards);
+      if (!editConfig) setSelectedGuards(guards.map((g) => g.id));
+    }
+  };
 
-    const handleRemoveTask = (locIndex: number, taskIndex: number) => {
-        const copy = [...addedLocations];
-        copy[locIndex].tasks.splice(taskIndex, 1);
-        setAddedLocations(copy);
-    };
+  const handleAddLocation = () => {
+    if (!selectedLocId) return;
+    const locIdNum = Number(selectedLocId);
+    if (addedLocations.find((l) => l.locationId === locIdNum)) {
+      dispatch(showToast({ message: "La ubicación ya está en la lista", type: "warning" }));
+      return;
+    }
+    const locObj = allLocations.find((l) => l.id === locIdNum);
+    if (!locObj) return;
+    setAddedLocations([
+      ...addedLocations,
+      { locationId: locIdNum, locationName: locObj.name, tasks: [] },
+    ]);
+    setSelectedLocId("");
+  };
 
-    const handleTaskChange = (locIndex: number, taskIndex: number, val: string) => {
-        const copy = [...addedLocations];
-        copy[locIndex].tasks[taskIndex].description = val;
-        setAddedLocations(copy);
-    };
+  const handleRemoveLocation = (index: number) => {
+    const copy = [...addedLocations];
+    copy.splice(index, 1);
+    setAddedLocations(copy);
+  };
 
-    const handleTaskPhoto = (locIndex: number, taskIndex: number) => {
-        const copy = [...addedLocations];
-        copy[locIndex].tasks[taskIndex].reqPhoto = !copy[locIndex].tasks[taskIndex].reqPhoto;
-        setAddedLocations(copy);
-    };
+  const handleAddTask = (locIndex: number) => {
+    const copy = [...addedLocations];
+    copy[locIndex].tasks.push({ description: "", reqPhoto: false });
+    setAddedLocations(copy);
+  };
 
-    const handlePrintQRs = async () => {
-        try {
-            await printLocationQRs(
-                addedLocations.map(l => ({ id: l.locationId, name: l.locationName ?? `Ubicación ${l.locationId}` })),
-                title.trim() || undefined,
-            );
-        } catch {
-            dispatch(showToast({ message: "No se pudieron generar los QR", type: "error" }));
-        }
-    };
+  const handleRemoveTask = (locIndex: number, taskIndex: number) => {
+    const copy = [...addedLocations];
+    copy[locIndex].tasks.splice(taskIndex, 1);
+    setAddedLocations(copy);
+  };
 
-    const toggleGuard = (guardId: number) => {
-        if (selectedGuards.includes(guardId)) {
-            setSelectedGuards(selectedGuards.filter(id => id !== guardId));
-        } else {
-            setSelectedGuards([...selectedGuards, guardId]);
-        }
-    };
+  const handleTaskChange = (locIndex: number, taskIndex: number, val: string) => {
+    const copy = [...addedLocations];
+    copy[locIndex].tasks[taskIndex].description = val;
+    setAddedLocations(copy);
+  };
 
-    const toggleAllGuards = () => {
-        if (selectedGuards.length === allGuards.length) {
-            setSelectedGuards([]);
-        } else {
-            setSelectedGuards(allGuards.map(g => g.id));
-        }
-    };
+  const handlePrintQRs = async () => {
+    try {
+      await printLocationQRs(
+        addedLocations.map((l) => ({ id: l.locationId, name: l.locationName ?? `Ubicación ${l.locationId}` })),
+        title.trim() || undefined,
+      );
+    } catch {
+      dispatch(showToast({ message: "No se pudieron generar los QR", type: "error" }));
+    }
+  };
 
-    const handleSave = async () => {
-        if (!title.trim()) {
-            dispatch(showToast({ message: "Ingresa un nombre para la ruta", type: "warning" }));
-            return;
-        }
-        if (addedLocations.length === 0) {
-            dispatch(showToast({ message: "Agrega al menos una ubicación", type: "warning" }));
-            return;
-        }
-        setLoading(true);
-        try {
-            const payload = { title, locations: addedLocations, guardIds: selectedGuards };
-            const res = editConfig ? await updateRoute(editConfig.id, payload) : await createRoute(payload);
-            if (res.success) {
-                dispatch(showToast({ message: "Guardado correctamente", type: "success" }));
-                onSuccess();
-                onClose();
-            } else {
-                dispatch(showToast({ message: "Error al guardar: " + (res.messages?.join(", ") || ""), type: "error" }));
-            }
-        } catch {
-            dispatch(showToast({ message: "Error de conexión", type: "error" }));
-        } finally {
-            setLoading(false);
-        }
-    };
+  const toggleGuard = (guardId: number) => {
+    if (selectedGuards.includes(guardId)) {
+      setSelectedGuards(selectedGuards.filter((id) => id !== guardId));
+    } else {
+      setSelectedGuards([...selectedGuards, guardId]);
+    }
+  };
 
-    const availableLocations = allLocations.filter(l => !addedLocations.find(al => al.locationId === l.id));
-    const canSave = !loading && !!title.trim() && addedLocations.length > 0;
+  const toggleAllGuards = () => {
+    if (selectedGuards.length === allGuards.length) setSelectedGuards([]);
+    else setSelectedGuards(allGuards.map((g) => g.id));
+  };
 
-    return (
-        <ITDialog
-            isOpen={isOpen}
-            onClose={onClose}
-            title={editConfig ? "Ajustar ruta" : "Nueva ruta"}
-            className="!w-full !max-w-5xl !rounded-3xl"
-        >
-            <ITFlex direction="column" gap={6} className="flex flex-col lg:flex-row gap-6 h-[66vh] min-h-[420px] px-1 pt-1">
+  const handleSave = async () => {
+    if (!title.trim()) {
+      dispatch(showToast({ message: "Ingresa un nombre para la ruta", type: "warning" }));
+      return;
+    }
+    if (addedLocations.length === 0) {
+      dispatch(showToast({ message: "Agrega al menos una ubicación", type: "warning" }));
+      return;
+    }
+    setLoading(true);
+    try {
+      const payload = { title, locations: addedLocations, guardIds: selectedGuards };
+      const res = editConfig ? await updateRoute(editConfig.id, payload) : await createRoute(payload);
+      if (res.success) {
+        dispatch(showToast({ message: "Guardado correctamente", type: "success" }));
+        onSuccess();
+        onClose();
+      } else {
+        dispatch(showToast({ message: "Error al guardar: " + (res.messages?.join(", ") || ""), type: "error" }));
+      }
+    } catch {
+      dispatch(showToast({ message: "Error de conexión", type: "error" }));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                {/* Izquierda: nombre y personal */}
-                <aside className="lg:w-[300px] flex-shrink-0 flex flex-col gap-5 lg:border-r border-slate-100 lg:pr-6 min-h-0">
-                    <ITInput
-                        name="title"
-                        label="Nombre de la ruta"
-                        placeholder="Ej: Ronda perimetral nocturna"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        onBlur={() => {}}
-                    />
+  const availableLocations = allLocations.filter((l) => !addedLocations.find((al) => al.locationId === l.id));
+  const canSave = !loading && !!title.trim() && addedLocations.length > 0;
 
-                    <ITFlex direction="column" className="flex-1 flex flex-col min-h-0">
-                        <ITFlex align="center" justify="between" className="flex items-center justify-between mb-2">
-                            <ITFlex direction="column">
-                                <ITText as="h3" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Personal</ITText>
-                                <ITText as="p" className="text-[11px] text-slate-400">{selectedGuards.length} de {allGuards.length} asignados</ITText>
-                            </ITFlex>
-                            <button
-                                type="button"
-                                onClick={toggleAllGuards}
-                                className="text-[11px] font-bold text-[#065911] hover:bg-emerald-50 px-2.5 py-1 rounded-lg transition-colors"
-                            >
-                                {selectedGuards.length === allGuards.length ? "Limpiar" : "Marcar todos"}
-                            </button>
-                        </ITFlex>
+  return (
+    <ITDialog isOpen={isOpen} onClose={onClose} fullScreen padded={false}>
+      <ITFlex direction="column" className="h-full min-h-0 bg-slate-50 dark:bg-slate-950">
+        <ITFlex align="center" justify="between" gap={3} className="bg-white px-6 py-4 shadow-sm dark:bg-slate-900">
+          <ITFlex align="center" gap={3}>
+            <ITButton
+              variant="icon-only"
+              color="secondary"
+              size="md"
+              icon={<FaArrowLeft />}
+              ariaLabel="Volver"
+              title="Volver"
+              onClick={onClose}
+            />
+            <ITFlex direction="column">
+              <ITText as="h2" className="text-xl font-black text-slate-900 dark:text-white">
+                {editConfig ? "Ajustar ruta" : "Nueva ruta"}
+              </ITText>
+              <ITText as="p" className="text-[11px] text-slate-500">
+                Configura el personal y los puntos de control del recorrido.
+              </ITText>
+            </ITFlex>
+          </ITFlex>
 
-                        <ITFlex direction="column" className="flex-1 min-h-0 overflow-y-auto space-y-1 pr-1">
-                            {allGuards.map(guard => {
-                                const on = selectedGuards.includes(guard.id);
-                                return (
-                                    <button
-                                        type="button"
-                                        key={guard.id}
-                                        onClick={() => toggleGuard(guard.id)}
-                                        aria-pressed={on}
-                                        className={`w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-xl border transition-colors ${
-                                            on ? "bg-emerald-50/60 border-emerald-200" : "bg-white border-transparent hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <ITText as="span" className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${on ? "bg-[#065911] text-white" : "bg-slate-100 text-slate-400"}`}>
-                                            {guard.name[0]}{guard.lastName?.[0] || ""}
-                                        </ITText>
-                                        <ITText as="span" className={`flex-1 min-w-0 truncate text-[13px] font-semibold ${on ? "text-slate-800" : "text-slate-500"}`}>
-                                            {guard.name} {guard.lastName}
-                                        </ITText>
-                                        <ITText as="span" className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${on ? "bg-[#065911] border-[#065911]" : "border-slate-300 bg-white"}`}>
-                                            {on && <FaCheck className="text-white" size={8} />}
-                                        </ITText>
-                                    </button>
-                                );
-                            })}
-                        </ITFlex>
+          <ITFlex align="center" gap={2} className="pr-8">
+            <ITBadget color="success" variant="filled" size="sm">
+              {selectedGuards.length} guardias
+            </ITBadget>
+            <ITBadget color="primary" variant="filled" size="sm">
+              {addedLocations.length} puntos
+            </ITBadget>
+          </ITFlex>
+        </ITFlex>
+
+        <ITFlex direction="column" className="flex-1 min-h-0 w-full overflow-y-auto p-6 lg:overflow-hidden">
+          <ITGrid container columns={12} spacing={5} className="h-auto min-h-0 w-full lg:h-full">
+            <ITGrid item xs={12} lg={4} className="h-auto min-h-0 lg:h-full">
+              <ITCard className="h-auto min-h-0 border-0! bg-white! shadow-none! lg:h-full" contentClassName="flex h-full min-h-0 flex-col gap-4 p-5!">
+                <ITFlex align="center" gap={3}>
+                  <ITFlex align="center" justify="center" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
+                    <FaUserShield size={14} />
+                  </ITFlex>
+                  <ITFlex direction="column">
+                    <ITText as="h3" className="text-lg font-black text-slate-900 dark:text-white">
+                      Nombre y personal
+                    </ITText>
+                    <ITText as="p" className="text-[11px] text-slate-500">
+                      Define el nombre y quiénes recorren la ruta.
+                    </ITText>
+                  </ITFlex>
+                </ITFlex>
+
+                <ITInput
+                  name="title"
+                  label="Nombre de la ruta"
+                  placeholder="Ej: Ronda perimetral nocturna"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  onBlur={() => {}}
+                />
+
+                <ITFlex direction="column" className="flex-1 min-h-0">
+                  <ITFlex align="center" justify="between" className="mb-2">
+                    <ITFlex direction="column">
+                      <ITText as="h4" className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                        Personal
+                      </ITText>
+                      <ITText as="p" className="text-[11px] text-slate-400">
+                        {selectedGuards.length} de {allGuards.length} asignados
+                      </ITText>
                     </ITFlex>
-                </aside>
+                    <ITButton variant="text" color="primary" size="sm" onClick={toggleAllGuards}>
+                      {selectedGuards.length === allGuards.length ? "Limpiar" : "Marcar todos"}
+                    </ITButton>
+                  </ITFlex>
 
-                {/* Derecha: puntos de control */}
-                <section className="flex-1 min-w-0 flex flex-col min-h-0">
-                    <ITFlex align="center" justify="between" gap={3} className="flex items-center justify-between gap-3 mb-3">
-                        <ITFlex direction="column">
-                            <ITText as="h3" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Puntos de control</ITText>
-                            <ITText as="p" className="text-[11px] text-slate-400">{addedLocations.length} {addedLocations.length === 1 ? "punto" : "puntos"} en el recorrido</ITText>
-                        </ITFlex>
-                        <button
-                            type="button"
-                            onClick={handlePrintQRs}
-                            disabled={addedLocations.length === 0}
-                            title="Imprime los QR de todos los puntos de esta ruta"
-                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  <ITFlex direction="column" gap={1} className="flex-1 min-h-0 overflow-y-auto pr-1">
+                    {allGuards.map((guard) => {
+                      const on = selectedGuards.includes(guard.id);
+                      return (
+                        <ITCard
+                          key={guard.id}
+                          onClick={() => toggleGuard(guard.id)}
+                          className={`shrink-0 rounded-xl border-0! shadow-none! ${
+                            on ? "bg-emerald-50!" : "bg-slate-50/60!"
+                          }`}
+                          contentClassName="p-2!"
                         >
-                            <FaPrint size={12} /> Imprimir QRs
-                        </button>
-                    </ITFlex>
-
-                    <ITFlex align="center" gap={2} className="flex items-center gap-2 pb-4 border-b border-slate-100">
-                        <ITFlex direction="column" className="flex-1 min-w-0">
-                            <ITSearchSelect
-                                placeholder="Busca una ubicación para agregarla..."
-                                noResultsMessage="No hay ubicaciones disponibles"
-                                value={selectedLocId}
-                                onChange={(val) => setSelectedLocId(String(val))}
-                                options={availableLocations.map(l => ({
-                                    label: `${l.name} (${l.aisle}-${l.number})`,
-                                    value: String(l.id),
-                                }))}
+                          <ITFlex align="center" gap={2}>
+                            <ITAvatar
+                              initials={`${guard.name[0]}${guard.lastName?.[0] || ""}`}
+                              size="xs"
+                              color={on ? AVATAR_COLORS[guard.id % AVATAR_COLORS.length] : "#cbd5e1"}
                             />
-                        </ITFlex>
-                        <ITButton onClick={handleAddLocation} disabled={!selectedLocId} color="primary" variant="filled">
-                            <ITText as="span" className="flex items-center gap-1.5"><FaPlus size={10} /> Añadir</ITText>
-                        </ITButton>
-                    </ITFlex>
-
-                    <ITFlex direction="column" className="flex-1 min-h-0 overflow-y-auto pt-4 pr-1 space-y-3">
-                        {addedLocations.map((loc, idx) => (
-                            <div key={loc.locationId} className="rounded-2xl border border-slate-100 bg-white shadow-sm">
-                                <ITFlex align="center" gap={3} className="flex items-center gap-3 px-4 py-3">
-                                    <ITText as="span" className="w-8 h-8 rounded-lg bg-emerald-50 text-[#065911] text-sm font-black flex items-center justify-center flex-shrink-0">
-                                        {idx + 1}
-                                    </ITText>
-                                    <ITFlex direction="column" className="flex-1 min-w-0">
-                                        <ITText as="h4" className="text-sm font-bold text-slate-800 truncate">{loc.locationName}</ITText>
-                                        <ITText as="p" className="text-[11px] text-slate-400">
-                                            {loc.tasks.length === 0 ? "Sin consignas" : `${loc.tasks.length} ${loc.tasks.length === 1 ? "consigna" : "consignas"}`}
-                                        </ITText>
-                                    </ITFlex>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleAddTask(idx)}
-                                        className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#065911] hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg transition-colors"
-                                    >
-                                        <FaPlus size={8} /> Consigna
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveLocation(idx)}
-                                        aria-label={`Quitar ${loc.locationName}`}
-                                        className="w-8 h-8 rounded-lg text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-colors flex items-center justify-center"
-                                    >
-                                        <FaTrash size={12} />
-                                    </button>
-                                </ITFlex>
-
-                                {loc.tasks.length > 0 && (
-                                    <ITFlex direction="column" className="px-4 pb-3 space-y-2">
-                                        {loc.tasks.map((task, tIdx) => (
-                                            <div key={tIdx} className="flex items-center gap-2">
-                                                <ITFlex direction="column" className="flex-1 min-w-0">
-                                                    <ITInput
-                                                        name={`task-${idx}-${tIdx}`}
-                                                        placeholder="Instrucción para el guardia..."
-                                                        value={task.description}
-                                                        onChange={(e) => handleTaskChange(idx, tIdx, e.target.value)}
-                                                        onBlur={() => {}}
-                                                    />
-                                                </ITFlex>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleTaskPhoto(idx, tIdx)}
-                                                    aria-pressed={task.reqPhoto}
-                                                    title={task.reqPhoto ? "Requiere foto" : "No requiere foto"}
-                                                    className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border transition-colors ${
-                                                        task.reqPhoto ? "bg-emerald-50 border-emerald-200 text-[#065911]" : "border-slate-200 text-slate-300 hover:text-slate-500"
-                                                    }`}
-                                                >
-                                                    <FaCamera size={12} />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveTask(idx, tIdx)}
-                                                    aria-label="Quitar consigna"
-                                                    className="w-9 h-9 rounded-lg text-slate-300 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center flex-shrink-0 transition-colors"
-                                                >
-                                                    <FaMinus size={11} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </ITFlex>
-                                )}
-                            </div>
-                        ))}
-
-                        {addedLocations.length === 0 && (
-                            <ITFlex direction="column" align="center" justify="center" className="h-full min-h-[220px] flex flex-col items-center justify-center text-center">
-                                <ITFlex align="center" justify="center" className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
-                                    <FaRoute size={26} />
-                                </ITFlex>
-                                <ITText as="h5" className="text-slate-700 font-bold mb-1">Ruta vacía</ITText>
-                                <ITText as="p" className="text-slate-400 text-xs max-w-xs">Busca y agrega los puntos de control que forman este recorrido.</ITText>
+                            <ITText as="span" className={`flex-1 min-w-0 truncate text-[13px] font-semibold ${on ? "text-slate-800 dark:text-slate-100" : "text-slate-500"}`}>
+                              {guard.name} {guard.lastName}
+                            </ITText>
+                            <ITFlex
+                              align="center"
+                              justify="center"
+                              className={`h-4 w-4 shrink-0 rounded ${
+                                on ? "bg-[#065911] text-white" : "bg-white text-transparent dark:bg-slate-800"
+                              }`}
+                            >
+                              {on && <FaCheck size={8} />}
                             </ITFlex>
-                        )}
-                    </ITFlex>
-                </section>
-            </ITFlex>
+                          </ITFlex>
+                        </ITCard>
+                      );
+                    })}
+                  </ITFlex>
+                </ITFlex>
+              </ITCard>
+            </ITGrid>
 
-            <ITFlex justify="end" gap={3} className="flex justify-end gap-3 mt-5 pt-4 border-t border-slate-100">
-                <ITButton onClick={onClose} variant="outlined" color="secondary">
-                    Descartar
-                </ITButton>
-                <ITButton
-                    onClick={handleSave}
-                    color="primary"
-                    disabled={!canSave}
-                   
-                >
-                    {loading ? "Guardando..." : editConfig ? "Guardar cambios" : "Crear ruta"}
-                </ITButton>
-            </ITFlex>
-        </ITDialog>
-    );
+            <ITGrid item xs={12} lg={8} className="h-auto min-h-0 lg:h-full">
+              <ITCard className="h-auto min-h-0 border-0! bg-white! shadow-none! lg:h-full" contentClassName="flex h-full min-h-0 flex-col gap-3 p-5!">
+                <ITFlex align="center" justify="between" gap={3}>
+                  <ITFlex align="center" gap={3}>
+                    <ITFlex align="center" justify="center" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-950/30 dark:text-violet-400">
+                      <FaRoute size={14} />
+                    </ITFlex>
+                    <ITFlex direction="column">
+                      <ITText as="h3" className="text-lg font-black text-slate-900 dark:text-white">
+                        Puntos de control
+                      </ITText>
+                      <ITText as="p" className="text-[11px] text-slate-500">
+                        {addedLocations.length} {addedLocations.length === 1 ? "punto" : "puntos"} en el recorrido
+                      </ITText>
+                    </ITFlex>
+                  </ITFlex>
+                  <ITButton
+                    variant="outlined"
+                    color="secondary"
+                    size="sm"
+                    icon={<FaPrint />}
+                    onClick={handlePrintQRs}
+                    disabled={addedLocations.length === 0}
+                  >
+                    Imprimir QRs
+                  </ITButton>
+                </ITFlex>
+
+                <ITFlex align="center" gap={2}>
+                  <ITFlex className="flex-1 min-w-0">
+                    <ITSearchSelect
+                      placeholder="Busca una ubicación para agregarla..."
+                      noResultsMessage="No hay ubicaciones disponibles"
+                      value={selectedLocId}
+                      onChange={(val) => setSelectedLocId(String(val))}
+                      options={availableLocations.map((l) => ({
+                        label: `${l.name} (${l.aisle}-${l.number})`,
+                        value: String(l.id),
+                      }))}
+                    />
+                  </ITFlex>
+                  <ITButton onClick={handleAddLocation} disabled={!selectedLocId} color="primary" size="md" icon={<FaPlus />}>
+                    Añadir
+                  </ITButton>
+                </ITFlex>
+
+                <ITFlex direction="column" gap={2} className="flex-1 min-h-0 overflow-y-auto pr-1">
+                  {addedLocations.map((loc, idx) => (
+                    <ITCard
+                      key={loc.locationId}
+                      className="shrink-0 rounded-2xl border-0! bg-slate-50/40! shadow-none!"
+                      contentClassName="p-3!"
+                    >
+                      <ITFlex align="center" gap={3}>
+                        <ITText as="span" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-sm font-black text-[#065911] dark:bg-emerald-950/30 dark:text-emerald-400">
+                          {idx + 1}
+                        </ITText>
+                        <ITFlex direction="column" className="min-w-0 flex-1">
+                          <ITText as="h4" className="truncate text-sm font-bold text-slate-800 dark:text-slate-100">
+                            {loc.locationName}
+                          </ITText>
+                          <ITText as="p" className="text-[11px] text-slate-400">
+                            {loc.tasks.length === 0
+                              ? "Sin consignas"
+                              : `${loc.tasks.length} ${loc.tasks.length === 1 ? "consigna" : "consignas"}`}
+                          </ITText>
+                        </ITFlex>
+                        <ITButton variant="text" color="primary" size="sm" icon={<FaPlus />} onClick={() => handleAddTask(idx)}>
+                          Consigna
+                        </ITButton>
+                        <ITButton
+                          variant="icon-only"
+                          color="danger"
+                          size="sm"
+                          icon={<FaTrash size={12} />}
+                          ariaLabel={`Quitar ${loc.locationName}`}
+                          title={`Quitar ${loc.locationName}`}
+                          onClick={() => handleRemoveLocation(idx)}
+                        />
+                      </ITFlex>
+
+                      {loc.tasks.length > 0 && (
+                        <ITFlex direction="column" gap={2} className="mt-3">
+                          {loc.tasks.map((task, tIdx) => (
+                            <ITFlex key={tIdx} align="center" gap={2}>
+                              <ITFlex className="flex-1 min-w-0">
+                                <ITInput
+                                  name={`task-${idx}-${tIdx}`}
+                                  placeholder="Instrucción para el guardia..."
+                                  value={task.description}
+                                  onChange={(e) => handleTaskChange(idx, tIdx, e.target.value)}
+                                  onBlur={() => {}}
+                                />
+                              </ITFlex>
+                              <ITButton
+                                variant="icon-only"
+                                color="danger"
+                                size="sm"
+                                icon={<FaMinus size={11} />}
+                                ariaLabel="Quitar consigna"
+                                title="Quitar consigna"
+                                onClick={() => handleRemoveTask(idx, tIdx)}
+                              />
+                            </ITFlex>
+                          ))}
+                        </ITFlex>
+                      )}
+                    </ITCard>
+                  ))}
+
+                  {addedLocations.length === 0 && (
+                    <ITEmptyState
+                      icon={<FaRoute />}
+                      title="Ruta vacía"
+                      description="Busca y agrega los puntos de control que forman este recorrido."
+                      className="py-10"
+                    />
+                  )}
+                </ITFlex>
+              </ITCard>
+            </ITGrid>
+          </ITGrid>
+        </ITFlex>
+
+        <ITFlex align="center" justify="end" gap={2} className="bg-white px-6 py-4 shadow-sm dark:bg-slate-900">
+          <ITButton onClick={onClose} variant="outlined" color="secondary">
+            Descartar
+          </ITButton>
+          <ITButton onClick={handleSave} color="primary" disabled={!canSave}>
+            {loading ? "Guardando..." : editConfig ? "Guardar cambios" : "Crear ruta"}
+          </ITButton>
+        </ITFlex>
+      </ITFlex>
+    </ITDialog>
+  );
 };

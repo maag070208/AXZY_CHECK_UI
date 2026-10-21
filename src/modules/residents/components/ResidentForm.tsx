@@ -10,12 +10,13 @@ import { useDispatch } from "react-redux";
 
 interface ResidentFormProps {
     initialData?: ResidentUser | null;
+    initialStep?: number;
     onSubmit: (data: any) => void;
     onCancel: () => void;
 }
 
-export const ResidentForm = ({ initialData, onSubmit, onCancel }: ResidentFormProps) => {
-    const [currentStep, setCurrentStep] = useState(0);
+export const ResidentForm = ({ initialData, initialStep = 0, onSubmit, onCancel }: ResidentFormProps) => {
+    const [currentStep, setCurrentStep] = useState(initialStep);
     const [properties, setProperties] = useState<{label: string, value: string}[]>([]);
     const [uploadingFront, setUploadingFront] = useState(false);
     const [uploadingBack, setUploadingBack] = useState(false);

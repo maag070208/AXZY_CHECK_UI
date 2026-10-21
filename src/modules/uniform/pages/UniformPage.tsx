@@ -131,20 +131,19 @@ const UniformPage = () => {
               label: "Acciones",
               type: "actions",
               actions: (row: any) => (
-                <ITFlex align="center" gap={2} className="flex items-center gap-2">
+                <ITFlex align="center" gap={2}>
                   <ITButton
                     onClick={() => {
                       setDetail(row);
                       setDetailOpen(true);
                     }}
-                    size="sm"
+                    size="md"
                     color="secondary"
-                    variant="outlined"
-                   
+                    variant="icon-only"
+                    icon={<FaEye />}
+                    ariaLabel="Ver detalles"
                     title="Ver detalles"
-                  >
-                    <FaEye />
-                  </ITButton>
+                  />
                 </ITFlex>
               ),
             },

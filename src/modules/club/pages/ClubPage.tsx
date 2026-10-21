@@ -1,12 +1,12 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITAlert, ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITLoader, ITPage, ITText } from "@axzydev/axzy_ui_system";
+import { ITAlert, ITBadget, ITButton, ITCard, ITDataTable, ITDialog, ITFlex, ITGrid, ITInput, ITLoader, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { AgeBadge } from "@core/components/AgeBadge";
 import { ReportDetailDialog } from "@core/components/ReportDetailDialog";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilePdf, FaFilter, FaGlassCheers, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
+import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilePdf, FaGlassCheers, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import ClubCreateForm from "../components/ClubCreateForm";
@@ -36,7 +36,6 @@ const ClubPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const { data: guardsCatalog, loading: loadingGuards } = useCatalog('guard');
   const { data: categoriesCatalog } = useCatalog('club_category');
   const { data: typesCatalog } = useCatalog('club_type');
 
@@ -169,15 +168,9 @@ const ClubPage = () => {
                 </ITFlex>
                 <ITFlex direction="column" className="min-w-0 flex-1">
                     <ITText as="p" className="font-bold text-slate-800 truncate">{row.title}</ITText>
-                    <ITFlex align="center" gap={1} className="flex gap-1 items-center min-w-0">
-                        <ITText as="span" className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md uppercase">
-                            {row.category?.value || 'General'}
-                        </ITText>
-                        {row.type && (
-                            <ITText as="span" className="text-[10px] font-medium text-slate-400 truncate max-w-[140px]">
-                                • {row.type.value}
-                            </ITText>
-                        )}
+                    <ITFlex align="center" gap={1} className="min-w-0">
+                        <ITBadget color="secondary" variant="filled" size="sm">{row.category?.value || "General"}</ITBadget>
+                        {row.type && <ITBadget color="secondary" variant="filled" size="sm">{row.type.value}</ITBadget>}
                     </ITFlex>
                 </ITFlex>
             </ITFlex>
@@ -207,12 +200,6 @@ const ClubPage = () => {
         label: "Reportado Por",
         type: "string",
         sortable: false,
-        filter: "catalog",
-        minWidth: 180,
-        catalogOptions: {
-            data: guardsCatalog || [],
-            loading: loadingGuards
-        },
         render: (row: ClubItem) => (
             <ITFlex align="center" gap={2} className="flex items-center gap-2">
                 <FaUserShield className="text-slate-400" />
@@ -260,42 +247,39 @@ const ClubPage = () => {
         label: "Acciones",
         type: "actions",
         actions: (row: ClubItem) => (
-            <ITFlex align="center" gap={2} className="flex items-center gap-2">
+            <ITFlex align="center" gap={2}>
                 <ITButton
                     onClick={() => setViewingClub(row)}
-                    size="sm"
-                    color='secondary'
-                    variant="outlined"
-                   
+                    size="md"
+                    color="secondary"
+                    variant="icon-only"
+                    icon={<FaEye />}
+                    ariaLabel="Ver detalles"
                     title="Ver detalles"
-                >
-                    <FaEye />
-                </ITButton>
+                />
                 {row.status === 'PENDING' && (
                     <ITButton
                         onClick={() => handleResolve(row.id)}
-                        size="sm"
-                        color='success'
-                        variant="filled"
-                       
+                        size="md"
+                        color="success"
+                        variant="icon-only"
+                        icon={resolvingId === row.id ? <ITLoader size="sm" /> : <FaCheck />}
+                        ariaLabel="Marcar como atendido"
                         title="Marcar como atendido"
                         disabled={resolvingId === row.id}
-                    >
-                        {resolvingId === row.id ? <ITLoader size="sm" /> : <FaCheck />}
-                    </ITButton>
+                    />
                 )}
                 {isAdmin && (
                     <ITButton
                         onClick={() => handleDelete(row)}
-                        size="sm"
-                        color='danger'
-                        variant="outlined"
-                       
+                        size="md"
+                        color="danger"
+                        variant="icon-only"
+                        icon={deletingId === row.id ? <ITLoader size="sm" /> : <FaTrash />}
+                        ariaLabel="Eliminar reporte"
                         title="Eliminar reporte"
                         disabled={deletingId === row.id}
-                    >
-                        {deletingId === row.id ? <ITLoader size="sm" /> : <FaTrash />}
-                    </ITButton>
+                    />
                 )}
             </ITFlex>
         )
@@ -304,109 +288,76 @@ const ClubPage = () => {
 
   return (
     <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Gestión de Casa Club"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Reportes" }, { label: "Gestión de Casa Club" }]}
-      description="Seguimiento y resolución de reportes de casa club"
+      description="Seguimiento y resolución de reportes de casa club."
       icon={<FaGlassCheers size={20} />}
       iconColor="#065911"
       actions={
-<ITFlex align="center" gap={3} className="flex gap-3 items-center">
-            <ITFlex direction="column" className="w-64 relative">
-                <ITInput
-                    placeholder="Buscar por título..."
-                    name="search"
-                    value={searchTerm}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                    onBlur={() => {}}
-                    className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
-                />
-                {searchTerm && (
-                    <button
-                        onClick={() => setSearchTerm("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
-                    >
-                        <FaTimes size={14} />
-                    </button>
-                )}
-            </ITFlex>
-            <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
-                <FaFilter className="text-slate-400 text-xs mr-2" />
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-transparent text-sm font-medium text-slate-700 outline-none min-w-[120px]"
-                >
-                    <option value="ALL">Todos los estados</option>
-                    <option value="PENDING">Pendientes</option>
-                    <option value="ATTENDED">Atendidos</option>
-                </select>
-            </ITFlex>
-            <ITButton
-                onClick={() => setShowReportModal(true)}
-                color="primary"
-                variant="outlined"
-               
-                size="md"
-                title="Generar reporte PDF de casa club"
-            >
-                <ITFlex align="center" gap={2}><FaFilePdf className="text-sm" />
-                <ITText as="span" className="text-xs font-bold">Generar Reporte PDF</ITText></ITFlex>
+        <ITFlex align="center" gap={2} wrap="wrap">
+          <ITButton onClick={() => setShowReportModal(true)} color="danger" variant="outlined" size="md">
+            <ITFlex align="center" gap={2}>Reporte<FaFilePdf /></ITFlex>
+          </ITButton>
+          {isAdmin && (
+            <ITButton onClick={() => setShowCreateModal(true)} color="primary" size="md">
+              <ITFlex align="center" gap={2}>Nuevo reporte<FaPlus /></ITFlex>
             </ITButton>
-            <ITButton
-                onClick={() => setRefreshKey(prev => prev + 1)}
-                color="secondary"
-                variant="outlined"
-               
-                size="md"
-                title="Actualizar datos"
-            >
-                <ITFlex align="center" gap={2}><FaSync className="text-xs text-slate-500" />
-                <ITText as="span" className="text-xs font-bold text-slate-500">Refrescar</ITText></ITFlex>
-            </ITButton>
-            {isAdmin && (
-                <ITButton
-                    onClick={() => setShowCreateModal(true)}
-                    color="primary"
-                   
-                    title="Nuevo reporte" size="md"
-                >
-                    <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO REPORTE
-                </ITFlex></ITButton>
-            )}
+          )}
         </ITFlex>
       }
     >
-      {activeCatalogLabel && (
-        <ITAlert variant="success" icon={<FaTag />} className="mb-4">
-          <ITFlex align="center" justify="between" gap={3}>
-            <ITText as="span" className="text-sm">Filtrando por catálogo: <strong>{activeCatalogLabel}</strong></ITText>
-            <ITButton variant="text" color="success" size="md" onClick={clearCatalogFilters}>
-              <ITFlex align="center" gap={2}>
-                <FaTimes />
-                <ITText as="span">Quitar filtro</ITText>
+      <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
+        <ITCard className="rounded-3xl" contentClassName="p-4!">
+          <ITGrid container columns={12} spacing={3} className="items-end">
+            <ITGrid item xs={12} md={7}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Buscar</ITText>
+                <ITFlex align="center" gap={1}>
+                  <ITInput placeholder="Buscar por título..." name="search" value={searchTerm} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)} onBlur={() => {}} iconLeft={<FaGlassCheers />} size="md" />
+                  {searchTerm && (
+                    <ITButton variant="icon-only" color="secondary" size="sm" icon={<FaTimes size={12} />} onClick={() => setSearchTerm("")} ariaLabel="Limpiar búsqueda" title="Limpiar búsqueda" />
+                  )}
+                </ITFlex>
               </ITFlex>
-            </ITButton>
-          </ITFlex>
-        </ITAlert>
-      )}
-      
+            </ITGrid>
+            <ITGrid item xs={12} md={4}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Estado</ITText>
+                <ITSearchSelect value={statusFilter} onChange={(value) => setStatusFilter(String(value))} options={[{ label: "Todos los estados", value: "ALL" }, { label: "Pendientes", value: "PENDING" }, { label: "Atendidos", value: "ATTENDED" }]} clearable={false} />
+              </ITFlex>
+            </ITGrid>
+            <ITGrid item xs={12} md={1}>
+              <ITFlex align="end" justify="end" className="h-full">
+                <ITButton onClick={() => setRefreshKey(prev => prev + 1)} color="secondary" variant="icon-only" size="md" icon={<FaSync />} ariaLabel="Actualizar datos" title="Actualizar datos" />
+              </ITFlex>
+            </ITGrid>
+          </ITGrid>
+        </ITCard>
 
-      <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        {activeCatalogLabel && (
+          <ITAlert variant="success" icon={<FaTag />}>
+            <ITFlex align="center" justify="between" gap={3}>
+              <ITText as="span" className="text-sm">Filtrando por catálogo: <ITText as="span" className="font-bold">{activeCatalogLabel}</ITText></ITText>
+              <ITButton variant="text" color="success" size="md" onClick={clearCatalogFilters}>Quitar filtro</ITButton>
+            </ITFlex>
+          </ITAlert>
+        )}
+
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
           layout="fixed"
           density="compact"
+          showViewToggle={false}
           virtualized
           virtualizedMaxHeight={400}
           rowHeight={50}
-            key={`${refreshKey}-${guardsCatalog?.length || 0}`}
-            fetchData={memoizedFetch as any}
-            columns={columns as any}
-            externalFilters={externalFilters as any}
-            title=""
+          key={refreshKey}
+          fetchData={memoizedFetch as any}
+          columns={columns as any}
+          externalFilters={externalFilters as any}
         />
       </ITFlex>
 

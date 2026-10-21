@@ -209,34 +209,34 @@ const UsersPage = () => {
                             label: "ACCIONES",
                             type: "actions",
                             actions: (row: User) => (
-                                <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                                    <ITButton 
-                                        onClick={() => setChangingPasswordUser(row)} 
-                                        size="sm" 
-                                        variant="outlined" 
-                                       
-                                        title="Contraseña"
-                                    >
-                                        <FaKey />
-                                    </ITButton>
-                                    <ITButton 
-                                        onClick={() => setEditingUser(row)} 
-                                        size="sm" 
-                                        variant="ghost" 
-                                       
+                                <ITFlex align="center" gap={2}>
+                                    <ITButton
+                                        onClick={() => setChangingPasswordUser(row)}
+                                        size="md"
+                                        variant="icon-only"
+                                        color="primary"
+                                        icon={<FaKey />}
+                                        ariaLabel="Cambiar contraseña"
+                                        title="Cambiar contraseña"
+                                    />
+                                    <ITButton
+                                        onClick={() => setEditingUser(row)}
+                                        size="md"
+                                        variant="icon-only"
+                                        color="secondary"
+                                        icon={<FaEdit />}
+                                        ariaLabel="Editar"
                                         title="Editar"
-                                    >
-                                        <FaEdit />
-                                    </ITButton>
-                                    <ITButton 
-                                        onClick={() => setUserToDeleteId(row.id)} 
-                                        size="sm" 
-                                        variant="ghost" 
-                                       
+                                    />
+                                    <ITButton
+                                        onClick={() => setUserToDeleteId(row.id)}
+                                        size="md"
+                                        variant="icon-only"
+                                        color="danger"
+                                        icon={<FaTrash />}
+                                        ariaLabel="Eliminar"
                                         title="Eliminar"
-                                    >
-                                        <FaTrash />
-                                    </ITButton>
+                                    />
                                 </ITFlex>
                             )
                         }

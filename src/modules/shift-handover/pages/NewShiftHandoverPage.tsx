@@ -1,9 +1,23 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDatePicker, ITFlex, ITInput, ITSearchSelect, ITSlideToggle, ITText, ITTimePicker } from "@axzydev/axzy_ui_system";
+import {
+  ITAvatar,
+  ITButton,
+  ITCard,
+  ITDatePicker,
+  ITEmptyState,
+  ITFlex,
+  ITGrid,
+  ITInput,
+  ITPage,
+  ITSearchSelect,
+  ITSlideToggle,
+  ITText,
+  ITTextarea,
+  ITTimePicker,
+} from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import {
-  FaArrowLeft,
   FaBook,
   FaBroadcastTower,
   FaClipboardList,
@@ -14,6 +28,12 @@ import {
   FaSwatchbook,
   FaTabletAlt,
   FaTrash,
+  FaBox,
+  FaCheck,
+  FaCheckDouble,
+  FaMoon,
+  FaSun,
+  FaUserPlus,
 } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +43,7 @@ import {
   ICreateShiftHandoverElement,
 } from "../services/ShiftHandoverService";
 
-const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<{ className?: string; size?: number }> }[] = [
   { key: "checklistPhones", label: "Teléfonos", icon: FaPhone },
   { key: "checklistTablet", label: "Tablet", icon: FaTabletAlt },
   { key: "checklistRadios", label: "Radios", icon: FaBroadcastTower },
@@ -47,6 +67,45 @@ const DEFAULT_CHECKLIST: ChecklistState = {
 };
 
 const defaultShiftType = (): "MATUTINO" | "NOCTURNO" => (new Date().getHours() >= 14 ? "MATUTINO" : "NOCTURNO");
+
+const getInitials = (label: string) =>
+  label
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join("") || "—";
+
+const SHIFT_OPTIONS = [
+  { value: "NOCTURNO" as const, label: "Nocturno", description: "Turno de noche", icon: FaMoon },
+  { value: "MATUTINO" as const, label: "Matutino", description: "Turno de día", icon: FaSun },
+];
+
+const SectionHeader = ({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  title: string;
+  description: string;
+}) => (
+  <ITFlex align="center" gap={3}>
+    <ITFlex
+      align="center"
+      justify="center"
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400"
+    >
+      <Icon size={14} />
+    </ITFlex>
+    <ITFlex direction="column">
+      <ITText as="h3" className="text-lg font-black text-slate-900 dark:text-white">
+        {title}
+      </ITText>
+      <ITText as="p" className="text-[11px] text-slate-500">{description}</ITText>
+    </ITFlex>
+  </ITFlex>
+);
 
 const noop = () => { };
 
@@ -152,209 +211,271 @@ const NewShiftHandoverPage = () => {
   };
 
   return (
-    <ITFlex direction="column" className="p-6 bg-[#f8fafc] min-h-screen">
-      <ITFlex direction="column" className="max-w-7xl mx-auto">
-        <ITFlex align="center" justify="between" gap={4} className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <ITFlex align="center" gap={3} className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/shift-handover")}
-              className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
-              title="Volver"
-            >
-              <FaArrowLeft />
-            </button>
-            <ITFlex direction="column">
-              <ITText as="h1" className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                <FaSwatchbook className="text-[#065911]" />
-                Nueva Entrega de Turno
-              </ITText>
-              <ITText as="p" className="text-slate-500 text-sm mt-1">
-                Reporte de cambio de turno: caseta, elementos y verificación.
-              </ITText>
-            </ITFlex>
-          </ITFlex>
-        </ITFlex>
-
-        <ITFlex direction="column" className="space-y-6">
-          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">1. Turno</ITText>
-            <ITFlex gap={2} className="flex gap-2">
-              {(["NOCTURNO", "MATUTINO"] as const).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setShiftType(type)}
-                  className={`flex-1 text-sm font-bold px-4 py-2.5 rounded-xl border transition-colors ${shiftType === type
-                      ? "bg-emerald-50 border-emerald-500 text-emerald-700"
-                      : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
-                    }`}
-                >
-                  {type === "NOCTURNO" ? "Nocturno" : "Matutino"}
-                </button>
-              ))}
-            </ITFlex>
-            <ITFlex direction="column" className="mt-4">
-              <ITDatePicker name="handoverDate" value={handoverDate} onChange={(e: any) => setHandoverDate(e.target.value)} />
-            </ITFlex>
-          </ITFlex>
-
-          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">2. Caseta</ITText>
-            <ITFlex direction="column" className="grid grid-cols-2 gap-3">
-              <ITInput
-                name="credentialsCount"
-                type="number"
-                label="No. de credenciales"
-                value={credentialsCount}
-                onChange={(e: any) => setCredentialsCount(e.target.value)}
-                onBlur={noop}
-              />
-              <ITInput
-                name="tarjetonesCount"
-                type="number"
-                label="No. de tarjetones"
-                value={tarjetonesCount}
-                onChange={(e: any) => setTarjetonesCount(e.target.value)}
-                onBlur={noop}
-              />
-            </ITFlex>
-            <ITFlex direction="column" className="mt-3">
-              <ITInput
-                name="novedades"
-                type="textarea"
-                label="Novedades"
-                value={novedades}
-                onChange={(e: any) => setNovedades(e.target.value)}
-                onBlur={noop}
-              />
-            </ITFlex>
-          </ITFlex>
-
-          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">3. Registro por elemento</ITText>
-
-            <ITFlex direction="column" className="bg-slate-50 rounded-2xl border border-slate-100 p-4 mb-4">
-              <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-[1fr_200px_auto] gap-3 items-end">
-                <ITFlex direction="column">
-                  <ITSearchSelect
-                    name="pickerGuard"
-                    label="Guardia"
-                    placeholder="Selecciona un guardia..."
-                    options={guards.map((g) => ({ label: `${g.name} ${g.lastName ?? ""}`, value: String(g.id) }))}
-                    value={pickerGuardId}
-                    onChange={(val) => setPickerGuardId(String(val))}
-                  />
-                </ITFlex>
-                <ITTimePicker
-                  name="pickerEntryTime"
-                  label="Hora de entrada"
-                  placeholder="07:00"
-                  value={pickerEntryTime}
-                  onChange={(e) => setPickerEntryTime(e.target.value)}
-                  onBlur={noop}
+    <ITPage
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+      noPadding
+      backAction={() => navigate("/shift-handover")}
+      title="Nueva Entrega de Turno"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Entrega de Turno", href: "#/shift-handover" }, { label: "Nueva entrega" }]}
+      description="Reporte de cambio de turno: caseta, elementos y verificación."
+      icon={<FaSwatchbook size={20} />}
+      iconColor="#065911"
+    >
+      <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
+        <ITGrid container columns={12} spacing={5}>
+          <ITGrid item xs={12} lg={7}>
+            <ITFlex direction="column" gap={5}>
+              <ITCard className="rounded-3xl border-0! bg-white! shadow-none!" contentClassName="space-y-4 p-5!">
+                <SectionHeader
+                  icon={FaClock}
+                  title="Turno"
+                  description="Selecciona el turno y la fecha de la entrega."
                 />
-                <ITButton
-                  onClick={handleAddElement}
-                  color="primary"
-                  variant="filled"
-                 
-                >
-                  <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                    <FaPlus size={12} /> Agregar
 
-                  </ITFlex>
-                </ITButton>
-              </ITFlex>
-            </ITFlex>
+                <ITFlex direction="row" justify="between" gap={3} wrap="wrap" className="w-full">
+                  {SHIFT_OPTIONS.map((option) => {
+                    const selected = shiftType === option.value;
+                    return (
+                      <ITCard
+                        key={option.value}
+                        onClick={() => setShiftType(option.value)}
+                        className={`flex-1 min-w-[140px] rounded-2xl border-0! shadow-none! ${
+                          selected ? "bg-emerald-50!" : "bg-slate-50/70!"
+                        }`}
+                        contentClassName="p-4!"
+                      >
+                        <ITFlex align="center" gap={3}>
+                          <ITFlex
+                            align="center"
+                            justify="center"
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                              selected ? "bg-emerald-600 text-white" : "bg-white text-slate-500 dark:bg-slate-800"
+                            }`}
+                          >
+                            <option.icon size={16} />
+                          </ITFlex>
+                          <ITFlex direction="column" className="min-w-0 flex-1">
+                            <ITText as="span" className={`text-sm font-black ${selected ? "text-emerald-800 dark:text-emerald-300" : "text-slate-700 dark:text-slate-200"}`}>
+                              {option.label}
+                            </ITText>
+                            <ITText as="span" className={`text-[10px] ${selected ? "text-emerald-600/80" : "text-slate-400"}`}>
+                              {option.description}
+                            </ITText>
+                          </ITFlex>
+                          {selected && <FaCheck className="shrink-0 text-emerald-600" size={12} />}
+                        </ITFlex>
+                      </ITCard>
+                    );
+                  })}
+                </ITFlex>
 
-            {elements.length > 0 ? (
-              <ITFlex direction="column" className="space-y-2">
-                {elements.map((el, index) => (
-                  <div key={index} className="flex items-center gap-3 bg-white border border-slate-100 rounded-xl px-4 py-3 shadow-sm">
-                    <ITFlex align="center" justify="center" className="w-9 h-9 rounded-full bg-emerald-50 text-[#065911] font-bold flex items-center justify-center text-xs border border-emerald-100 flex-shrink-0">
-                      {el.guardLabel
-                        .split(" ")
-                        .filter(Boolean)
-                        .slice(0, 2)
-                        .map((w) => w[0]?.toUpperCase())
-                        .join("") || "—"}
-                    </ITFlex>
-                    <ITFlex direction="column" className="flex-1 min-w-0">
-                      <ITText as="p" className="text-xs font-bold text-slate-700 truncate">{el.guardLabel}</ITText>
-                      <ITText as="p" className="text-[10px] text-slate-400 font-semibold flex items-center gap-1.5">
-                        <FaClock className="text-slate-300" /> Entrada: {el.entryTime}
-                      </ITText>
-                    </ITFlex>
-                    <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                      <ITText as="span" className="text-[9px] font-bold text-slate-400 uppercase">Puntual</ITText>
-                      <ITSlideToggle
-                        size="sm"
-                        isOn={el.punctual}
-                        onToggle={(v) =>
-                          setElements((prev) => prev.map((e, i) => (i === index ? { ...e, punctual: v } : e)))
-                        }
-                      />
-                    </ITFlex>
-                    <ITButton
-                      variant="icon-only"
-                      color="gray"
-                      size="sm"
-                      onClick={() => handleRemoveElement(index)}
-                      icon={<FaTrash size={12} />}
-                     
+                <ITDatePicker
+                  name="handoverDate"
+                  label="Fecha de entrega"
+                  value={handoverDate}
+                  onChange={(e: any) => setHandoverDate(e.target.value)}
+                  className="w-full"
+                />
+              </ITCard>
+
+              <ITCard className="rounded-3xl border-0! bg-white! shadow-none!" contentClassName="space-y-4 p-5!">
+                <SectionHeader
+                  icon={FaBox}
+                  title="Caseta"
+                  description="Credenciales, tarjetones y novedades del turno."
+                />
+                <ITGrid container columns={12} spacing={3}>
+                  <ITGrid item xs={12} md={6}>
+                    <ITInput
+                      name="credentialsCount"
+                      type="number"
+                      label="No. de credenciales"
+                      value={credentialsCount}
+                      onChange={(e: any) => setCredentialsCount(e.target.value)}
+                      onBlur={noop}
                     />
-                  </div>
-                ))}
-              </ITFlex>
-            ) : (
-              <ITText as="p" className="text-[11px] text-slate-400 italic text-center py-3 font-medium tracking-wide bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                Aún no se registran elementos. Agrega los guardias con su hora de entrada.
-              </ITText>
-            )}
-          </ITFlex>
+                  </ITGrid>
+                  <ITGrid item xs={12} md={6}>
+                    <ITInput
+                      name="tarjetonesCount"
+                      type="number"
+                      label="No. de tarjetones"
+                      value={tarjetonesCount}
+                      onChange={(e: any) => setTarjetonesCount(e.target.value)}
+                      onBlur={noop}
+                    />
+                  </ITGrid>
+                  <ITGrid item xs={12}>
+                    <ITTextarea
+                      name="novedades"
+                      label="Novedades"
+                      rows={4}
+                      value={novedades}
+                      onChange={(value) => setNovedades(value)}
+                      placeholder="Describe las novedades del turno..."
+                    />
+                  </ITGrid>
+                </ITGrid>
+              </ITCard>
 
-          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">4. Verificación de entrega de turno</ITText>
-            <ITFlex direction="column" className="bg-slate-50 rounded-xl divide-y divide-slate-100">
-              {CHECKLIST_LABELS.map((item) => (
-                <div key={item.key} className="flex items-center justify-between px-4 py-2.5">
-                  <ITText as="span" className="text-sm font-semibold text-slate-700 flex items-center gap-2.5">
-                    <item.icon className="text-slate-400" />
-                    {item.label}
-                  </ITText>
-                  <ITSlideToggle
-                    size="sm"
-                    isOn={checklist[item.key as keyof ChecklistState]}
-                    onToggle={(v) => setChecklist((prev) => ({ ...prev, [item.key]: v }))}
+              <ITCard className="rounded-3xl border-0! bg-white! shadow-none!" contentClassName="space-y-4 p-5!">
+                <SectionHeader
+                  icon={FaUserPlus}
+                  title="Registro por elemento"
+                  description="Agrega guardias con hora de entrada y puntualidad."
+                />
+                <ITFlex className="rounded-2xl bg-slate-50/70 p-4 dark:bg-slate-900/40">
+                  <ITGrid container columns={12} spacing={3} className="w-full items-end">
+                    <ITGrid item xs={12} md={5}>
+                      <ITSearchSelect
+                        name="pickerGuard"
+                        label="Guardia"
+                        placeholder="Selecciona un guardia..."
+                        options={guards.map((g) => ({ label: `${g.name} ${g.lastName ?? ""}`, value: String(g.id) }))}
+                        value={pickerGuardId}
+                        onChange={(val) => setPickerGuardId(String(val))}
+                      />
+                    </ITGrid>
+                    <ITGrid item xs={12} md={4}>
+                      <ITTimePicker
+                        name="pickerEntryTime"
+                        label="Hora de entrada"
+                        placeholder="07:00"
+                        value={pickerEntryTime}
+                        onChange={(e) => setPickerEntryTime(e.target.value)}
+                        onBlur={noop}
+                      />
+                    </ITGrid>
+                    <ITGrid item xs={12} md={3}>
+                      <ITButton onClick={handleAddElement} color="primary" size="md" icon={<FaPlus />} className="w-full">
+                        Agregar
+                      </ITButton>
+                    </ITGrid>
+                  </ITGrid>
+                </ITFlex>
+
+                {elements.length > 0 ? (
+                  <ITFlex direction="column" gap={2}>
+                    {elements.map((el, index) => (
+                      <ITCard
+                        key={index}
+                        className="rounded-xl border-0! bg-slate-50/40! shadow-none!"
+                        contentClassName="p-3!"
+                      >
+                        <ITFlex align="center" gap={3}>
+                          <ITAvatar initials={getInitials(el.guardLabel)} size="sm" color="#065911" />
+                          <ITFlex direction="column" className="min-w-0 flex-1">
+                            <ITText as="p" className="truncate text-sm font-bold text-slate-800 dark:text-slate-100">
+                              {el.guardLabel}
+                            </ITText>
+                            <ITText as="p" className="flex items-center gap-1 text-[11px] text-slate-400">
+                              <FaClock size={10} /> Entrada: {el.entryTime}
+                            </ITText>
+                          </ITFlex>
+                          <ITFlex align="center" gap={2}>
+                            <ITText as="span" className="text-[9px] font-bold uppercase text-slate-400">Puntual</ITText>
+                            <ITSlideToggle
+                              size="sm"
+                              isOn={el.punctual}
+                              onToggle={(v) =>
+                                setElements((prev) => prev.map((e, i) => (i === index ? { ...e, punctual: v } : e)))
+                              }
+                            />
+                          </ITFlex>
+                          <ITButton
+                            variant="icon-only"
+                            color="danger"
+                            size="sm"
+                            onClick={() => handleRemoveElement(index)}
+                            icon={<FaTrash size={12} />}
+                            ariaLabel="Quitar elemento"
+                            title="Quitar elemento"
+                          />
+                        </ITFlex>
+                      </ITCard>
+                    ))}
+                  </ITFlex>
+                ) : (
+                  <ITEmptyState
+                    icon={<FaSwatchbook />}
+                    title="Aún no hay elementos"
+                    description="Agrega los guardias con su hora de entrada."
+                    className="py-8"
                   />
-                </div>
-              ))}
+                )}
+              </ITCard>
             </ITFlex>
+          </ITGrid>
 
-            <ITFlex align="center" gap={3} className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3 mt-4">
-              <ITText as="span" className="flex-1 text-sm font-semibold text-emerald-800">
-                Se reportaron las novedades a la administración
-              </ITText>
-              <ITSlideToggle isOn={reportedToAdmin} onToggle={setReportedToAdmin} />
+          <ITGrid item xs={12} lg={5}>
+            <ITFlex direction="column" gap={5}>
+              <ITCard className="rounded-3xl border-0! bg-white! shadow-none!" contentClassName="space-y-2 p-5!">
+                <SectionHeader
+                  icon={FaCheckDouble}
+                  title="Verificación de entrega"
+                  description="Confirma los elementos y el reporte a administración."
+                />
+                {CHECKLIST_LABELS.map((item) => (
+                  <ITFlex key={item.key} align="center" gap={2} className="rounded-lg bg-slate-50/70 px-3 py-2 dark:bg-slate-900/40">
+                    <item.icon className="text-slate-400" size={12} />
+                    <ITText as="span" className="flex-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                      {item.label}
+                    </ITText>
+                    <ITSlideToggle
+                      size="sm"
+                      isOn={checklist[item.key as keyof ChecklistState]}
+                      onToggle={(v) => setChecklist((prev) => ({ ...prev, [item.key]: v }))}
+                    />
+                  </ITFlex>
+                ))}
+
+                <ITFlex align="center" gap={3} className="rounded-xl bg-emerald-50 px-3 py-2.5 dark:bg-emerald-950/20">
+                  <ITText as="span" className="flex-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+                    Se reportaron las novedades a la administración
+                  </ITText>
+                  <ITSlideToggle isOn={reportedToAdmin} onToggle={setReportedToAdmin} />
+                </ITFlex>
+              </ITCard>
+
+              <ITCard className="rounded-3xl border-0! bg-white! shadow-none!" contentClassName="space-y-3 p-5!">
+                <SectionHeader
+                  icon={FaClipboardList}
+                  title="Resumen"
+                  description="Totales del reporte antes de enviar."
+                />
+                <ITFlex justify="between">
+                  <ITText as="span" className="text-xs text-slate-500">Elementos registrados</ITText>
+                  <ITText as="span" className="text-sm font-black text-slate-800 dark:text-slate-100">{elements.length}</ITText>
+                </ITFlex>
+                <ITFlex justify="between">
+                  <ITText as="span" className="text-xs text-slate-500">Puntuales</ITText>
+                  <ITText as="span" className="text-sm font-black text-emerald-600">{elements.filter((e) => e.punctual).length}</ITText>
+                </ITFlex>
+                <ITFlex justify="between">
+                  <ITText as="span" className="text-xs text-slate-500">Novedades reportadas</ITText>
+                  <ITText as="span" className={`text-sm font-black ${reportedToAdmin ? "text-emerald-600" : "text-amber-600"}`}>
+                    {reportedToAdmin ? "Sí" : "No"}
+                  </ITText>
+                </ITFlex>
+              </ITCard>
             </ITFlex>
-          </ITFlex>
+          </ITGrid>
+        </ITGrid>
 
-          <ITFlex justify="end" gap={3} className="flex justify-end gap-3 pb-10">
-            <ITButton variant="outlined" color="secondary" onClick={() => navigate("/shift-handover")}>
-              Cancelar
-            </ITButton>
-            <ITButton
-              variant="filled"
-              color="primary"
-              onClick={handleSubmit}
-              disabled={submitting}
-             
-            >
-              {submitting ? "Enviando..." : "Enviar Reporte de Turno"}
-            </ITButton>
-          </ITFlex>
+        <ITFlex justify="end" gap={2}>
+          <ITButton variant="outlined" color="secondary" onClick={() => navigate("/shift-handover")}>
+            Cancelar
+          </ITButton>
+          <ITButton
+            color="primary"
+            onClick={handleSubmit}
+            disabled={submitting}
+          >
+            {submitting ? "Enviando..." : "Enviar reporte de turno"}
+          </ITButton>
         </ITFlex>
       </ITFlex>
-    </ITFlex>
+    </ITPage>
   );
 };
 

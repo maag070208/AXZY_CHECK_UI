@@ -1,11 +1,24 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITBadget, ITButton, ITFlex, ITLoader, ITText } from "@axzydev/axzy_ui_system";
-import { useEffect, useMemo, useState } from "react";
-import { FaArrowLeft, FaBuilding, FaCalendarAlt, FaCheckCircle, FaCheckDouble, FaClipboardList, FaClock, FaExclamationTriangle, FaEye, FaFileAlt, FaImage, FaLocationArrow, FaMapMarkedAlt, FaMapMarkerAlt, FaPlay, FaQrcode, FaRoute, FaStopwatch, FaTrash, FaUserShield } from "react-icons/fa";
+import {
+  ITBadget,
+  ITButton,
+  ITCard,
+  ITDialog,
+  ITDivider,
+  ITEmptyState,
+  ITFlex,
+  ITGrid,
+  ITImage,
+  ITPage,
+  ITProgress,
+  ITText,
+} from "@axzydev/axzy_ui_system";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { FaCheck, FaCheckCircle, FaPause, FaClipboardList, FaClock, FaExclamationTriangle, FaFileAlt, FaImage, FaLocationArrow, FaMapMarkedAlt, FaMapMarkerAlt, FaPlay, FaQrcode, FaRoute, FaStopwatch, FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { GoogleMapComponent } from "../../../core/components/GoogleMapComponent";
+import { RoundRouteMap, RoutePoint } from "../../guard-tracking/components/RoundRouteMap";
 import { getRoutesList } from "../../routes/services/RoutesService";
 import { getRoundDetail, IRoundDetail } from "../services/RoundsService";
 import { deleteKardexEntry, deleteKardexMedia } from "../../kardex/services/KardexService";
@@ -21,6 +34,13 @@ const RoundDetailPage = () => {
 
     const [data, setData] = useState<IRoundDetail | null>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
+    const [selectedPinLocationId, setSelectedPinLocationId] = useState<number | null>(null);
+    const [playing, setPlaying] = useState(false);
+    const [playIndex, setPlayIndex] = useState(-1);
+    const [focusedPoint, setFocusedPoint] = useState<RoutePoint | null>(null);
+    const routeRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const timelineRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     const handleDeleteMedia = async (eventId: number, type: 'SCAN' | 'INCIDENT', item: any) => {
         const key = item.key || item.url.split('/').pop();
@@ -80,6 +100,11 @@ const RoundDetailPage = () => {
         }
     };
 
+    const handleDeleteEventFromModal = async (eventId: number, type: "SCAN" | "INCIDENT") => {
+        await handleDeleteEvent(eventId, type);
+        setSelectedEventIndex(null);
+    };
+
     const [routeTitle, setRouteTitle] = useState("");
 
     const metrics = useMemo(() => {
@@ -90,8 +115,15 @@ const RoundDetailPage = () => {
         const effectiveEnd = end || new Date();
 
         const durationMs = effectiveEnd.getTime() - start.getTime();
-        const durationMinutes = Math.floor(durationMs / 60000);
-        const durationSeconds = Math.floor((durationMs % 60000) / 1000);
+        const totalMinutes = Math.floor(durationMs / 60000);
+        const durationDays = Math.floor(totalMinutes / 1440);
+        const durationHours = Math.floor((totalMinutes % 1440) / 60);
+        const durationMins = totalMinutes % 60;
+        const durationLabel = [
+            durationDays > 0 ? `${durationDays}d` : null,
+            durationDays > 0 || durationHours > 0 ? `${durationHours}h` : null,
+            `${durationMins}m`,
+        ].filter(Boolean).join(" ");
         
         // Filter scans
         const scans = data.timeline.filter(e => e.type === 'SCAN').sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
@@ -134,7 +166,8 @@ const RoundDetailPage = () => {
                 label: scan.data?.location?.name || "Punto",
                 status,
                 timeDiff: `${mins}m ${secs}s`,
-                diffMs: diff
+                diffMs: diff,
+                locationId: scan.data?.location?.id,
             });
 
             previousTime = current;
@@ -150,7 +183,8 @@ const RoundDetailPage = () => {
                 label: loc.location.name,
                 status: data.round.status === 'COMPLETED' ? 'MISSING' : 'PENDING',
                 timeDiff: '--',
-                diffMs: 0
+                diffMs: 0,
+                locationId: loc.location.id,
             });
         });
 
@@ -173,7 +207,7 @@ const RoundDetailPage = () => {
         const avgSecs = Math.floor((avgTime % 60000) / 1000);
         
         return {
-            duration: `${durationMinutes}m ${durationSeconds}s`,
+            duration: durationLabel,
             totalScans: validScansCount,
             totalRawScans: scans.length,
             expectedScans: expectedLocs.length,
@@ -181,6 +215,121 @@ const RoundDetailPage = () => {
             avgTime: `${avgMins}m ${avgSecs}s`
         };
     }, [data]);
+
+    const routePoints = useMemo<RoutePoint[]>(() => {
+        if (!data) return [];
+
+        const orderedScans = data.timeline
+            .map((event, eventIndex) => ({ event, eventIndex }))
+            .filter(({ event }) => event.type === "SCAN" && event.data?.latitude != null && event.data?.longitude != null)
+            .sort((a, b) => new Date(a.event.timestamp).getTime() - new Date(b.event.timestamp).getTime());
+
+        const scannedLocationIds = new Set(
+            data.timeline
+                .filter((event) => event.type === "SCAN")
+                .map((event) => event.data?.location?.id)
+                .filter((id) => id != null),
+        );
+
+        const scanPoints: RoutePoint[] = orderedScans.map(({ event, eventIndex }, index) => ({
+            seq: index + 1,
+            label: event.data?.location?.name ?? "Punto",
+            timestamp: event.timestamp,
+            lat: Number(event.data.latitude),
+            lng: Number(event.data.longitude),
+            status: Array.isArray(event.data?.media) && event.data.media.length > 0 ? "COMPLETE" : "NO_EVIDENCE",
+            locationId: event.data?.location?.id ?? null,
+            eventIndex,
+        }));
+
+        const missingPoints: RoutePoint[] = (data.round.recurringConfiguration?.recurringLocations ?? [])
+            .filter((rl) => !scannedLocationIds.has(rl.locationId) && rl.lastLatitude != null && rl.lastLongitude != null)
+            .map((rl, index) => ({
+                seq: scanPoints.length + index + 1,
+                label: rl.location.name,
+                timestamp: "",
+                lat: Number(rl.lastLatitude),
+                lng: Number(rl.lastLongitude),
+                status: "MISSING",
+                locationId: rl.locationId,
+                eventIndex: null,
+            }));
+
+        return [...scanPoints, ...missingPoints];
+    }, [data]);
+
+    const playablePoints = useMemo(() => routePoints.filter((point) => point.status !== "MISSING"), [routePoints]);
+    const currentPlayPoint = playIndex >= 0 ? playablePoints[playIndex] ?? null : null;
+    const previousPlayPoint = playIndex > 0 ? playablePoints[playIndex - 1] ?? null : null;
+    const currentGapMs =
+        currentPlayPoint && previousPlayPoint
+            ? new Date(currentPlayPoint.timestamp).getTime() - new Date(previousPlayPoint.timestamp).getTime()
+            : null;
+    const revealedPointCount =
+        playing || (playIndex >= 0 && playIndex < playablePoints.length - 1)
+            ? Math.min(playIndex + 1, playablePoints.length)
+            : null;
+
+    const handlePlayAnimation = () => {
+        if (playing) {
+            setPlaying(false);
+            return;
+        }
+        if (playablePoints.length === 0) return;
+
+        const nextIndex = playIndex < 0 || playIndex >= playablePoints.length - 1 ? 0 : playIndex;
+        setPlayIndex(nextIndex);
+        setPlaying(true);
+        const point = playablePoints[nextIndex];
+        if (point) {
+            setFocusedPoint(point);
+            handleMapPointSelect(point);
+        }
+    };
+
+    useEffect(() => {
+        if (!playing) return;
+        if (!playablePoints.length) {
+            setPlaying(false);
+            return;
+        }
+        if (playIndex < 0) return;
+        if (playIndex >= playablePoints.length - 1) {
+            setPlaying(false);
+            setFocusedPoint(null);
+            return;
+        }
+
+        const current = playablePoints[playIndex];
+        const next = playablePoints[playIndex + 1];
+        const deltaMs = Math.max(
+            0,
+            new Date(next.timestamp).getTime() - new Date(current.timestamp).getTime(),
+        );
+        // Tiempo comprimido: respeta la proporción real, pero no dura los 10 min del guardia.
+        const delay = Math.min(1600, Math.max(350, deltaMs / 8));
+
+        const timer = window.setTimeout(() => {
+            const nextIndex = playIndex + 1;
+            const point = playablePoints[nextIndex];
+            setPlayIndex(nextIndex);
+            if (point) {
+                setFocusedPoint(point);
+                handleMapPointSelect(point);
+            }
+        }, delay);
+
+        return () => window.clearTimeout(timer);
+    }, [playing, playIndex, playablePoints]);
+
+    const selectedEvent = data && selectedEventIndex !== null ? data.timeline[selectedEventIndex] : null;
+
+    const handleMapPointSelect = (point: RoutePoint) => {
+        if (point.locationId == null) return;
+        setSelectedPinLocationId(point.locationId);
+        routeRefs.current[String(point.locationId)]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        timelineRefs.current[String(point.locationId)]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
 
     useEffect(() => {
         if (id) {
@@ -239,719 +388,778 @@ const RoundDetailPage = () => {
         window.open(url, '_blank');
     };
 
-    if (loading) return (
-        <ITFlex align="center" justify="center" className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-            <ITFlex direction="column" className="text-center">
-                <ITLoader />
-                <ITText as="p" className="mt-4 text-slate-500 font-medium">Cargando detalles de la ronda...</ITText>
-            </ITFlex>
-        </ITFlex>
-    );
-    
-    if (!data) return (
-        <ITFlex align="center" justify="center" className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-            <ITFlex direction="column" className="text-center bg-white rounded-2xl shadow-lg p-8 max-w-md">
-                <ITFlex align="center" justify="center" className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaExclamationTriangle className="text-red-500 text-3xl" />
-                </ITFlex>
-                <ITText as="h3" className="text-xl font-bold text-slate-800 mb-2">No se encontró la ronda</ITText>
-                <ITText as="p" className="text-slate-500 mb-6">La ronda que buscas no existe o ha sido eliminada.</ITText>
-                <ITButton
-                    onClick={() => navigate(-1)}
-                    color="info"
-                   
-                >
-                    Volver
-                </ITButton>
-            </ITFlex>
-        </ITFlex>
-    );
+    if (loading) {
+        return (
+            <ITPage
+                className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+                noPadding
+                loading
+                title="Detalle de ronda"
+                description="Cargando información de la ronda..."
+                icon={<FaRoute size={20} />}
+                iconColor="#065911"
+            >
+                <ITFlex />
+            </ITPage>
+        );
+    }
+
+    if (!data) {
+        return (
+            <ITPage
+                className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+                noPadding
+                title="Detalle de ronda"
+                description="No se encontró la ronda."
+                icon={<FaRoute size={20} />}
+                iconColor="#065911"
+                error="La ronda que buscas no existe o fue eliminada."
+                onRetry={() => getData(Number(id))}
+            >
+                <ITFlex />
+            </ITPage>
+        );
+    }
 
     return (
-        <ITFlex direction="column" className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-            {/* Header Section */}
-            <ITFlex direction="column" className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-20">
-                <ITFlex direction="column" className="max-w-7xl mx-auto px-6 py-4">
-                    <ITFlex align="center" justify="between" className="flex items-center justify-between">
-                        <ITButton
-                            variant="text"
-                            color="gray"
-                            onClick={() => navigate(-1)}
-                           
-                        >
-                            <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center transition-colors">
-                                <FaArrowLeft className="text-sm" />
+        <ITPage
+            className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+            noPadding
+            backAction={() => navigate(-1)}
+            title={routeTitle || data.round.recurringConfiguration?.title || `Ronda #${data.round.id}`}
+            breadcrumbs={[
+                { label: "Inicio", href: "#/home" },
+                { label: "Operación" },
+                { label: "Historial de recorridos", href: "#/rounds" },
+                { label: "Detalle de ronda" },
+            ]}
+            description={`${data.round.guard.name} ${data.round.guard.lastName ?? ""} · ${new Date(data.round.startTime).toLocaleDateString()}`}
+            icon={<FaRoute size={20} />}
+            iconColor="#065911"
+            actions={
+                <ITBadget
+                    color={data.round.status === "COMPLETED" ? "success" : "warning"}
+                    variant="filled"
+                    size="sm"
+                >
+                    {data.round.status === "COMPLETED" ? "FINALIZADA" : "EN CURSO"}
+                </ITBadget>
+            }
+        >
+            <ITGrid container columns={12} spacing={5} className="w-full pb-10 pt-5">
+                {metrics && (
+                    <ITGrid container columns={12} spacing={3} className="col-span-12">
+                        <ITGrid item xs={12} md={4}>
+                            <MetricCard title="Duración total" value={metrics.duration} icon={<FaClock />} tone="blue" />
+                        </ITGrid>
+                        <ITGrid item xs={12} md={4}>
+                            <MetricCard
+                                title={metrics.expectedScans > 0 ? "Puntos cubiertos" : "Puntos válidos"}
+                                value={`${metrics.totalScans} / ${metrics.expectedScans > 0 ? metrics.expectedScans : metrics.totalRawScans}`}
+                                icon={<FaQrcode />}
+                                tone="violet"
+                            />
+                        </ITGrid>
+                        <ITGrid item xs={12} md={4}>
+                            <MetricCard title="Promedio por tramo" value={metrics.avgTime} icon={<FaStopwatch />} tone="orange" />
+                        </ITGrid>
+                    </ITGrid>
+                )}
+
+                {metrics && (
+                    <>
+                        <ITCard title="Ruta recorrida" className="col-span-12 h-full rounded-3xl xl:col-span-3" contentClassName="space-y-2">
+                            <ITFlex direction="column" className="max-h-[420px] space-y-2 overflow-y-auto pr-1">
+                                {metrics.mapNodes.map((node: any, idx: number) => (
+                                    <ITFlex
+                                        key={idx}
+                                        ref={(el) => {
+                                            if (node.locationId != null) routeRefs.current[String(node.locationId)] = el;
+                                        }}
+                                        align="center"
+                                        gap={2}
+                                        className={`shrink-0 rounded-xl bg-slate-50/60 px-2.5 py-2 dark:bg-slate-900/40 ${
+                                            node.locationId != null && selectedPinLocationId === node.locationId
+                                                ? "ring-2 ring-inset ring-emerald-300"
+                                                : ""
+                                        }`}
+                                    >
+                                        <ITFlex
+                                            align="center"
+                                            justify="center"
+                                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs ${NODE_TONE[node.status] ?? "bg-slate-100 text-slate-400"}`}
+                                        >
+                                            {node.status === "START" && <FaPlay size={11} />}
+                                            {node.status === "END" && <FaCheckCircle size={12} />}
+                                            {node.status === "SUCCESS" && <FaCheckCircle size={12} />}
+                                            {node.status === "DUPLICATE" && <ITText as="span" className="text-sm font-black">!</ITText>}
+                                            {node.status === "INCOMPLETE" && <FaExclamationTriangle size={11} />}
+                                            {node.status === "MISSING" && <ITText as="span" className="text-sm font-black">?</ITText>}
+                                            {node.status === "PENDING" && <FaClock size={11} />}
+                                        </ITFlex>
+
+                                        <ITFlex direction="column" className="min-w-0 flex-1">
+                                            <ITText as="p" className="truncate text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                                                {node.label}
+                                            </ITText>
+                                            <ITText as="p" className="text-[10px] text-slate-400">
+                                                {node.timeDiff && node.timeDiff !== "--" ? `+${node.timeDiff}` : "—"}
+                                            </ITText>
+                                        </ITFlex>
+
+                                        {node.status !== "START" && node.status !== "END" && (
+                                            <ITBadget
+                                                color={NODE_BADGE[node.status] ?? "secondary"}
+                                                variant="outlined"
+                                                size="sm"
+                                                className="shrink-0 whitespace-nowrap"
+                                            >
+                                                {NODE_LABEL[node.status] ?? node.status}
+                                            </ITBadget>
+                                        )}
+                                    </ITFlex>
+                                ))}
                             </ITFlex>
-                            <ITText as="span" className="font-medium hidden sm:inline">Volver</ITText>
-                        </ITButton>
-                        
-                        <ITFlex align="center" gap={3} className="flex items-center gap-3">
-                            <ITBadget 
-                                color={data.round.status === "COMPLETED" ? "success" : "warning"}
-                                variant="filled"
-                                size="md"
-                            >
-                                {data.round.status === "COMPLETED" ? "FINALIZADA" : "EN CURSO"}
-                            </ITBadget>
+                        </ITCard>
+
+                        <ITCard
+                            className="col-span-12 h-full rounded-3xl xl:col-span-6"
+                            contentClassName="space-y-3"
+                        >
+                            <ITFlex align="center" justify="between" gap={2} className="mb-1">
+                                <ITText as="h3" className="text-xl font-semibold text-slate-900 dark:text-white">
+                                    Mapa de la ronda
+                                </ITText>
+                                <ITButton
+                                    variant="icon-only"
+                                    color="primary"
+                                    size="sm"
+                                    icon={playing ? <FaPause size={12} /> : <FaPlay size={12} />}
+                                    ariaLabel={playing ? "Pausar recorrido" : "Reproducir recorrido"}
+                                    title={playing ? "Pausar recorrido" : "Reproducir recorrido"}
+                                    onClick={handlePlayAnimation}
+                                    disabled={playablePoints.length === 0}
+                                />
+                            </ITFlex>
+                            {routePoints.length > 0 ? (
+                                <RoundRouteMap points={routePoints} height="420px" className="rounded-2xl" onPointSelect={handleMapPointSelect} fitPadding={110} focusedPoint={focusedPoint} visiblePointCount={revealedPointCount} />
+                            ) : (
+                                <ITEmptyState title="Sin coordenadas GPS para trazar la ruta." className="py-12" />
+                            )}
+                            <ITFlex align="center" gap={4} wrap="wrap">
+                                <ITFlex align="center" gap={1}>
+                                    <ITFlex className="h-2 w-2 rounded-full bg-[#12a36f]" />
+                                    <ITText as="span" className="text-[10px] font-medium text-slate-500">Con foto</ITText>
+                                </ITFlex>
+                                <ITFlex align="center" gap={1}>
+                                    <ITFlex className="h-2 w-2 rounded-full bg-[#ef4444]" />
+                                    <ITText as="span" className="text-[10px] font-medium text-slate-500">Sin foto</ITText>
+                                </ITFlex>
+                                <ITFlex align="center" gap={1}>
+                                    <ITFlex className="h-2 w-2 rounded-full bg-[#94a3b8]" />
+                                    <ITText as="span" className="text-[10px] font-medium text-slate-500">No escaneado</ITText>
+                                </ITFlex>
+                            </ITFlex>
+
+                            {playablePoints.length > 0 && (
+                                <ITFlex direction="column" gap={1}>
+                                    <ITFlex align="center" justify="between" gap={2}>
+                                        <ITText as="span" className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                            {playing
+                                                ? "Reproduciendo recorrido"
+                                                : playIndex >= playablePoints.length - 1
+                                                    ? "Recorrido completado"
+                                                    : playIndex >= 0
+                                                        ? "Recorrido en pausa"
+                                                        : "Recorrido"}
+                                        </ITText>
+                                        <ITText as="span" className="text-[10px] font-bold text-slate-500">
+                                            {Math.min(Math.max(playIndex + 1, 0), playablePoints.length)} / {playablePoints.length}
+                                        </ITText>
+                                    </ITFlex>
+                                    <ITProgress
+                                        value={Math.min(Math.max(playIndex + 1, 0), playablePoints.length)}
+                                        max={playablePoints.length}
+                                        color="success"
+                                        size="sm"
+                                    />
+                                    {currentPlayPoint && (
+                                        <ITFlex align="center" gap={2} wrap="wrap">
+                                            <ITText as="span" className="truncate text-[10px] text-slate-400">
+                                                {new Date(currentPlayPoint.timestamp).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })} · {currentPlayPoint.label}
+                                            </ITText>
+                                            {currentGapMs != null && (
+                                                <ITBadget color="success" variant="outlined" size="sm" className="shrink-0">
+                                                    +{formatGap(currentGapMs)}
+                                                </ITBadget>
+                                            )}
+                                        </ITFlex>
+                                    )}
+                                </ITFlex>
+                            )}
+
+                            <ITFlex align="center" justify="between" gap={2} wrap="wrap">
+                                <ITText as="p" className="text-[10px] font-medium text-slate-400">
+                                    Ctrl/Cmd + scroll para zoom
+                                </ITText>
+                                <ITButton
+                                    variant="text"
+                                    color="secondary"
+                                    size="sm"
+                                    icon={<FaMapMarkedAlt />}
+                                    onClick={handleOpenRouteMap}
+                                >
+                                    Abrir en Google Maps
+                                </ITButton>
+                            </ITFlex>
+                        </ITCard>
+
+                        <ITCard title="Línea de tiempo" className="col-span-12 h-full rounded-3xl xl:col-span-3" contentClassName="space-y-2">
+                            {data.timeline.length === 0 ? (
+                                <ITEmptyState title="No hay eventos registrados." className="py-12" />
+                            ) : (
+                                <ITFlex direction="column" className="max-h-[420px] space-y-2 overflow-y-auto pr-1">
+                                    {data.timeline.map((event, index) => {
+                                        const media = Array.isArray(event.data?.media) ? event.data.media : [];
+                                        const firstImage = media.find((m: any) => m?.url);
+                                        const previousPointEvent = [...data.timeline.slice(0, index)]
+                                            .reverse()
+                                            .find((e) => e.type === "SCAN" || e.type === "START");
+                                        const gapMs =
+                                            (event.type === "SCAN" || event.type === "END") && previousPointEvent
+                                                ? new Date(event.timestamp).getTime() - new Date(previousPointEvent.timestamp).getTime()
+                                                : null;
+                                        return (
+                                            <ITFlex
+                                                key={index}
+                                                ref={(el) => {
+                                                    const locationId = event.data?.location?.id;
+                                                    if (locationId != null) timelineRefs.current[String(locationId)] = el;
+                                                }}
+                                                direction="column"
+                                                className={`shrink-0 rounded-xl ${
+                                                    event.data?.location?.id != null && selectedPinLocationId === event.data.location.id
+                                                        ? "ring-2 ring-inset ring-emerald-300"
+                                                        : ""
+                                                }`}
+                                            >
+                                            <ITCard
+                                                onClick={() => setSelectedEventIndex(index)}
+                                                className="rounded-xl border-slate-100! bg-slate-50/60! dark:border-slate-800! dark:bg-slate-900/40!"
+                                                contentClassName="space-y-1 p-2.5!"
+                                            >
+                                                <ITFlex align="start" gap={2}>
+                                                    <TimelineEventIcon type={event.type} />
+                                                    <ITFlex direction="column" className="min-w-0 flex-1">
+                                                        <ITText as="p" className="truncate text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                                                            {event.description}
+                                                        </ITText>
+                                                        <ITFlex align="center" gap={2} wrap="wrap">
+                                                            <ITText as="span" className="text-[10px] text-slate-400">
+                                                                {new Date(event.timestamp).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })} · {event.type}
+                                                            </ITText>
+                                                            {gapMs != null && (
+                                                                <ITText as="span" className="text-[10px] font-bold text-emerald-600">
+                                                                    +{formatGap(gapMs)}
+                                                                </ITText>
+                                                            )}
+                                                        </ITFlex>
+                                                    </ITFlex>
+                                                </ITFlex>
+
+                                                {media.length > 0 && (
+                                                    <ITFlex align="center" gap={2} className="pl-9">
+                                                        {firstImage && (
+                                                            <ITImage
+                                                                src={firstImage.url}
+                                                                alt={event.description}
+                                                                fit="cover"
+                                                                className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                                                            />
+                                                        )}
+                                                        <ITText as="span" className="text-[10px] font-medium text-slate-400">
+                                                            {media.length} archivo{media.length === 1 ? "" : "s"}
+                                                        </ITText>
+                                                    </ITFlex>
+                                                )}
+                                            </ITCard>
+                                            </ITFlex>
+                                        );
+                                    })}
+                                </ITFlex>
+                            )}
+                        </ITCard>
+                    </>
+                )}
+
+            </ITGrid>
+
+            <ITDialog
+                isOpen={selectedEventIndex !== null}
+                onClose={() => setSelectedEventIndex(null)}
+                padded={false}
+                className="max-w-4xl w-full max-h-[90vh] border-0!"
+            >
+                {selectedEvent && (
+                    <>
+                        <EventModalHeader
+                            event={selectedEvent}
+                            isAdmin={isAdmin}
+                            onDeleteEvent={handleDeleteEventFromModal}
+                        />
+                        <ITFlex direction="column" className="overflow-y-auto px-6 pb-6">
+                            <EventDetailCard
+                                event={selectedEvent}
+                                isAdmin={isAdmin}
+                                onDeleteMedia={handleDeleteMedia}
+                            />
+                        </ITFlex>
+                    </>
+                )}
+            </ITDialog>
+        </ITPage>
+    );
+};
+
+const formatGap = (ms: number) => {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+};
+
+const TIMELINE_TONE: Record<string, string> = {
+    START: "bg-sky-50 text-sky-600 dark:bg-sky-950/30 dark:text-sky-400",
+    SCAN: "bg-violet-50 text-violet-600 dark:bg-violet-950/30 dark:text-violet-400",
+    INCIDENT: "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400",
+    END: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400",
+};
+
+const TimelineEventIcon = ({ type }: { type: string }) => (
+    <ITFlex
+        align="center"
+        justify="center"
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${TIMELINE_TONE[type] ?? "bg-slate-100 text-slate-400"}`}
+    >
+        {type === "START" && <FaPlay size={10} />}
+        {type === "SCAN" && <FaQrcode size={11} />}
+        {type === "INCIDENT" && <FaExclamationTriangle size={10} />}
+        {type === "END" && <FaCheckCircle size={11} />}
+    </ITFlex>
+);
+
+const NODE_TONE: Record<string, string> = {
+    START: "bg-sky-50 text-sky-600 dark:bg-sky-950/30 dark:text-sky-400",
+    END: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+    SUCCESS: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400",
+    DUPLICATE: "bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400",
+    INCOMPLETE: "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400",
+    MISSING: "bg-rose-50 text-rose-500 dark:bg-rose-950/30 dark:text-rose-400",
+    PENDING: "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500",
+};
+
+const NODE_BADGE: Record<string, "success" | "danger" | "warning" | "secondary"> = {
+    SUCCESS: "success",
+    DUPLICATE: "danger",
+    INCOMPLETE: "warning",
+    MISSING: "danger",
+    PENDING: "secondary",
+};
+
+const NODE_LABEL: Record<string, string> = {
+    SUCCESS: "Completado",
+    DUPLICATE: "Repetido",
+    INCOMPLETE: "Sin evidencia",
+    MISSING: "Faltante",
+    PENDING: "Pendiente",
+};
+
+const METRIC_TONE: Record<string, string> = {
+    blue: "bg-sky-50 text-sky-600 dark:bg-sky-950/30 dark:text-sky-400",
+    violet: "bg-violet-50 text-violet-600 dark:bg-violet-950/30 dark:text-violet-400",
+    orange: "bg-orange-50 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400",
+};
+
+const MetricCard = ({
+    title,
+    value,
+    icon,
+    tone,
+}: {
+    title: string;
+    value: string;
+    icon: ReactNode;
+    tone: "blue" | "violet" | "orange";
+}) => (
+    <ITCard className="h-full" contentClassName="p-4!">
+        <ITFlex align="center" justify="between" gap={2}>
+            <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                {title}
+            </ITText>
+            <ITFlex
+                align="center"
+                justify="center"
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs ${METRIC_TONE[tone]}`}
+            >
+                {icon}
+            </ITFlex>
+        </ITFlex>
+        <ITText as="p" className="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            {value}
+        </ITText>
+    </ITCard>
+);
+
+const EVENT_BADGE: Record<string, "primary" | "secondary" | "success" | "warning" | "danger"> = {
+    START: "primary",
+    SCAN: "secondary",
+    INCIDENT: "warning",
+    END: "success",
+};
+
+const EvidenceAndLocation = ({
+    event,
+    isAdmin,
+    onDeleteMedia,
+    gpsTitle,
+}: {
+    event: any;
+    isAdmin: boolean;
+    onDeleteMedia: (eventId: number, type: "SCAN" | "INCIDENT", item: any) => void;
+    gpsTitle: string;
+}) => {
+    const media = Array.isArray(event.data?.media) ? event.data.media : [];
+    const hasCoords = event.data?.latitude != null && event.data?.longitude != null;
+
+    return (
+        <ITGrid container columns={12} spacing={3}>
+            <ITGrid item xs={12} lg={8}>
+                <ITCard className="h-full rounded-2xl border-0! bg-slate-50/40! shadow-none!" contentClassName="space-y-3 p-3!">
+                    <ITFlex align="center" gap={2}>
+                        <ITFlex align="center" justify="center" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-600 dark:bg-sky-950/30 dark:text-sky-400">
+                            <FaImage size={12} />
+                        </ITFlex>
+                        <ITFlex direction="column">
+                            <ITText as="p" className="text-[11px] font-black text-slate-700 dark:text-slate-200">
+                                Evidencia fotográfica
+                            </ITText>
+                            <ITText as="p" className="text-[10px] text-slate-400">
+                                Fotos y videos
+                            </ITText>
                         </ITFlex>
                     </ITFlex>
+
+                    {media.length > 0 ? (
+                        <ITFlex className="overflow-hidden rounded-xl">
+                            <MediaCarousel
+                                media={media}
+                                showDelete={isAdmin}
+                                onDelete={(item) => onDeleteMedia(event.data.id, event.type, item)}
+                            />
+                        </ITFlex>
+                    ) : (
+                        <ITFlex align="center" justify="center" gap={2} className="rounded-xl bg-slate-50 py-8 dark:bg-slate-900/40">
+                            <FaImage className="text-slate-300" />
+                            <ITText as="span" className="text-xs text-slate-400">
+                                No hay evidencia fotográfica
+                            </ITText>
+                        </ITFlex>
+                    )}
+                </ITCard>
+            </ITGrid>
+
+            <ITGrid item xs={12} lg={4}>
+                <ITCard className="h-full rounded-2xl border-0! bg-slate-50/40! shadow-none!" contentClassName="space-y-3 p-3!">
+                    <ITFlex align="center" gap={2}>
+                        <ITFlex align="center" justify="center" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
+                            <FaLocationArrow size={12} />
+                        </ITFlex>
+                        <ITFlex direction="column">
+                            <ITText as="p" className="text-[11px] font-black text-slate-700 dark:text-slate-200">
+                                {gpsTitle}
+                            </ITText>
+                            <ITText as="p" className="text-[10px] text-slate-400">
+                                Coordenadas del punto de control
+                            </ITText>
+                        </ITFlex>
+                    </ITFlex>
+
+                    {hasCoords ? (
+                        <>
+
+
+                            <ITGrid container columns={2} spacing={2}>
+                                <ITGrid item xs={6}>
+                                    <ITFlex direction="column" className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-900/40">
+                                        <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Latitud</ITText>
+                                        <ITText as="p" className="font-mono text-[11px] font-medium text-slate-700 dark:text-slate-200">
+                                            {event.data.latitude}
+                                        </ITText>
+                                    </ITFlex>
+                                </ITGrid>
+                                <ITGrid item xs={6}>
+                                    <ITFlex direction="column" className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-900/40">
+                                        <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Longitud</ITText>
+                                        <ITText as="p" className="font-mono text-[11px] font-medium text-slate-700 dark:text-slate-200">
+                                            {event.data.longitude}
+                                        </ITText>
+                                    </ITFlex>
+                                </ITGrid>
+                            </ITGrid>
+
+                            <ITButton
+                                variant="text"
+                                color="secondary"
+                                size="sm"
+                                icon={<FaMapMarkerAlt />}
+                                onClick={() =>
+                                    window.open(
+                                        `https://www.google.com/maps/search/?api=1&query=${event.data.latitude},${event.data.longitude}`,
+                                        "_blank",
+                                    )
+                                }
+                            >
+                                Abrir en Google Maps
+                            </ITButton>
+                        </>
+                    ) : (
+                        <ITFlex align="center" justify="center" gap={2} className="rounded-xl bg-rose-50 py-8 dark:bg-rose-950/20">
+                            <FaExclamationTriangle className="text-rose-400" />
+                            <ITText as="span" className="text-xs text-rose-600 dark:text-rose-400">
+                                No se registraron coordenadas GPS para este punto
+                            </ITText>
+                        </ITFlex>
+                    )}
+                </ITCard>
+            </ITGrid>
+        </ITGrid>
+    );
+};
+
+const EventModalHeader = ({
+    event,
+    isAdmin,
+    onDeleteEvent,
+}: {
+    event: any;
+    isAdmin: boolean;
+    onDeleteEvent: (eventId: number, type: "SCAN" | "INCIDENT") => void;
+}) => {
+    const isScan = event.type === "SCAN";
+    const isIncident = event.type === "INCIDENT";
+    const canDelete =
+        isAdmin &&
+        (isIncident ||
+            (isScan &&
+                (event.data?.scanType === "FREE" || event.data?.user?.role === "MANTENIMIENTO")));
+
+    return (
+        <ITFlex direction="column" gap={3} className="px-6 pt-5 pb-3">
+            <ITFlex align="start" justify="between" gap={3} wrap="wrap" className="pr-8">
+                <ITFlex align="center" gap={3}>
+                    <TimelineEventIcon type={event.type} />
+                    <ITText as="h2" className="text-xl font-black text-slate-900 dark:text-white">
+                        Detalle del evento
+                    </ITText>
                 </ITFlex>
+
+                {canDelete && (
+                    <ITButton
+                        variant="icon-only"
+                        color="danger"
+                        size="sm"
+                        icon={<FaTrash size={12} />}
+                        ariaLabel="Eliminar registro"
+                        title="Eliminar registro"
+                        onClick={() => onDeleteEvent(event.data.id, event.type)}
+                    />
+                )}
             </ITFlex>
 
-            <ITFlex direction="column" className="max-w-7xl mx-auto px-6 py-8">
-                {/* Title Section */}
-                <ITFlex direction="column" className="mb-8">
-                    <ITText as="h1" className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-3">
-                        {routeTitle || data.round.recurringConfiguration?.title || `Ronda #${data.round.id}`}
-                    </ITText>
-                    
-                    <ITFlex gap={6} className="flex flex-wrap gap-6 text-sm">
-                        <ITFlex align="center" gap={2} className="flex items-center gap-2 text-slate-600">
-                            <ITFlex align="center" justify="center" className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                <FaUserShield className="text-blue-600 text-sm" />
-                            </ITFlex>
-                            <ITFlex direction="column">
-                                <ITText as="p" className="text-xs text-slate-400">Guardia</ITText>
-                                <ITText as="p" className="font-semibold text-slate-700">{data.round.guard.name} {data.round.guard.lastName}</ITText>
-                            </ITFlex>
+            <ITFlex align="center" gap={2} wrap="wrap">
+                <ITText as="span" className="font-mono text-[11px] font-medium text-slate-400">
+                    {new Date(event.timestamp).toLocaleString("es-MX")}
+                </ITText>
+                <ITBadget color={EVENT_BADGE[event.type] ?? "secondary"} variant="filled" size="sm">
+                    {event.type}
+                </ITBadget>
+            </ITFlex>
+
+            <ITText as="p" className="text-sm font-black text-slate-800 dark:text-slate-100">
+                {event.description}
+            </ITText>
+
+            {isIncident && (
+                <>
+                    {event.data?.category && (
+                        <ITFlex align="center" gap={2} wrap="wrap" className="rounded-xl bg-amber-50/60 px-3 py-2 dark:bg-amber-950/20">
+                            <FaExclamationTriangle className="text-amber-600 dark:text-amber-400" size={12} />
+                            <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                                Categoría
+                            </ITText>
+                            <ITText as="span" className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                                {event.data.category}
+                            </ITText>
                         </ITFlex>
-                        
-                        {data.round.recurringConfiguration?.startTime && (
-                            <ITFlex align="center" gap={2} className="flex items-center gap-2 text-slate-600">
-                                <ITFlex align="center" justify="center" className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                                    <FaClock className="text-purple-600 text-sm" />
+                    )}
+                    {event.data?.description && (
+                        <ITText as="p" className="text-xs text-slate-600 dark:text-slate-300">
+                            {event.data.description}
+                        </ITText>
+                    )}
+                </>
+            )}
+        </ITFlex>
+    );
+};
+
+const EventDetailCard = ({
+    event,
+    isAdmin,
+    onDeleteMedia,
+}: {
+    event: any;
+    isAdmin: boolean;
+    onDeleteMedia: (eventId: number, type: "SCAN" | "INCIDENT", item: any) => void;
+}) => {
+    const isScan = event.type === "SCAN";
+    const isIncident = event.type === "INCIDENT";
+
+    return (
+        <ITFlex direction="column" gap={4}>
+            {isScan && (
+                <>
+                    <EvidenceAndLocation event={event} isAdmin={isAdmin} onDeleteMedia={onDeleteMedia} gpsTitle="Ubicación GPS" />
+
+                    {event.data?.notes && (
+                        <ITFlex direction="column" gap={2}>
+                            <ITFlex align="center" gap={2}>
+                                <ITFlex align="center" justify="center" className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
+                                    <FaFileAlt size={12} />
                                 </ITFlex>
                                 <ITFlex direction="column">
-                                    <ITText as="p" className="text-xs text-slate-400">Horario programado</ITText>
-                                    <ITText as="p" className="font-semibold text-slate-700">
-                                        {data.round.recurringConfiguration.startTime} - {data.round.recurringConfiguration.endTime}
+                                    <ITText as="p" className="text-[11px] font-black text-slate-700 dark:text-slate-200">
+                                        Notas adicionales
+                                    </ITText>
+                                    <ITText as="p" className="text-[10px] text-slate-400">
+                                        Comentarios y observaciones
                                     </ITText>
                                 </ITFlex>
                             </ITFlex>
-                        )}
-                        
-                        <ITFlex align="center" gap={2} className="flex items-center gap-2 text-slate-600">
-                            <ITFlex align="center" justify="center" className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <FaCalendarAlt className="text-emerald-600 text-sm" />
-                            </ITFlex>
-                            <ITFlex direction="column">
-                                <ITText as="p" className="text-xs text-slate-400">Fecha de inicio</ITText>
-                                <ITText as="p" className="font-semibold text-slate-700">
-                                    {new Date(data.round.startTime).toLocaleDateString()}
-                                </ITText>
-                            </ITFlex>
+                            <NotesViewer notes={event.data.notes} />
                         </ITFlex>
-                    </ITFlex>
-                </ITFlex>
+                    )}
 
-                {/* Metrics Dashboard */}
-                {metrics && (
-                    <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow group">
-                            <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-                                <ITFlex align="center" justify="center" className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-                                    <FaClock className="text-white text-xl" />
+                    {event.data?.assignment?.tasks && (
+                        <ITFlex direction="column" gap={2}>
+                            <ITFlex align="center" gap={2}>
+                                <ITFlex align="center" justify="center" className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
+                                    <FaClipboardList size={12} />
                                 </ITFlex>
-                                <FaEye className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </ITFlex>
-                            <ITText as="p" className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Duración Total</ITText>
-                            <ITText as="p" className="text-2xl font-bold text-slate-800">{metrics.duration}</ITText>
-                        </ITFlex>
-                        
-                        <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow group">
-                            <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-                                <ITFlex align="center" justify="center" className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200">
-                                    <FaQrcode className="text-white text-xl" />
+                                <ITFlex direction="column">
+                                    <ITText as="p" className="text-[11px] font-black text-slate-700 dark:text-slate-200">
+                                        Tareas realizadas
+                                    </ITText>
+                                    <ITText as="p" className="text-[10px] text-slate-400">
+                                        Lista de tareas completadas en este punto
+                                    </ITText>
                                 </ITFlex>
-                                <FaEye className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </ITFlex>
-                            <ITText as="p" className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                                Puntos {metrics.expectedScans > 0 ? 'Cubiertos' : 'Válidos'}
-                            </ITText>
-                            <ITText as="p" className="text-2xl font-bold text-slate-800">
-                                {metrics.totalScans} 
-                                <ITText as="span" className="text-sm text-slate-400 font-normal ml-1">/ {metrics.expectedScans > 0 ? metrics.expectedScans : metrics.totalRawScans}</ITText>
-                            </ITText>
+                            <TaskList tasks={event.data.assignment.tasks} />
                         </ITFlex>
-                        
-                        <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow group">
-                            <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-                                <ITFlex align="center" justify="center" className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-200">
-                                    <FaStopwatch className="text-white text-xl" />
-                                </ITFlex>
-                                <FaEye className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </ITFlex>
-                            <ITText as="p" className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Promedio por tramo</ITText>
-                            <ITText as="p" className="text-2xl font-bold text-slate-800">{metrics.avgTime}</ITText>
-                        </ITFlex>
-                    </ITFlex>
-                )}
+                    )}
+                </>
+            )}
 
-                {/* Treasure Map Visualization */}
-                {metrics && (
-                    <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
-                        <ITFlex align="center" justify="between" gap={4} className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                            <ITFlex align="center" gap={3} className="flex items-center gap-3">
-                                <ITFlex align="center" justify="center" className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200">
-                                    <FaRoute className="text-white text-lg" />
-                                </ITFlex>
-                                <ITText as="h3" className="font-bold text-slate-800 text-lg">Ruta Recorrida</ITText>
-                            </ITFlex>
-                            
-                            <ITButton
-                                variant="text"
-                                color="gray"
-                                onClick={handleOpenRouteMap}
-                                size="md"
-                            >
-                                <ITFlex align="center" gap={2}><FaMapMarkedAlt className="text-blue-600" />
-                                <ITText as="span">Ver trazo en mapa</ITText></ITFlex>
-                            </ITButton>
-                        </ITFlex>
-                        
-                        <ITFlex direction="column" className="overflow-x-auto pb-4">
-                            <ITFlex align="start" className="flex items-start min-w-max">
-                                {metrics.mapNodes.map((node: any, idx: number) => (
-                                    <div key={idx} className="flex items-center">
-                                        {/* Connector Line */}
-                                        {idx > 0 && (
-                                            <ITFlex direction="column" align="center" className="flex flex-col items-center mx-2">
-                                                {node.timeDiff && node.timeDiff !== '--' && (
-                                                    <ITText as="span" className="text-xs font-mono text-slate-500 mb-2 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-200">
-                                                        {node.timeDiff}
-                                                    </ITText>
-                                                )}
-                                                <ITFlex direction="column" className="w-12 h-0.5 bg-gradient-to-r from-slate-300 to-slate-400"></ITFlex>
-                                            </ITFlex>
-                                        )}
-
-                                        {/* Node */}
-                                        <ITFlex direction="column" align="center" className="flex flex-col items-center w-28 group">
-                                            <ITFlex direction="column" className={`
-                                                relative w-14 h-14 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110
-                                                ${node.status === 'START' ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-blue-300' : ''}
-                                                ${node.status === 'END' ? 'bg-gradient-to-br from-slate-600 to-slate-700 shadow-slate-300' : ''}
-                                                ${node.status === 'SUCCESS' ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-300' : ''}
-                                                ${node.status === 'DUPLICATE' ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-300' : ''}
-                                                ${node.status === 'INCOMPLETE' ? 'bg-gradient-to-br from-orange-500 to-orange-600 shadow-orange-300' : ''}
-                                                ${node.status === 'MISSING' ? 'bg-gradient-to-br from-red-100 to-red-200 border-2 border-red-300' : ''}
-                                                ${node.status === 'PENDING' ? 'bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-slate-300' : ''}
-                                            `}>
-                                                {node.status === 'START' && <FaPlay className="text-white text-lg ml-0.5" />}
-                                                {node.status === 'END' && <FaCheckCircle className="text-white text-lg" />}
-                                                {node.status === 'SUCCESS' && <FaCheckCircle className="text-white text-lg" />}
-                                                {node.status === 'DUPLICATE' && <ITText as="span" className="text-white text-2xl font-bold">!</ITText>}
-                                                {node.status === 'INCOMPLETE' && <FaExclamationTriangle className="text-white text-lg" />}
-                                                {node.status === 'MISSING' && <ITText as="span" className="text-red-600 text-xl font-bold">?</ITText>}
-                                                {node.status === 'PENDING' && <FaClock className="text-slate-500 text-lg" />}
-                                            </ITFlex>
-                                            
-                                            <ITText as="p" className={`text-center text-sm font-semibold mt-3 leading-tight ${
-                                                node.status === 'DUPLICATE' ? 'text-red-600' : 
-                                                node.status === 'MISSING' ? 'text-red-500' :
-                                                node.status === 'PENDING' ? 'text-slate-400' :
-                                                'text-slate-700'
-                                            }`}>
-                                                {node.label}
-                                            </ITText>
-                                            
-                                            {node.status === 'MISSING' && (
-                                                <ITText as="span" className="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full mt-1">FALTANTE</ITText>
-                                            )}
-                                            {node.status === 'PENDING' && (
-                                                <ITText as="span" className="text-xs font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full mt-1">PENDIENTE</ITText>
-                                            )}
-                                            {node.status === 'DUPLICATE' && (
-                                                <ITText as="span" className="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full mt-1">REPETIDO</ITText>
-                                            )}
-                                            {node.status === 'INCOMPLETE' && (
-                                                <ITText as="span" className="text-xs font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full mt-1">INCOMPLETO</ITText>
-                                            )}
-                                        </ITFlex>
-                                    </div>
-                                ))}
-                            </ITFlex>
-                        </ITFlex>
-                        
-                        <ITFlex justify="end" gap={6} className="mt-6 pt-4 border-t border-slate-200 flex flex-wrap gap-6 justify-end">
-                            <ITFlex align="center" gap={2} className="flex items-center gap-2 text-xs text-slate-600">
-                                <ITFlex direction="column" className="w-3 h-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600"></ITFlex>
-                                <ITText as="span">Completado</ITText>
-                            </ITFlex>
-                            <ITFlex align="center" gap={2} className="flex items-center gap-2 text-xs text-slate-600">
-                                <ITFlex direction="column" className="w-3 h-3 rounded-full bg-gradient-to-r from-red-500 to-red-600"></ITFlex>
-                                <ITText as="span">Repetido/Error</ITText>
-                            </ITFlex>
-                            <ITFlex align="center" gap={2} className="flex items-center gap-2 text-xs text-slate-600">
-                                <ITFlex direction="column" className="w-3 h-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600"></ITFlex>
-                                <ITText as="span">Sin evidencia</ITText>
-                            </ITFlex>
-                        </ITFlex>
-                    </ITFlex>
-                )}
-
-                {/* Timeline Section */}
-                <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <ITFlex direction="column" className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white px-6 py-4">
-                        <ITFlex align="center" gap={3} className="flex items-center gap-3">
-                            <ITFlex align="center" justify="center" className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
-                                <FaCheckDouble className="text-white text-lg" />
-                            </ITFlex>
-                            <ITFlex direction="column">
-                                <ITText as="h2" className="text-lg font-bold text-slate-800">Línea de tiempo</ITText>
-                                <ITText as="p" className="text-xs text-slate-500 mt-0.5">Eventos registrados durante la ronda</ITText>
-                            </ITFlex>
-                        </ITFlex>
-                    </ITFlex>
-                    
-                    <ITFlex direction="column" className="p-6">
-                        <ITFlex direction="column" className="relative border-l-2 border-slate-200 ml-4 space-y-8">
-                            {data.timeline.map((event, index) => (
-                                <div key={index} className="relative pl-8">
-                                    <EventIcon type={event.type} />
-                                    <ITFlex direction="column" className="bg-gradient-to-r from-slate-50 to-white p-5 rounded-xl border border-slate-200 hover:shadow-md transition-all duration-200">
-                                        <ITFlex align="center" justify="between" gap={2} className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                                            <ITFlex align="center" gap={3} className="flex items-center gap-3">
-                                                <ITText as="span" className="text-xs font-mono font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded">
-                                                    {new Date(event.timestamp).toLocaleString()}
-                                                </ITText>
-                                                <ITText as="span" className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-                                                    {event.type}
-                                                </ITText>
-                                            </ITFlex>
-                                            
-                                            {isAdmin && (event.type === 'INCIDENT' || (event.type === 'SCAN' && (event.data?.scanType === 'FREE' || event.data?.user?.role === 'MANTENIMIENTO'))) && (
-                                                <ITButton
-                                                    variant="icon-only"
-                                                    color="gray"
-                                                    size="sm"
-                                                    onClick={() => handleDeleteEvent(event.data.id, event.type as any)}
-                                                    icon={<FaTrash size={14} />}
-                                                    title="Eliminar registro"
-                                                   
-                                                />
-                                            )}
-                                        </ITFlex>
-                                        
-                                        <ITText as="h3" className="text-md font-bold text-slate-700 mb-3">
-                                            {event.description}
-                                        </ITText>
-                                        
-                                        {event.type === 'SCAN' && (
-                                            <ITFlex direction="column" className="mt-3 space-y-4">
-                                                {/* Location Header */}
-                                                <ITFlex align="center" gap={2} className="flex items-center gap-2 p-3 bg-purple-50 rounded-xl border border-purple-100">
-                                                    <ITFlex align="center" justify="center" className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                                                        <FaBuilding className="text-purple-600 text-lg" />
-                                                    </ITFlex>
-                                                    <ITFlex direction="column" className="flex-1">
-                                                        <ITText as="p" className="text-xs text-purple-600 font-semibold uppercase tracking-wider">Ubicación</ITText>
-                                                        <ITText as="p" className="font-bold text-slate-800 text-lg">{event.data?.location?.name}</ITText>
-                                                        {event.data?.location?.address && (
-                                                            <ITText as="p" className="text-xs text-slate-500 mt-0.5">{event.data.location.address}</ITText>
-                                                        )}
-                                                    </ITFlex>
-                                                </ITFlex>
-                                                
-                                                {/* Row with Photos and Location */}
-                                                <ITFlex direction="column" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                    {/* Photos Section */}
-                                                    <ITFlex direction="column" className="space-y-3">
-                                                        <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                                                            <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                                                                <FaImage className="text-blue-600" />
-                                                            </ITFlex>
-                                                            <ITFlex direction="column">
-                                                                <ITText as="h4" className="font-semibold text-slate-700">Evidencia fotográfica</ITText>
-                                                                <ITText as="p" className="text-xs text-slate-400">
-                                                                    {event.data?.media?.length || 0} {event.data?.media?.length === 1 ? 'foto' : 'fotos'}
-                                                                </ITText>
-                                                            </ITFlex>
-                                                        </ITFlex>
-                                                        
-                                                        {event.data?.media && event.data.media.length > 0 ? (
-                                                            <ITFlex direction="column" className="rounded-xl overflow-hidden border border-slate-200 bg-white">
-                                                                <MediaCarousel 
-                                                                    media={event.data.media} 
-                                                                    title="Evidencia" 
-                                                                    showDelete={isAdmin}
-                                                                    onDelete={(item) => handleDeleteMedia(event.data.id, event.type as any, item)}
-                                                                />
-                                                            </ITFlex>
-                                                        ) : (
-                                                            <ITFlex direction="column" className="bg-slate-50 rounded-xl p-6 text-center border border-slate-200">
-                                                                <FaImage className="text-slate-300 text-3xl mx-auto mb-2" />
-                                                                <ITText as="p" className="text-sm text-slate-400">No hay evidencia fotográfica</ITText>
-                                                            </ITFlex>
-                                                        )}
-                                                    </ITFlex>
-                                                    
-                                                    {/* Location Section */}
-                                                    {event.data?.latitude && event.data?.longitude ? (
-                                                        <ITFlex direction="column" className="space-y-3">
-                                                            <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                                                                <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                                                                    <FaLocationArrow className="text-green-600" />
-                                                                </ITFlex>
-                                                                <ITFlex direction="column">
-                                                                    <ITText as="h4" className="font-semibold text-slate-700">Ubicación GPS</ITText>
-                                                                    <ITText as="p" className="text-xs text-slate-400">Coordenadas exactas del punto de control</ITText>
-                                                                </ITFlex>
-                                                            </ITFlex>
-                                                            
-                                                            <ITFlex direction="column" className="rounded-xl overflow-hidden border border-slate-200">
-                                                                <GoogleMapComponent 
-                                                                    lat={Number(event.data.latitude)} 
-                                                                    lng={Number(event.data.longitude)} 
-                                                                    height="250px"
-                                                                    zoom={18}
-                                                                />
-                                                            </ITFlex>
-                                                            
-                                                            <ITFlex direction="column" className="bg-slate-50 rounded-xl p-3 border border-slate-200">
-                                                                <ITFlex direction="column" className="grid grid-cols-2 gap-2 text-sm">
-                                                                    <ITFlex direction="column">
-                                                                        <ITText as="p" className="text-xs text-slate-400">Latitud</ITText>
-                                                                        <ITText as="p" className="font-mono text-slate-700 font-medium">{event.data.latitude}</ITText>
-                                                                    </ITFlex>
-                                                                    <ITFlex direction="column">
-                                                                        <ITText as="p" className="text-xs text-slate-400">Longitud</ITText>
-                                                                        <ITText as="p" className="font-mono text-slate-700 font-medium">{event.data.longitude}</ITText>
-                                                                    </ITFlex>
-                                                                </ITFlex>
-                                                                <ITFlex direction="column" className="mt-2 pt-2 border-t border-slate-200">
-                                                                    <a 
-                                                                        href={`https://www.google.com/maps/search/?api=1&query=${event.data.latitude},${event.data.longitude}`}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
-                                                                    >
-                                                                        <FaMapMarkerAlt className="text-xs" />
-                                                                        Abrir en Google Maps
-                                                                    </a>
-                                                                </ITFlex>
-                                                            </ITFlex>
-                                                        </ITFlex>
-                                                    ) : (
-                                                        <ITFlex direction="column" className="space-y-3">
-                                                            <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                                                                <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                                                                    <FaLocationArrow className="text-red-600" />
-                                                                </ITFlex>
-                                                                <ITFlex direction="column">
-                                                                    <ITText as="h4" className="font-semibold text-slate-700">Ubicación GPS</ITText>
-                                                                    <ITText as="p" className="text-xs text-slate-400">Coordenadas no disponibles</ITText>
-                                                                </ITFlex>
-                                                            </ITFlex>
-                                                            <ITFlex direction="column" className="bg-red-50 rounded-xl p-6 text-center border border-red-200">
-                                                                <FaExclamationTriangle className="text-red-400 text-3xl mx-auto mb-2" />
-                                                                <ITText as="p" className="text-sm text-red-600">No se registraron coordenadas GPS para este punto</ITText>
-                                                            </ITFlex>
-                                                        </ITFlex>
-                                                    )}
-                                                </ITFlex>
-                                                
-                                                {/* Notes Section */}
-                                                {event.data?.notes && (
-                                                    <ITFlex direction="column" className="mt-4">
-                                                        <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-3">
-                                                            <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center">
-                                                                <FaFileAlt className="text-yellow-600" />
-                                                            </ITFlex>
-                                                            <ITFlex direction="column">
-                                                                <ITText as="h4" className="font-semibold text-slate-700">Notas adicionales</ITText>
-                                                                <ITText as="p" className="text-xs text-slate-400">Comentarios y observaciones</ITText>
-                                                            </ITFlex>
-                                                        </ITFlex>
-                                                        <NotesViewer notes={event.data.notes} />
-                                                    </ITFlex>
-                                                )}
-                                                
-                                                {/* Tasks Section */}
-                                                {event.data?.assignment?.tasks && (
-                                                    <ITFlex direction="column" className="mt-4">
-                                                        <ITFlex align="center" gap={2} className="flex items-center gap-2 mb-3">
-                                                            <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                                                                <FaClipboardList className="text-emerald-600" />
-                                                            </ITFlex>
-                                                            <ITFlex direction="column">
-                                                                <ITText as="h4" className="font-semibold text-slate-700">Tareas realizadas</ITText>
-                                                                <ITText as="p" className="text-xs text-slate-400">Lista de tareas completadas en este punto</ITText>
-                                                            </ITFlex>
-                                                        </ITFlex>
-                                                        <TaskList tasks={event.data.assignment.tasks} />
-                                                    </ITFlex>
-                                                )}
-                                            </ITFlex>
-                                        )}
-                                        
-                                        {event.type === 'INCIDENT' && (
-                                            <ITFlex direction="column" className="mt-3 space-y-4">
-                                                <ITFlex align="center" gap={2} className="flex items-center gap-2 p-3 bg-orange-50 rounded-xl border border-orange-200">
-                                                    <ITFlex align="center" justify="center" className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                                                        <FaExclamationTriangle className="text-orange-600 text-lg" />
-                                                    </ITFlex>
-                                                    <ITFlex direction="column">
-                                                        <ITText as="p" className="text-xs text-orange-600 font-semibold uppercase tracking-wider">Categoría del incidente</ITText>
-                                                        <ITText as="p" className="font-bold text-slate-800 text-lg">{event.data?.category}</ITText>
-                                                    </ITFlex>
-                                                </ITFlex>
-                                                
-                                                {event.data?.description && (
-                                                    <ITFlex direction="column" className="p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
-                                                        <ITText as="p" className="text-sm text-red-800 font-medium mb-1">Descripción:</ITText>
-                                                        <ITText as="p" className="text-sm text-red-700">{event.data.description}</ITText>
-                                                    </ITFlex>
-                                                )}
-                                                
-                                                {/* Row for Incident Photos and Location */}
-                                                <ITFlex direction="column" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                    {/* Photos Section */}
-                                                    <ITFlex direction="column" className="space-y-3">
-                                                        <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                                                            <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                                                                <FaImage className="text-blue-600" />
-                                                            </ITFlex>
-                                                            <ITText as="h4" className="font-semibold text-slate-700">Evidencia fotográfica</ITText>
-                                                        </ITFlex>
-                                                        
-                                                        {event.data?.media && event.data.media.length > 0 ? (
-                                                            <ITFlex direction="column" className="rounded-xl overflow-hidden border border-slate-200 bg-white">
-                                                                <MediaCarousel 
-                                                                    media={event.data.media} 
-                                                                    title="Evidencia" 
-                                                                    showDelete={isAdmin}
-                                                                    onDelete={(item) => handleDeleteMedia(event.data.id, event.type as any, item)}
-                                                                />
-                                                            </ITFlex>
-                                                        ) : (
-                                                            <ITFlex direction="column" className="bg-slate-50 rounded-xl p-6 text-center border border-slate-200">
-                                                                <FaImage className="text-slate-300 text-3xl mx-auto mb-2" />
-                                                                <ITText as="p" className="text-sm text-slate-400">No hay evidencia fotográfica</ITText>
-                                                            </ITFlex>
-                                                        )}
-                                                    </ITFlex>
-                                                    
-                                                    {/* Location Section for Incident */}
-                                                    {event.data?.latitude && event.data?.longitude ? (
-                                                        <ITFlex direction="column" className="space-y-3">
-                                                            <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                                                                <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                                                                    <FaLocationArrow className="text-green-600" />
-                                                                </ITFlex>
-                                                                <ITText as="h4" className="font-semibold text-slate-700">Ubicación del incidente</ITText>
-                                                            </ITFlex>
-                                                            
-                                                            <ITFlex direction="column" className="rounded-xl overflow-hidden border border-slate-200">
-                                                                <GoogleMapComponent 
-                                                                    lat={Number(event.data.latitude)} 
-                                                                    lng={Number(event.data.longitude)} 
-                                                                    height="250px"
-                                                                    zoom={18}
-                                                                />
-                                                            </ITFlex>
-                                                            
-                                                            <ITFlex direction="column" className="bg-slate-50 rounded-xl p-3 border border-slate-200">
-                                                                <ITFlex direction="column" className="grid grid-cols-2 gap-2 text-sm">
-                                                                    <ITFlex direction="column">
-                                                                        <ITText as="p" className="text-xs text-slate-400">Latitud</ITText>
-                                                                        <ITText as="p" className="font-mono text-slate-700 font-medium">{event.data.latitude}</ITText>
-                                                                    </ITFlex>
-                                                                    <ITFlex direction="column">
-                                                                        <ITText as="p" className="text-xs text-slate-400">Longitud</ITText>
-                                                                        <ITText as="p" className="font-mono text-slate-700 font-medium">{event.data.longitude}</ITText>
-                                                                    </ITFlex>
-                                                                </ITFlex>
-                                                                <ITFlex direction="column" className="mt-2 pt-2 border-t border-slate-200">
-                                                                    <a 
-                                                                        href={`https://www.google.com/maps/search/?api=1&query=${event.data.latitude},${event.data.longitude}`}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
-                                                                    >
-                                                                        <FaMapMarkerAlt className="text-xs" />
-                                                                        Abrir en Google Maps
-                                                                    </a>
-                                                                </ITFlex>
-                                                            </ITFlex>
-                                                        </ITFlex>
-                                                    ) : (
-                                                        <ITFlex direction="column" className="space-y-3">
-                                                            <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                                                                <ITFlex align="center" justify="center" className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                                                                    <FaLocationArrow className="text-red-600" />
-                                                                </ITFlex>
-                                                                <ITText as="h4" className="font-semibold text-slate-700">Ubicación GPS</ITText>
-                                                            </ITFlex>
-                                                            <ITFlex direction="column" className="bg-red-50 rounded-xl p-6 text-center border border-red-200">
-                                                                <FaExclamationTriangle className="text-red-400 text-3xl mx-auto mb-2" />
-                                                                <ITText as="p" className="text-sm text-red-600">No se registraron coordenadas GPS para este incidente</ITText>
-                                                            </ITFlex>
-                                                        </ITFlex>
-                                                    )}
-                                                </ITFlex>
-                                            </ITFlex>
-                                        )}
-                                    </ITFlex>
-                                </div>
-                            ))}
-                        </ITFlex>
-                        
-                        {data.timeline.length === 0 && (
-                            <ITFlex direction="column" className="text-center py-12">
-                                <ITFlex align="center" justify="center" className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <FaClock className="text-slate-400 text-3xl" />
-                                </ITFlex>
-                                <ITText as="p" className="text-slate-500 font-medium">No hay eventos registrados</ITText>
-                                <ITText as="p" className="text-sm text-slate-400 mt-1">Esta ronda aún no tiene actividad</ITText>
-                            </ITFlex>
-                        )}
-                    </ITFlex>
-                </ITFlex>
-            </ITFlex>
+            {isIncident && (
+                <EvidenceAndLocation event={event} isAdmin={isAdmin} onDeleteMedia={onDeleteMedia} gpsTitle="Ubicación del incidente" />
+            )}
         </ITFlex>
     );
 };
-
-const EventIcon = ({ type }: { type: string }) => {
-    let icon = <ITFlex direction="column" className="w-2 h-2 rounded-full bg-slate-300" />;
-    let bg = "bg-slate-100";
-    let border = "border-slate-300";
-
-    if (type === 'START') {
-        icon = <FaPlay className="text-blue-600 text-xs" />;
-        bg = "bg-blue-100";
-        border = "border-blue-500";
-    }
-    if (type === 'SCAN') {
-        icon = <FaQrcode className="text-purple-600 text-xs" />;
-        bg = "bg-purple-100";
-        border = "border-purple-500";
-    }
-    if (type === 'INCIDENT') {
-        icon = <FaExclamationTriangle className="text-orange-600 text-xs" />;
-        bg = "bg-orange-100";
-        border = "border-orange-500";
-    }
-    if (type === 'END') {
-        icon = <FaCheckCircle className="text-green-600 text-xs" />;
-        bg = "bg-green-100";
-        border = "border-green-500";
-    }
-
-    return (
-        <ITFlex direction="column" className={`absolute -left-[13px] top-0 w-7 h-7 rounded-full ${bg} border-2 ${border} flex items-center justify-center z-10 shadow-sm`}>
-            {icon}
-        </ITFlex>
-    );
-};
-
-// Subcomponent for Media Gallery (using Carousel)
-// const MediaGallery = ({ media }: { media: any[] }) => {
-//     if (!media || !Array.isArray(media) || media.length === 0) return null;
-//     return (
-//         <div className="rounded-xl overflow-hidden shadow-sm border border-slate-200">
-//             <MediaCarousel media={media} title="Evidencia" />
-//         </div>
-//     );
-// };
 
 // Subcomponent for Notes with Parsing
 const NotesViewer = ({ notes }: { notes: string }) => {
     if (!notes) return null;
+    const lines = notes.split("\n");
 
-    // Simple parser for checkbox pattern
-    const lines = notes.split('\n');
-    
     return (
-        <ITFlex direction="column" className="space-y-2 bg-slate-50 rounded-xl p-4 border border-slate-200">
+        <ITFlex direction="column" gap={2}>
             {lines.map((line, i) => {
                 const trimmed = line.trim();
 
-                // Headers
-                if (trimmed.startsWith('---')) {
-                     const headerText = trimmed.replace(/---/g, '').trim();
-                     return (
-                         <div key={i} className="relative py-2 my-2">
-                             <ITFlex align="center" className="absolute inset-0 flex items-center">
-                                 <ITFlex direction="column" className="w-full border-t border-slate-300"></ITFlex>
-                             </ITFlex>
-                             <ITFlex justify="center" className="relative flex justify-center">
-                                 <ITText as="span" className="px-3 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                     {headerText}
-                                 </ITText>
-                             </ITFlex>
-                         </div>
-                     );
-                }
-
-                // Checkboxes
-                if (trimmed.startsWith('[ ]') || trimmed.startsWith('[x]')) {
-                    const isChecked = trimmed.startsWith('[x]');
-                    const text = trimmed.replace(/\[.\]/, '').trim();
+                if (trimmed.startsWith("---")) {
+                    const headerText = trimmed.replace(/---/g, "").trim();
                     return (
-                        <div key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <ITFlex direction="column" className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                                isChecked 
-                                    ? 'bg-emerald-500 border-emerald-500' 
-                                    : 'bg-white border-slate-300'
-                            }`}>
-                                {isChecked && (
-                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                )}
-                            </ITFlex>
-                            <ITText as="span" className={`text-sm leading-relaxed ${
-                                isChecked 
-                                    ? 'text-slate-500 line-through decoration-emerald-400' 
-                                    : 'text-slate-700'
-                            }`}>
-                                {text}
+                        <ITFlex key={i} align="center" gap={2} className="my-2">
+                            <ITDivider className="flex-1" />
+                            <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                                {headerText}
                             </ITText>
-                        </div>
+                            <ITDivider className="flex-1" />
+                        </ITFlex>
                     );
                 }
 
-                // Regular text (if not empty)
+                if (trimmed.startsWith("[ ]") || trimmed.startsWith("[x]")) {
+                    const isChecked = trimmed.startsWith("[x]");
+                    const text = trimmed.replace(/\[.\]/, "").trim();
+                    return (
+                        <ITFlex key={i} align="start" gap={2} className="rounded-lg p-2">
+                            <ITFlex
+                                align="center"
+                                justify="center"
+                                className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 ${
+                                    isChecked
+                                        ? "border-emerald-500 bg-emerald-500 text-white"
+                                        : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900"
+                                }`}
+                            >
+                                {isChecked && <FaCheck size={8} />}
+                            </ITFlex>
+                            <ITText as="span" className={`text-xs leading-relaxed ${isChecked ? "text-slate-400 line-through" : "text-slate-700 dark:text-slate-200"}`}>
+                                {text}
+                            </ITText>
+                        </ITFlex>
+                    );
+                }
+
                 if (!trimmed) return null;
 
                 return (
-                     <div key={i} className="p-3 bg-gradient-to-r from-yellow-50 to-amber-50 text-slate-700 rounded-lg text-sm border border-yellow-200 italic">
-                        "{trimmed}"
-                    </div>
+                    <ITFlex key={i} className="rounded-lg bg-amber-50/60 p-3 dark:bg-amber-950/20">
+                        <ITText as="p" className="text-xs italic text-slate-700 dark:text-slate-200">
+                            "{trimmed}"
+                        </ITText>
+                    </ITFlex>
                 );
             })}
         </ITFlex>
     );
 };
 
-// Subcomponent for Tasks (DB Relation)
 const TaskList = ({ tasks }: { tasks: any[] }) => {
     if (!tasks || !Array.isArray(tasks) || tasks.length === 0) return null;
+
     return (
-        <ITFlex direction="column" className="space-y-2">
+        <ITFlex direction="column" gap={2}>
             {tasks.map((task, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-white border border-slate-200 hover:border-emerald-200 transition-all duration-200">
-                    <ITFlex direction="column" className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 ${
-                        task.completed 
-                            ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 border-emerald-500' 
-                            : 'bg-white border-slate-300'
-                    }`}>
-                        {task.completed && (
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                            </svg>
-                        )}
+                <ITFlex key={idx} align="start" gap={2} className="rounded-xl border border-slate-100 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/40">
+                    <ITFlex
+                        align="center"
+                        justify="center"
+                        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 ${
+                            task.completed
+                                ? "border-emerald-500 bg-emerald-500 text-white"
+                                : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900"
+                        }`}
+                    >
+                        {task.completed && <FaCheck size={8} />}
                     </ITFlex>
-                    <ITText as="span" className={`text-sm leading-relaxed ${
-                        task.completed 
-                            ? 'text-slate-600 line-through decoration-emerald-400' 
-                            : 'text-slate-700'
-                    }`}>
+                    <ITText as="span" className={`text-xs leading-relaxed ${task.completed ? "text-slate-400 line-through" : "text-slate-700 dark:text-slate-200"}`}>
                         {task.description}
                     </ITText>
-                </div>
+                </ITFlex>
             ))}
         </ITFlex>
     );

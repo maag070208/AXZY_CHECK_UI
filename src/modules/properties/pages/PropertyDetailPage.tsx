@@ -196,16 +196,16 @@ const PropertyDetailPage = () => {
             label: "Acciones",
             type: "actions",
             actions: (row: ResidentUser) => (
-                <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                    <ITButton 
-                        onClick={() => setViewingResident(row)} 
-                        size="sm" 
-                        variant="ghost" 
-                       
-                        title="Ver Detalles"
-                    >
-                        <FaEye />
-                    </ITButton>
+                <ITFlex align="center" gap={2}>
+                    <ITButton
+                        onClick={() => setViewingResident(row)}
+                        size="md"
+                        variant="icon-only"
+                        color="secondary"
+                        icon={<FaEye />}
+                        ariaLabel="Ver detalles"
+                        title="Ver detalles"
+                    />
                 </ITFlex>
             )
         }

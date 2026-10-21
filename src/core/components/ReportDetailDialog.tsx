@@ -43,10 +43,8 @@ export const ReportDetailDialog = ({
   report,
   categoryLabel,
   typeLabel,
-  isAdmin,
   onClose,
   onResolve,
-  onDeleteMedia,
 }: ReportDetailDialogProps) => {
   const isPending = report.status === "PENDING";
   const reporterName = report.guard
@@ -62,8 +60,8 @@ export const ReportDetailDialog = ({
   const actionLabel = kind === "incident" ? "Marcar como atendida" : "Marcar como atendido";
 
   return (
-    <ITDialog isOpen onClose={onClose} className="max-w-5xl h-[88vh] flex flex-col" padded={false}>
-      <ITFlex align="center" gap={3} className="flex-wrap border-b border-slate-200 px-6 py-4 pr-14">
+    <ITDialog isOpen onClose={onClose} className="w-[1100px] max-w-[95vw] h-[90vh] flex flex-col overflow-hidden" padded={false}>
+      <ITFlex align="center" gap={3} className="flex-wrap px-6 py-4 pr-14">
         <ITText as="h2" className="text-lg font-semibold text-slate-800">
           {KIND_LABEL[kind]} #{report.id}
         </ITText>
@@ -76,23 +74,24 @@ export const ReportDetailDialog = ({
         </ITFlex>
       </ITFlex>
 
-      <ITFlex className="min-h-0 flex-1 overflow-hidden">
-        <ITFlex direction="column" className="min-h-0 min-w-0 flex-[3] overflow-y-auto border-r border-slate-200 bg-slate-50/40 p-6">
+      <ITFlex className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+        <ITFlex direction="column" className="min-h-0 min-w-0 w-full overflow-y-auto bg-slate-50/70 p-5 lg:flex-[3]">
           {hasMedia ? (
-            <MediaCarousel
-              media={report.media ?? []}
-              title="Evidencia"
-              showDelete={!!isAdmin && !!onDeleteMedia}
-              onDelete={onDeleteMedia}
-            />
+            <ITFlex className="w-full">
+              <MediaCarousel
+                media={report.media ?? []}
+                title="Evidencia"
+                showDelete={false}
+              />
+            </ITFlex>
           ) : (
-            <ITFlex direction="column" align="center" justify="center" className="flex-1 rounded-xl border border-dashed border-slate-200">
+            <ITFlex direction="column" align="center" justify="center" className="flex-1 rounded-2xl bg-white">
               <ITText as="span" muted>Sin evidencia adjunta</ITText>
             </ITFlex>
           )}
         </ITFlex>
 
-        <ITFlex direction="column" gap={5} className="min-h-0 min-w-0 flex-[2] overflow-y-auto bg-white p-6">
+        <ITFlex direction="column" gap={4} className="min-h-0 min-w-0 w-full overflow-y-auto bg-white p-5 lg:flex-[2]">
           <ITFlex direction="column" gap={2}>
             <ITText as="h3" className="text-xl font-semibold text-slate-800">{report.title}</ITText>
             <ITText as="p" className="text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">
@@ -100,7 +99,7 @@ export const ReportDetailDialog = ({
             </ITText>
           </ITFlex>
 
-          <ITFlex align="center" gap={3} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+          <ITFlex align="center" gap={3} className="rounded-xl bg-slate-50/70 p-3">
             <ITAvatar initials={initials} size="md" />
             <ITFlex direction="column">
               <ITText as="span" muted>Reportó</ITText>
@@ -146,19 +145,14 @@ export const ReportDetailDialog = ({
         </ITFlex>
       </ITFlex>
 
-      <ITFlex align="center" justify="between" gap={3} className="border-t border-slate-200 bg-slate-50/60 px-6 py-3">
+      <ITFlex align="center" justify="between" gap={3} className="bg-white px-6 py-3">
         <ITText as="span" muted className="text-xs">
           {reportedLabel}: {dayjs(report.createdAt).format("DD/MM/YYYY HH:mm")}
         </ITText>
         <ITFlex align="center" gap={2}>
           <ITButton variant="outlined" color="secondary" size="md" onClick={onClose}>Cerrar</ITButton>
           {isPending && onResolve && (
-            <ITButton onClick={onResolve} color="success" variant="filled" size="md">
-              <ITFlex align="center" gap={2}>
-                <FaCheck />
-                <span>{actionLabel}</span>
-              </ITFlex>
-            </ITButton>
+            <ITButton onClick={onResolve} color="success" variant="filled" size="md" icon={<FaCheck />} label={actionLabel} />
           )}
         </ITFlex>
       </ITFlex>

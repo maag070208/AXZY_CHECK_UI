@@ -1,17 +1,23 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { FaAddressBook, FaEdit, FaIdCard, FaPhone, FaPlus, FaSync, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
-import { ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
+import { FaAddressBook, FaEdit, FaEye, FaIdCard, FaPhone, FaPlus, FaSearch, FaSync, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
+import {
+    ITButton,
+    ITDataTable,
+    ITDialog,
+    ITFlex,
+    ITInput,
+    ITPage,
+    ITText,
+} from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { ResidentContactsManager } from "../components/ResidentContactsManager";
-import { ResidentForm } from "../components/ResidentForm";
-import { ResidentUser, createResident, deleteResident, getPaginatedResidents, updateResident } from "../services/residents.service";
+import { ResidentUser, deleteResident, getPaginatedResidents } from "../services/residents.service";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 
 const ResidentsPage = () => {
     const [refreshKey, setRefreshKey] = useState(0);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [editingResident, setEditingResident] = useState<ResidentUser | null>(null);
     const [residentToDelete, setResidentToDelete] = useState<ResidentUser | null>(null);
     const [viewingIne, setViewingIne] = useState<ResidentUser | null>(null);
     const [managingContacts, setManagingContacts] = useState<ResidentUser | null>(null);
@@ -32,41 +38,11 @@ const ResidentsPage = () => {
     const { data: propertiesCatalog, loading: loadingProperties } = useCatalog('property');
     
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const memoizedFetch = useCallback((params: any) => {
         return getPaginatedResidents(params);
     }, []);
-
-    const handleCreate = async (data: any) => {
-        try {
-            const res = await createResident(data);
-            if (res.success) {
-                dispatch(showToast({ message: "Residente agregado exitosamente", type: "success" }));
-                setIsCreateModalOpen(false);
-                setRefreshKey(prev => prev + 1);
-            } else {
-                dispatch(showToast({ message: res.messages?.[0] || "Error al crear", type: "error" }));
-            }
-        } catch (error: any) {
-            dispatch(showToast({ message: error.messages?.[0] || "Error al crear residente", type: "error" }));
-        }
-    };
-
-    const handleUpdate = async (data: any) => {
-        if (!editingResident) return;
-        try {
-            const res = await updateResident(editingResident.id, data);
-            if (res.success) {
-                dispatch(showToast({ message: "Residente actualizado", type: "success" }));
-                setEditingResident(null);
-                setRefreshKey(prev => prev + 1);
-            } else {
-                dispatch(showToast({ message: res.messages?.[0] || "Error al actualizar", type: "error" }));
-            }
-        } catch (error: any) {
-            dispatch(showToast({ message: error.messages?.[0] || "Error al actualizar residente", type: "error" }));
-        }
-    };
 
     const confirmDelete = async () => {
         if (!residentToDelete) return;
@@ -163,31 +139,52 @@ const ResidentsPage = () => {
             label: "Acciones",
             type: "actions",
             actions: (row: ResidentUser) => (
-                <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                    <ITButton 
-                        onClick={() => setViewingIne(row)} 
-                        size="sm" 
-                        variant={row.residentProfile?.ineFrontUrl ? "solid" : "outlined"} 
-                       
-                        title="Ver Identificación"
-                    >
-                        <FaIdCard />
-                    </ITButton>
-                    <ITButton 
-                        onClick={() => setManagingContacts(row)} 
-                        size="sm" 
-                        variant="outlined" 
-                       
-                        title="Agenda de Contactos"
-                    >
-                        <FaAddressBook />
-                    </ITButton>
-                    <ITButton onClick={() => setEditingResident(row)} size="sm" variant="ghost">
-                        <FaEdit />
-                    </ITButton>
-                    <ITButton onClick={() => setResidentToDelete(row)} size="sm" variant="ghost">
-                        <FaTrash />
-                    </ITButton>
+                <ITFlex align="center" gap={2}>
+                    <ITButton
+                        onClick={() => navigate(`/residents/${row.id}`)}
+                        size="md"
+                        variant="icon-only"
+                        color="primary"
+                        icon={<FaEye />}
+                        ariaLabel="Ver expediente"
+                        title="Ver expediente"
+                    />
+                    <ITButton
+                        onClick={() => setViewingIne(row)}
+                        size="md"
+                        variant="icon-only"
+                        color="purple"
+                        icon={<FaIdCard />}
+                        ariaLabel="Ver identificación"
+                        title="Ver identificación"
+                    />
+                    <ITButton
+                        onClick={() => setManagingContacts(row)}
+                        size="md"
+                        variant="icon-only"
+                        color="info"
+                        icon={<FaAddressBook />}
+                        ariaLabel="Agenda de contactos"
+                        title="Agenda de contactos"
+                    />
+                    <ITButton
+                        onClick={() => navigate(`/residents/${row.id}/editar`)}
+                        size="md"
+                        variant="icon-only"
+                        color="warning"
+                        icon={<FaEdit />}
+                        ariaLabel="Editar"
+                        title="Editar"
+                    />
+                    <ITButton
+                        onClick={() => setResidentToDelete(row)}
+                        size="md"
+                        variant="icon-only"
+                        color="danger"
+                        icon={<FaTrash />}
+                        ariaLabel="Eliminar"
+                        title="Eliminar"
+                    />
                 </ITFlex>
             )
         }
@@ -195,7 +192,7 @@ const ResidentsPage = () => {
 
     return (
         <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Directorio de Residentes"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Directorio de Residentes" }]}
@@ -203,47 +200,45 @@ const ResidentsPage = () => {
       icon={<FaUserShield size={20} />}
       iconColor="#065911"
       actions={
-<ITFlex align="center" gap={3} className="flex items-center gap-3">
-                    <ITFlex direction="column" className="w-64 relative">
+<ITFlex align="center" gap={2} wrap="wrap" justify="end" className="w-full justify-end">
+                    <ITFlex align="center" gap={1} className="w-64 shrink-0">
                         <ITInput
                             placeholder="Buscar residente..."
                             name="search"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onBlur={() => {}}
-                            className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
+                            iconLeft={<FaSearch />}
+                            size="md"
                         />
                         {searchTerm && (
                             <ITButton
                                 variant="icon-only"
-                                color="gray"
+                                color="secondary"
                                 size="sm"
                                 onClick={() => setSearchTerm("")}
-                                icon={<FaTimes size={14} />}
+                                icon={<FaTimes size={12} />}
+                                ariaLabel="Limpiar búsqueda"
                                 title="Limpiar búsqueda"
-                               
                             />
                         )}
                     </ITFlex>
                     <ITButton
                         onClick={() => setRefreshKey(prev => prev + 1)}
                         color="secondary"
-                        variant="outlined"
-                       
+                        variant="icon-only"
                         size="md"
+                        icon={<FaSync />}
+                        ariaLabel="Actualizar tabla"
                         title="Actualizar tabla"
-                    >
-                        <ITFlex align="center" gap={2}><FaSync className="text-xs text-slate-500" />
-                        <ITText as="span" className="text-xs font-bold text-slate-500">Actualizar</ITText></ITFlex>
-                    </ITButton>
+                    />
                     <ITButton
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => navigate("/residents/nuevo")}
                         color="primary"
                         size="md"
-                       
+                        icon={<FaPlus />}
                     >
-                        <ITFlex align="center" gap={2}><FaPlus className="text-xs" />
-                        <ITText as="span">Alta de Residente</ITText></ITFlex>
+                        Alta de residente
                     </ITButton>
                 </ITFlex>
       }
@@ -268,40 +263,15 @@ const ResidentsPage = () => {
 
             {/* Modals */}
             <ITDialog 
-                isOpen={isCreateModalOpen} 
-                onClose={() => setIsCreateModalOpen(false)} 
-                title="Nuevo Residente"
-                className="w-[768px] max-w-[95vw]"
-            >
-                <ResidentForm 
-                    onSubmit={handleCreate} 
-                    onCancel={() => setIsCreateModalOpen(false)} 
-                />
-            </ITDialog>
-
-            <ITDialog 
-                isOpen={!!editingResident} 
-                onClose={() => setEditingResident(null)} 
-                title={`Editar Expediente: ${editingResident?.name}`}
-                className="w-[768px] max-w-[95vw]"
-            >
-                <ResidentForm 
-                    initialData={editingResident}
-                    onSubmit={handleUpdate} 
-                    onCancel={() => setEditingResident(null)} 
-                />
-            </ITDialog>
-
-            <ITDialog 
                 isOpen={!!residentToDelete} 
                 onClose={() => setResidentToDelete(null)} 
                 title="Confirmar Eliminación"
             >
-                <ITFlex direction="column" className="p-6">
-                    <ITText as="p" className="text-slate-700 mb-6">¿Estás seguro de eliminar el expediente de <ITText as="span" className="font-bold">{residentToDelete?.name} {residentToDelete?.lastName}</ITText>? Esta acción inhabilitará su acceso a la plataforma.</ITText>
-                    <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
-                        <ITButton variant="outlined" onClick={() => setResidentToDelete(null)}>Cancelar</ITButton>
-                        <ITButton onClick={confirmDelete}>Eliminar Expediente</ITButton>
+                <ITFlex direction="column" gap={4}>
+                    <ITText as="p" className="text-sm text-slate-600 dark:text-slate-300">¿Estás seguro de eliminar el expediente de <ITText as="span" className="font-bold">{residentToDelete?.name} {residentToDelete?.lastName}</ITText>? Esta acción inhabilitará su acceso a la plataforma.</ITText>
+                    <ITFlex justify="end" gap={2}>
+                        <ITButton variant="outlined" color="secondary" onClick={() => setResidentToDelete(null)}>Cancelar</ITButton>
+                        <ITButton color="danger" onClick={confirmDelete}>Eliminar expediente</ITButton>
                     </ITFlex>
                 </ITFlex>
             </ITDialog>

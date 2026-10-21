@@ -209,25 +209,25 @@ const SchedulesPage = () => {
               label: "ACCIONES",
               type: "actions",
               actions: (row: any) => (
-                <ITFlex gap={2} className="flex gap-2">
-                  <ITButton 
-                      onClick={() => openModal(row)} 
-                      size="sm"
-                      color="primary"
-                      variant="outlined"
+                <ITFlex gap={2}>
+                  <ITButton
+                      onClick={() => openModal(row)}
+                      size="md"
+                      color="secondary"
+                      variant="icon-only"
+                      icon={<FaEdit />}
+                      ariaLabel="Editar"
                       title="Editar"
-                  >
-                    <FaEdit />
-                  </ITButton>
-                  <ITButton 
-                      onClick={() => handleDelete(row.id)} 
-                      size="sm"
+                  />
+                  <ITButton
+                      onClick={() => handleDelete(row.id)}
+                      size="md"
                       color="danger"
-                      variant="outlined"
+                      variant="icon-only"
+                      icon={<FaTrash />}
+                      ariaLabel="Eliminar"
                       title="Eliminar"
-                  >
-                    <FaTrash />
-                  </ITButton>
+                  />
                 </ITFlex>
               ),
             },

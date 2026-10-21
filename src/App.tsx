@@ -12,8 +12,8 @@ import LocationsPage from "./modules/locations/pages/LocationsPage";
 import PropertiesPage from "./modules/properties/pages/PropertiesPage";
 
 import ResidentsPage from "./modules/residents/pages/ResidentsPage";
-import { PersonsPage } from "./modules/persons/pages/PersonsPage";
-import { PersonDetailPage } from "./modules/persons/pages/PersonDetailPage";
+import ResidentDetailPage from "./modules/residents/pages/ResidentDetailPage";
+import ResidentFormPage from "./modules/residents/pages/ResidentFormPage";
 import InvitationsPage from "./modules/invitations/pages/InvitationsPage";
 import UsersPage from "./modules/users/pages/UsersPage";
 import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
@@ -78,8 +78,9 @@ function App() {
         <Route path="/properties/:id" element={<PropertyDetailPage />} />
 
         <Route path="/residents" element={<ResidentsPage />} />
-        <Route path="/persons" element={<RoleRoute roles={["ADMIN"]}><PersonsPage /></RoleRoute>} />
-        <Route path="/persons/:id" element={<RoleRoute roles={["ADMIN"]}><PersonDetailPage /></RoleRoute>} />
+        <Route path="/residents/nuevo" element={<ResidentFormPage />} />
+        <Route path="/residents/:id" element={<ResidentDetailPage />} />
+        <Route path="/residents/:id/editar" element={<ResidentFormPage />} />
         <Route path="/invitations" element={<InvitationsPage />} />
         <Route path="/users" element={<RoleRoute roles={["ADMIN"]}><UsersPage /></RoleRoute>} />
         <Route path="/incidents" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><IncidentsPage /></RoleRoute>} />

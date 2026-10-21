@@ -1,13 +1,22 @@
-import { ITButton, ITDialog, ITFlex, ITInput, ITLoader, ITText } from "@axzydev/axzy_ui_system";
+import {
+  ITButton,
+  ITDialog,
+  ITEmptyState,
+  ITFlex,
+  ITGrid,
+  ITInput,
+  ITLoader,
+  ITText,
+} from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useState } from "react";
 import {
+  FaAddressBook,
+  FaEdit,
+  FaEnvelope,
+  FaPhone,
   FaPlus,
   FaTrash,
-  FaEdit,
-  FaPhone,
-  FaEnvelope,
   FaUserPlus,
-  FaAddressBook,
 } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { showToast } from "@app/core/store/toast/toast.slice";
@@ -25,123 +34,116 @@ import {
 interface Props {
   resident: ResidentUser | null;
   isOpen: boolean;
+  initialContact?: ResidentContact | null;
   onClose: () => void;
 }
 
 interface FormProps {
-    initialData?: ResidentContact | null;
-    residentId: number;
-    onSubmitSuccess: () => void;
-    onCancel: () => void;
+  initialData?: ResidentContact | null;
+  residentId: number;
+  onSubmitSuccess: () => void;
+  onCancel: () => void;
 }
 
 const ResidentContactForm = ({ initialData, residentId, onSubmitSuccess, onCancel }: FormProps) => {
-    const dispatch = useDispatch();
-    
-    const formik = useFormik({
-        initialValues: {
-            name: initialData?.name || "",
-            phone: initialData?.phone || "",
-            email: initialData?.email || "",
-        },
-        validationSchema: Yup.object({
-            name: Yup.string().required("El nombre es requerido"),
-            phone: Yup.string(),
-            email: Yup.string().email("Email inválido"),
-        }),
-        onSubmit: async (values) => {
-            try {
-                let res;
-                if (initialData) {
-                    res = await updateResidentContact(initialData.id, values);
-                } else {
-                    res = await createResidentContact(residentId, values);
-                }
+  const dispatch = useDispatch();
 
-                if (res.success) {
-                    dispatch(showToast({ 
-                        message: initialData ? "Contacto actualizado" : "Contacto agregado", 
-                        type: "success" 
-                    }));
-                    onSubmitSuccess();
-                }
-            } catch {
-                dispatch(showToast({ message: "Error al guardar contacto", type: "error" }));
-            }
+  const formik = useFormik({
+    initialValues: {
+      name: initialData?.name || "",
+      phone: initialData?.phone || "",
+      email: initialData?.email || "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("El nombre es requerido"),
+      phone: Yup.string(),
+      email: Yup.string().email("Email inválido"),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const res = initialData
+          ? await updateResidentContact(initialData.id, values)
+          : await createResidentContact(residentId, values);
+
+        if (res.success) {
+          dispatch(
+            showToast({
+              message: initialData ? "Contacto actualizado" : "Contacto agregado",
+              type: "success",
+            }),
+          );
+          onSubmitSuccess();
         }
-    });
+      } catch {
+        dispatch(showToast({ message: "Error al guardar contacto", type: "error" }));
+      }
+    },
+  });
 
-    return (
-        <form onSubmit={formik.handleSubmit} className="p-6">
-            <ITFlex direction="column" className="space-y-4">
-                <ITInput
-                    label="Nombre Completo"
-                    name="name"
-                    placeholder="Ej. Juan Pérez"
-                    value={formik.values.name}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.errors.name}
-                    touched={formik.touched.name}
-                    required
-                />
-                <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <ITInput
-                        label="Teléfono"
-                        name="phone"
-                        placeholder="55 1234 5678"
-                        value={formik.values.phone}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        error={formik.errors.phone}
-                        touched={formik.touched.phone}
-                    />
-                    <ITInput
-                        label="Email (Opcional)"
-                        name="email"
-                        type="email"
-                        placeholder="correo@ejemplo.com"
-                        value={formik.values.email}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        error={formik.errors.email}
-                        touched={formik.touched.email}
-                    />
-                </ITFlex>
-            </ITFlex>
-            <ITFlex justify="end" gap={3} className="flex justify-end gap-3 mt-10">
-                <ITButton
-                    type="button"
-                    variant="outlined"
-                    onClick={onCancel}
-                   
-                >
-                    Cancelar
-                </ITButton>
-                <ITButton
-                    type="submit"
-                    disabled={formik.isSubmitting}
-                   
-                >
-                    {formik.isSubmitting ? "Guardando..." : (initialData ? "Actualizar" : "Guardar Contacto")}
-                </ITButton>
-            </ITFlex>
-        </form>
-    );
+  return (
+    <ITFlex direction="column" gap={4} className="p-5">
+      <ITGrid container columns={12} spacing={3}>
+        <ITGrid item xs={12}>
+          <ITInput
+            label="Nombre completo"
+            name="name"
+            placeholder="Ej. Juan Pérez"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.errors.name}
+            touched={formik.touched.name}
+            required
+          />
+        </ITGrid>
+        <ITGrid item xs={12} sm={6}>
+          <ITInput
+            label="Teléfono"
+            name="phone"
+            placeholder="55 1234 5678"
+            value={formik.values.phone}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.errors.phone}
+            touched={formik.touched.phone}
+          />
+        </ITGrid>
+        <ITGrid item xs={12} sm={6}>
+          <ITInput
+            label="Email (opcional)"
+            name="email"
+            type="email"
+            placeholder="correo@ejemplo.com"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.errors.email}
+            touched={formik.touched.email}
+          />
+        </ITGrid>
+      </ITGrid>
+
+      <ITFlex justify="end" gap={2}>
+        <ITButton type="button" variant="outlined" color="secondary" onClick={onCancel}>
+          Cancelar
+        </ITButton>
+        <ITButton
+          color="primary"
+          onClick={() => formik.handleSubmit()}
+          disabled={formik.isSubmitting}
+        >
+          {formik.isSubmitting ? "Guardando..." : initialData ? "Actualizar contacto" : "Guardar contacto"}
+        </ITButton>
+      </ITFlex>
+    </ITFlex>
+  );
 };
 
-export const ResidentContactsManager = ({
-  resident,
-  isOpen,
-  onClose,
-}: Props) => {
+export const ResidentContactsManager = ({ resident, isOpen, initialContact, onClose }: Props) => {
   const [contacts, setContacts] = useState<ResidentContact[]>([]);
   const [loading, setLoading] = useState(false);
-  const [view, setView] = useState<'list' | 'form'>('list');
-  const [editingContact, setEditingContact] = useState<ResidentContact | null>(
-    null,
-  );
-
+  const [view, setView] = useState<"list" | "form">("list");
+  const [editingContact, setEditingContact] = useState<ResidentContact | null>(null);
   const dispatch = useDispatch();
 
   const fetchContacts = useCallback(async () => {
@@ -149,11 +151,7 @@ export const ResidentContactsManager = ({
     setLoading(true);
     try {
       const res = await getResidentContacts(resident.id);
-      if (res.success) {
-        setContacts(res.data || []);
-      }
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
+      if (res.success) setContacts(res.data || []);
     } finally {
       setLoading(false);
     }
@@ -162,15 +160,20 @@ export const ResidentContactsManager = ({
   useEffect(() => {
     if (isOpen && resident) {
       fetchContacts();
+      if (initialContact) {
+        setEditingContact(initialContact);
+        setView("form");
+      }
     }
     if (!isOpen) {
-        setView('list'); // Reset view on close
+      setView("list");
+      setEditingContact(null);
     }
-  }, [isOpen, resident, fetchContacts]);
+  }, [isOpen, resident, initialContact, fetchContacts]);
 
   const handleOpenForm = (contact?: ResidentContact) => {
     setEditingContact(contact || null);
-    setView('form');
+    setView("form");
   };
 
   const handleDelete = async (id: number) => {
@@ -182,25 +185,27 @@ export const ResidentContactsManager = ({
         fetchContacts();
       }
     } catch {
-      dispatch(
-        showToast({ message: "Error al eliminar contacto", type: "error" }),
-      );
+      dispatch(showToast({ message: "Error al eliminar contacto", type: "error" }));
     }
   };
 
   const title = (
-    <ITFlex align="center" gap={3} className="flex items-center gap-3">
-        <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 transition-all">
-            {view === 'list' ? <FaAddressBook /> : <FaUserPlus />}
-        </ITFlex>
-        <ITFlex direction="column">
-            <ITText as="h3" className="text-lg font-bold text-slate-800">
-                {view === 'list' ? "Agenda de Contactos" : (editingContact ? "Editar Contacto" : "Nuevo Contacto")}
-            </ITText>
-            <ITText as="p" className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-                {resident?.name} {resident?.lastName || ""}
-            </ITText>
-        </ITFlex>
+    <ITFlex align="center" gap={3}>
+      <ITFlex
+        align="center"
+        justify="center"
+        className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400"
+      >
+        {view === "list" ? <FaAddressBook /> : <FaUserPlus />}
+      </ITFlex>
+      <ITFlex direction="column">
+        <ITText as="h3" className="text-lg font-black text-slate-900 dark:text-white">
+          {view === "list" ? "Agenda de contactos" : editingContact ? "Editar contacto" : "Nuevo contacto"}
+        </ITText>
+        <ITText as="p" className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+          {resident?.name} {resident?.lastName || ""}
+        </ITText>
+      </ITFlex>
     </ITFlex>
   );
 
@@ -209,123 +214,108 @@ export const ResidentContactsManager = ({
       isOpen={isOpen}
       onClose={onClose}
       title={title as any}
-      className={view === 'list' ? "w-[800px] max-w-[95vw]" : "w-[500px] max-w-[95vw]"}
+      className={view === "list" ? "w-[680px] max-w-[95vw]" : "w-[560px] max-w-[95vw]"}
     >
-      <ITFlex direction="column" className="p-0 transition-all duration-300">
-        {view === 'list' ? (
-            <>
-                <ITFlex align="center" justify="between" className="px-6 py-4 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
-                    <ITText as="p" className="text-slate-500 text-sm">
-                        Gestiona los contactos frecuentes para que el residente genere pases
-                        más rápido.
+      {view === "list" ? (
+        <ITFlex direction="column" gap={3}>
+          <ITFlex align="center" justify="between" gap={3} className="rounded-2xl bg-slate-50/70 p-3 dark:bg-slate-900/40">
+            <ITText as="p" className="text-xs text-slate-500">
+              Contactos frecuentes para generar pases más rápido.
+            </ITText>
+            <ITButton color="primary" size="md" icon={<FaPlus />} onClick={() => handleOpenForm()}>
+              Nuevo contacto
+            </ITButton>
+          </ITFlex>
+
+          {loading ? (
+            <ITFlex justify="center" className="py-12">
+              <ITLoader />
+            </ITFlex>
+          ) : contacts.length > 0 ? (
+            <ITFlex direction="column" gap={2}>
+              {contacts.map((contact) => (
+                <ITFlex
+                  key={contact.id}
+                  align="center"
+                  gap={3}
+                  className="rounded-xl bg-slate-50/60 p-3 dark:bg-slate-900/40"
+                >
+                  <ITFlex
+                    align="center"
+                    justify="center"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white"
+                  >
+                    {contact.name.split(" ").slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
+                  </ITFlex>
+
+                  <ITFlex direction="column" className="min-w-0 flex-1">
+                    <ITText as="p" className="truncate text-sm font-bold text-slate-800 dark:text-slate-100">
+                      {contact.name}
                     </ITText>
+                    <ITFlex align="center" gap={2} wrap="wrap">
+                      {contact.phone && (
+                        <ITText as="span" className="flex items-center gap-1 text-[11px] text-slate-500">
+                          <FaPhone size={9} /> {contact.phone}
+                        </ITText>
+                      )}
+                      {contact.email && (
+                        <ITText as="span" className="flex items-center gap-1 truncate text-[11px] text-slate-400">
+                          <FaEnvelope size={9} /> {contact.email}
+                        </ITText>
+                      )}
+                    </ITFlex>
+                  </ITFlex>
+
+                  <ITFlex align="center" gap={1}>
                     <ITButton
-                        onClick={() => handleOpenForm()}
-                       
-                        size="md"
-                    >
-                        <ITFlex align="center" gap={2}><FaPlus /> Nuevo Contacto
-                    </ITFlex></ITButton>
+                      onClick={() => handleOpenForm(contact)}
+                      size="md"
+                      variant="icon-only"
+                      color="secondary"
+                      icon={<FaEdit />}
+                      ariaLabel="Editar contacto"
+                      title="Editar contacto"
+                    />
+                    <ITButton
+                      onClick={() => handleDelete(contact.id)}
+                      size="md"
+                      variant="icon-only"
+                      color="danger"
+                      icon={<FaTrash />}
+                      ariaLabel="Eliminar contacto"
+                      title="Eliminar contacto"
+                    />
+                  </ITFlex>
                 </ITFlex>
-
-                <ITFlex direction="column" className="p-6">
-                    {loading ? (
-                        <ITFlex justify="center" className="py-20 flex justify-center">
-                        <ITLoader />
-                        </ITFlex>
-                    ) : contacts.length > 0 ? (
-                        <ITFlex direction="column" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {contacts.map((contact) => (
-                            <div
-                            key={contact.id}
-                            className="group bg-white border border-slate-100 rounded-2xl p-4 hover:shadow-xl hover:shadow-slate-200/50 hover:border-emerald-100 transition-all duration-300"
-                            >
-                            <ITFlex align="start" justify="between" className="flex justify-between items-start mb-3">
-                                <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                <ITText as="span" className="text-sm font-bold uppercase">
-                                    {contact.name.charAt(0)}
-                                </ITText>
-                                </ITFlex>
-                                <ITFlex gap={1} className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => handleOpenForm(contact)}
-                                    className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-                                    title="Editar"
-                                >
-                                    <FaEdit size={14} />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(contact.id)}
-                                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                    title="Eliminar"
-                                >
-                                    <FaTrash size={14} />
-                                </button>
-                                </ITFlex>
-                            </ITFlex>
-
-                            <ITText as="h4" className="font-bold text-slate-800 uppercase tracking-tighter mb-2 group-hover:text-emerald-700 transition-colors">
-                                {contact.name}
-                            </ITText>
-
-                            <ITFlex direction="column" className="space-y-1.5">
-                                {contact.phone && (
-                                <ITFlex align="center" gap={2} className="flex items-center gap-2 text-slate-500 text-sm">
-                                    <ITFlex align="center" justify="center" className="w-5 h-5 rounded-full bg-slate-50 flex items-center justify-center text-[10px]">
-                                    <FaPhone />
-                                    </ITFlex>
-                                    {contact.phone}
-                                </ITFlex>
-                                )}
-                                {contact.email && (
-                                <ITFlex align="center" gap={2} className="flex items-center gap-2 text-slate-400 text-xs">
-                                    <ITFlex align="center" justify="center" className="w-5 h-5 rounded-full bg-slate-50 flex items-center justify-center text-[10px]">
-                                    <FaEnvelope />
-                                    </ITFlex>
-                                    {contact.email}
-                                </ITFlex>
-                                )}
-                            </ITFlex>
-                            </div>
-                        ))}
-                        </ITFlex>
-                    ) : (
-                        <ITFlex direction="column" align="center" justify="center" className="bg-slate-50 rounded-3xl py-16 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200">
-                        <ITFlex align="center" justify="center" className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-sm mb-4 border border-slate-100">
-                            <FaUserPlus className="text-3xl text-slate-200" />
-                        </ITFlex>
-                        <ITText as="p" className="font-bold text-slate-600 text-lg">
-                            Sin contactos registrados
-                        </ITText>
-                        <ITText as="p" className="text-sm max-w-[280px] text-center mt-1">
-                            Los contactos guardados facilitan la creación de pases por parte
-                            del residente.
-                        </ITText>
-                        <ITButton
-                            onClick={() => handleOpenForm()}
-                            variant="ghost"
-                            size="md"
-                        >
-                            <ITFlex align="center" gap={2}><FaPlus className="mr-2" /> Agregar el primero
-                        </ITFlex></ITButton>
-                        </ITFlex>
-                    )}
-                </ITFlex>
-            </>
-        ) : (
-            resident && (
-                <ResidentContactForm 
-                    initialData={editingContact}
-                    residentId={resident.id}
-                    onCancel={() => setView('list')}
-                    onSubmitSuccess={() => {
-                        setView('list');
-                        fetchContacts();
-                    }}
-                />
-            )
-        )}
-      </ITFlex>
+              ))}
+            </ITFlex>
+          ) : (
+            <ITFlex direction="column" align="center" gap={3} className="py-10">
+              <ITEmptyState
+                icon={<FaAddressBook />}
+                title="Sin contactos registrados"
+                description="Agrega contactos para generarles pases de acceso."
+                className="py-2"
+              />
+              <ITButton color="primary" size="md" icon={<FaPlus />} onClick={() => handleOpenForm()}>
+                Agregar el primero
+              </ITButton>
+            </ITFlex>
+          )}
+        </ITFlex>
+      ) : (
+        resident && (
+          <ResidentContactForm
+            initialData={editingContact}
+            residentId={resident.id}
+            onCancel={() => setView("list")}
+            onSubmitSuccess={() => {
+              setView("list");
+              fetchContacts();
+            }}
+          />
+        )
+      )}
     </ITDialog>
   );
 };

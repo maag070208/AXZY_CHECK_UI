@@ -37,9 +37,9 @@ export const createInvitation = async (data: any) => {
     }
 };
 
-export const updateInvitationStatus = async (id: number, status: string) => {
+export const updateInvitationStatus = async (id: number, status: string, reason?: string) => {
     try {
-        const result = await put<any>(`/invitations/${id}/status`, { status });
+        const result = await put<any>(`/invitations/${id}/status`, { status, ...(reason ? { reason } : {}) });
         return { success: result.success, data: result.data, messages: result.messages };
     } catch (error: any) {
         return { success: false, data: null, messages: error.messages || ["Error updating status"] };

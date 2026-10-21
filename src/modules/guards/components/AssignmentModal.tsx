@@ -1,8 +1,8 @@
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDialog, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITCard, ITDialog, ITFlex, ITInput, ITSearchSelect, ITText, ITTextarea } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
-import { FaClipboardList, FaPlus, FaTrash, FaMapMarkerAlt } from "react-icons/fa";
+import { FaClipboardList, FaMapMarkerAlt, FaPlus, FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { getLocations, Location } from "../../locations/service/locations.service";
 import { createAssignment } from "../service/guards.service";
@@ -90,114 +90,70 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
     }));
 
     return (
-        <ITDialog 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title={`Asignar Tarea Especial: ${guardName}`}
-            className="!max-w-2xl w-full !overflow-visible"
-        >
-            <ITFlex direction="column" className="p-6">
-                <ITFlex direction="column" className="space-y-6">
-                    {/* Location Selection */}
-                    <ITFlex direction="column" className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-tight flex items-center gap-2">
-                            <FaMapMarkerAlt className="text-slate-400" /> Ubicación del punto
-                        </label>
-                        <ITSearchSelect
-                            label=""
-                            placeholder="Selecciona el punto de control..."
-                            options={locationOptions}
-                            value={selectedLocationId}
-                            onChange={(val) => setSelectedLocationId(val)}
-                        />
+        <ITDialog isOpen={isOpen} onClose={onClose} title="Nueva asignación" className="w-[600px] max-w-[95vw]">
+            <ITFlex direction="column" gap={4}>
+                <ITCard className="rounded-2xl border-0! bg-emerald-50/60! shadow-none!" contentClassName="p-3!">
+                    <ITFlex align="center" gap={3}>
+                        <ITFlex align="center" justify="center" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white">
+                            {guardName.split(" ").slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
+                        </ITFlex>
+                        <ITFlex direction="column">
+                            <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-emerald-700/70">Guardia</ITText>
+                            <ITText as="p" className="text-sm font-bold text-emerald-950 dark:text-emerald-100">{guardName}</ITText>
+                            <ITText as="p" className="text-[10px] text-emerald-700/70">Tarea especial</ITText>
+                        </ITFlex>
                     </ITFlex>
+                </ITCard>
 
-                    {/* Tasks Section - Camera removed as per user request */}
-                    <ITFlex direction="column" className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                        <ITFlex align="center" justify="between" className="flex justify-between items-center mb-4">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-tight flex items-center gap-2">
-                                <FaClipboardList className="text-slate-400" /> Consignas
-                            </label>
-                            {tasks.length > 0 && (
-                                <ITText as="span" className="text-[10px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-100 uppercase">
-                                    {tasks.length} {tasks.length === 1 ? 'Tarea' : 'Tareas'}
-                                </ITText>
-                            )}
+                <ITCard className="rounded-2xl border-0! bg-slate-50/70! shadow-none!" contentClassName="p-4!">
+                    <ITFlex align="center" gap={2} className="mb-3">
+                        <ITFlex align="center" justify="center" className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-emerald-600 dark:bg-slate-800">
+                            <FaMapMarkerAlt size={12} />
                         </ITFlex>
-                        
-                        <ITFlex gap={2} className="flex gap-2 mb-4">
-                            <ITInput
-                                name="tempTaskDesc"
-                                placeholder="Describe la consigna..."
-                                value={tempTaskDesc}
-                                onChange={(e) => setTempTaskDesc(e.target.value)}
-                                onBlur={() => {}}
-                                className="flex-1 !h-[40px] !py-0 !rounded-xl !border-slate-100"
-                            />
-                            <ITButton
-                                onClick={addTask}
-                                size="sm"
-                               
-                                disabled={!tempTaskDesc.trim()}
-                            >
-                                <FaPlus size={14} />
-                            </ITButton>
-                        </ITFlex>
+                        <ITText as="p" className="text-xs font-black text-slate-800 dark:text-slate-100">Punto de control</ITText>
+                    </ITFlex>
+                    <ITSearchSelect placeholder="Selecciona el punto de control..." options={locationOptions} value={selectedLocationId} onChange={(val) => setSelectedLocationId(val)} />
+                </ITCard>
 
-                        {tasks.length > 0 ? (
-                            <ITFlex direction="column" className="space-y-2">
-                                {tasks.map((task, index) => (
-                                    <div key={index} className="flex items-center justify-between bg-white px-4 py-2.5 rounded-xl border border-slate-100 shadow-sm">
-                                        <ITFlex align="center" gap={3} className="flex items-center gap-3">
-                                            <ITFlex align="center" justify="center" className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 border border-slate-100">
-                                                {index + 1}
-                                            </ITFlex>
-                                            <ITText as="span" className="text-sm text-slate-600 font-medium">{task.description}</ITText>
-                                        </ITFlex>
-                                        <ITButton
-                                            variant="icon-only"
-                                            color="gray"
-                                            size="sm"
-                                            onClick={() => removeTask(index)}
-                                            icon={<FaTrash size={12} />}
-                                           
-                                        />
-                                    </div>
-                                ))}
+                <ITCard className="rounded-2xl border-0! bg-white! shadow-none!" contentClassName="space-y-3 p-4!">
+                    <ITFlex align="center" justify="between" gap={2}>
+                        <ITFlex align="center" gap={2}>
+                            <ITFlex align="center" justify="center" className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
+                                <FaClipboardList size={12} />
                             </ITFlex>
-                        ) : (
-                            <ITText as="p" className="text-[11px] text-slate-400 italic text-center py-2 font-medium tracking-wide">No se han definido consignas especiales</ITText>
-                        )}
+                            <ITText as="p" className="text-xs font-black text-slate-800 dark:text-slate-100">Consignas</ITText>
+                        </ITFlex>
+                        <ITBadget color="secondary" variant="filled" size="sm">{tasks.length}</ITBadget>
                     </ITFlex>
 
-                    {/* Notes Section */}
-                    <ITFlex direction="column" className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-tight">Notas Generales</label>
-                        <textarea
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Instrucciones generales para la asignación..."
-                            className="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 text-sm text-slate-600 h-24 resize-none outline-none focus:border-[#065911] transition-all font-medium placeholder:text-slate-300"
-                        />
+                    <ITFlex align="center" gap={2}>
+                        <ITInput name="tempTaskDesc" placeholder="Describe la consigna..." value={tempTaskDesc} onChange={(e) => setTempTaskDesc(e.target.value)} onBlur={() => {}} size="md" />
+                        <ITButton onClick={addTask} color="primary" size="md" variant="icon-only" icon={<FaPlus />} disabled={!tempTaskDesc.trim()} ariaLabel="Agregar consigna" title="Agregar consigna" />
                     </ITFlex>
-                </ITFlex>
 
-                {/* Footer */}
-                <ITFlex justify="end" gap={3} className="mt-8 flex justify-end gap-3 pt-5 border-t border-slate-50">
-                    <ITButton
-                        variant="outlined"
-                        color="secondary"
-                        onClick={onClose}
-                       
-                    >
-                        Cancelar
-                    </ITButton>
-                    <ITButton
-                        onClick={handleSubmit}
-                        disabled={!selectedLocationId || submitting}
-                       
-                    >
-                        {submitting ? "Creando..." : "Crear Asignación"}
+                    {tasks.length > 0 ? (
+                        <ITFlex direction="column" gap={1}>
+                            {tasks.map((task, index) => (
+                                <ITFlex key={index} align="center" gap={2} className="rounded-xl bg-slate-50/80 p-2.5 dark:bg-slate-900/40">
+                                    <ITFlex align="center" justify="center" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white text-[10px] font-black text-slate-500 dark:bg-slate-800">{index + 1}</ITFlex>
+                                    <ITText as="span" className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700 dark:text-slate-200">{task.description}</ITText>
+                                    <ITButton onClick={() => removeTask(index)} variant="icon-only" color="danger" size="sm" icon={<FaTrash size={11} />} ariaLabel="Quitar consigna" title="Quitar consigna" />
+                                </ITFlex>
+                            ))}
+                        </ITFlex>
+                    ) : (
+                        <ITText as="p" className="py-2 text-center text-[11px] text-slate-400">Aún no hay consignas. Agrega la primera arriba.</ITText>
+                    )}
+                </ITCard>
+
+                <ITCard className="rounded-2xl border-0! bg-white! shadow-none!" contentClassName="p-4!">
+                    <ITTextarea name="notes" label="Notas generales" rows={3} value={notes} onChange={(value) => setNotes(value)} placeholder="Instrucciones generales para la asignación..." />
+                </ITCard>
+
+                <ITFlex justify="end" gap={2}>
+                    <ITButton variant="outlined" color="secondary" size="md" onClick={onClose}>Cancelar</ITButton>
+                    <ITButton color="primary" size="md" onClick={handleSubmit} disabled={!selectedLocationId || submitting}>
+                        {submitting ? "Creando..." : "Crear asignación"}
                     </ITButton>
                 </ITFlex>
             </ITFlex>

@@ -1,414 +1,503 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { translateScanType } from "@app/core/utils/status.utils";
-import { ITBadget, ITButton, ITDataTable, ITDatePicker, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
+import {
+  ITBadget,
+  ITButton,
+  ITCard,
+  ITDataTable,
+  ITDatePicker,
+  ITDialog,
+  ITDivider,
+  ITEmptyState,
+  ITFlex,
+  ITGrid,
+  ITInput,
+  ITPage,
+  ITSearchSelect,
+  ITText,
+} from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaBook, FaEye, FaFileAlt, FaLayerGroup, FaMapMarkerAlt, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
+import { FaBook, FaCheck, FaEye, FaFileAlt, FaLayerGroup, FaMapMarkerAlt, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { GoogleMapComponent } from "../../../core/components/GoogleMapComponent";
-import { getUsers } from "../../users/services/UserService";
-import { deleteKardexEntry, deleteKardexMedia, getPaginatedKardex, KardexEntry } from "../services/KardexService";
+import { deleteKardexMedia, getPaginatedKardex, KardexEntry } from "../services/KardexService";
+
+const NotesContent = ({ notes }: { notes: string }) => {
+  const lines = notes.split("\n");
+  return (
+    <ITFlex direction="column" gap={2}>
+      {lines.map((line, i) => {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
+        if (trimmed.startsWith("---")) {
+          const header = trimmed.replace(/---/g, "").trim();
+          return (
+            <ITFlex key={i} align="center" gap={2} className="my-1">
+              <ITDivider className="flex-1" />
+              <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                {header}
+              </ITText>
+              <ITDivider className="flex-1" />
+            </ITFlex>
+          );
+        }
+        if (trimmed.startsWith("[ ]") || trimmed.startsWith("[x]")) {
+          const checked = trimmed.startsWith("[x]");
+          const text = trimmed.replace(/\[.\]/, "").trim();
+          return (
+            <ITFlex key={i} align="start" gap={2}>
+              <ITFlex
+                align="center"
+                justify="center"
+                className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded ${
+                  checked ? "bg-emerald-500 text-white" : "bg-white text-transparent dark:bg-slate-800"
+                }`}
+              >
+                {checked && <FaCheck size={8} />}
+              </ITFlex>
+              <ITText as="span" className={`text-xs leading-relaxed ${checked ? "text-slate-400 line-through" : "text-slate-700 dark:text-slate-200"}`}>
+                {text}
+              </ITText>
+            </ITFlex>
+          );
+        }
+        return (
+          <ITFlex key={i} className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-900/40">
+            <ITText as="p" className="text-xs leading-relaxed text-slate-700 dark:text-slate-200">
+              {trimmed}
+            </ITText>
+          </ITFlex>
+        );
+      })}
+    </ITFlex>
+  );
+};
 
 const KardexPage = () => {
-    const today = useMemo(() => dayjs().tz("America/Tijuana").toDate(), []);
-    const [selectedDate, setSelectedDate] = useState<any>([today, today]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [refreshKey, setRefreshKey] = useState(0);
-    const [guards, setGuards] = useState<any[]>([]);
-    const dispatch = useDispatch();
-    
-    /* State for viewing details */
-    const [viewingEntry, setViewingEntry] = useState<KardexEntry | null>(null);
+  const today = useMemo(() => dayjs().tz("America/Tijuana").toDate(), []);
+  const [selectedDate, setSelectedDate] = useState<any>([today, today]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("ALL");
+  const [refreshKey, setRefreshKey] = useState(0);
+  const dispatch = useDispatch();
 
-    // Debounce search
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setRefreshKey(prev => prev + 1);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
+  const [viewingEntry, setViewingEntry] = useState<KardexEntry | null>(null);
 
-    // Fetch filters data (Users)
-    useEffect(() => {
-        getUsers().then(res => {
-            if (res.success && res.data) {
-                const onlyGuards = res.data.filter((u: any) => 
-                    u.role === 'GUARD' || u.role === 'SHIFT_GUARD' || u.role === 'MANTENIMIENTO'
-                );
-                setGuards(onlyGuards);
-            }
-        });
-    }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRefreshKey((prev) => prev + 1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-    const externalFilters = useMemo(() => {
-        const filters: any = {};
-        if (Array.isArray(selectedDate) && selectedDate[0] && selectedDate[1]) {
-            filters.date = [
-                   dayjs(selectedDate[0]).tz("America/Tijuana").startOf("day").format(),
-                   dayjs(selectedDate[1]).tz("America/Tijuana").endOf("day").format(),
-                 ];
-        }
-        if (searchTerm && searchTerm.trim().length > 0) {
-            filters.search = searchTerm.trim();
-        }
-        return filters;
-    }, [selectedDate, searchTerm]);
+  const externalFilters = useMemo(() => {
+    const filters: any = {};
+    if (Array.isArray(selectedDate) && selectedDate[0] && selectedDate[1]) {
+      filters.date = [
+        dayjs(selectedDate[0]).tz("America/Tijuana").startOf("day").format(),
+        dayjs(selectedDate[1]).tz("America/Tijuana").endOf("day").format(),
+      ];
+    }
+    if (searchTerm && searchTerm.trim().length > 0) filters.search = searchTerm.trim();
+    if (typeFilter && typeFilter !== "ALL") filters.scanType = typeFilter;
+    return filters;
+  }, [selectedDate, searchTerm, typeFilter]);
 
-    const memoizedFetch = useCallback((params: any) => {
-        return getPaginatedKardex(params);
-    }, []);
+  const memoizedFetch = useCallback((params: any) => getPaginatedKardex(params), []);
 
-    const handleDelete = async (row: any) => {
-        if (!window.confirm("¿Deseas eliminar este registro permanentemente?")) return;
-        const res = await deleteKardexEntry(row.id);
-        if (res.success) {
-            dispatch(showToast({ message: "Registro eliminado", type: "success" }));
-            setRefreshKey(prev => prev + 1);
-        }
-    };
+  const handleDeleteMedia = async (item: any) => {
+    if (!viewingEntry) return;
+    const key = item.key || item.url.split("/").pop();
+    if (!key) return;
 
-    const handleDeleteMedia = async (item: any) => {
-        if (!viewingEntry) return;
-        const key = item.key || item.url.split('/').pop();
-        if (!key) return;
+    const res = await deleteKardexMedia(viewingEntry.id, key);
+    if (res.success) {
+      dispatch(showToast({ message: "Archivo eliminado", type: "success" }));
+      setViewingEntry((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          media: prev.media?.filter((m: any) => (m.key || m.url.split("/").pop()) !== key),
+        };
+      });
+      setRefreshKey((prev) => prev + 1);
+    }
+  };
 
-        const res = await deleteKardexMedia(viewingEntry.id, key);
-        if (res.success) {
-            dispatch(showToast({ message: "Archivo eliminado", type: "success" }));
-            setViewingEntry(prev => {
-                if (!prev) return null;
-                return {
-                    ...prev,
-                    media: prev.media?.filter((m: any) => (m.key || m.url.split('/').pop()) !== key)
-                };
-            });
-            setRefreshKey(prev => prev + 1);
-        }
-    };
-
-    const columns = useMemo(() => [
-        { key: "id", label: "ID", type: "number", sortable: false },
-        { 
-            key: "timestamp", 
-            label: "Fecha/Hora", 
-            type: "string", 
-            sortable: false, 
-            render: (row: any) => dayjs(row.timestamp).format("DD/MM/YYYY HH:mm") 
-        },
-        { 
-            key: "userId", 
-            label: "Usuario", 
-            type: "string", 
-            render: (row: any) => (
-                <ITFlex direction="column" className="flex flex-col">
-                    <ITText as="span" className="font-medium text-slate-700">{row.user?.name} {row.user?.lastName || ''}</ITText>
-                    <ITText as="span" className="text-xs text-slate-400">{row.user?.username}</ITText>
-                </ITFlex>
-            )
-        },
-        { 
-            key: "location", 
-            label: "Ubicación", 
-            type: "string", 
-            sortable: false, 
-            render: (row: any) => (
-                <ITFlex align="center" className="flex items-center gap-1.5">
-                    <FaMapMarkerAlt className="text-indigo-400 text-xs" />
-                    <ITText as="span">{row.location?.name}</ITText>
-                </ITFlex>
-            )
-        },
-        { 
-            key: "scanType", 
-            label: "Tipo", 
-            type: "string", 
-            sortable: false,
-            render: (row: any) => (
-                <ITBadget 
-                    color={row.scanType === 'ASSIGNMENT' ? 'success' : row.scanType === 'RECURRING' ? 'warning' : 'primary'} 
-                    size="sm"
-                    variant="filled"
-                >
-                    {translateScanType(row.scanType)}
-                </ITBadget>
-            )
-        },
-        { 
-            key: "media", 
-            label: "Multimedia", 
-            type: "string", 
-            sortable: false, 
-            render: (row: any) => (
-                <ITFlex align="center" gap={1} className="flex items-center gap-1 text-slate-500">
-                    {row.media && row.media.length > 0 ? (
-                        <>
-                            <FaFileAlt className="text-blue-400" />
-                            <ITText as="span" className="text-xs font-medium">{row.media.length}</ITText>
-                        </>
-                    ) : (
-                        <ITText as="span" className="text-xs text-slate-300">-</ITText>
-                    )}
-                </ITFlex>
-            )
-        },
-        {
-            key: "actions",
-            label: "Acciones",
-            type: "actions",
-            actions: (row: any) => (
-                <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                    <ITButton
-                        onClick={() => setViewingEntry(row)}
-                        size="sm"
-                        color='secondary'
-                        variant="outlined"
-                       
-                    >
-                        <FaEye />
-                    </ITButton>
-                </ITFlex>
-            )
-        }
-    ], [guards, handleDelete]);
+  const columns = useMemo(
+    () => [
+      {
+        key: "id",
+        label: "ID",
+        type: "number",
+        sortable: false,
+        render: (row: any) => (
+          <ITText as="span" className="inline-flex rounded-lg bg-slate-50 px-2 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            #{row.id}
+          </ITText>
+        ),
+      },
+      {
+        key: "timestamp",
+        label: "Fecha/Hora",
+        type: "string",
+        sortable: false,
+        render: (row: any) => (
+          <ITText as="span" className="text-sm text-slate-600 dark:text-slate-300">
+            {dayjs(row.timestamp).format("DD/MM/YYYY HH:mm")}
+          </ITText>
+        ),
+      },
+      {
+        key: "userId",
+        label: "Usuario",
+        type: "string",
+        render: (row: any) => (
+          <ITFlex direction="column">
+            <ITText as="span" className="font-medium text-slate-700 dark:text-slate-200">
+              {row.user?.name} {row.user?.lastName || ""}
+            </ITText>
+            <ITText as="span" className="text-xs text-slate-400">
+              {row.user?.username}
+            </ITText>
+          </ITFlex>
+        ),
+      },
+      {
+        key: "location",
+        label: "Ubicación",
+        type: "string",
+        sortable: false,
+        render: (row: any) => (
+          <ITFlex align="center" gap={2}>
+            <FaMapMarkerAlt className="text-indigo-400" size={11} />
+            <ITText as="span" className="text-sm text-slate-700 dark:text-slate-200">
+              {row.location?.name}
+            </ITText>
+          </ITFlex>
+        ),
+      },
+      {
+        key: "scanType",
+        label: "Tipo",
+        type: "string",
+        sortable: false,
+        render: (row: any) => (
+          <ITBadget
+            color={row.scanType === "ASSIGNMENT" ? "success" : row.scanType === "RECURRING" ? "warning" : "primary"}
+            size="sm"
+            variant="filled"
+          >
+            {translateScanType(row.scanType)}
+          </ITBadget>
+        ),
+      },
+      {
+        key: "media",
+        label: "Multimedia",
+        type: "string",
+        sortable: false,
+        render: (row: any) => (
+          <ITFlex align="center" gap={2}>
+            {row.media && row.media.length > 0 ? (
+              <>
+                <FaFileAlt className="text-blue-400" size={11} />
+                <ITText as="span" className="text-xs font-medium text-slate-500">
+                  {row.media.length}
+                </ITText>
+              </>
+            ) : (
+              <ITText as="span" className="text-xs text-slate-300">-</ITText>
+            )}
+          </ITFlex>
+        ),
+      },
+      {
+        key: "actions",
+        label: "Acciones",
+        type: "actions",
+        actions: (row: any) => (
+          <ITFlex align="center" gap={2}>
+            <ITButton
+              onClick={() => setViewingEntry(row)}
+              size="md"
+              color="secondary"
+              variant="icon-only"
+              icon={<FaEye />}
+              ariaLabel="Ver detalle"
+              title="Ver detalle"
+            />
+          </ITFlex>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
     <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Kardex"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Kardex" }]}
       description="Historial de actividades y reportes en tiempo real"
       icon={<FaBook size={20} />}
       iconColor="#065911"
-      actions={
-<ITFlex align="center" gap={3} className="flex items-center gap-3">
-            <ITFlex direction="column" className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Filtrar por Guardia</label>
-                <ITFlex align="center" className="flex items-center bg-white border border-slate-200 rounded-xl px-3 h-[42px] min-w-[260px] shadow-sm">
-                    <FaUser className="text-slate-300 text-xs mr-2" />
-                    <ITInput
-                        name="searchKardex"
-                        placeholder="Nombre de guardia..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        containerClassName="w-full"
-                        className="!bg-transparent !border-0 !shadow-none !p-0 text-sm font-bold text-slate-600"
-                    />
-                    {searchTerm.length > 0 && (
-                        <ITButton
-                            variant="icon-only"
-                            color="gray"
-                            size="sm"
-                            onClick={() => setSearchTerm("")}
-                            icon={<FaTimesCircle className="text-xs" />}
-                            title="Limpiar búsqueda"
-                           
-                        />
-                    )}
-                </ITFlex>
-            </ITFlex>
-
-            <ITFlex direction="column" className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Periodo</label>
-                <ITFlex align="center" gap={3} className="flex items-center gap-3">
-                    <ITDatePicker
-                        label=""
-                        name="date"
-                        value={selectedDate as any}
-                        range
-                        onChange={(e) => {
-                        const val = e.target.value as any;
-                        if (Array.isArray(val)) {
-                            const parsedDates = val.map((d) => (d ? new Date(d) : null));
-                            setSelectedDate(parsedDates);
-                            if (parsedDates[0] && parsedDates[1]) {
-                                setRefreshKey(prev => prev + 1);
-                            }
-                        } else if (val) {
-                            const date = new Date(val);
-                            setSelectedDate([date, date]);
-                            setRefreshKey(prev => prev + 1);
-                        } else {
-                            setSelectedDate(null);
-                            setRefreshKey(prev => prev + 1);
-                        }
-                        }}
-                        className="text-sm text-slate-600 outline-none font-medium h-[42px] !border-slate-200"
-                    />
-                    <ITButton
-                        onClick={() => setRefreshKey(prev => prev + 1)}
-                        color="secondary"
-                        variant="outlined"
-                       
-                        size="md"
-                        title="Actualizar tabla"
-                    >
-                        <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500`} />
-                        <ITText as="span" className="text-xs font-bold text-slate-600">Refrescar</ITText></ITFlex>
-                    </ITButton>
-                </ITFlex>
-            </ITFlex>
-        </ITFlex>
-      }
     >
-      
+      <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
+        <ITCard className="rounded-3xl" contentClassName="p-4!">
+          <ITGrid container columns={12} spacing={3}>
+            <ITGrid item xs={12} md={4}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Filtrar por guardia
+                </ITText>
+                <ITFlex align="center" gap={1}>
+                  <ITInput
+                    name="searchKardex"
+                    placeholder="Nombre de guardia..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onBlur={() => {}}
+                    iconLeft={<FaUser />}
+                    size="md"
+                  />
+                  {searchTerm.length > 0 && (
+                    <ITButton
+                      variant="icon-only"
+                      color="secondary"
+                      size="sm"
+                      onClick={() => setSearchTerm("")}
+                      icon={<FaTimesCircle size={12} />}
+                      ariaLabel="Limpiar búsqueda"
+                      title="Limpiar búsqueda"
+                    />
+                  )}
+                </ITFlex>
+              </ITFlex>
+            </ITGrid>
 
-      <ITFlex direction="column" className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+            <ITGrid item xs={12} md={3}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Tipo de escaneo
+                </ITText>
+                <ITSearchSelect
+                  value={typeFilter}
+                  onChange={(value) => {
+                    setTypeFilter(String(value));
+                    setRefreshKey((prev) => prev + 1);
+                  }}
+                  options={[
+                    { label: "Todos", value: "ALL" },
+                    { label: "Ronda", value: "RECURRING" },
+                    { label: "Asignada", value: "ASSIGNMENT" },
+                    { label: "Libre", value: "FREE" },
+                  ]}
+                  clearable={false}
+                  className="w-full"
+                />
+              </ITFlex>
+            </ITGrid>
+
+            <ITGrid item xs={12} md={4}>
+              <ITFlex direction="column" gap={1}>
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Periodo
+                </ITText>
+                <ITDatePicker
+                  name="date"
+                  value={selectedDate as any}
+                  range
+                  onChange={(e) => {
+                    const val = e.target.value as any;
+                    if (Array.isArray(val)) {
+                      const parsedDates = val.map((d) => (d ? new Date(d) : null));
+                      setSelectedDate(parsedDates);
+                      if (parsedDates[0] && parsedDates[1]) setRefreshKey((prev) => prev + 1);
+                    } else if (val) {
+                      const date = new Date(val);
+                      setSelectedDate([date, date]);
+                      setRefreshKey((prev) => prev + 1);
+                    } else {
+                      setSelectedDate(null);
+                      setRefreshKey((prev) => prev + 1);
+                    }
+                  }}
+                  className="w-full"
+                />
+              </ITFlex>
+            </ITGrid>
+
+            <ITGrid item xs={12} md={1}>
+              <ITFlex align="end" justify="end" className="h-full">
+                <ITButton
+                  onClick={() => setRefreshKey((prev) => prev + 1)}
+                  color="secondary"
+                  variant="icon-only"
+                  size="md"
+                  icon={<FaSync />}
+                  ariaLabel="Actualizar tabla"
+                  title="Actualizar tabla"
+                />
+              </ITFlex>
+            </ITGrid>
+          </ITGrid>
+        </ITCard>
+
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
           layout="fixed"
           density="compact"
+          showViewToggle={false}
           virtualized
           virtualizedMaxHeight={400}
           rowHeight={50}
-            key={refreshKey}
-            columns={columns as any}
-            fetchData={memoizedFetch as any}
-            externalFilters={externalFilters}
+          key={refreshKey}
+          columns={columns as any}
+          fetchData={memoizedFetch as any}
+          externalFilters={externalFilters}
         />
       </ITFlex>
 
-      {viewingEntry && (
-      <ITDialog isOpen onClose={() => setViewingEntry(null)} title="Detalle de Actividad" className="max-w-4xl max-h-[90vh] flex flex-col">
-        <ITText as="p" className="text-sm text-slate-500 mb-4">Registrado el {dayjs(viewingEntry.timestamp).format("DD [de] MMMM, YYYY [a las] HH:mm a")}</ITText>
-              
-              <ITFlex direction="column" className="p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
-                <ITFlex direction="column" className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                  
-                  <ITFlex direction="column" className="lg:col-span-8 space-y-8">
-                    {/* Multimedia Section - Prominent */}
-                    <section>
-                      <ITFlex align="center" justify="between" className="flex items-center justify-between mb-4">
-                        <ITText as="h4" className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                            <ITText as="span" className="w-1 h-4 bg-indigo-500 rounded-full block"></ITText>
-                            Evidencia Multimedia
-                        </ITText>
-                        {viewingEntry.media && viewingEntry.media.length > 0 && 
-                            <ITText as="span" className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-bold">
-                                {viewingEntry.media.length} elementos
-                            </ITText>
-                        }
+      <ITDialog
+        isOpen={!!viewingEntry}
+        onClose={() => setViewingEntry(null)}
+        title="Detalle de actividad"
+        className="max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+      >
+        {viewingEntry && (
+          <ITFlex direction="column" gap={4}>
+            <ITFlex align="center" gap={2} wrap="wrap">
+              <ITText as="span" className="text-xs text-slate-500">
+                {dayjs(viewingEntry.timestamp).format("DD [de] MMMM, YYYY [a las] HH:mm a")}
+              </ITText>
+              <ITBadget
+                color={viewingEntry.scanType === "ASSIGNMENT" ? "success" : viewingEntry.scanType === "RECURRING" ? "warning" : "primary"}
+                variant="filled"
+                size="sm"
+              >
+                {translateScanType(viewingEntry.scanType)}
+              </ITBadget>
+            </ITFlex>
+
+            <ITGrid container columns={12} spacing={4}>
+              <ITGrid item xs={12} lg={8}>
+                <ITFlex direction="column" gap={4}>
+                  <ITCard
+                    title="Evidencia multimedia"
+                    className="rounded-2xl border-0! bg-slate-50/40! shadow-none!"
+                    contentClassName="p-4!"
+                  >
+                    {viewingEntry.media && viewingEntry.media.length > 0 ? (
+                      <ITFlex className="overflow-hidden rounded-xl">
+                        <MediaCarousel media={viewingEntry.media as any} onDelete={handleDeleteMedia} />
                       </ITFlex>
-        
-                      {viewingEntry.media && viewingEntry.media.length > 0 ? (
-                        <MediaCarousel 
-                          media={viewingEntry.media as any} 
-                          title="Evidencia" 
-                          onDelete={handleDeleteMedia}
-                        />
-                      ) : (
-                        <ITFlex direction="column" align="center" justify="center" className="py-12 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
-                          <ITFlex align="center" justify="center" className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
-                            <FaFileAlt className="text-slate-300" />
-                          </ITFlex>
-                          <ITText as="p" className="text-sm font-medium text-slate-500">Sin evidencia adjunta</ITText>
-                          <ITText as="p" className="text-xs text-slate-400">El usuario no subió fotos ni videos en este reporte.</ITText>
-                        </ITFlex>
-                      )}
-                    </section>
-                    
-                    <section className="space-y-3">
-                        <ITFlex align="center" justify="between" className="flex items-center justify-between">
-                            <ITFlex align="center" className="flex items-center gap-2.5">
-                                <ITText as="h4" className="text-sm font-bold text-slate-800">Observaciones</ITText>
-                            </ITFlex>
-                            <ITText as="span" className="text-xs font-medium px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200/60">
-                                {viewingEntry.notes ? `${viewingEntry.notes.split('\n').filter(l => l.trim()).length} notas` : 'Vacío'}
-                            </ITText>
-                        </ITFlex>
-                        <ITFlex direction="column" className="bg-white p-5 rounded-xl border border-slate-200/60">
-                            {viewingEntry.notes ? (
-                                <ITFlex direction="column" className="space-y-2.5">
-                                    {viewingEntry.notes.split('\n').map((line, i) => {
-                                        if (line.trim().startsWith('[ ]') || line.trim().startsWith('[x]')) {
-                                            const isChecked = line.trim().startsWith('[x]');
-                                            const text = line.replace(/\[.\]/, '').trim();
-                                            return (
-                                                <div key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-emerald-50/50 transition-all">
-                                                    <ITFlex direction="column" className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                                                        isChecked ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-slate-300'
-                                                    }`}>
-                                                        {isChecked && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
-                                                    </ITFlex>
-                                                    <ITText as="span" className={`text-sm ${isChecked ? 'text-slate-400 line-through' : 'text-slate-600'}`}>{text}</ITText>
-                                                </div>
-                                            );
-                                        }
-                                        if (line.trim().startsWith('---')) return <hr key={i} className="my-4 border-slate-100" />;
-                                        if (!line.trim()) return <div key={i} className="h-2"></div>;
-                                        return (
-                                            <p key={i} className="text-sm text-slate-700 leading-relaxed pl-2 border-l-2 border-emerald-500/20">{line}</p>
-                                        );
-                                    })}
-                                </ITFlex>
-                            ) : (
-                                <ITFlex direction="column" align="center" justify="center" className="flex flex-col items-center justify-center py-8 text-center text-slate-400">
-                                    <FaFileAlt className="text-2xl mb-2 opacity-20" />
-                                    <ITText as="span" className="text-sm font-medium">Sin observaciones registradas</ITText>
-                                </ITFlex>
-                            )}
-                        </ITFlex>
-                    </section>
-                  </ITFlex>
-        
-                  <ITFlex direction="column" className="lg:col-span-4 space-y-6">
-                     {viewingEntry.latitude && viewingEntry.longitude ? (
-                         <ITFlex direction="column" className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                             <ITText as="h5" className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4 flex items-center gap-2">
-                                 <FaMapMarkerAlt className="text-indigo-400" />
-                                 Ubicación de Escaneo
-                             </ITText>
-                             <GoogleMapComponent 
-                                 lat={Number(viewingEntry.latitude)} 
-                                 lng={Number(viewingEntry.longitude)} 
-                                 height="200px"
-                             />
-                             <ITFlex direction="column" className="mt-3">
-                                 <ITText as="p" className="text-[10px] text-slate-400 font-medium italic">
-                                     GPS: {viewingEntry.latitude.toFixed(6)}, {viewingEntry.longitude.toFixed(6)}
-                                 </ITText>
-                             </ITFlex>
-                         </ITFlex>
-                     ) : null}
-  
-                     <ITFlex direction="column" className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                        <ITText as="h5" className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-4">Detalles del Reporte</ITText>
-                        <ITFlex direction="column" className="space-y-4">
-                            <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                                <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500"><FaUser /></ITFlex>
-                                <ITFlex direction="column">
-                                    <ITText as="p" className="text-xs text-slate-400 font-medium">Realizado por</ITText>
-                                    <ITText as="p" className="text-sm font-bold text-slate-800">{viewingEntry.user?.name} {viewingEntry.user?.lastName || ''}</ITText>
-                                    <ITText as="p" className="text-xs text-slate-500">{viewingEntry.user?.username}</ITText>
-                                </ITFlex>
-                            </ITFlex>
-                            <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                                <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 text-emerald-500"><FaMapMarkerAlt /></ITFlex>
-                                <ITFlex direction="column">
-                                    <ITText as="p" className="text-xs text-slate-400 font-medium">Ubicación</ITText>
-                                    <ITText as="p" className="text-sm font-bold text-slate-800">{viewingEntry.location?.name}</ITText>
-                                    <ITText as="p" className="text-xs text-slate-500">Pasillo {viewingEntry.location?.aisle}</ITText>
-                                </ITFlex>
-                            </ITFlex>
-                            <ITFlex align="start" gap={4} className="flex items-start gap-4">
-                                <ITFlex direction="column" className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                    viewingEntry.scanType === 'ASSIGNMENT' ? 'bg-blue-50 text-blue-500' : 
-                                    viewingEntry.scanType === 'RECURRING' ? 'bg-orange-50 text-orange-500' : 'bg-slate-50 text-slate-500'
-                                }`}><FaLayerGroup /></ITFlex>
-                                <ITFlex direction="column">
-                                    <ITText as="p" className="text-xs text-slate-400 font-medium">Clasificación</ITText>
-                                    <ITText as="p" className="text-sm font-bold text-slate-800">{translateScanType(viewingEntry.scanType)}</ITText>
-                                </ITFlex>
-                            </ITFlex>
-                        </ITFlex>
-                     </ITFlex>
-                  </ITFlex>
+                    ) : (
+                      <ITEmptyState
+                        icon={<FaFileAlt />}
+                        title="Sin evidencia adjunta"
+                        description="El usuario no subió fotos ni videos en este reporte."
+                        className="py-8"
+                      />
+                    )}
+                  </ITCard>
+
+                  <ITCard
+                    title="Observaciones"
+                    className="rounded-2xl border-0! bg-slate-50/40! shadow-none!"
+                    contentClassName="p-4!"
+                  >
+                    {viewingEntry.notes ? (
+                      <NotesContent notes={viewingEntry.notes} />
+                    ) : (
+                      <ITFlex align="center" justify="center" gap={2} className="py-6">
+                        <FaFileAlt className="text-slate-300" />
+                        <ITText as="span" className="text-xs text-slate-400">Sin observaciones registradas</ITText>
+                      </ITFlex>
+                    )}
+                  </ITCard>
                 </ITFlex>
-              </ITFlex>
+              </ITGrid>
+
+              <ITGrid item xs={12} lg={4}>
+                <ITFlex direction="column" gap={4}>
+                  <ITCard
+                    title="Detalles del reporte"
+                    className="rounded-2xl border-0! bg-slate-50/40! shadow-none!"
+                    contentClassName="space-y-4 p-4!"
+                  >
+                    <ITFlex align="start" gap={3}>
+                      <ITFlex align="center" justify="center" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-600 dark:bg-sky-950/30 dark:text-sky-400">
+                        <FaUser size={12} />
+                      </ITFlex>
+                      <ITFlex direction="column">
+                        <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Realizado por</ITText>
+                        <ITText as="p" className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                          {viewingEntry.user?.name} {viewingEntry.user?.lastName || ""}
+                        </ITText>
+                        <ITText as="p" className="text-[11px] text-slate-500">{viewingEntry.user?.username}</ITText>
+                      </ITFlex>
+                    </ITFlex>
+
+                    <ITFlex align="start" gap={3}>
+                      <ITFlex align="center" justify="center" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
+                        <FaMapMarkerAlt size={12} />
+                      </ITFlex>
+                      <ITFlex direction="column">
+                        <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Ubicación</ITText>
+                        <ITText as="p" className="text-sm font-bold text-slate-800 dark:text-slate-100">{viewingEntry.location?.name}</ITText>
+                        <ITText as="p" className="text-[11px] text-slate-500">Pasillo {viewingEntry.location?.aisle}</ITText>
+                      </ITFlex>
+                    </ITFlex>
+
+                    <ITFlex align="start" gap={3}>
+                      <ITFlex align="center" justify="center" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-950/30 dark:text-violet-400">
+                        <FaLayerGroup size={12} />
+                      </ITFlex>
+                      <ITFlex direction="column">
+                        <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Clasificación</ITText>
+                        <ITText as="p" className="text-sm font-bold text-slate-800 dark:text-slate-100">{translateScanType(viewingEntry.scanType)}</ITText>
+                      </ITFlex>
+                    </ITFlex>
+                  </ITCard>
+
+                  {viewingEntry.latitude && viewingEntry.longitude ? (
+                    <ITCard
+                      title="Ubicación GPS"
+                      className="rounded-2xl border-0! bg-slate-50/40! shadow-none!"
+                      contentClassName="space-y-3 p-4!"
+                    >
+                      <ITFlex direction="column" gap={1}>
+                        <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Coordenadas</ITText>
+                        <ITText as="p" className="font-mono text-xs font-medium text-slate-700 dark:text-slate-200">
+                          {Number(viewingEntry.latitude).toFixed(6)}, {Number(viewingEntry.longitude).toFixed(6)}
+                        </ITText>
+                      </ITFlex>
+                      <ITButton
+                        variant="text"
+                        color="secondary"
+                        size="sm"
+                        icon={<FaMapMarkerAlt />}
+                        onClick={() =>
+                          window.open(
+                            `https://www.google.com/maps/search/?api=1&query=${viewingEntry.latitude},${viewingEntry.longitude}`,
+                            "_blank",
+                          )
+                        }
+                      >
+                        Abrir en Google Maps
+                      </ITButton>
+                    </ITCard>
+                  ) : null}
+                </ITFlex>
+              </ITGrid>
+            </ITGrid>
+          </ITFlex>
+        )}
       </ITDialog>
-      )}
     </ITPage>
   );
 };

@@ -156,6 +156,7 @@ const RoundsPage = () => {
         label: "ID",
         type: "number",
         sortable: false,
+        width: 60,
       },
       {
         key: "recurringConfiguration",
@@ -411,6 +412,7 @@ const RoundsPage = () => {
           itemsPerPageOptions={[25, 50, 100]}
           layout="fixed"
           density="compact"
+          showViewToggle={false}
           virtualized
           virtualizedMaxHeight={400}
           rowHeight={50}

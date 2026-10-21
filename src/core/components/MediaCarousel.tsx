@@ -56,7 +56,7 @@ export const MediaCarousel = ({ media, initialIndex = 0, title, onDelete, showDe
         <ITFlex
             direction="column"
             gap={3}
-            className={inFullscreen ? "h-full min-h-0 p-4 sm:p-6" : "flex-1 min-h-0"}
+            className={inFullscreen ? "h-full min-h-0 w-full p-4 sm:p-6" : "w-full flex-1 min-h-0"}
         >
             {/* ── Header ─────────────────────────────────────────── */}
             <ITFlex
@@ -118,13 +118,18 @@ export const MediaCarousel = ({ media, initialIndex = 0, title, onDelete, showDe
                 }`}
             >
                 {current.type === "VIDEO" ? (
-                    <video key={current.url} src={current.url} controls className="h-full w-full object-contain" />
+                    <video
+                        key={current.url}
+                        src={current.url}
+                        controls
+                        className={`h-full w-full ${inFullscreen ? "object-contain" : "object-cover"}`}
+                    />
                 ) : (
                     <img
                         key={current.url}
                         src={current.url}
                         alt={current.title ?? title ?? "Evidencia"}
-                        className="h-full w-full object-contain"
+                        className={`h-full w-full ${inFullscreen ? "object-contain" : "object-cover"}`}
                         draggable={false}
                     />
                 )}
