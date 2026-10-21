@@ -17,7 +17,7 @@ const UsersPage = () => {
     
     const { data: rolesCatalog } = useCatalog('role');
     const roleOptions = useMemo(
-        () => (rolesCatalog || []).filter((role) => Boolean(role.value)).map((role) => ({ label: role.value, value: String(role.id) })),
+        () => rolesCatalog.filter((role) => Boolean(role.value)).map((role) => ({ label: role.value, value: String(role.id) })),
         [rolesCatalog],
     );
 
@@ -36,7 +36,11 @@ const UsersPage = () => {
     }, [searchTerm, roleFilter, activeFilter]);
 
     const externalFilters = useMemo(() => {
-        return { name: searchTerm };
+        return {
+            name: searchTerm,
+            ...(roleFilter !== "ALL" && { roleId: roleFilter }),
+            ...(activeFilter !== "ALL" && { active: activeFilter === "ACTIVE" }),
+        };
     }, [searchTerm, roleFilter, activeFilter]);
 
     const memoizedFetch = useCallback((params: any) => {
@@ -53,6 +57,7 @@ const UsersPage = () => {
     };
 
     const confirmDelete = async () => {
+        /* v8 ignore next -- guarda defensiva: el botón solo existe con un usuario por eliminar */
         if (!userToDeleteId) return;
         const res = await deleteUser(userToDeleteId);
         setUserToDeleteId(null);

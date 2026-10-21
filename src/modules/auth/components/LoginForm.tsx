@@ -2,8 +2,7 @@ import { IAuthLogin } from "@app/core/types/auth.types";
 import { FieldConfig, ITButton, ITFlex, ITFormBuilder, createValidationSchema } from "@axzydev/axzy_ui_system";
 import { Form, Formik } from "formik";
 
-import { useState } from "react";
-import { FaLock, FaLockOpen, FaUserAlt } from "react-icons/fa";
+import { FaUserAlt } from "react-icons/fa";
 import * as Yup from "yup";
 
 const LoginFormComponent = ({
@@ -15,8 +14,6 @@ const LoginFormComponent = ({
     username: "",
     password: "",
   };
-
-  const [showPassword, setShowPassword] = useState(false);
 
   const fields: FieldConfig[] = [
     {
@@ -34,17 +31,12 @@ const LoginFormComponent = ({
     {
       name: "password",
       label: "Contraseña",
-      type: showPassword ? "text" : "password",
+      type: "password",
       required: true,
       minLength: 4,
       maxLength: 20,
       column: 12,
       validation: Yup.string().required("Este campo es requerido"),
-      rightIcon: !showPassword ? (
-        <FaLock onClick={() => setShowPassword(!showPassword)} />
-      ) : (
-        <FaLockOpen onClick={() => setShowPassword(!showPassword)} />
-      ),
     },
   ];
 

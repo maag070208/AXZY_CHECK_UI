@@ -1,5 +1,4 @@
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
-import { showToast } from "@app/core/store/toast/toast.slice";
 import { translateScanType } from "@app/core/utils/status.utils";
 import {
   ITBadget,
@@ -20,8 +19,7 @@ import {
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaBook, FaCheck, FaEye, FaFileAlt, FaLayerGroup, FaMapMarkerAlt, FaSync, FaTimesCircle, FaUser } from "react-icons/fa";
-import { useDispatch } from "react-redux";
-import { deleteKardexMedia, getPaginatedKardex, KardexEntry } from "../services/KardexService";
+import { getPaginatedKardex, KardexEntry } from "../services/KardexService";
 
 const NotesContent = ({ notes }: { notes: string }) => {
   const lines = notes.split("\n");
@@ -80,7 +78,6 @@ const KardexPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [refreshKey, setRefreshKey] = useState(0);
-  const dispatch = useDispatch();
 
   const [viewingEntry, setViewingEntry] = useState<KardexEntry | null>(null);
 
@@ -105,25 +102,6 @@ const KardexPage = () => {
   }, [selectedDate, searchTerm, typeFilter]);
 
   const memoizedFetch = useCallback((params: any) => getPaginatedKardex(params), []);
-
-  const handleDeleteMedia = async (item: any) => {
-    if (!viewingEntry) return;
-    const key = item.key || item.url.split("/").pop();
-    if (!key) return;
-
-    const res = await deleteKardexMedia(viewingEntry.id, key);
-    if (res.success) {
-      dispatch(showToast({ message: "Archivo eliminado", type: "success" }));
-      setViewingEntry((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          media: prev.media?.filter((m: any) => (m.key || m.url.split("/").pop()) !== key),
-        };
-      });
-      setRefreshKey((prev) => prev + 1);
-    }
-  };
 
   const columns = useMemo(
     () => [
@@ -316,12 +294,9 @@ const KardexPage = () => {
                       const parsedDates = val.map((d) => (d ? new Date(d) : null));
                       setSelectedDate(parsedDates);
                       if (parsedDates[0] && parsedDates[1]) setRefreshKey((prev) => prev + 1);
-                    } else if (val) {
+                    } else {
                       const date = new Date(val);
                       setSelectedDate([date, date]);
-                      setRefreshKey((prev) => prev + 1);
-                    } else {
-                      setSelectedDate(null);
                       setRefreshKey((prev) => prev + 1);
                     }
                   }}
@@ -393,7 +368,7 @@ const KardexPage = () => {
                   >
                     {viewingEntry.media && viewingEntry.media.length > 0 ? (
                       <ITFlex className="overflow-hidden rounded-xl">
-                        <MediaCarousel media={viewingEntry.media as any} onDelete={handleDeleteMedia} />
+                        <MediaCarousel media={viewingEntry.media as any} />
                       </ITFlex>
                     ) : (
                       <ITEmptyState

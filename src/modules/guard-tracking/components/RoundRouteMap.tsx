@@ -36,7 +36,7 @@ const DEFAULT_CENTER = { lat: 32.4608, lng: -116.9247 };
  * ubicación de VARIOS guardias a la vez, no la secuencia de una ronda.
  */
 export const RoundRouteMap = ({ points, height = '420px', className = '', onPointSelect, fitPadding = 64, focusedPoint = null, visiblePointCount = null }: RoundRouteMapProps) => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBEcey4scuaufZ6TD4oOZZKjO';
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
     return (

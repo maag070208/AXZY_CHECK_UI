@@ -32,7 +32,7 @@ export const GoogleMapComponent = ({
     onLocationSelect,
     isEditable = false
 }: GoogleMapComponentProps) => {
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBEcey4scuaufZ6TD4oOZZKjO';
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
     if (!apiKey) {
         return (

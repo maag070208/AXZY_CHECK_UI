@@ -57,10 +57,9 @@ const RoundDetailPage = () => {
             dispatch(showToast({ message: "Archivo eliminado correctamente", type: "success" }));
             // Actualización local para evitar recarga completa
             setData(prev => {
-                if (!prev) return null;
                 return {
-                    ...prev,
-                    timeline: prev.timeline.map(e => {
+                    ...prev!,
+                    timeline: prev!.timeline.map(e => {
                         const currentId = e.data?.id;
                         if (currentId === eventId && e.type === type) {
                             return {
@@ -78,8 +77,9 @@ const RoundDetailPage = () => {
         }
     };
 
+    /** Devuelve true solo si el registro se eliminó (confirmado por la persona y por el API). */
     const handleDeleteEvent = async (eventId: number, type: 'SCAN' | 'INCIDENT') => {
-        if (!window.confirm("¿Deseas eliminar este registro permanentemente?")) return;
+        if (!window.confirm("¿Deseas eliminar este registro permanentemente?")) return false;
 
         let res;
         if (type === 'SCAN') {
@@ -91,18 +91,17 @@ const RoundDetailPage = () => {
         if (res.success) {
             dispatch(showToast({ message: "Registro eliminado", type: "success" }));
             setData(prev => {
-                if (!prev) return null;
                 return {
-                    ...prev,
-                    timeline: prev.timeline.filter(e => !(e.data?.id === eventId && e.type === type))
+                    ...prev!,
+                    timeline: prev!.timeline.filter(e => !(e.data?.id === eventId && e.type === type))
                 };
             });
         }
+        return res.success;
     };
 
     const handleDeleteEventFromModal = async (eventId: number, type: "SCAN" | "INCIDENT") => {
-        await handleDeleteEvent(eventId, type);
-        setSelectedEventIndex(null);
+        if (await handleDeleteEvent(eventId, type)) setSelectedEventIndex(null);
     };
 
     const [routeTitle, setRouteTitle] = useState("");
@@ -259,8 +258,8 @@ const RoundDetailPage = () => {
     }, [data]);
 
     const playablePoints = useMemo(() => routePoints.filter((point) => point.status !== "MISSING"), [routePoints]);
-    const currentPlayPoint = playIndex >= 0 ? playablePoints[playIndex] ?? null : null;
-    const previousPlayPoint = playIndex > 0 ? playablePoints[playIndex - 1] ?? null : null;
+    const currentPlayPoint = playIndex >= 0 ? playablePoints[playIndex] : null;
+    const previousPlayPoint = playIndex > 0 ? playablePoints[playIndex - 1] : null;
     const currentGapMs =
         currentPlayPoint && previousPlayPoint
             ? new Date(currentPlayPoint.timestamp).getTime() - new Date(previousPlayPoint.timestamp).getTime()
@@ -275,8 +274,7 @@ const RoundDetailPage = () => {
             setPlaying(false);
             return;
         }
-        if (playablePoints.length === 0) return;
-
+        // El botón está deshabilitado sin puntos reproducibles.
         const nextIndex = playIndex < 0 || playIndex >= playablePoints.length - 1 ? 0 : playIndex;
         setPlayIndex(nextIndex);
         setPlaying(true);
@@ -289,11 +287,6 @@ const RoundDetailPage = () => {
 
     useEffect(() => {
         if (!playing) return;
-        if (!playablePoints.length) {
-            setPlaying(false);
-            return;
-        }
-        if (playIndex < 0) return;
         if (playIndex >= playablePoints.length - 1) {
             setPlaying(false);
             setFocusedPoint(null);
@@ -360,9 +353,7 @@ const RoundDetailPage = () => {
     };
 
     const handleOpenRouteMap = () => {
-        if (!data) return;
-        
-        const scansWithCoords = data.timeline
+        const scansWithCoords = data!.timeline
             .filter(e => e.type === 'SCAN' && e.data?.latitude && e.data?.longitude)
             .sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
@@ -426,7 +417,7 @@ const RoundDetailPage = () => {
             className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
             noPadding
             backAction={() => navigate(-1)}
-            title={routeTitle || data.round.recurringConfiguration?.title || `Ronda #${data.round.id}`}
+            title={routeTitle || `Ronda #${data.round.id}`}
             breadcrumbs={[
                 { label: "Inicio", href: "#/home" },
                 { label: "Operación" },
@@ -487,7 +478,7 @@ const RoundDetailPage = () => {
                                         <ITFlex
                                             align="center"
                                             justify="center"
-                                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs ${NODE_TONE[node.status] ?? "bg-slate-100 text-slate-400"}`}
+                                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs ${NODE_TONE[node.status]}`}
                                         >
                                             {node.status === "START" && <FaPlay size={11} />}
                                             {node.status === "END" && <FaCheckCircle size={12} />}
@@ -509,12 +500,12 @@ const RoundDetailPage = () => {
 
                                         {node.status !== "START" && node.status !== "END" && (
                                             <ITBadget
-                                                color={NODE_BADGE[node.status] ?? "secondary"}
+                                                color={NODE_BADGE[node.status]}
                                                 variant="outlined"
                                                 size="sm"
                                                 className="shrink-0 whitespace-nowrap"
                                             >
-                                                {NODE_LABEL[node.status] ?? node.status}
+                                                {NODE_LABEL[node.status]}
                                             </ITBadget>
                                         )}
                                     </ITFlex>
@@ -739,7 +730,7 @@ const TimelineEventIcon = ({ type }: { type: string }) => (
     <ITFlex
         align="center"
         justify="center"
-        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${TIMELINE_TONE[type] ?? "bg-slate-100 text-slate-400"}`}
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${TIMELINE_TONE[type]}`}
     >
         {type === "START" && <FaPlay size={10} />}
         {type === "SCAN" && <FaQrcode size={11} />}
@@ -980,7 +971,7 @@ const EventModalHeader = ({
                 <ITText as="span" className="font-mono text-[11px] font-medium text-slate-400">
                     {new Date(event.timestamp).toLocaleString("es-MX")}
                 </ITText>
-                <ITBadget color={EVENT_BADGE[event.type] ?? "secondary"} variant="filled" size="sm">
+                <ITBadget color={EVENT_BADGE[event.type]} variant="filled" size="sm">
                     {event.type}
                 </ITBadget>
             </ITFlex>
@@ -1080,7 +1071,6 @@ const EventDetailCard = ({
 
 // Subcomponent for Notes with Parsing
 const NotesViewer = ({ notes }: { notes: string }) => {
-    if (!notes) return null;
     const lines = notes.split("\n");
 
     return (
@@ -1139,7 +1129,7 @@ const NotesViewer = ({ notes }: { notes: string }) => {
 };
 
 const TaskList = ({ tasks }: { tasks: any[] }) => {
-    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) return null;
+    if (tasks.length === 0) return null;
 
     return (
         <ITFlex direction="column" gap={2}>

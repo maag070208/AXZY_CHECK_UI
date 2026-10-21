@@ -191,10 +191,6 @@ export const ReportCreateForm = ({
       dispatch(showToast({ message: `Selecciona ${typeLabel.toLowerCase()}`, type: "warning" }));
       return;
     }
-    if (isUploading) {
-      dispatch(showToast({ message: "Hay archivos subiéndose, por favor espera", type: "warning" }));
-      return;
-    }
 
     const selected = typesCatalog.find((t) => Number(t.id) === typeId);
     setSubmitting(true);

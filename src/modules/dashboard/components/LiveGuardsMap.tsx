@@ -26,7 +26,7 @@ const DEFAULT_CENTER = { lat: 32.4608, lng: -116.9247 };
  * dependency rather than bending that one to a second, unrelated shape.
  */
 export const LiveGuardsMap = ({ points: rawPoints, height = '360px', className = '' }: LiveGuardsMapProps) => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBEcey4scuaufZ6TD4oOZZKjO';
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   const [activePoint, setActivePoint] = useState<LiveMapPoint | null>(null);
 
   // Es común que dos guardias escaneen el MISMO punto de control (misma

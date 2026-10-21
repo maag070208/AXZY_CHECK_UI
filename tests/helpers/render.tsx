@@ -7,7 +7,7 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
 import { Provider } from "react-redux";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import App from "@app/App";
 
 const b64 = (o: object) => btoa(JSON.stringify(o)).replace(/=+$/, "");
@@ -23,7 +23,8 @@ export const makeToken = (payload: Record<string, unknown> = {}) =>
     ...payload,
   })}.sig`;
 
-export function renderWithProviders(ui: ReactElement, { route = "/", role }: { route?: string; role?: string } = {}) {
+export function renderWithProviders(ui: ReactElement, { route = "/", role }: { route?: string | string[]; role?: string } = {}) {
+  const entries = Array.isArray(route) ? route : [route];
   if (role) store.dispatch(setAuth(makeToken({ role })));
   return {
     user: userEvent.setup(),
@@ -31,7 +32,7 @@ export function renderWithProviders(ui: ReactElement, { route = "/", role }: { r
       <Provider store={store}>
         <ITThemeProvider theme={theme} showFab={false} density={0.9} appearance="flat">
           <ToastProvider>
-            <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
+            <MemoryRouter initialEntries={entries} initialIndex={entries.length - 1}>{ui}</MemoryRouter>
           </ToastProvider>
         </ITThemeProvider>
       </Provider>,
@@ -40,9 +41,12 @@ export function renderWithProviders(ui: ReactElement, { route = "/", role }: { r
 }
 
 /** Monta la app completa. Con `role` entra ya autenticado (token en localStorage como en producción). */
-export function renderApp({ route = "/", role }: { route?: string; role?: string } = {}) {
+export function renderApp({ route = "/", role, claims }: { route?: string | string[]; role?: string; claims?: Record<string, unknown> } = {}) {
   store.dispatch(logout());
   localStorage.removeItem("token");
-  if (role) localStorage.setItem("token", makeToken({ role }));
+  if (role) localStorage.setItem("token", makeToken({ role, ...claims }));
   return renderWithProviders(<App />, { route });
 }
+
+/** Muestra la ruta actual para comprobar navegaciones sin montar la pantalla destino. */
+export const WhereAmI = () => <span data-testid="where">{useLocation().pathname + useLocation().search}</span>;

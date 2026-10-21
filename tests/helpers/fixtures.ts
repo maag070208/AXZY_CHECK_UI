@@ -27,3 +27,16 @@ export const liveDashboard = (over: Partial<ILiveDashboard> = {}): ILiveDashboar
   },
   ...over,
 });
+
+export const roles = [
+  { id: 1, name: "ADMIN", value: "Administrador" },
+  { id: 2, name: "GUARD", value: "Guardia" },
+  { id: 3, name: "SHIFT", value: "Supervisor" },
+  { id: 4, name: "MAINT", value: "Mantenimiento" },
+  { id: 5, name: "CLIENT", value: "Cliente" },
+];
+
+export const schedules = [
+  { id: 1, name: "Matutino", startTime: "07:00", endTime: "15:00", active: true },
+  { id: 2, name: "Nocturno", startTime: "19:00", endTime: "07:00", active: false },
+];

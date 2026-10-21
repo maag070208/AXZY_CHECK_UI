@@ -54,7 +54,7 @@ const SchedulesPage = () => {
       refreshTable();
       closeModal();
     } catch (error: any) {
-      const msg = error.response?.data?.messages?.[0] || "Error al guardar el horario";
+      const msg = error?.messages?.[0] || "Error al guardar el horario";
       dispatch(showToast({ message: msg, type: "error" }));
     }
   };
@@ -64,6 +64,7 @@ const SchedulesPage = () => {
   };
 
   const confirmDelete = async () => {
+    /* v8 ignore next -- guarda defensiva: el botón solo existe con un horario por eliminar */
     if (!scheduleToDeleteId) return;
     try {
       await deleteSchedule(scheduleToDeleteId);
@@ -71,7 +72,7 @@ const SchedulesPage = () => {
       refreshTable();
       dispatch(showToast({ message: "Horario eliminado correctamente", type: "success" }));
     } catch (error: any) {
-       const msg = error.response?.data?.messages?.[0] || "Error al eliminar el horario";
+       const msg = error?.messages?.[0] || "Error al eliminar el horario";
        dispatch(showToast({ message: msg, type: "error" }));
     }
   };

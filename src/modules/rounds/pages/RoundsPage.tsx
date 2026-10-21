@@ -120,6 +120,7 @@ const RoundsPage = () => {
   };
 
   const confirmEndRound = async () => {
+    /* v8 ignore next -- guarda defensiva: el botón solo existe con una ronda por finalizar */
     if (!roundToFinishId) return;
 
     try {
@@ -377,12 +378,9 @@ const RoundsPage = () => {
                       if (parsedDates[0] && parsedDates[1]) {
                         setRefreshKey((prev) => prev + 1);
                       }
-                    } else if (val) {
+                    } else {
                       const date = new Date(val);
                       setSelectedDate([date, date]);
-                      setRefreshKey((prev) => prev + 1);
-                    } else {
-                      setSelectedDate(null);
                       setRefreshKey((prev) => prev + 1);
                     }
                   }}

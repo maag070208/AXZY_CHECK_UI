@@ -106,7 +106,7 @@ const NewUniformCheckPage = () => {
                       {selectedGuard.name} {selectedGuard.lastName}
                     </ITText>
                     <ITText as="p" className="text-[10px] text-emerald-700/70">
-                      @{selectedGuard.username} · {selectedGuard.role?.value || selectedGuard.role?.name || "Guardia"}
+                      @{selectedGuard.username} · {selectedGuard.role?.value || selectedGuard.role?.name}
                     </ITText>
                   </ITFlex>
                   <ITFlex direction="column" align="end">

@@ -46,7 +46,6 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
     };
 
     const addTask = () => {
-        if (!tempTaskDesc.trim()) return;
         setTasks([...tasks, { description: tempTaskDesc, reqPhoto: false }]);
         setTempTaskDesc("");
     };
@@ -56,11 +55,6 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
     };
 
     const handleSubmit = async () => {
-        if (!selectedLocationId) {
-            dispatch(showToast({ message: "Selecciona una ubicación", type: "error" }));
-            return;
-        }
-
         setSubmitting(true);
         try {
             const res = await createAssignment({

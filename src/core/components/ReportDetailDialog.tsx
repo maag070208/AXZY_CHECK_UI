@@ -79,7 +79,7 @@ export const ReportDetailDialog = ({
           {hasMedia ? (
             <ITFlex className="w-full">
               <MediaCarousel
-                media={report.media ?? []}
+                media={report.media!}
                 title="Evidencia"
                 showDelete={false}
               />

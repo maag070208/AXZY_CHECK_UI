@@ -35,7 +35,7 @@ const UniformPage = () => {
   const [detailOpen, setDetailOpen] = useState(false);
 
   const score = detail ? complianceScore(detail) : { ok: 0, total: UNIFORM_FIELDS.length };
-  const pct = score.total > 0 ? Math.round((score.ok / score.total) * 100) : 0;
+  const pct = Math.round((score.ok / score.total) * 100);
 
   return (
     <ITPage

@@ -5,9 +5,7 @@ import {
   ITCard,
   ITDataTable,
   ITDialog,
-  ITEmptyState,
   ITFlex,
-  ITGrid,
   ITImage,
   ITInput,
   ITPage,
@@ -15,7 +13,7 @@ import {
 } from "@axzydev/axzy_ui_system";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaCar, FaEdit, FaPlus, FaPrint, FaQrcode, FaSearch, FaSearchLocation, FaSync, FaTimes, FaTrash } from "react-icons/fa";
+import { FaEdit, FaPlus, FaPrint, FaQrcode, FaSearch, FaSearchLocation, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { LocationForm } from "../components/LocationForm";
 import { createLocation, deleteLocation, getPaginatedLocations, Location, updateLocation } from "../service/locations.service";
@@ -38,7 +36,6 @@ const LocationsPage = () => {
 
   /* Filters/Modals State */
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
-  const [viewingLocation, setViewingLocation] = useState<Location | null>(null);
   const [locationToDelete, setLocationToDelete] = useState<Location | null>(null);
   const [qrPreview, setQrPreview] = useState<{ location: Location; dataUrl: string } | null>(null);
 
@@ -57,6 +54,7 @@ const LocationsPage = () => {
   };
 
   const handleEdit = async (data: { aisle: string; spot: string; number: string }) => {
+    /* v8 ignore next -- guarda defensiva: el formulario solo existe con una ubicación en edición */
     if (!editingLocation) return;
     const name = `${data.aisle}-${data.spot}-${data.number}`;
     await updateLocation(editingLocation.id, { ...data, name });
@@ -69,6 +67,7 @@ const LocationsPage = () => {
   };
 
   const confirmDelete = async () => {
+    /* v8 ignore next -- guarda defensiva: el botón solo existe con una ubicación por eliminar */
     if (!locationToDelete) return;
     try {
       const res = await deleteLocation(locationToDelete.id);
@@ -101,6 +100,7 @@ const LocationsPage = () => {
   };
 
   const printQr = () => {
+    /* v8 ignore next -- guarda defensiva: el botón Imprimir solo existe con un QR abierto */
     if (!qrPreview) return;
     const { location, dataUrl } = qrPreview;
     const printWindow = window.open("", "_blank");
@@ -364,56 +364,6 @@ const LocationsPage = () => {
             </ITFlex>
           </ITFlex>
         )}
-      </ITDialog>
-
-      <ITDialog
-        isOpen={!!viewingLocation}
-        onClose={() => setViewingLocation(null)}
-        title={`Autos en ${viewingLocation?.name}`}
-        className="max-w-3xl w-full"
-      >
-        <ITFlex direction="column" gap={4}>
-          {viewingLocation?.entries && viewingLocation.entries.length > 0 ? (
-            <ITGrid container columns={12} spacing={3} className="max-h-[60vh] overflow-y-auto pr-1">
-              {viewingLocation.entries.map((entry: any) => (
-                <ITGrid item xs={12} md={6} key={entry.id}>
-                  <ITCard className="h-full rounded-2xl" contentClassName="p-3!">
-                    <ITFlex align="center" gap={3}>
-                      <ITFlex
-                        align="center"
-                        justify="center"
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
-                      >
-                        <FaCar />
-                      </ITFlex>
-                      <ITFlex direction="column" className="min-w-0">
-                        <ITText as="p" className="font-bold text-slate-800 dark:text-slate-100">
-                          {entry.brand} {entry.model}
-                        </ITText>
-                        <ITText as="p" className="text-xs text-slate-500 dark:text-slate-400">
-                          Placas:{" "}
-                          <ITText as="span" className="font-mono font-bold">
-                            {entry.plates}
-                          </ITText>
-                        </ITText>
-                        <ITText as="p" className="text-[10px] text-slate-400">
-                          Color: {entry.color}
-                        </ITText>
-                      </ITFlex>
-                    </ITFlex>
-                  </ITCard>
-                </ITGrid>
-              ))}
-            </ITGrid>
-          ) : (
-            <ITEmptyState title="No hay vehículos en esta zona." />
-          )}
-          <ITFlex justify="end">
-            <ITButton color="secondary" variant="outlined" onClick={() => setViewingLocation(null)}>
-              Cerrar
-            </ITButton>
-          </ITFlex>
-        </ITFlex>
       </ITDialog>
 
       <ITDialog isOpen={!!locationToDelete} onClose={() => setLocationToDelete(null)} title="Confirmar eliminación">

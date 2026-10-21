@@ -34,3 +34,4 @@ dist-landing
 # Playwright
 test-results/
 playwright-report/
+coverage

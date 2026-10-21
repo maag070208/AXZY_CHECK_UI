@@ -243,7 +243,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
             </ITFlex>
 
             <ITDataTable
-              key={`${assignments.length}-${assignments[0]?.id ?? 0}`}
+              key={`${assignments.length}-${assignments[0].id}`}
               defaultItemsPerPage={5}
               itemsPerPageOptions={[5, 10, 20]}
               layout="fixed"

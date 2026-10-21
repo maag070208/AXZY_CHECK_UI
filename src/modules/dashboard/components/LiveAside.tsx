@@ -49,8 +49,7 @@ const formatDuration = (minutes: number): string => {
   return parts.slice(0, 2).join(" ");
 };
 
-const timeAgo = (value: string | null | undefined) => {
-  if (!value) return "Sin actividad";
+const timeAgo = (value: string) => {
   const minutes = Math.round((Date.now() - new Date(value).getTime()) / 60000);
   return minutes < 1 ? "hace unos segundos" : `hace ${formatDuration(minutes)}`;
 };

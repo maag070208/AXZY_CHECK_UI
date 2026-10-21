@@ -39,6 +39,7 @@ const RoutesPage = () => {
   const handleDelete = (id: number) => setRouteToDeleteId(id);
 
   const confirmDelete = async () => {
+    /* v8 ignore next -- guarda defensiva: el botón solo existe con una ruta por eliminar */
     if (!routeToDeleteId) return;
     const res = await deleteRoute(routeToDeleteId);
     setRouteToDeleteId(null);

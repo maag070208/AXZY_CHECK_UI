@@ -81,14 +81,9 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
   };
 
   const handleAddLocation = () => {
-    if (!selectedLocId) return;
+    // El selector solo ofrece ubicaciones aún no agregadas y el botón está deshabilitado sin selección.
     const locIdNum = Number(selectedLocId);
-    if (addedLocations.find((l) => l.locationId === locIdNum)) {
-      dispatch(showToast({ message: "La ubicación ya está en la lista", type: "warning" }));
-      return;
-    }
-    const locObj = allLocations.find((l) => l.id === locIdNum);
-    if (!locObj) return;
+    const locObj = allLocations.find((l) => l.id === locIdNum)!;
     setAddedLocations([
       ...addedLocations,
       { locationId: locIdNum, locationName: locObj.name, tasks: [] },
@@ -123,7 +118,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
   const handlePrintQRs = async () => {
     try {
       await printLocationQRs(
-        addedLocations.map((l) => ({ id: l.locationId, name: l.locationName ?? `Ubicación ${l.locationId}` })),
+        addedLocations.map((l) => ({ id: l.locationId, name: l.locationName! })),
         title.trim() || undefined,
       );
     } catch {
@@ -145,14 +140,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
   };
 
   const handleSave = async () => {
-    if (!title.trim()) {
-      dispatch(showToast({ message: "Ingresa un nombre para la ruta", type: "warning" }));
-      return;
-    }
-    if (addedLocations.length === 0) {
-      dispatch(showToast({ message: "Agrega al menos una ubicación", type: "warning" }));
-      return;
-    }
+    // El botón "Guardar" solo se habilita con nombre y al menos una ubicación (canSave).
     setLoading(true);
     try {
       const payload = { title, locations: addedLocations, guardIds: selectedGuards };

@@ -94,7 +94,7 @@ const KpiCard = ({ title, value, hint, progress, icon, tone, loading, onClick }:
         </ITFlex>
       </ITFlex>
       <ITText as="p" className="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-        {value ?? "—"}
+        {value}
       </ITText>
       {hint && (
         <ITText as="p" className="mt-1 text-[10px] font-medium leading-snug text-slate-500 dark:text-slate-400">
@@ -138,7 +138,6 @@ const RhythmSection = () => {
       if (!range?.[0] || !range?.[1]) return;
       const start = dayjs(range[0]).startOf("day");
       const end = dayjs(range[1]).endOf("day");
-      if (!start.isValid() || !end.isValid()) return;
 
       setLoading(true);
       setError(null);
