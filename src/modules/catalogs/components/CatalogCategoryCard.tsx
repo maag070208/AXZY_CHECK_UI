@@ -1,4 +1,4 @@
-import { ITDropdownMenu, ITFlex, ITText } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITDropdownMenu, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import type { ReactNode } from "react";
 import {
   FaArrowDown,
@@ -199,12 +199,12 @@ export const CatalogCategoryCard = ({
   return (
     <article
       className={cx(
-        "flex flex-col overflow-hidden rounded-2xl bg-white transition-all",
+        "flex flex-col overflow-hidden rounded-2xl border-0! bg-white! transition-all",
         expanded
-          ? "shadow-lg shadow-slate-200/60"
+          ? "shadow-lg shadow-slate-200/50"
           : category.active
             ? "shadow-sm hover:shadow-md"
-            : "bg-rose-50/30 shadow-sm hover:shadow-md",
+            : "bg-rose-50/30! shadow-sm hover:shadow-md",
       )}
     >
       <ITFlex align="start" gap={3} className="flex items-start gap-3 p-4">
@@ -220,11 +220,9 @@ export const CatalogCategoryCard = ({
             <ITText as="h3" className="break-words text-[16px] font-black leading-tight text-slate-800">
               {category.value}
             </ITText>
-            {!category.active && (
-              <ITText as="span" className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-500 ring-1 ring-inset ring-rose-100">
-                Inactiva
-              </ITText>
-            )}
+            <ITBadget color={category.active ? "success" : "danger"} variant="filled" size="sm">
+              {category.active ? "Activa" : "Inactiva"}
+            </ITBadget>
           </ITFlex>
           <ITFlex align="center" className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
             <ITText as="span" className="max-w-[190px] truncate rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-slate-500">
@@ -259,23 +257,6 @@ export const CatalogCategoryCard = ({
           expanded ? "border-slate-100 bg-slate-50/70" : "border-slate-100 hover:bg-slate-50/70",
         )}
       >
-        <ITText as="span" className="inline-flex items-center gap-1.5">
-          <ITText as="span"
-            className={cx(
-              "h-1.5 w-1.5 rounded-full",
-              category.active ? "bg-emerald-500" : "bg-rose-400",
-            )}
-          />
-          <ITText as="span"
-            className={cx(
-              "text-[10px] font-black uppercase tracking-widest",
-              category.active ? "text-emerald-700" : "text-rose-500",
-            )}
-          >
-            {category.active ? "Activa" : "Inactiva"}
-          </ITText>
-        </ITText>
-
         <ITText as="span" className="inline-flex items-center gap-2 text-[11.5px] font-bold text-slate-500">
           {expanded ? "Ocultar tipos" : "Ver tipos"}
           <ITText as="span" className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-black text-slate-600">

@@ -1,6 +1,6 @@
-import { ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITText, ITTimePicker } from "@axzydev/axzy_ui_system";
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { FaEdit, FaPlus, FaTrash, FaClock, FaSync, FaSearch, FaTimes } from "react-icons/fa";
+import { ITBadget, ITButton, ITCard, ITDataTable, ITDialog, ITFlex, ITGrid, ITInput, ITPage, ITText, ITTimePicker } from "@axzydev/axzy_ui_system";
+import { useState, useCallback } from "react";
+import { FaEdit, FaPlus, FaTrash, FaClock, FaSync } from "react-icons/fa";
 import { Schedule, createSchedule, deleteSchedule, updateSchedule, getPaginatedSchedules } from "../SchedulesService";
 import { useDispatch } from "react-redux";
 import { showToast } from "@app/core/store/toast/toast.slice";
@@ -11,19 +11,6 @@ const SchedulesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [scheduleToDeleteId, setScheduleToDeleteId] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Debounce search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-        setRefreshKey(prev => prev + 1);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  const externalFilters = useMemo(() => {
-    return { name: searchTerm };
-  }, [searchTerm]);
 
   // Form State
   const [name, setName] = useState("");
@@ -91,7 +78,7 @@ const SchedulesPage = () => {
 
   return (
     <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Directorio de Horarios"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Directorio de Horarios" }]}
@@ -99,59 +86,28 @@ const SchedulesPage = () => {
       icon={<FaClock size={20} />}
       iconColor="#065911"
       actions={
-<ITFlex align="center" gap={3} className="flex items-center gap-3">
-            <ITFlex direction="column" className="relative">
-                <ITInput
-                    name="searchSchedule"
-                    placeholder="Buscar horario..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    containerClassName="w-64"
-                    className="!pr-10 !py-2.5 !rounded-lg bg-white"
-                />
-                {searchTerm ? (
-                    <FaTimes 
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer" 
-                        onClick={() => setSearchTerm("")}
-                    />
-                ) : (
-                    <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300" />
-                )}
-            </ITFlex>
-
-            <ITButton
-               onClick={refreshTable}
-               variant="outlined"
-               color="secondary"
-               size="md"
-            >
-              <ITFlex align="center" gap={2}><FaSync className={refreshKey % 2 === 0 ? '' : 'rotate-180'} /> Actualizar
-            </ITFlex></ITButton>
-
-            <ITButton
-               onClick={() => openModal()}
-               color="primary"
-               size="md"
-            >
-              <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> Alta de Horario
-            </ITFlex></ITButton>
+        <ITFlex align="center" gap={2} wrap="wrap">
+          <ITButton onClick={refreshTable} variant="icon-only" color="secondary" size="md" icon={<FaSync />} ariaLabel="Actualizar" title="Actualizar" />
+          <ITButton onClick={() => openModal()} color="primary" size="md">
+            <ITFlex align="center" gap={2}>Alta de horario<FaPlus /></ITFlex>
+          </ITButton>
         </ITFlex>
       }
     >
 
       {/* Table Container */}
-      <ITFlex direction="column" className="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white">
+      <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
           layout="fixed"
           density="compact"
+          showViewToggle={false}
           virtualized
           virtualizedMaxHeight={400}
           rowHeight={50}
           key={refreshKey}
           fetchData={memoizedFetch as any}
-          externalFilters={externalFilters}
           columns={[
             { 
               key: "name", 
@@ -159,8 +115,8 @@ const SchedulesPage = () => {
               type: "string", 
               sortable: false,
               render: (row: any) => (
-                  <ITFlex align="center" gap={3} className="flex items-center gap-3 py-1">
-                      <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200">
+                  <ITFlex align="center" gap={3} className="py-1">
+                      <ITFlex align="center" justify="center" className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-sm font-black text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
                         {row.name.charAt(0)}
                       </ITFlex>
                       <ITFlex direction="column">
@@ -197,11 +153,9 @@ const SchedulesPage = () => {
                 label: "ESTADO", 
                 type: "string",
                 render: (row: any) => (
-                    <ITFlex align="center" gap={2} className="flex items-center gap-2">
-                        <ITText as="span" className={`px-3 py-1 rounded-md text-[10px] font-black tracking-widest ${row.active ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                            {row.active ? 'ACTIVO' : 'INACTIVO'}
-                        </ITText>
-                    </ITFlex>
+                    <ITBadget color={row.active ? "success" : "danger"} variant="filled" size="sm">
+                      {row.active ? "Activo" : "Inactivo"}
+                    </ITBadget>
                 )
             },
             {
@@ -240,42 +194,19 @@ const SchedulesPage = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         title={editingSchedule ? "Editar Horario" : "Nuevo Horario"}
-        className="!w-full !max-w-md"
+        className="w-[480px] max-w-[95vw]"
       >
-        <ITFlex direction="column" className="space-y-4">
-            <ITInput
-              label="Nombre del Horario"
-              name="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={() => {}}
-              placeholder="Ej. Matutino"
-            />
-            <ITFlex direction="column" className="grid grid-cols-2 gap-4">
-                <ITTimePicker
-                    label="Entrada"
-                    name="startTime"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    onBlur={() => {}}
-                />
-                <ITTimePicker
-                    label="Salida"
-                    name="endTime"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    onBlur={() => {}}
-                />
-            </ITFlex>
-
-          <ITFlex justify="end" gap={3} className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
-            <ITButton variant="outlined" color="secondary" onClick={closeModal}>
-              Cancelar
-            </ITButton>
-            <ITButton onClick={handleSave} color="primary">
-              Guardar
-            </ITButton>
+        <ITFlex direction="column" gap={4}>
+          <ITCard className="rounded-2xl border-0! bg-white! shadow-none!" contentClassName="space-y-3 p-4!">
+            <ITInput label="Nombre del horario" name="name" type="text" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => {}} placeholder="Ej. Matutino" />
+            <ITGrid container columns={2} spacing={3}>
+              <ITGrid item xs={6}><ITTimePicker label="Entrada" name="startTime" value={startTime} onChange={(e) => setStartTime(e.target.value)} onBlur={() => {}} /></ITGrid>
+              <ITGrid item xs={6}><ITTimePicker label="Salida" name="endTime" value={endTime} onChange={(e) => setEndTime(e.target.value)} onBlur={() => {}} /></ITGrid>
+            </ITGrid>
+          </ITCard>
+          <ITFlex justify="end" gap={2}>
+            <ITButton variant="outlined" color="secondary" onClick={closeModal}>Cancelar</ITButton>
+            <ITButton onClick={handleSave} color="primary">Guardar</ITButton>
           </ITFlex>
         </ITFlex>
       </ITDialog>
@@ -286,18 +217,12 @@ const SchedulesPage = () => {
         onClose={() => setScheduleToDeleteId(null)} 
         title="Confirmar Eliminación"
       >
-        <ITFlex direction="column" className="p-4">
-            <ITText as="p" className="text-slate-600 mb-6">
-                ¿Estás seguro de eliminar este horario? Esta acción no se puede deshacer.
-            </ITText>
-            <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
-                <ITButton variant="outlined" color="secondary" onClick={() => setScheduleToDeleteId(null)}>
-                    Cancelar
-                </ITButton>
-                <ITButton onClick={confirmDelete}>
-                    Eliminar
-                </ITButton>
-            </ITFlex>
+        <ITFlex direction="column" gap={4}>
+          <ITText as="p" className="text-sm text-slate-600 dark:text-slate-300">¿Estás seguro de eliminar este horario? Esta acción no se puede deshacer.</ITText>
+          <ITFlex justify="end" gap={2}>
+            <ITButton variant="outlined" color="secondary" onClick={() => setScheduleToDeleteId(null)}>Cancelar</ITButton>
+            <ITButton color="danger" onClick={confirmDelete}>Eliminar horario</ITButton>
+          </ITFlex>
         </ITFlex>
       </ITDialog>
     </ITPage>

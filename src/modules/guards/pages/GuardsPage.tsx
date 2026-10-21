@@ -63,6 +63,25 @@ const GuardsPage = () => {
         refreshTable();
     };
 
+    const roleNameOf = (row: any) => {
+        if (typeof row.role === "object" && row.role) return String(row.role.name ?? row.role.value ?? "").toUpperCase();
+        return String(row.role ?? "").toUpperCase();
+    };
+
+    const roleBadgeColor = (row: any) => {
+        const role = roleNameOf(row);
+        if (role === "MAINT") return "warning";
+        if (role === "SHIFT") return "info";
+        return "primary";
+    };
+
+    const roleAvatarClass = (row: any) => {
+        const role = roleNameOf(row);
+        if (role === "MAINT") return "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400";
+        if (role === "SHIFT") return "bg-sky-50 text-sky-600 dark:bg-sky-950/30 dark:text-sky-400";
+        return "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400";
+    };
+
     return (
         <ITPage
       className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
@@ -125,7 +144,7 @@ const GuardsPage = () => {
                             type: "string",
                             render: (row: any) => (
                                 <ITFlex align="center" gap={3} className="flex items-center gap-3 py-2">
-                                    <ITFlex align="center" justify="center" className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-500">
+                                    <ITFlex align="center" justify="center" className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${roleAvatarClass(row)}`}>
                                         {row.name.charAt(0)}{row.lastName?.charAt(0) || ''}
                                     </ITFlex>
                                     <ITFlex direction="column">
@@ -143,7 +162,7 @@ const GuardsPage = () => {
                                 const roleValue = typeof row.role === 'object' ? row.role.value : row.role;
                                 return (
                                     <ITFlex align="center" className="flex items-center">
-                                        <ITBadget color="secondary" variant="filled" size="sm">
+                                        <ITBadget color={roleBadgeColor(row) as any} variant="filled" size="sm">
                                             {roleValue}
                                         </ITBadget>
                                     </ITFlex>

@@ -1,6 +1,6 @@
 import { ITFlex } from "@axzydev/axzy_ui_system";
 import { AppState } from "@app/core/store/store";
-import LOGO from "@assets/logo.svg";
+import LOGO from "@assets/logo-green.svg";
 import React from "react";
 import {
   FaBuilding,

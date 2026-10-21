@@ -1,19 +1,8 @@
-import { ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITPage, ITText } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITCard, ITDataTable, ITDialog, ITFlex, ITGrid, ITPage, ITProgress, ITText } from "@axzydev/axzy_ui_system";
 import { useCallback, useState } from "react";
 import {
-  FaBrush,
-  FaCut,
-  FaEye,
-  FaHandPeace,
-  FaHatCowboy,
-  FaHeadphones,
-  FaLink,
-  FaMale,
-  FaPen,
-  FaPlus,
-  FaShoePrints,
-  FaSprayCan,
-  FaTshirt,
+  FaBrush, FaCut, FaEye, FaHandPeace, FaHatCowboy, FaHeadphones, FaLink,
+  FaMale, FaPen, FaPlus, FaShoePrints, FaSprayCan, FaTshirt,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getPaginatedUniformChecks } from "../services/UniformService";
@@ -39,19 +28,18 @@ const complianceScore = (row: any) => {
   return { ok, total: UNIFORM_FIELDS.length };
 };
 
-/**
- * "4.3 Uniforme" — historial + detalle desde WEB. La captura ahora vive en
- * su propia pantalla (`/uniform/nuevo`).
- */
 const UniformPage = () => {
   const navigate = useNavigate();
   const memoizedFetch = useCallback((params: any) => getPaginatedUniformChecks(params), []);
   const [detail, setDetail] = useState<any>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
+  const score = detail ? complianceScore(detail) : { ok: 0, total: UNIFORM_FIELDS.length };
+  const pct = score.total > 0 ? Math.round((score.ok / score.total) * 100) : 0;
+
   return (
     <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Uniforme"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Uniforme" }]}
@@ -59,23 +47,22 @@ const UniformPage = () => {
       icon={<FaTshirt size={20} />}
       iconColor="#065911"
       actions={
-<ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" size="md">
-          <ITFlex align="center" gap={2}><FaPlus size={12} /> Nuevo Checklist
-        </ITFlex></ITButton>
+        <ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" size="md">
+          <ITFlex align="center" gap={2}>Nuevo checklist<FaPlus /></ITFlex>
+        </ITButton>
       }
     >
-
-      <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
         <ITDataTable
           defaultItemsPerPage={50}
           itemsPerPageOptions={[25, 50, 100]}
           layout="fixed"
           density="compact"
+          showViewToggle={false}
           virtualized
           virtualizedMaxHeight={400}
           rowHeight={50}
           fetchData={memoizedFetch as any}
-          title=""
           columns={[
             {
               key: "createdAt",
@@ -83,7 +70,7 @@ const UniformPage = () => {
               type: "string",
               sortable: false,
               render: (row: any) => (
-                <ITText as="span" className="text-xs font-bold text-slate-700">
+                <ITText as="span" className="text-xs font-bold text-slate-700 dark:text-slate-200">
                   {new Date(row.createdAt).toLocaleDateString("es-MX")}
                 </ITText>
               ),
@@ -93,9 +80,14 @@ const UniformPage = () => {
               label: "GUARDIA",
               type: "string",
               render: (row: any) => (
-                <ITText as="span" className="text-xs font-semibold text-slate-600">
-                  {row.guard?.name} {row.guard?.lastName}
-                </ITText>
+                <ITFlex align="center" gap={2}>
+                  <ITFlex align="center" justify="center" className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-[10px] font-black text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
+                    {(row.guard?.name || "?").charAt(0)}{(row.guard?.lastName || "").charAt(0)}
+                  </ITFlex>
+                  <ITText as="span" className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    {row.guard?.name} {row.guard?.lastName}
+                  </ITText>
+                </ITFlex>
               ),
             },
             {
@@ -123,140 +115,83 @@ const UniformPage = () => {
               label: "NOTAS",
               type: "string",
               render: (row: any) => (
-                <ITText as="span" className="text-xs text-slate-400 line-clamp-1">{row.notes || "—"}</ITText>
+                <ITText as="span" className="line-clamp-1 text-xs text-slate-400">{row.notes || "—"}</ITText>
               ),
             },
             {
               key: "actions",
-              label: "Acciones",
+              label: "ACCIONES",
               type: "actions",
               actions: (row: any) => (
-                <ITFlex align="center" gap={2}>
-                  <ITButton
-                    onClick={() => {
-                      setDetail(row);
-                      setDetailOpen(true);
-                    }}
-                    size="md"
-                    color="secondary"
-                    variant="icon-only"
-                    icon={<FaEye />}
-                    ariaLabel="Ver detalles"
-                    title="Ver detalles"
-                  />
-                </ITFlex>
+                <ITButton
+                  onClick={() => { setDetail(row); setDetailOpen(true); }}
+                  size="md"
+                  color="primary"
+                  variant="icon-only"
+                  icon={<FaEye />}
+                  ariaLabel="Ver detalles"
+                  title="Ver detalles"
+                />
               ),
             },
           ]}
         />
       </ITFlex>
 
-      {/* Detalle de solo lectura */}
-      <ITDialog isOpen={detailOpen} onClose={() => setDetailOpen(false)} title="Detalle de uniforme" className="!max-w-3xl">
+      <ITDialog isOpen={detailOpen} onClose={() => setDetailOpen(false)} title="Detalle de uniforme" className="w-[760px] max-w-[95vw]">
         {detail && (
-          <ITFlex direction="column" className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
-            {(() => {
-              const ok = UNIFORM_FIELDS.filter((field) => detail[field]).length;
-              const total = UNIFORM_FIELDS.length;
-              const pct = Math.round((ok / total) * 100);
-              const passed = pct >= 70;
-              const init = (n?: string, l?: string | null) =>
-                `${(n || "?").charAt(0)}${(l || "").charAt(0) || ""}`.toUpperCase();
-
-              return (
-                <>
-                  {/* Banner */}
-                  <ITFlex direction="column" className="bg-slate-900 rounded-3xl p-6 text-white">
-                    <ITFlex align="center" gap={4} className="flex items-center gap-4">
-                      <ITFlex align="center" justify="center" className="w-14 h-14 rounded-full bg-white/15 text-white font-black flex items-center justify-center text-xl">
-                        {init(detail.guard?.name, detail.guard?.lastName)}
-                      </ITFlex>
-                      <ITFlex direction="column" className="flex-1">
-                        <ITText as="p" className="text-2xl font-black">
-                          {detail.guard?.name} {detail.guard?.lastName}
-                        </ITText>
-                        <ITText as="p" className="text-white/70 text-sm font-medium capitalize">
-                          {new Date(detail.createdAt).toLocaleDateString("es-MX", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </ITText>
-                      </ITFlex>
-                    </ITFlex>
-
-                    <ITFlex align="center" gap={5} className="flex items-center gap-5 mt-5 bg-white/10 rounded-2xl p-4">
-                      <ITFlex direction="column" align="center" justify="center" className="w-20 h-20 rounded-full bg-white flex items-center justify-center flex-col">
-                        <ITText as="p" className={`text-xl font-black ${passed ? "text-emerald-600" : "text-amber-600"}`}>{pct}%</ITText>
-                        <ITText as="p" className="text-[9px] font-bold text-slate-400">
-                          {ok}/{total} puntos
-                        </ITText>
-                      </ITFlex>
-                      <ITFlex direction="column">
-                        <ITText as="p" className={`text-sm font-black tracking-wide ${passed ? "text-emerald-300" : "text-amber-300"}`}>
-                          {passed ? "CUMPLE" : "NO CUMPLE"}
-                        </ITText>
-                        <ITText as="p" className="text-white/70 text-xs mt-1">
-                          {passed ? "Uniformidad y aseo en regla." : "Faltan elementos por revisar."}
-                        </ITText>
-                      </ITFlex>
-                    </ITFlex>
+          <ITFlex direction="column" gap={4}>
+            <ITCard className="rounded-2xl border-0! bg-emerald-50/60! shadow-none!" contentClassName="p-4!">
+              <ITFlex align="center" justify="between" gap={3} wrap="wrap">
+                <ITFlex align="center" gap={3}>
+                  <ITFlex align="center" justify="center" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#065911] text-sm font-black text-white">
+                    {(detail.guard?.name || "?").charAt(0)}{(detail.guard?.lastName || "").charAt(0)}
                   </ITFlex>
-
-                  {/* Quién evaluó */}
-                  <ITFlex align="center" gap={3} className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl p-4">
-                    <ITFlex align="center" justify="center" className="w-9 h-9 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm font-black">
-                      ✓
-                    </ITFlex>
-                    <ITText as="p" className="text-sm text-slate-600">
-                      Evaluó:{" "}
-                      <ITText as="span" className="font-bold text-slate-800">
-                        {detail.evaluatedBy?.name} {detail.evaluatedBy?.lastName}
-                      </ITText>
+                  <ITFlex direction="column">
+                    <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-emerald-700/70">Guardia evaluado</ITText>
+                    <ITText as="p" className="text-lg font-black text-emerald-950 dark:text-emerald-100">{detail.guard?.name} {detail.guard?.lastName}</ITText>
+                    <ITText as="p" className="text-[11px] text-emerald-700/70 capitalize">
+                      {new Date(detail.createdAt).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                     </ITText>
                   </ITFlex>
+                </ITFlex>
+                <ITFlex direction="column" align="end" gap={1}>
+                  <ITBadget color={pct >= 70 ? "success" : "warning"} variant="filled" size="sm">{pct >= 70 ? "Cumple" : "No cumple"}</ITBadget>
+                  <ITText as="p" className="text-2xl font-black text-emerald-900 dark:text-emerald-200">{pct}%</ITText>
+                  <ITText as="p" className="text-[10px] text-emerald-700/70">{score.ok}/{score.total} puntos</ITText>
+                </ITFlex>
+              </ITFlex>
+              <ITProgress value={score.ok} max={score.total} color={pct >= 70 ? "success" : "warning"} size="sm" className="mt-3" />
+            </ITCard>
 
-                  {/* Checklist */}
-                  <ITFlex direction="column" className="bg-white border border-slate-200 rounded-2xl p-5">
-                    <ITText as="p" className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
-                      Checklist de uniforme
-                    </ITText>
-                    <ITFlex direction="column" className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-                      {CHECKLIST_ITEMS.map((item) => {
-                        const itemOk = !!detail[item.key];
-                        return (
-                          <div
-                            key={item.key}
-                            className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm ${
-                              itemOk
-                                ? "bg-white border-slate-200 text-slate-700"
-                                : "bg-slate-50 border-slate-100 text-slate-400"
-                            }`}
-                          >
-                            <item.icon className={itemOk ? "text-emerald-600" : "text-slate-400"} />
-                            <ITText as="span" className="flex-1 font-semibold">{item.label}</ITText>
-                            {itemOk ? (
-                              <ITText as="span" className="text-emerald-600 font-black">✓</ITText>
-                            ) : (
-                              <ITText as="span" className="text-slate-300 font-black">✕</ITText>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </ITFlex>
-                  </ITFlex>
+            <ITCard className="rounded-2xl border-0! bg-white! shadow-none!" contentClassName="p-4!">
+              <ITFlex align="center" gap={2} className="mb-3">
+                <ITFlex align="center" justify="center" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-500 dark:bg-slate-800"><FaEye size={12} /></ITFlex>
+                <ITText as="p" className="text-xs font-black text-slate-800 dark:text-slate-100">Checklist de uniforme</ITText>
+                <ITText as="span" className="ml-auto text-[10px] font-semibold text-slate-400">Evaluó: {detail.evaluatedBy?.name} {detail.evaluatedBy?.lastName}</ITText>
+              </ITFlex>
+              <ITGrid container columns={12} spacing={2}>
+                {CHECKLIST_ITEMS.map((item) => {
+                  const ok = !!detail[item.key];
+                  return (
+                    <ITGrid item xs={12} sm={6} key={item.key}>
+                      <ITFlex align="center" gap={2} className={`rounded-xl border p-2.5 ${ok ? "border-emerald-200 bg-emerald-50/70" : "border-amber-200 bg-amber-50/60"}`}>
+                        <item.icon className={ok ? "text-emerald-600" : "text-amber-500"} />
+                        <ITText as="span" className={`min-w-0 flex-1 text-xs font-semibold ${ok ? "text-emerald-900" : "text-amber-900"}`}>{item.label}</ITText>
+                        <ITBadget color={ok ? "success" : "warning"} variant="filled" size="sm">{ok ? "Sí" : "No"}</ITBadget>
+                      </ITFlex>
+                    </ITGrid>
+                  );
+                })}
+              </ITGrid>
+            </ITCard>
 
-                  {/* Notas */}
-                  {detail.notes && (
-                    <ITFlex direction="column" className="bg-white border border-slate-200 rounded-2xl p-5">
-                      <ITText as="p" className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Notas</ITText>
-                      <ITText as="p" className="text-sm text-slate-700">{detail.notes}</ITText>
-                    </ITFlex>
-                  )}
-                </>
-              );
-            })()}
+            {detail.notes && (
+              <ITCard className="rounded-2xl border-0! bg-amber-50! shadow-none!" contentClassName="p-4!">
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-amber-700">Notas</ITText>
+                <ITText as="p" className="mt-1 text-xs text-amber-800">{detail.notes}</ITText>
+              </ITCard>
+            )}
           </ITFlex>
         )}
       </ITDialog>

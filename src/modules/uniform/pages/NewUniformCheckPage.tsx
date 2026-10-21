@@ -1,19 +1,9 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITFlex, ITInput, ITSearchSelect, ITSlideToggle, ITText } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITCard, ITFlex, ITGrid, ITPage, ITProgress, ITSearchSelect, ITSlideToggle, ITText, ITTextarea } from "@axzydev/axzy_ui_system";
 import { useEffect, useState } from "react";
 import {
-  FaArrowLeft,
-  FaBrush,
-  FaCut,
-  FaHandPeace,
-  FaHatCowboy,
-  FaHeadphones,
-  FaLink,
-  FaMale,
-  FaPen,
-  FaShoePrints,
-  FaSprayCan,
-  FaTshirt,
+  FaBrush, FaCut, FaHandPeace, FaHatCowboy, FaHeadphones,
+  FaLink, FaMale, FaPen, FaShoePrints, FaSprayCan, FaTshirt,
 } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -41,12 +31,6 @@ const DEFAULT_CHECKLIST: Record<string, boolean> = UNIFORM_FIELDS.reduce(
   {},
 );
 
-const noop = () => {};
-
-/**
- * "4.3 Uniforme" — captura desde WEB en pantalla completa (antes era un
- * modal). Usa el mismo endpoint (`POST /uniform`) que la APP.
- */
 const NewUniformCheckPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -58,11 +42,13 @@ const NewUniformCheckPage = () => {
 
   useEffect(() => {
     getUsers().then((res) => {
-      if (res.success && res.data) {
-        setGuards(res.data.filter((u) => u.role?.name === "GUARD"));
-      }
+      if (res.success && res.data) setGuards(res.data.filter((u) => u.role?.name === "GUARD"));
     });
   }, []);
+
+  const completed = UNIFORM_FIELDS.filter((key) => checklist[key]).length;
+  const pct = Math.round((completed / UNIFORM_FIELDS.length) * 100);
+  const selectedGuard = guards.find((g) => String(g.id) === guardId);
 
   const handleSubmit = async () => {
     if (!guardId) {
@@ -72,12 +58,7 @@ const NewUniformCheckPage = () => {
 
     setSubmitting(true);
     try {
-      const res = await createUniformCheck({
-        guardId: Number(guardId),
-        ...(checklist as any),
-        notes: notes || undefined,
-      });
-
+      const res = await createUniformCheck({ guardId: Number(guardId), ...(checklist as any), notes: notes || undefined });
       if (res.success) {
         dispatch(showToast({ message: "Checklist de uniforme registrado", type: "success" }));
         navigate("/uniform");
@@ -93,100 +74,117 @@ const NewUniformCheckPage = () => {
   };
 
   return (
-    <ITFlex direction="column" className="p-6 bg-[#f8fafc] min-h-screen">
-      <ITFlex direction="column" className="max-w-7xl mx-auto">
-        <ITFlex align="center" justify="between" gap={4} className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <ITFlex align="center" gap={3} className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/uniform")}
-              className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
-              title="Volver"
-            >
-              <FaArrowLeft />
-            </button>
-            <ITFlex direction="column">
-              <ITText as="h1" className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                <FaTshirt className="text-[#065911]" />
-                Nuevo Checklist de Uniforme
-              </ITText>
-              <ITText as="p" className="text-slate-500 text-sm mt-1">
-                Evaluación de uniformidad y aseo por elemento.
-              </ITText>
-            </ITFlex>
-          </ITFlex>
-        </ITFlex>
+    <ITPage
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+      noPadding
+      backAction={() => navigate("/uniform")}
+      title="Nuevo checklist de uniforme"
+      breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Uniforme", href: "#/uniform" }, { label: "Nuevo checklist" }]}
+      description="Evaluación de uniformidad y aseo por elemento."
+      icon={<FaTshirt size={20} />}
+      iconColor="#065911"
+    >
+      <ITGrid container columns={12} spacing={5} className="w-full pb-10 pt-5">
+        <ITGrid item xs={12} lg={7}>
+          <ITFlex direction="column" gap={5}>
+            <ITCard title="Guardia" className="rounded-3xl" contentClassName="space-y-3 p-5!">
+              <ITSearchSelect
+                name="guard"
+                label="Guardia a evaluar"
+                placeholder="Selecciona un guardia..."
+                options={guards.map((g) => ({ label: `${g.name} ${g.lastName ?? ""}`, value: String(g.id) }))}
+                value={guardId}
+                onChange={(val) => setGuardId(String(val))}
+              />
+              {selectedGuard && (
+                <ITFlex align="center" gap={3} className="rounded-xl bg-emerald-50/70 p-3 dark:bg-emerald-950/20">
+                  <ITFlex align="center" justify="center" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white">
+                    {(selectedGuard.name || "?").charAt(0)}{(selectedGuard.lastName || "").charAt(0)}
+                  </ITFlex>
+                  <ITFlex direction="column" className="min-w-0 flex-1">
+                    <ITText as="p" className="truncate text-sm font-bold text-emerald-950 dark:text-emerald-100">
+                      {selectedGuard.name} {selectedGuard.lastName}
+                    </ITText>
+                    <ITText as="p" className="text-[10px] text-emerald-700/70">
+                      @{selectedGuard.username} · {selectedGuard.role?.value || selectedGuard.role?.name || "Guardia"}
+                    </ITText>
+                  </ITFlex>
+                  <ITFlex direction="column" align="end">
+                    <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-emerald-700/60">Turno</ITText>
+                    <ITText as="p" className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200">
+                      {selectedGuard.schedule?.name || "Sin turno"}
+                    </ITText>
+                    {selectedGuard.schedule && (
+                      <ITText as="p" className="text-[10px] text-emerald-700/70">
+                        {selectedGuard.schedule.startTime} – {selectedGuard.schedule.endTime}
+                      </ITText>
+                    )}
+                  </ITFlex>
+                </ITFlex>
+              )}
+            </ITCard>
 
-        <ITFlex direction="column" className="space-y-6">
-          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">1. Guardia</ITText>
-            <ITSearchSelect
-              name="guard"
-              label="Guardia a evaluar"
-              placeholder="Selecciona un guardia..."
-              options={guards.map((g) => ({ label: `${g.name} ${g.lastName ?? ""}`, value: String(g.id) }))}
-              value={guardId}
-              onChange={(val) => setGuardId(String(val))}
-            />
-          </ITFlex>
-
-          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <ITFlex align="center" justify="between" className="flex items-center justify-between mb-3">
-              <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide">2. Checklist</ITText>
-              <ITFlex gap={2} className="flex gap-2">
-                <button
-                  onClick={() => setChecklist(UNIFORM_FIELDS.reduce((acc, key) => ({ ...acc, [key]: true }), {}))}
-                  className="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full uppercase tracking-wide hover:bg-emerald-100"
-                >
-                  Todo bien
-                </button>
-                <button
-                  onClick={() => setChecklist(DEFAULT_CHECKLIST)}
-                  className="text-[10px] font-black text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full uppercase tracking-wide hover:bg-slate-200"
-                >
-                  Limpiar
-                </button>
+            <ITCard title="Checklist" className="rounded-3xl" contentClassName="space-y-3 p-5!">
+              <ITFlex align="center" justify="between" gap={2} wrap="wrap" className="mb-4">
+                <ITText as="p" className="text-xs text-slate-500">Marca los elementos que el guardia cumple.</ITText>
+                <ITFlex align="center" gap={2}>
+                  <ITButton variant="text" color="success" size="sm" onClick={() => setChecklist(UNIFORM_FIELDS.reduce((acc, key) => ({ ...acc, [key]: true }), {}))}>Todo bien</ITButton>
+                  <ITButton variant="text" color="secondary" size="sm" onClick={() => setChecklist(DEFAULT_CHECKLIST)}>Limpiar</ITButton>
+                </ITFlex>
               </ITFlex>
-            </ITFlex>
 
-            <ITFlex direction="column" className="bg-slate-50 rounded-xl divide-y divide-slate-100">
-              {CHECKLIST_ITEMS.map((item) => (
-                <div key={item.key} className="flex items-center justify-between px-4 py-2.5">
-                  <ITText as="span" className="text-sm font-semibold text-slate-700 flex items-center gap-2.5">
-                    <item.icon className="text-slate-400" />
-                    {item.label}
-                  </ITText>
-                  <ITSlideToggle
-                    size="sm"
-                    isOn={checklist[item.key]}
-                    onToggle={(v) => setChecklist((prev) => ({ ...prev, [item.key]: v }))}
-                  />
-                </div>
-              ))}
-            </ITFlex>
+              <ITGrid container columns={12} spacing={2}>
+                {CHECKLIST_ITEMS.map((item) => {
+                  const ok = checklist[item.key];
+                  return (
+                    <ITGrid item xs={12} sm={6} key={item.key}>
+                      <ITFlex align="center" gap={2} className={`rounded-xl border p-3 ${ok ? "border-emerald-200 bg-emerald-50/70" : "border-slate-200 bg-slate-50/70"}`}>
+                        <ITFlex align="center" justify="center" className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${ok ? "bg-emerald-600 text-white" : "bg-white text-slate-400 dark:bg-slate-800"}`}>
+                          <item.icon className="text-[12px]" />
+                        </ITFlex>
+                        <ITText as="span" className={`min-w-0 flex-1 text-xs font-semibold ${ok ? "text-emerald-900" : "text-slate-600 dark:text-slate-300"}`}>{item.label}</ITText>
+                        <ITSlideToggle size="sm" isOn={ok} onToggle={(v) => setChecklist((prev) => ({ ...prev, [item.key]: v }))} ariaLabel={item.label} />
+                      </ITFlex>
+                    </ITGrid>
+                  );
+                })}
+              </ITGrid>
+            </ITCard>
           </ITFlex>
+        </ITGrid>
 
-          <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <ITText as="p" className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-3">3. Notas</ITText>
-            <ITInput name="notes" type="textarea" label="Notas (opcional)" value={notes} onChange={(e: any) => setNotes(e.target.value)} onBlur={noop} />
-          </ITFlex>
+        <ITGrid item xs={12} lg={5}>
+          <ITFlex direction="column" gap={5}>
+            <ITCard title="Resumen" className="rounded-3xl" contentClassName="space-y-4 p-5!">
+              <ITFlex align="center" justify="between" gap={2}>
+                <ITFlex direction="column">
+                  <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Cumplimiento</ITText>
+                  <ITText as="p" className="text-3xl font-black text-slate-900 dark:text-white">{pct}%</ITText>
+                </ITFlex>
+                <ITBadget color={pct >= 70 ? "success" : "warning"} variant="filled" size="sm">
+                  {pct >= 70 ? "Cumple" : "No cumple"}
+                </ITBadget>
+              </ITFlex>
+              <ITProgress value={completed} max={UNIFORM_FIELDS.length} color={pct >= 70 ? "success" : "warning"} size="sm" />
+              <ITFlex justify="between">
+                <ITText as="span" className="text-xs text-slate-500">Elementos cumplidos</ITText>
+                <ITText as="span" className="text-xs font-bold text-slate-800 dark:text-slate-100">{completed}/{UNIFORM_FIELDS.length}</ITText>
+              </ITFlex>
+              <ITFlex direction="column" gap={2}>
+                <ITButton color="primary" size="md" onClick={handleSubmit} disabled={submitting}>
+                  {submitting ? "Enviando..." : "Registrar checklist"}
+                </ITButton>
+                <ITButton variant="outlined" color="secondary" size="md" onClick={() => navigate("/uniform")}>Cancelar</ITButton>
+              </ITFlex>
+            </ITCard>
 
-          <ITFlex justify="end" gap={3} className="flex justify-end gap-3 pb-10">
-            <ITButton variant="outlined" color="secondary" onClick={() => navigate("/uniform")}>
-              Cancelar
-            </ITButton>
-            <ITButton
-              variant="filled"
-              color="primary"
-              onClick={handleSubmit}
-              disabled={submitting}
-             
-            >
-              {submitting ? "Enviando..." : "Registrar Checklist"}
-            </ITButton>
+            <ITCard title="Notas" className="rounded-3xl" contentClassName="p-5!">
+              <ITTextarea name="notes" label="Notas (opcional)" rows={4} value={notes} onChange={(value) => setNotes(value)} placeholder="Observaciones sobre la uniformidad..." />
+            </ITCard>
           </ITFlex>
-        </ITFlex>
-      </ITFlex>
-    </ITFlex>
+        </ITGrid>
+      </ITGrid>
+    </ITPage>
   );
 };
 

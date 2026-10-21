@@ -1,22 +1,25 @@
-import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITDataTable, ITDialog, ITFlex, ITInput, ITPage, ITText } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITCard, ITDataTable, ITDialog, ITFlex, ITGrid, ITInput, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEdit, FaKey, FaPlus, FaSync, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
 import { useDispatch } from "react-redux";
+import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { ChangePasswordModal } from "../components/ChangePasswordModal";
 import { CreateUserWizard } from "../components/CreateUserWizard";
 import { deleteUser, getPaginatedUsers, User } from "../services/UserService";
-import { getRoleFilterOptions } from "../utils/role.utils";
 
 const UsersPage = () => {
     const dispatch = useDispatch();
     const [refreshKey, setRefreshKey] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
+    const [roleFilter, setRoleFilter] = useState("ALL");
+    const [activeFilter, setActiveFilter] = useState("ALL");
     
-    // Catalog for roles filter
-    const { data: rolesCatalog, loading: loadingRoles } = useCatalog('role');
-    const roleFilterOptions = useMemo(() => getRoleFilterOptions(rolesCatalog), [rolesCatalog]);
+    const { data: rolesCatalog } = useCatalog('role');
+    const roleOptions = useMemo(
+        () => (rolesCatalog || []).filter((role) => Boolean(role.value)).map((role) => ({ label: role.value, value: String(role.id) })),
+        [rolesCatalog],
+    );
 
     // Modal States
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -30,11 +33,11 @@ const UsersPage = () => {
             setRefreshKey(prev => prev + 1);
         }, 500);
         return () => clearTimeout(timer);
-    }, [searchTerm]);
+    }, [searchTerm, roleFilter, activeFilter]);
 
     const externalFilters = useMemo(() => {
         return { name: searchTerm };
-    }, [searchTerm]);
+    }, [searchTerm, roleFilter, activeFilter]);
 
     const memoizedFetch = useCallback((params: any) => {
         return getPaginatedUsers(params);
@@ -63,7 +66,7 @@ const UsersPage = () => {
 
     return (
         <ITPage
-      className="m-0! px-4! max-w-screen!"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
       noPadding
       title="Directorio de Usuarios"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Directorio de Usuarios" }]}
@@ -71,60 +74,56 @@ const UsersPage = () => {
       icon={<FaUserShield size={20} />}
       iconColor="#065911"
       actions={
-<ITFlex align="center" gap={3} className="flex items-center gap-3">
-                    <ITFlex direction="column" className="w-64 relative">
-                        <ITInput
-                            name="searchUser"
-                            placeholder="Buscar usuario..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="!py-2 !h-[42px] !rounded-xl border-slate-100 !pr-10 bg-white"
-                        />
-                        {searchTerm && (
-                            <ITButton
-                                variant="icon-only"
-                                color="gray"
-                                size="sm"
-                                onClick={() => setSearchTerm("")}
-                                icon={<FaTimes size={14} />}
-                               
-                            />
-                        )}
-                    </ITFlex>
-                    <ITButton
-                        onClick={refreshTable}
-                        color="secondary"
-                        variant="outlined"
-                       
-                        size="md"
-                    >
-                        <ITFlex align="center" gap={2}><FaSync className={`text-xs text-slate-500 ${refreshKey % 2 === 0 ? '' : 'rotate-180'}`} />
-                        <ITText as="span" className="text-xs font-bold text-slate-500">Actualizar</ITText></ITFlex>
-                    </ITButton>
-                    <ITButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                        color="primary"
-                        size="md"
-                    >
-                        <ITFlex align="center" gap={2}><FaPlus className="text-xs" /> NUEVO USUARIO
-                    </ITFlex></ITButton>
-                </ITFlex>
+        <ITButton onClick={() => setIsCreateModalOpen(true)} color="primary" size="md">
+          <ITFlex align="center" gap={2}>Nuevo usuario<FaPlus /></ITFlex>
+        </ITButton>
       }
     >
 
-            <ITFlex direction="column" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
+                <ITCard className="rounded-3xl" contentClassName="p-4!">
+                    <ITGrid container columns={12} spacing={3} className="items-end">
+                        <ITGrid item xs={12} md={4}>
+                            <ITFlex direction="column" gap={1}>
+                                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Buscar usuario</ITText>
+                                <ITFlex align="center" gap={1}>
+                                    <ITInput name="searchUser" placeholder="Buscar usuario..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} iconLeft={<FaUserShield />} size="md" />
+                                    {searchTerm && <ITButton variant="icon-only" color="secondary" size="sm" onClick={() => setSearchTerm("")} icon={<FaTimes size={12} />} ariaLabel="Limpiar búsqueda" title="Limpiar búsqueda" />}
+                                </ITFlex>
+                            </ITFlex>
+                        </ITGrid>
+                        <ITGrid item xs={12} sm={6} md={3}>
+                            <ITFlex direction="column" gap={1}>
+                                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Rol</ITText>
+                                <ITSearchSelect value={roleFilter} onChange={(value) => setRoleFilter(String(value))} options={[{ label: "Todos los roles", value: "ALL" }, ...roleOptions]} clearable={false} />
+                            </ITFlex>
+                        </ITGrid>
+                        <ITGrid item xs={12} sm={6} md={3}>
+                            <ITFlex direction="column" gap={1}>
+                                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Estatus</ITText>
+                                <ITSearchSelect value={activeFilter} onChange={(value) => setActiveFilter(String(value))} options={[{ label: "Todos", value: "ALL" }, { label: "Activos", value: "ACTIVE" }, { label: "Inactivos", value: "INACTIVE" }]} clearable={false} />
+                            </ITFlex>
+                        </ITGrid>
+                        <ITGrid item xs={12} md={2}>
+                            <ITFlex align="end" justify="end" className="h-full">
+                                <ITButton onClick={refreshTable} variant="icon-only" color="secondary" size="md" icon={<FaSync />} ariaLabel="Actualizar" title="Actualizar" />
+                            </ITFlex>
+                        </ITGrid>
+                    </ITGrid>
+                </ITCard>
+
                 <ITDataTable
                   defaultItemsPerPage={50}
                   itemsPerPageOptions={[25, 50, 100]}
                   layout="fixed"
                   density="compact"
+                  showViewToggle={false}
                   virtualized
                   virtualizedMaxHeight={400}
                   rowHeight={50}
                     key={refreshKey}
                     fetchData={memoizedFetch as any}
                     externalFilters={externalFilters}
-                    title=""
                     columns={[
                         {
                             key: "user",
@@ -133,7 +132,7 @@ const UsersPage = () => {
                             sortable: false,
                             render: (row: User) => (
                                 <ITFlex align="center" gap={3} className="flex items-center gap-3 py-2">
-                                    <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200 text-sm">
+                                    <ITFlex align="center" justify="center" className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-50 text-sm font-bold text-sky-600 dark:bg-sky-950/30 dark:text-sky-400">
                                         {row.name.charAt(0)}{row.lastName?.charAt(0) || ''}
                                     </ITFlex>
                                     <ITFlex direction="column">
@@ -147,30 +146,15 @@ const UsersPage = () => {
                             key: "roleId",
                             label: "ROL / CATEGORÍA",
                             type: "string",
-                            filter: "search",
-                            catalogOptions: {
-                                data: roleFilterOptions,
-                                loading: loadingRoles
-                            },
                             render: (row: User) => {
-                                const roleName = row.role?.name || '';
-                                const roleValue = row.role?.value || 'S/R';
-                                
-                                let badgeClass = "bg-slate-50 text-slate-500 border-slate-100"; // Default
-                                
-                                if (roleName === 'ADMIN') badgeClass = "bg-blue-50 text-blue-700 border-blue-100";
-                                if (roleName === 'GUARD') badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                                if (roleName === 'SHIFT') badgeClass = "bg-indigo-50 text-indigo-700 border-indigo-100";
-                                if (roleName === 'MAINT') badgeClass = "bg-amber-50 text-amber-700 border-amber-100";
-                                if (roleName === 'RESDN') badgeClass = "bg-slate-50 text-slate-500 border-slate-100";
-
-                                return (
-                                    <ITFlex align="center" className="flex items-center">
-                                        <ITText as="span" className={`px-2 py-1 font-bold text-[10px] rounded border uppercase tracking-wider ${badgeClass}`}>
-                                            {roleValue}
-                                        </ITText>
-                                    </ITFlex>
-                                );
+                                const roleName = row.role?.name || "";
+                                const roleValue = row.role?.value || "S/R";
+                                const color =
+                                  roleName === "ADMIN" ? "primary" :
+                                  roleName === "GUARD" ? "success" :
+                                  roleName === "SHIFT" ? "info" :
+                                  roleName === "MAINT" ? "warning" : "secondary";
+                                return <ITBadget color={color as any} variant="filled" size="sm">{roleValue}</ITBadget>;
                             }
                         },
                         {
@@ -196,12 +180,9 @@ const UsersPage = () => {
                             label: "ESTADO",
                             type: "string",
                             render: (row: User) => (
-                                <ITFlex direction="column" className="text-sm text-slate-600">
-                                    <ITFlex direction="column" className={`flex items-center gap-1.5 font-medium ${row.active ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                        <ITFlex direction="column" className={`w-1.5 h-1.5 rounded-full ${row.active ? 'bg-emerald-500' : 'bg-slate-300'}`}></ITFlex>
-                                        {row.active ? 'Activo' : 'Inactivo'}
-                                    </ITFlex>
-                                </ITFlex>
+                                <ITBadget color={row.active ? "success" : "secondary"} variant="filled" size="sm">
+                                  {row.active ? "Activo" : "Inactivo"}
+                                </ITBadget>
                             )
                         },
                         {
@@ -284,11 +265,11 @@ const UsersPage = () => {
                 onClose={() => setUserToDeleteId(null)} 
                 title="Confirmar Eliminación"
             >
-                <ITFlex direction="column" className="p-6">
-                    <ITText as="p" className="text-slate-700 mb-6">¿Estás seguro de eliminar el usuario seleccionado? Esta acción inhabilitará su acceso a la plataforma de forma permanente.</ITText>
-                    <ITFlex justify="end" gap={3} className="flex justify-end gap-3">
-                        <ITButton variant="outlined" onClick={() => setUserToDeleteId(null)}>Cancelar</ITButton>
-                        <ITButton onClick={confirmDelete}>Eliminar Usuario</ITButton>
+                <ITFlex direction="column" gap={4}>
+                    <ITText as="p" className="text-sm text-slate-600 dark:text-slate-300">¿Estás seguro de eliminar el usuario seleccionado? Esta acción inhabilitará su acceso a la plataforma de forma permanente.</ITText>
+                    <ITFlex justify="end" gap={2}>
+                        <ITButton variant="outlined" color="secondary" onClick={() => setUserToDeleteId(null)}>Cancelar</ITButton>
+                        <ITButton color="danger" onClick={confirmDelete}>Eliminar usuario</ITButton>
                     </ITFlex>
                 </ITFlex>
             </ITDialog>

@@ -1,6 +1,6 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
+import { ITButton, ITChip, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaEyeSlash, FaMagic, FaShieldAlt, FaUser } from "react-icons/fa";
@@ -153,30 +153,25 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
         <Section icon={<FaShieldAlt />} title="Acceso" hint={isEditing ? "la contraseña se cambia desde la tabla" : "contraseña temporal"}>
           <ITFlex direction="column" className="mb-4">
             <ITText as="p" className="text-sm font-medium text-slate-700 mb-2">Rol</ITText>
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Rol">
+            <ITFlex align="center" gap={2} wrap="wrap">
               {visibleRoles.map((r) => {
                 const on = String(r.id) === formik.values.roleId;
                 return (
-                  <button
+                  <ITChip
                     key={r.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
+                    label={r.value}
+                    selected={on}
                     onClick={() => {
                       formik.setFieldValue("roleId", String(r.id));
                       formik.setFieldTouched("roleId", true, false);
                     }}
-                    className={`px-3.5 py-2 text-xs font-bold rounded-xl border transition-all ${
-                      on
-                        ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
-                        : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-emerald-700"
-                    }`}
-                  >
-                    {r.value}
-                  </button>
+                    color={on ? "primary" : "secondary"}
+                    size="sm"
+                    variant="soft"
+                  />
                 );
               })}
-            </div>
+            </ITFlex>
             {roleError && <ITText as="p" className="text-xs text-red-500 mt-1.5">{formik.errors.roleId}</ITText>}
           </ITFlex>
 
