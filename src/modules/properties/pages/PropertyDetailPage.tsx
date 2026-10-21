@@ -37,7 +37,7 @@ const PropertyDetailPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userRole = useSelector((state: AppState) => state.auth.role);
-    const isAdmin = userRole === 'ADMIN' || userRole === 'SHIFT_GUARD';
+    const isAdmin = userRole === 'ADMIN' || userRole === 'SHIFT';
 
     const [property, setProperty] = useState<Property | null>(null);
     const [loading, setLoading] = useState(true);
@@ -61,8 +61,9 @@ const PropertyDetailPage = () => {
             } else {
                 dispatch(showToast({ message: "No se pudo cargar la propiedad", type: "error" }));
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error fetching property:", error);
+            dispatch(showToast({ message: error?.messages?.[0] || "No se pudo cargar la propiedad", type: "error" }));
         } finally {
             setLoading(false);
         }
@@ -158,15 +159,12 @@ const PropertyDetailPage = () => {
             key: "role", 
             label: "Relación", 
             type: "string", 
-            render: (row: ResidentUser) => {
-                console.log(row);
-                return (
+            render: (row: ResidentUser) => (
                 <ITFlex direction="column" className={`flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider ${row.role === 'OWNER' ? 'text-amber-600' : 'text-emerald-600'}`}>
                     {row.role === 'OWNER' ? <FaCrown className="text-amber-500" /> : <FaUser className="text-emerald-400" />}
                     {row.role === 'OWNER' ? 'Propietario' : 'Inquilino'}
                 </ITFlex>
             )
-            }
         },
         { 
             key: "contact", 
@@ -228,9 +226,14 @@ const PropertyDetailPage = () => {
                 </ITFlex>
                 <ITText as="h2" className="text-2xl font-bold text-slate-800 mb-2">Propiedad no encontrada</ITText>
                 <ITText as="p" className="text-slate-500 mb-8">El registro solicitado no existe o ha sido eliminado del catálogo.</ITText>
-                <ITButton color="primary" onClick={() => navigate("/properties")}>
-                    Volver al listado
-                </ITButton>
+                <ITFlex justify="center" gap={3}>
+                    <ITButton variant="outlined" color="secondary" onClick={() => id && fetchData(Number(id))}>
+                        Reintentar
+                    </ITButton>
+                    <ITButton color="primary" onClick={() => navigate("/properties")}>
+                        Volver al listado
+                    </ITButton>
+                </ITFlex>
             </ITFlex>
         </ITFlex>
     );
@@ -253,7 +256,7 @@ const PropertyDetailPage = () => {
                         <ITButton 
                             variant="ghost" 
                             onClick={() => navigate("/properties")}
-                           
+                            ariaLabel="Volver"
                         >
                             <FaArrowLeft className="text-lg" />
                         </ITButton>

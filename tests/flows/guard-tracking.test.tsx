@@ -1,10 +1,17 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { stub, table } from "../helpers/api";
 import { liveDashboard } from "../helpers/fixtures";
 import { mapProbe } from "../helpers/maps";
 import { renderApp } from "../helpers/render";
 import { pickOption } from "../helpers/ui";
+
+// La pantalla pide el detalle de la ronda auto-seleccionada sin `catch`; si el
+// test termina antes de que resuelva, el reset global de MSW la deja sin handler.
+// Se le da un margen para que la petición en vuelo acabe antes del afterEach global.
+afterEach(async () => {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+});
 
 const users = [
   { id: 1, name: "Ana", lastName: "Pérez", username: "ana", role: { name: "GUARD" } },
@@ -155,5 +162,36 @@ describe("seguimiento de guardias", () => {
     stub("get", "/rounds/11", { success: false });
     await pickOption(user, guardInput(), "Ana Pérez");
     expect(await screen.findByText("Sin eventos para esta ronda.")).toBeInTheDocument();
+  });
+});
+
+describe("seguimiento de guardias: ramas defensivas", () => {
+  it("un reporte sin el guardia elegido deja el resumen vacío sin romper la pantalla", async () => {
+    const { user } = await open();
+    stub("get", "/reports/guards/detail", { success: true, data: [{ guardId: 99, totalRounds: 2, totalScans: 3, missedScans: 0 }] });
+    stub("get", "/reports/guards/detail-breakdown/1", { success: true });
+    await pickOption(user, guardInput(), "Ana Pérez");
+    expect(await screen.findByText("Escaneo Puerta")).toBeInTheDocument();
+    expect(screen.queryByText(/ronda\(s\) incompleta/i)).toBeNull();
+    expect(screen.getAllByText("---").length).toBeGreaterThan(0);
+  });
+
+  it("guardia sin apellido y con rol traducido en la descripción", async () => {
+    const { user } = await open();
+    // Beto es SHIFT: su desglose también se consulta al elegirlo.
+    stub("get", "/reports/guards/detail-breakdown/2", { success: true, data: { missedPoints: [], incompleteRounds: [] } });
+    await pickOption(user, guardInput(), "Beto");
+    expect(await screen.findByText(/Jefe de Guardias/)).toBeInTheDocument();
+    // Espera el detalle de la ronda auto-seleccionada para no dejar la petición en vuelo.
+    expect(await screen.findByText("Escaneo Puerta")).toBeInTheDocument();
+  });
+
+  it("limpiar el selector vuelve al estado sin guardia", async () => {
+    // Sin rondas no queda ninguna petición de detalle en vuelo al limpiar.
+    const { user } = await open("/guard-tracking?guardId=1", { roundRows: [] });
+    await screen.findByText("Sin rondas en este rango de fechas.");
+    await user.click(screen.getByRole("button", { name: "Limpiar" }));
+    await waitFor(() => expect(screen.getAllByText("Selecciona un guardia para ver su seguimiento.").length).toBeGreaterThan(0));
+    expect(screen.queryByText("Escaneo Puerta")).toBeNull();
   });
 });

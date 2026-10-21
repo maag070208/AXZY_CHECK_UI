@@ -12,18 +12,32 @@ export const HouseholdPanel = ({ propertyId, onChanged }: Props) => {
   const [rows, setRows] = useState<HouseholdResident[]>([]);
   const [kinds, setKinds] = useState<ResidentKindOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [form, setForm] = useState({ firstName: "", lastName: "", phone: "", kindCode: "FAMILY" });
   const [duplicateWarning, setDuplicateWarning] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    const res: any = await listHousehold(propertyId);
-    setRows(res.data ?? []);
-    setLoading(false);
+  const load = useCallback(async (showLoader = false) => {
+    if (showLoader) setLoading(true);
+    setLoadError(null);
+    try {
+      const res: any = await listHousehold(propertyId);
+      if (res.success === false) {
+        setRows([]);
+        setLoadError(res.messages?.[0] ?? "No se pudo cargar el hogar");
+      } else {
+        setRows(res.data ?? []);
+      }
+    } catch (error: any) {
+      setRows([]);
+      setLoadError(error?.messages?.[0] ?? "No se pudo cargar el hogar");
+    } finally {
+      setLoading(false);
+    }
   }, [propertyId]);
 
   useEffect(() => {
-    void load();
+    void load(true);
     listResidentKinds()
       .then((res) => setKinds(res.data ?? []))
       .catch(() => setKinds([]));
@@ -62,6 +76,16 @@ export const HouseholdPanel = ({ propertyId, onChanged }: Props) => {
   };
 
   if (loading) return <ITFlex justify="center" className="flex justify-center p-6"><ITLoader size="sm" /></ITFlex>;
+
+  if (loadError) {
+    return (
+      <section className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 space-y-4">
+        <ITText as="h2" className="text-lg font-bold text-slate-800">Hogar</ITText>
+        <ITText as="p" role="alert" className="text-sm text-red-600">{loadError}</ITText>
+        <ITButton size="sm" variant="outlined" onClick={() => void load(true)}>Reintentar</ITButton>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 space-y-6">

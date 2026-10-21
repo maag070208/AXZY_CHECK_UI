@@ -14,20 +14,44 @@ const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString("es-MX") :
 export const OccupancyPanel = ({ propertyId, onChanged }: Props) => {
   const [view, setView] = useState<OccupancyView | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const res: any = await getOccupancy(propertyId);
-    setView(res.data ?? null);
-    setLoading(false);
+  const load = useCallback(async (showLoader = false) => {
+    if (showLoader) setLoading(true);
+    setLoadError(null);
+    try {
+      const res: any = await getOccupancy(propertyId);
+      if (res.success === false) {
+        setView(null);
+        setLoadError(res.messages?.[0] ?? "No se pudo cargar la ocupación");
+      } else {
+        setView(res.data ?? null);
+      }
+    } catch (error: any) {
+      setView(null);
+      setLoadError(error?.messages?.[0] ?? "No se pudo cargar la ocupación");
+    } finally {
+      setLoading(false);
+    }
   }, [propertyId]);
 
   useEffect(() => {
-    void load();
+    void load(true);
   }, [load]);
 
   if (loading) return <ITFlex justify="center" className="flex justify-center p-6"><ITLoader size="sm" /></ITFlex>;
+
+  if (loadError) {
+    return (
+      <section className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 space-y-4">
+        <ITText as="h2" className="text-lg font-bold text-slate-800">Ocupación</ITText>
+        <ITText as="p" role="alert" className="text-sm text-red-600">{loadError}</ITText>
+        <ITButton size="sm" variant="outlined" onClick={() => void load(true)}>Reintentar</ITButton>
+      </section>
+    );
+  }
+
   if (!view) return null;
 
   return (
