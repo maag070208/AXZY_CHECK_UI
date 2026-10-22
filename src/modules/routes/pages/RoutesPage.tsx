@@ -10,10 +10,11 @@ import {
   ITText,
 } from "@axzydev/axzy_ui_system";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaEdit, FaPlus, FaRoute, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
+import { FaEdit, FaFilePdf, FaPlus, FaRoute, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { CreateRouteModal } from "../components/CreateRouteModal";
 import { deleteRoute, getPaginatedRoutes } from "../services/RoutesService";
+import { downloadLocationQRsPdf } from "@core/utils/locationQRsPdf";
 
 const RoutesPage = () => {
   const dispatch = useDispatch();
@@ -59,6 +60,34 @@ const RoutesPage = () => {
   const handleCreate = () => {
     setEditConfig(null);
     setIsCreateModalOpen(true);
+  };
+
+  const handleDownloadQrPdf = (route: any) => {
+    try {
+      const unique = new Map<number, { id: number; name: string }>();
+      (route.recurringLocations ?? []).forEach((rl: any) => {
+        const location = rl.location;
+        if (location?.id && location?.name) {
+          unique.set(location.id, { id: location.id, name: location.name });
+        }
+      });
+
+      const locations = [...unique.values()];
+      if (locations.length === 0) {
+        dispatch(showToast({ message: "Esta ruta no tiene ubicaciones", type: "warning" }));
+        return;
+      }
+
+      downloadLocationQRsPdf(locations, route.title);
+      dispatch(
+        showToast({
+          message: `${locations.length} QRs en PDF`,
+          type: "success",
+        }),
+      );
+    } catch {
+      dispatch(showToast({ message: "No se pudo generar el PDF", type: "error" }));
+    }
   };
 
   return (
@@ -193,6 +222,15 @@ const RoutesPage = () => {
               type: "actions",
               actions: (row: any) => (
                 <ITFlex align="center" gap={2}>
+                  <ITButton
+                    onClick={() => handleDownloadQrPdf(row)}
+                    variant="icon-only"
+                    color="secondary"
+                    size="md"
+                    icon={<FaFilePdf />}
+                    ariaLabel="Descargar QRs"
+                    title="Descargar QRs en PDF"
+                  />
                   <ITButton
                     onClick={() => handleEdit(row)}
                     variant="icon-only"

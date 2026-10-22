@@ -1,4 +1,5 @@
 import QRCode from "qrcode";
+import { buildLocationQrPayload } from "./locationQr";
 
 export interface PrintableLocation {
   id: number;
@@ -11,7 +12,7 @@ const escapeHtml = (value: string) =>
 /**
  * Imprime una hoja con el QR de cada ubicación (4 por página, con salto de página).
  * El contenido del QR es el mismo que usa la impresión individual de Ubicaciones
- * (`{ id, type: "LOCATION" }`), que es lo que lee el escáner de la app.
+ * (`buildLocationQrPayload`), que es lo que valida el escáner de la app.
  * Usa un iframe oculto en vez de `window.open` para no depender de los pop-ups.
  */
 export const printLocationQRs = async (locations: PrintableLocation[], heading?: string) => {
@@ -19,7 +20,7 @@ export const printLocationQRs = async (locations: PrintableLocation[], heading?:
 
   const cards = await Promise.all(
     locations.map(async (loc, i) => {
-      const dataUrl = await QRCode.toDataURL(JSON.stringify({ id: loc.id, type: "LOCATION" }), { width: 400, margin: 1 });
+      const dataUrl = await QRCode.toDataURL(buildLocationQrPayload(loc.id), { width: 400, margin: 1 });
       return `
         <div class="card">
           <span class="num">${i + 1}</span>

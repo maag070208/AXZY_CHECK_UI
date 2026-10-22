@@ -298,3 +298,26 @@ describe("rutas: edición", () => {
     expect(within(dialog).getByText("0 de 3 asignados")).toBeInTheDocument();
   });
 });
+
+describe("rutas: QRs en PDF", () => {
+  it("descarga el PDF con las ubicaciones de la ruta", async () => {
+    const clicked: Array<{ href: string; download: string }> = [];
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      clicked.push({ href: this.href, download: this.download });
+    });
+    const { user } = await open();
+    await user.click(screen.getAllByRole("button", { name: "Descargar QRs" })[0]);
+    expect(toast()).toMatchObject({ message: "2 QRs en PDF", type: "success" });
+    expect(clicked).toHaveLength(1);
+    expect(clicked[0].download).toMatch(/^QRs-ronda-norte-\d{4}-\d{2}-\d{2}\.pdf$/);
+    expect(clicked[0].href).toBe("blob:test/1");
+  });
+
+  it("una ruta sin ubicaciones solo avisa", async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click");
+    const { user } = await open();
+    await user.click(screen.getAllByRole("button", { name: "Descargar QRs" })[1]);
+    expect(toast()).toMatchObject({ message: "Esta ruta no tiene ubicaciones", type: "warning" });
+    expect(click).not.toHaveBeenCalled();
+  });
+});

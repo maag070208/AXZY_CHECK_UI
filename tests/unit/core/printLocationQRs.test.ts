@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { printLocationQRs } from "@app/core/utils/printLocationQRs";
+import { buildLocationQrPayload } from "@app/core/utils/locationQr";
 
 vi.mock("qrcode", () => ({ default: { toDataURL: vi.fn(async (t: string) => `data:image/png;base64,${btoa(t)}`) } }));
 
@@ -36,7 +37,7 @@ describe("printLocationQRs", () => {
     const html = frame.srcdoc;
     expect(html).toContain("A &lt;b&gt;&quot;x&quot;&lt;/b&gt; &amp; y");
     expect(html).toContain("<title>Torre &lt;1&gt;</title>");
-    expect(html).toContain(btoa(JSON.stringify({ id: 1, type: "LOCATION" })));
+    expect(html).toContain(btoa(buildLocationQrPayload(1)));
     expect(html.match(/class="card"/g)).toHaveLength(2);
     expect(html).toContain("<p>Torre &lt;1&gt;</p>");
   });

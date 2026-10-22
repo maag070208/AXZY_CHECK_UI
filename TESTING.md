@@ -1,6 +1,6 @@
 # Pruebas de la WEB y la API — estado y pendientes
 
-Última actualización: 2026-10-21. Suite combinada de la WEB: **1.051 pruebas en 37 archivos**, todo en verde. Cobertura global del combinado: **statements 99,3 % · branches 95,53 % · functions 93,5 %** (`pnpm test:coverage`, ~2,5 min en una máquina descargada).
+Última actualización: 2026-10-21. Suite combinada de la WEB: **1.055 pruebas en 38 archivos**, todo en verde. Cobertura global del combinado: **statements 99,3 % · branches 95,49 % · functions 93,62 %** (`pnpm test:coverage`, ~2,5 min en una máquina descargada).
 
 ## 1. Cómo correr
 
@@ -22,7 +22,7 @@ Playwright (`e2e/`, `pnpm e2e`) sigue intacto: levanta build + API + BD, por eso
 
 | Capa | Dónde | Qué prueba |
 |---|---|---|
-| **unit** | `tests/unit/**` | slices de Redux, axios, utilidades, hook de catálogos, servicios HTTP (método, ruta, cuerpo, ramas de error/PDF/subidas), componentes compartidos (`MediaCarousel`, `ReportCreateForm`, `ReportDetailDialog`, mapas, rutas protegidas, navbar, toast) y helpers visuales de catálogos (`catalogVisuals`) |
+| **unit** | `tests/unit/**` | slices de Redux, axios, utilidades, hook de catálogos, servicios HTTP (método, ruta, cuerpo, ramas de error/PDF/subidas), componentes compartidos (`MediaCarousel`, `ReportCreateForm`, `ReportDetailDialog`, mapas, rutas protegidas, navbar, toast), helpers visuales de catálogos (`catalogVisuals`) y el generador de PDF de QRs (`locationQRsPdf`) |
 | **flujos ("e2e" rápidos)** | `tests/flows/**` | pantallas completas montando `<App/>` (router, Redux, UI System) contra una API simulada con MSW: listar, filtrar, crear, editar, borrar, validaciones y errores |
 | **helpers** | `tests/helpers/**` | `renderApp({route, role, claims})`, `renderWithProviders`, `stub/table/fail` (MSW), `mockTransport` (FormData/Blob), dobles de **Ably** y **Google Maps**, `dropfile`, `pickOption`, fixtures |
 
@@ -37,8 +37,9 @@ Archivos de flujo por pantalla (pruebas que aporta cada uno):
 | `invitations.test.tsx` | 36 | listado, alta, gafete QR/WhatsApp, revocación y validación de acceso |
 | `reports.test.tsx` | 84 | incidencias, mantenimientos y casa club (parametrizado): listado, filtros, detalle, resolver, eliminar y PDF |
 | `landing.test.tsx` | 15 | landing pública: navegación, menú móvil, tabs, FAQ y cotización por WhatsApp |
+| `routes.test.tsx` | 21 | listado, alta/edición, QR de ubicaciones y descarga del PDF de QRs por ruta |
 | `guard-tracking.test.tsx` | 16 | seguimiento de guardias y ramas defensivas del selector/resumen |
-| `dashboard*.test.tsx`, `chat`, `kardex`, `login`, `locations`, `rounds`, `round-detail`, `routes`, `schedules`, `shift-handover`, `uniform`, `users`, `guards` | — | flujos previos (sin cambios) + unit existentes |
+| `dashboard*.test.tsx`, `chat`, `kardex`, `login`, `locations`, `rounds`, `round-detail`, `schedules`, `shift-handover`, `uniform`, `users`, `guards` | — | flujos previos (sin cambios) + unit existentes |
 
 Dobles globales (en `tests/setup.ts`): Ably, `@vis.gl/react-google-maps`, `google.maps`, `ResizeObserver`, `matchMedia`, `URL.createObjectURL`, `navigator.geolocation`, dayjs (utc/timezone/es). MSW está en modo estricto: **cualquier request sin handler falla la prueba**.
 
@@ -53,7 +54,7 @@ Limitación: jsdom no es un navegador real; no valida layout, CSS ni mapas reale
 | locations, users, schedules, uniform, kardex, chat | ✅ 100% |
 | dashboard en vivo + home (Ritmo, Analytics, mapa, Ably) | ✅ 100% |
 | guards (listado, asignaciones, historial) | ✅ 100% |
-| routes (listado, alta/edición, QR) | ✅ 100% |
+| routes (listado, alta/edición, QR y PDF de QRs por ruta) | ✅ 21 flujos + 2 unit del generador |
 | rounds (listado + detalle + `RoundRouteMap`) | ✅ 100% |
 | shift-handover (historial + nueva) | ✅ 100% |
 | servicios HTTP | ✅ unit |

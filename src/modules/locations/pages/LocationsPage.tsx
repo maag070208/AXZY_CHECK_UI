@@ -12,6 +12,7 @@ import {
   ITText,
 } from "@axzydev/axzy_ui_system";
 import QRCode from "qrcode";
+import { buildLocationQrPayload } from "@core/utils/locationQr";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaEdit, FaPlus, FaPrint, FaQrcode, FaSearch, FaSearchLocation, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -85,13 +86,9 @@ const LocationsPage = () => {
 
   const openQr = async (location: Location) => {
     try {
-      const dataUrl = await QRCode.toDataURL(
-        JSON.stringify({
-          id: location.id,
-          type: "LOCATION",
-        }),
-        { width: 300 },
-      );
+      const dataUrl = await QRCode.toDataURL(buildLocationQrPayload(location.id), {
+        width: 300,
+      });
       setQrPreview({ location, dataUrl });
     } catch (error) {
       console.error("Error generating QR", error);
