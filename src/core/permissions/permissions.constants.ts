@@ -45,6 +45,10 @@ export const P = {
   CLUB_CREATE: "club.create",
   CLUB_RESOLVE: "club.resolve",
   CLUB_DELETE: "club.delete",
+  RESIDENT_SELF: "resident.self",
+  INVITATION_VIEW: "invitation.view",
+  INVITATION_CREATE: "invitation.create",
+  INVITATION_REVOKE: "invitation.revoke",
 } as const;
 
 export type PermissionCode = (typeof P)[keyof typeof P];

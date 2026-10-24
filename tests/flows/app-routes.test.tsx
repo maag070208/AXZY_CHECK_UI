@@ -13,6 +13,7 @@ const ROLES: Role[] = ["ADMIN", "SHIFT", "GUARD", "MAINT"];
 /** Rutas protegidas por `PermissionRoute`, con los roles que cumplen el permiso (fixture RBAC). */
 const GUARDED: { path: string; roles: Role[]; title: string }[] = [
   { path: "/users", roles: ["ADMIN"], title: "Directorio de Usuarios" },
+  { path: "/roles", roles: ["ADMIN"], title: "Roles y permisos" },
   { path: "/schedules", roles: ["ADMIN"], title: "Directorio de Horarios" },
   { path: "/catalogs", roles: ["ADMIN"], title: "Catálogos" },
   { path: "/guards", roles: ["ADMIN", "SHIFT"], title: "Módulo de Guardias" },

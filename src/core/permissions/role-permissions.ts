@@ -36,5 +36,5 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "maintenance.view","maintenance.create","maintenance.resolve","maintenance.delete",
     "club.view","club.create","club.resolve","club.delete",
   ],
-  RESDN: [],
+  RESDN: ["resident.self", "invitation.view", "invitation.create", "invitation.revoke"],
 };

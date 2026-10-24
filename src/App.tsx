@@ -35,6 +35,8 @@ import ShiftHandoverPage from "./modules/shift-handover/pages/ShiftHandoverPage"
 import NewShiftHandoverPage from "./modules/shift-handover/pages/NewShiftHandoverPage";
 import UniformPage from "./modules/uniform/pages/UniformPage";
 import NewUniformCheckPage from "./modules/uniform/pages/NewUniformCheckPage";
+import RolesPermissionsPage from "./modules/rbac/pages/RolesPermissionsPage";
+import ResidentPortalPage from "./modules/resident/pages/ResidentPortalPage";
 
 function App() {
   const token = useSelector((state: any) => state.auth.token);
@@ -108,6 +110,8 @@ function App() {
         <Route path="/invitations" element={<PermissionRoute permissions={P.ACCESS_CHECK}><InvitationsPage /></PermissionRoute>} />
 
         <Route path="/users" element={<PermissionRoute permissions={P.USERS_MANAGE}><UsersPage /></PermissionRoute>} />
+        <Route path="/roles" element={<PermissionRoute permissions={P.USERS_MANAGE}><RolesPermissionsPage /></PermissionRoute>} />
+        <Route path="/resident" element={<PermissionRoute permissions={P.RESIDENT_SELF}><ResidentPortalPage /></PermissionRoute>} />
         <Route path="/incidents" element={<PermissionRoute permissions={P.INCIDENT_VIEW}><IncidentsPage /></PermissionRoute>} />
         {/* Crear reportes de club lo puede hacer cualquier staff; resolver exige club.manage. */}
         <Route path="/club" element={<PermissionRoute permissions={P.CLUB_VIEW}><ClubPage /></PermissionRoute>} />

@@ -9,13 +9,19 @@ import { useMemo } from "react";
 interface Props {
     onSubmit: (data: any) => void;
     onCancel: () => void;
+    /** Para el residente: su propiedad queda fija y no puede elegir otra. */
+    fixedProperty?: { id: number; label: string };
 }
 
-export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
+export const InvitationForm = ({ onSubmit, onCancel, fixedProperty }: Props) => {
     const [properties, setProperties] = useState<{label: string, value: string}[]>([]);
     const { data: invitationTypes } = useCatalog('invitation_type');
 
     useEffect(() => {
+        if (fixedProperty) {
+            setProperties([{ label: fixedProperty.label, value: String(fixedProperty.id) }]);
+            return;
+        }
         getPropertiesList().then(res => {
             if (res.success && res.data) {
                 setProperties(res.data.map((p: Property) => ({
@@ -36,7 +42,7 @@ export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
     const formik = useFormik({
         initialValues: {
             guestName: "",
-            propertyId: "",
+            propertyId: fixedProperty ? String(fixedProperty.id) : "",
             typeId: "",
             dateRange: [new Date(), new Date(Date.now() + 86400000)], // default range from today to tomorrow
             notes: ""
@@ -77,15 +83,26 @@ export const InvitationForm = ({ onSubmit, onCancel }: Props) => {
                 />
 
                 <ITFlex direction="column" className="grid grid-cols-2 gap-4">
-                    <ITSearchSelect
-                        label="Destino (Propiedad)"
-                        name="propertyId"
-                        value={formik.values.propertyId}
-                        onChange={(val) => formik.setFieldValue("propertyId", val)}
-                        options={[{label: "Seleccionar propiedad...", value: ""}, ...properties]}
-                        error={formik.errors.propertyId}
-                        touched={formik.touched.propertyId}
-                    />
+                    {fixedProperty ? (
+                        <ITInput
+                            label="Destino (Propiedad)"
+                            name="propertyId"
+                            value={fixedProperty.label}
+                            disabled
+                            onChange={() => {}}
+                            onBlur={() => {}}
+                        />
+                    ) : (
+                        <ITSearchSelect
+                            label="Destino (Propiedad)"
+                            name="propertyId"
+                            value={formik.values.propertyId}
+                            onChange={(val) => formik.setFieldValue("propertyId", val)}
+                            options={[{label: "Seleccionar propiedad...", value: ""}, ...properties]}
+                            error={formik.errors.propertyId}
+                            touched={formik.touched.propertyId}
+                        />
+                    )}
 
                     <ITSearchSelect
                         label="Tipo de Acceso"

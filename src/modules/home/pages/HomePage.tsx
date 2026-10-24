@@ -1,7 +1,7 @@
 import { AppState } from "@app/core/store/store";
 import { useEffect, useState } from "react";
 import { ITFlex, ITPage } from "@axzydev/axzy_ui_system";
-import { FaHome, FaWrench } from "react-icons/fa";
+import { FaAddressBook, FaHome, FaQrcode, FaUser, FaWrench } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
@@ -31,6 +31,34 @@ const HomePage = () => {
 
     // Solo MAINT llega a esta vista (ADMIN y SHIFT ven el dashboard en vivo); el resto de roles no tiene accesos rápidos.
     const cards = [
+      {
+        title: "Mi perfil",
+        description: "Tus datos y tu propiedad",
+        icon: <FaUser className="text-white" />,
+        action: () => navigate("/resident?tab=perfil"),
+        permission: P.RESIDENT_SELF,
+      },
+      {
+        title: "Mis contactos",
+        description: "Contactos registrados",
+        icon: <FaAddressBook className="text-white" />,
+        action: () => navigate("/resident?tab=contactos"),
+        permission: P.RESIDENT_SELF,
+      },
+      {
+        title: "Mis pases",
+        description: "Invitaciones y códigos QR",
+        icon: <FaQrcode className="text-white" />,
+        action: () => navigate("/resident?tab=invitaciones"),
+        permission: P.INVITATION_VIEW,
+      },
+      {
+        title: "Generar invitación",
+        description: "Crea un pase para tu visita",
+        icon: <FaQrcode className="text-white" />,
+        action: () => navigate("/resident?tab=invitaciones&create=1"),
+        permission: P.INVITATION_CREATE,
+      },
       {
         title: "Mantenimiento",
         description: "Gestión de reportes técnicos",

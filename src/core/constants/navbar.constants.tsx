@@ -9,153 +9,191 @@ import {
   FaHome,
   FaLayerGroup,
   FaShieldAlt,
+  FaUser,
   FaUsers,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export const useNavigationItems = (): any[] => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const can = useCan();
+export interface NavLeaf {
+  id: string;
+  label: string;
+  path: string;
+  permission?: PermissionRequirement;
+}
 
-  const isRouteActive = (path: string, subroutes?: string[]) => {
-    if (subroutes?.length) {
-      return subroutes.some((subroute) =>
-        location.pathname.startsWith(subroute)
-      );
-    }
-    return (
-      location.pathname === path || location.pathname.startsWith(path + "/")
-    );
-  };
+export interface NavGroup {
+  id: string;
+  label: string;
+  items: NavLeaf[];
+}
 
-  type Leaf = { id: string; label: string; path: string; permission?: PermissionRequirement };
-  type Group = { id: string; label: string; items: Leaf[] };
-  type Section = {
+export interface NavSection {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  path?: string;
+  permission?: PermissionRequirement;
+  groups?: NavGroup[];
+}
+
+export interface NavigationItem {
+  id: string;
+  label: string;
+  icon?: React.ReactNode;
+  action?: () => void;
+  isActive: boolean;
+  subitems?: {
     id: string;
     label: string;
-    icon: React.ReactNode;
-    path?: string;
-    permission?: PermissionRequirement;
-    groups?: Group[];
-  };
+    items: {
+      id: string;
+      label: string;
+      action?: () => void;
+      isActive: boolean;
+    }[];
+  }[];
+}
 
-  const sections: Section[] = [
-    {
-      id: "home",
-      label: "Inicio",
-      path: "/home",
-      icon: <FaHome />,
-    },
-    {
-      id: "operation",
-      label: "Operación",
-      icon: <FaShieldAlt />,
-      groups: [
-        {
-          id: "monitoring",
-          label: "Monitoreo",
-          items: [
-            { id: "guard-tracking", label: "Seguimiento", path: "/guard-tracking", permission: P.DASHBOARD_VIEW },
-            { id: "locations", label: "Ubicaciones", path: "/locations", permission: P.LOCATIONS_MANAGE },
-            { id: "chat", label: "Chat", path: "/chat", permission: P.CHAT_USE },
-          ],
-        },
-        {
-          id: "rounds-group",
-          label: "Rondas",
-          items: [
-            { id: "rounds", label: "Historial de recorridos", path: "/rounds", permission: P.ASSIGNMENTS_MANAGE },
-            { id: "routes", label: "Rutas", path: "/routes", permission: P.RECURRING_MANAGE },
-          ],
-        },
-        {
-          id: "records",
-          label: "Registros",
-          items: [
-            { id: "kardex", label: "Kardex", path: "/kardex", permission: P.KARDEX_VIEW },
-            { id: "shift-handover", label: "Entrega de turno", path: "/shift-handover", permission: P.SHIFT_HANDOVER_MANAGE },
-          ],
-        },
-      ],
-    },
-    {
-      id: "residential",
-      label: "Residencial",
-      icon: <FaBuilding />,
-      groups: [
-        {
-          id: "homes",
-          label: "Hogares",
-          items: [
-            { id: "properties", label: "Propiedades", path: "/properties", permission: P.PROPERTIES_VIEW },
-            { id: "residents", label: "Residentes", path: "/residents", permission: P.PROPERTIES_VIEW },
-          ],
-        },
-        {
-          id: "access",
-          label: "Accesos",
-          items: [
-            { id: "invitations", label: "Invitaciones", path: "/invitations", permission: P.ACCESS_CHECK },
-          ],
-        },
-      ],
-    },
-    {
-      id: "reports",
-      label: "Reportes",
-      icon: <FaClipboardList />,
-      groups: [
-        {
-          id: "report-types",
-          label: "Tipos de reporte",
-          items: [
-            { id: "incidents", label: "Incidencias", path: "/incidents", permission: P.INCIDENT_VIEW },
-            { id: "maintenances", label: "Mantenimientos", path: "/maintenances", permission: P.MAINTENANCE_VIEW },
-            { id: "club", label: "Casa Club", path: "/club", permission: P.CLUB_VIEW },
-          ],
-        },
-      ],
-    },
-    {
-      id: "staff",
-      label: "Personal",
-      icon: <FaUsers />,
-      groups: [
-        {
-          id: "staff-main",
-          label: "Equipo",
-          items: [
-            { id: "guards", label: "Guardias", path: "/guards", permission: P.ASSIGNMENTS_MANAGE },
-            { id: "schedule", label: "Horarios", path: "/schedules", permission: P.SCHEDULES_MANAGE },
-            { id: "uniform", label: "Uniforme", path: "/uniform", permission: P.UNIFORM_MANAGE },
-            { id: "users", label: "Usuarios", path: "/users", permission: P.USERS_MANAGE },
-          ],
-        },
-      ],
-    },
-    {
-      id: "catalogs",
-      label: "Catálogos",
-      path: "/catalogs",
-      icon: <FaLayerGroup />,
-      permission: P.CATALOGS_MANAGE,
-    },
-  ];
+export const NAV_SECTIONS: NavSection[] = [
+  {
+    id: "home",
+    label: "Inicio",
+    path: "/home",
+    icon: <FaHome />,
+  },
+  {
+    id: "operation",
+    label: "Operación",
+    icon: <FaShieldAlt />,
+    groups: [
+      {
+        id: "monitoring",
+        label: "Monitoreo",
+        items: [
+          { id: "guard-tracking", label: "Seguimiento", path: "/guard-tracking", permission: P.DASHBOARD_VIEW },
+          { id: "locations", label: "Ubicaciones", path: "/locations", permission: P.LOCATIONS_MANAGE },
+          { id: "chat", label: "Chat", path: "/chat", permission: P.CHAT_USE },
+        ],
+      },
+      {
+        id: "rounds-group",
+        label: "Rondas",
+        items: [
+          { id: "rounds", label: "Historial de recorridos", path: "/rounds", permission: P.ASSIGNMENTS_MANAGE },
+          { id: "routes", label: "Rutas", path: "/routes", permission: P.RECURRING_MANAGE },
+        ],
+      },
+      {
+        id: "records",
+        label: "Registros",
+        items: [
+          { id: "kardex", label: "Kardex", path: "/kardex", permission: P.KARDEX_VIEW },
+          { id: "shift-handover", label: "Entrega de turno", path: "/shift-handover", permission: P.SHIFT_HANDOVER_MANAGE },
+        ],
+      },
+    ],
+  },
+  {
+    id: "residential",
+    label: "Residencial",
+    icon: <FaBuilding />,
+    groups: [
+      {
+        id: "homes",
+        label: "Hogares",
+        items: [
+          { id: "properties", label: "Propiedades", path: "/properties", permission: P.PROPERTIES_VIEW },
+          { id: "residents", label: "Residentes", path: "/residents", permission: P.PROPERTIES_VIEW },
+        ],
+      },
+      {
+        id: "access",
+        label: "Accesos",
+        items: [
+          { id: "invitations", label: "Invitaciones", path: "/invitations", permission: P.ACCESS_CHECK },
+        ],
+      },
+    ],
+  },
+  {
+    id: "reports",
+    label: "Reportes",
+    icon: <FaClipboardList />,
+    groups: [
+      {
+        id: "report-types",
+        label: "Tipos de reporte",
+        items: [
+          { id: "incidents", label: "Incidencias", path: "/incidents", permission: P.INCIDENT_VIEW },
+          { id: "maintenances", label: "Mantenimientos", path: "/maintenances", permission: P.MAINTENANCE_VIEW },
+          { id: "club", label: "Casa Club", path: "/club", permission: P.CLUB_VIEW },
+        ],
+      },
+    ],
+  },
+  {
+    id: "staff",
+    label: "Personal",
+    icon: <FaUsers />,
+    groups: [
+      {
+        id: "staff-main",
+        label: "Equipo",
+        items: [
+          { id: "guards", label: "Guardias", path: "/guards", permission: P.ASSIGNMENTS_MANAGE },
+          { id: "schedule", label: "Horarios", path: "/schedules", permission: P.SCHEDULES_MANAGE },
+          { id: "uniform", label: "Uniforme", path: "/uniform", permission: P.UNIFORM_MANAGE },
+          { id: "users", label: "Usuarios", path: "/users", permission: P.USERS_MANAGE },
+          { id: "roles", label: "Roles y permisos", path: "/roles", permission: P.USERS_MANAGE },
+        ],
+      },
+    ],
+  },
+  {
+    id: "my-account",
+    label: "Mi cuenta",
+    icon: <FaUser />,
+    groups: [
+      {
+        id: "my-account-main",
+        label: "Mi cuenta",
+        items: [
+          { id: "my-profile", label: "Mi perfil", path: "/resident?tab=perfil", permission: P.RESIDENT_SELF },
+          { id: "my-contacts", label: "Mis contactos", path: "/resident?tab=contactos", permission: P.RESIDENT_SELF },
+          { id: "my-passes", label: "Mis pases", path: "/resident?tab=invitaciones", permission: P.INVITATION_VIEW },
+        ],
+      },
+    ],
+  },
+  {
+    id: "catalogs",
+    label: "Catálogos",
+    path: "/catalogs",
+    icon: <FaLayerGroup />,
+    permission: P.CATALOGS_MANAGE,
+  },
+];
 
-  const allowed = (permission?: PermissionRequirement) =>
-    !permission || can(permission);
+/**
+ * Construye el menú para un conjunto de permisos. Sin `navigate` devuelve un
+ * menú "de solo lectura", útil para previsualizar el sidebar de otro rol.
+ */
+export const buildNavigationItems = (
+  hasPermission: (permission?: PermissionRequirement) => boolean,
+  navigate?: (path: string) => void,
+  isRouteActive?: (path: string) => boolean,
+): NavigationItem[] => {
+  const items: NavigationItem[] = [];
 
-  const items: any[] = [];
-  for (const section of sections) {
+  for (const section of NAV_SECTIONS) {
     if (!section.groups) {
-      if (!allowed(section.permission)) continue;
+      if (!hasPermission(section.permission)) continue;
       items.push({
         id: section.id,
         label: section.label,
         icon: section.icon,
-        action: () => navigate(section.path!),
-        isActive: isRouteActive(section.path!),
+        action: navigate ? () => navigate(section.path!) : undefined,
+        isActive: isRouteActive?.(section.path!) ?? false,
       });
       continue;
     }
@@ -165,12 +203,12 @@ export const useNavigationItems = (): any[] => {
         id: group.id,
         label: group.label,
         items: group.items
-          .filter((leaf) => allowed(leaf.permission))
+          .filter((leaf) => hasPermission(leaf.permission))
           .map((leaf) => ({
             id: leaf.id,
             label: leaf.label,
-            action: () => navigate(leaf.path),
-            isActive: isRouteActive(leaf.path),
+            action: navigate ? () => navigate(leaf.path) : undefined,
+            isActive: isRouteActive?.(leaf.path) ?? false,
           })),
       }))
       .filter((group) => group.items.length > 0);
@@ -180,12 +218,31 @@ export const useNavigationItems = (): any[] => {
       id: section.id,
       label: section.label,
       icon: section.icon,
-      isActive: subitems.some((g) => g.items.some((i) => i.isActive)),
+      isActive: subitems.some((group) => group.items.some((item) => item.isActive)),
       subitems,
     });
   }
 
   return items;
+};
+
+export const useNavigationItems = (): NavigationItem[] => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const can = useCan();
+
+  const isRouteActive = (path: string) => {
+    const [base, query] = path.split("?");
+    const pathnameOk =
+      location.pathname === base || location.pathname.startsWith(base + "/");
+    if (!pathnameOk) return false;
+    if (!query) return true;
+    const currentTab = new URLSearchParams(location.search).get("tab") ?? "perfil";
+    const targetTab = new URLSearchParams(query).get("tab") ?? "perfil";
+    return currentTab === targetTab;
+  };
+
+  return buildNavigationItems((permission) => !permission || can(permission), navigate, isRouteActive);
 };
 
 // ------------- NAVBAR (legacy) -----------------
