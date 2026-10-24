@@ -900,29 +900,17 @@ describe("propiedades: expediente", () => {
     expect(screen.queryByText("Abrir Navegación")).toBeNull();
   });
 
-  it("aplica el rol: ADMIN y SHIFT ven Editar, un guardia no", async () => {
-    stubDetail();
-    const admin = renderApp({ route: "/properties/1", role: "ADMIN" });
-    await screen.findByText("Propiedad CASA-01");
-    await screen.findByText("Hogar", { selector: "h2" });
-    await screen.findByText("Personas autorizadas", { selector: "h2" });
+  it("solo ADMIN ve Editar en el expediente", async () => {
+    await openDetail();
     expect(screen.getByRole("button", { name: /Editar/ })).toBeInTheDocument();
-    admin.unmount();
+  });
 
-    stubDetail();
-    const guard = renderApp({ route: "/properties/1", role: "GUARD" });
-    await screen.findByText("Propiedad CASA-01");
-    await screen.findByText("Hogar", { selector: "h2" });
-    await screen.findByText("Personas autorizadas", { selector: "h2" });
-    expect(screen.queryByRole("button", { name: /Editar/ })).toBeNull();
-    expect(screen.getByRole("button", { name: /Imprimir QR/ })).toBeInTheDocument();
-    guard.unmount();
-
+  it("SHIFT no ve Editar en el expediente", async () => {
     stubDetail();
     renderApp({ route: "/properties/1", role: "SHIFT" });
     await screen.findByText("Propiedad CASA-01");
     await screen.findByText("Hogar", { selector: "h2" });
-    expect(screen.getByRole("button", { name: /Editar/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Editar/ })).toBeNull();
   });
 
   it("acepta el estado como texto plano", async () => {

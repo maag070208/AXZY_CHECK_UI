@@ -9,6 +9,7 @@ export const API = "http://api.test/api/v1";
 export const baseHandlers = [
   http.get(`${API}/users/me/permissions`, ({ request }) => {
     const role = roleFromAuthHeader(request.headers.get("Authorization"));
+    const permissions = permissionsForRole(role);
     return HttpResponse.json({
       success: true,
       data: { role, permissions: permissionsForRole(role) },

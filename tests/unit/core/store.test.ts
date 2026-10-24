@@ -12,12 +12,12 @@ import tableReducer, {
 import { makeToken } from "../../helpers/render";
 
 describe("auth.slice", () => {
-  const empty = { id: null, name: null, email: null, role: null, token: null };
+  const empty = { id: null, name: null, email: null, role: null, token: null, permissions: null };
 
   it("setAuth con token válido guarda los datos del JWT", () => {
     const token = makeToken({ id: 7, name: "Ana", role: "GUARD" });
     const s = authReducer(undefined, setAuth(token));
-    expect(s).toEqual({ id: 7, name: "Ana", email: "admin@check.app", role: "GUARD", token });
+    expect(s).toEqual({ id: 7, name: "Ana", email: "admin@check.app", role: "GUARD", token, permissions: null });
     expect(isAuthenticated({ auth: s })).toBe(true);
   });
 

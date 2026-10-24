@@ -56,25 +56,19 @@ function App() {
   useEffect(() => {
     if (!token || permissions !== null) return;
 
-    let active = true;
     getMyPermissions()
       .then((res) => {
-        if (!active) return;
         dispatch(
           setPermissions(res.success && res.data?.permissions ? res.data.permissions : []),
         );
       })
       .catch(() => {
         // Fail closed: sin permisos no se pinta nada protegido.
-        if (active) dispatch(setPermissions([]));
+        dispatch(setPermissions([]));
       });
-
-    return () => {
-      active = false;
-    };
   }, [token, permissions, dispatch]);
 
-  if (!isAppReady || (token && permissions === null)) {
+  if (!isAppReady) {
     return (
       <ITFlex align="center" justify="center" className="flex h-screen items-center justify-center">
         <ITLoader size="lg" />

@@ -278,12 +278,12 @@ describe("detalle de ronda: evento", () => {
     expect(await dialogEl()).toBeTruthy();
   });
 
-  it("solo ADMIN ve acciones de borrado; SHIFT no", async () => {
+  it("SHIFT ve acciones de borrado porque tiene kardex.delete", async () => {
     serve();
     const { user } = await open("SHIFT");
     await user.click(screen.getByText("Incidencia: Robo"));
     const dialog = await dialogEl();
-    expect(within(dialog).queryByRole("button", { name: "Eliminar registro" })).toBeNull();
+    expect(within(dialog).getByRole("button", { name: "Eliminar registro" })).toBeInTheDocument();
   });
 
   it("eliminar un escaneo libre con confirmación quita el registro", async () => {

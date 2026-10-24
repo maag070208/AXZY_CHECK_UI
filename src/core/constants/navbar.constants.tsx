@@ -1,4 +1,5 @@
 import { ITFlex } from "@axzydev/axzy_ui_system";
+import { AppState } from "@app/core/store/store";
 import { P, PermissionRequirement } from "@app/core/permissions/permissions.constants";
 import { useCan } from "@app/core/permissions/useCan";
 import LOGO from "@assets/logo-green.svg";
@@ -13,6 +14,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export interface NavLeaf {
   id: string;
@@ -230,6 +232,9 @@ export const useNavigationItems = (): NavigationItem[] => {
   const navigate = useNavigate();
   const location = useLocation();
   const can = useCan();
+  const role = useSelector((state: AppState) => state.auth.role);
+
+  if (!role) return [];
 
   const isRouteActive = (path: string) => {
     const [base, query] = path.split("?");

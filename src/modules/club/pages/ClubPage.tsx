@@ -258,7 +258,7 @@ const ClubPage = () => {
                     ariaLabel="Ver detalles"
                     title="Ver detalles"
                 />
-                {row.status === 'PENDING' && (
+                {row.status === 'PENDING' && isAdmin && (
                     <ITButton
                         onClick={() => handleResolve(row.id)}
                         size="md"

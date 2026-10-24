@@ -362,11 +362,19 @@ describe.each(modules)("reportes: $name", (m) => {
   });
 
   describe("permisos", () => {
-    it("un rol sin permiso no ve crear ni eliminar, pero sí resolver y reporte", async () => {
+    it("respeta los permisos de gestión del rol visor", async () => {
       await open(m, { role: m.viewerRole });
-      expect(screen.queryByRole("button", { name: /Nuevo reporte/i })).toBeNull();
-      expect(screen.queryByRole("button", { name: m.deleteButton })).toBeNull();
-      expect(screen.getAllByRole("button", { name: m.resolveButton }).length).toBeGreaterThan(0);
+      if (m.viewerRole === "GUARD") {
+        // Guardia puede crear/ver casa club, pero no resolver ni eliminar.
+        expect(screen.queryByRole("button", { name: /Nuevo reporte/i })).toBeNull();
+        expect(screen.queryByRole("button", { name: m.deleteButton })).toBeNull();
+        expect(screen.queryByRole("button", { name: m.resolveButton })).toBeNull();
+      } else {
+        // SHIFT y MAINT tienen el permiso de resolución del módulo.
+        expect(screen.getByRole("button", { name: /Nuevo reporte/i })).toBeInTheDocument();
+        expect(screen.getAllByRole("button", { name: m.deleteButton }).length).toBeGreaterThan(0);
+        expect(screen.getAllByRole("button", { name: m.resolveButton }).length).toBeGreaterThan(0);
+      }
       expect(screen.getByRole("button", { name: "Reporte" })).toBeInTheDocument();
     });
   });
@@ -555,9 +563,12 @@ describe.each(modules)("reportes: $name", (m) => {
       expect(await within(dialog).findByText(m.reportEmpty)).toBeInTheDocument();
     });
 
-    it("con permisos limitados avisa que el reporte usa los del usuario", async () => {
+    it("avisa si el reporte usa permisos de administrador o del usuario", async () => {
       const { dialog } = await openReport(m, m.rows as unknown[], m.viewerRole);
-      expect(await within(dialog).findByText("Reporte con los permisos del usuario.")).toBeInTheDocument();
+      const expected = m.viewerRole === "GUARD"
+        ? "Reporte con los permisos del usuario."
+        : "Reporte con permisos de administrador.";
+      expect(await within(dialog).findByText(expected)).toBeInTheDocument();
     });
 
     it("si la carga falla deja el estado vacío", async () => {
