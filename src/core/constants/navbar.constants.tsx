@@ -1,5 +1,6 @@
 import { ITFlex } from "@axzydev/axzy_ui_system";
-import { AppState } from "@app/core/store/store";
+import { P, PermissionRequirement } from "@app/core/permissions/permissions.constants";
+import { useCan } from "@app/core/permissions/useCan";
 import LOGO from "@assets/logo-green.svg";
 import React from "react";
 import {
@@ -10,13 +11,12 @@ import {
   FaShieldAlt,
   FaUsers,
 } from "react-icons/fa";
-import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export const useNavigationItems = (): any[] => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = useSelector((state: AppState) => state.auth);
+  const can = useCan();
 
   const isRouteActive = (path: string, subroutes?: string[]) => {
     if (subroutes?.length) {
@@ -29,14 +29,14 @@ export const useNavigationItems = (): any[] => {
     );
   };
 
-  type Leaf = { id: string; label: string; path: string; roles: string[] };
+  type Leaf = { id: string; label: string; path: string; permission?: PermissionRequirement };
   type Group = { id: string; label: string; items: Leaf[] };
   type Section = {
     id: string;
     label: string;
     icon: React.ReactNode;
     path?: string;
-    roles?: string[];
+    permission?: PermissionRequirement;
     groups?: Group[];
   };
 
@@ -46,7 +46,6 @@ export const useNavigationItems = (): any[] => {
       label: "Inicio",
       path: "/home",
       icon: <FaHome />,
-      roles: ["ADMIN", "SHIFT", "GUARD", "MAINT", "RESDN"],
     },
     {
       id: "operation",
@@ -57,25 +56,25 @@ export const useNavigationItems = (): any[] => {
           id: "monitoring",
           label: "Monitoreo",
           items: [
-            { id: "guard-tracking", label: "Seguimiento", path: "/guard-tracking", roles: ["ADMIN", "SHIFT"] },
-            { id: "locations", label: "Ubicaciones", path: "/locations", roles: ["ADMIN", "SHIFT"] },
-            { id: "chat", label: "Chat", path: "/chat", roles: ["ADMIN", "SHIFT"] },
+            { id: "guard-tracking", label: "Seguimiento", path: "/guard-tracking", permission: P.DASHBOARD_VIEW },
+            { id: "locations", label: "Ubicaciones", path: "/locations", permission: P.LOCATIONS_MANAGE },
+            { id: "chat", label: "Chat", path: "/chat", permission: P.CHAT_USE },
           ],
         },
         {
           id: "rounds-group",
           label: "Rondas",
           items: [
-            { id: "rounds", label: "Historial de recorridos", path: "/rounds", roles: ["ADMIN", "SHIFT"] },
-            { id: "routes", label: "Rutas", path: "/routes", roles: ["ADMIN", "SHIFT"] },
+            { id: "rounds", label: "Historial de recorridos", path: "/rounds", permission: P.ASSIGNMENTS_MANAGE },
+            { id: "routes", label: "Rutas", path: "/routes", permission: P.RECURRING_MANAGE },
           ],
         },
         {
           id: "records",
           label: "Registros",
           items: [
-            { id: "kardex", label: "Kardex", path: "/kardex", roles: ["ADMIN", "SHIFT"] },
-            { id: "shift-handover", label: "Entrega de turno", path: "/shift-handover", roles: ["ADMIN", "SHIFT"] },
+            { id: "kardex", label: "Kardex", path: "/kardex", permission: P.KARDEX_VIEW },
+            { id: "shift-handover", label: "Entrega de turno", path: "/shift-handover", permission: P.SHIFT_HANDOVER_MANAGE },
           ],
         },
       ],
@@ -89,15 +88,15 @@ export const useNavigationItems = (): any[] => {
           id: "homes",
           label: "Hogares",
           items: [
-            { id: "properties", label: "Propiedades", path: "/properties", roles: ["ADMIN", "SHIFT"] },
-            { id: "residents", label: "Residentes", path: "/residents", roles: ["ADMIN"] },
+            { id: "properties", label: "Propiedades", path: "/properties", permission: P.PROPERTIES_VIEW },
+            { id: "residents", label: "Residentes", path: "/residents", permission: P.PROPERTIES_VIEW },
           ],
         },
         {
           id: "access",
           label: "Accesos",
           items: [
-            { id: "invitations", label: "Invitaciones", path: "/invitations", roles: ["ADMIN", "SHIFT", "GUARD"] },
+            { id: "invitations", label: "Invitaciones", path: "/invitations", permission: P.ACCESS_CHECK },
           ],
         },
       ],
@@ -111,9 +110,9 @@ export const useNavigationItems = (): any[] => {
           id: "report-types",
           label: "Tipos de reporte",
           items: [
-            { id: "incidents", label: "Incidencias", path: "/incidents", roles: ["ADMIN", "SHIFT"] },
-            { id: "maintenances", label: "Mantenimientos", path: "/maintenances", roles: ["ADMIN", "MAINT"] },
-            { id: "club", label: "Casa Club", path: "/club", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT"] },
+            { id: "incidents", label: "Incidencias", path: "/incidents", permission: P.INCIDENT_VIEW },
+            { id: "maintenances", label: "Mantenimientos", path: "/maintenances", permission: P.MAINTENANCE_VIEW },
+            { id: "club", label: "Casa Club", path: "/club", permission: P.CLUB_VIEW },
           ],
         },
       ],
@@ -127,10 +126,10 @@ export const useNavigationItems = (): any[] => {
           id: "staff-main",
           label: "Equipo",
           items: [
-            { id: "guards", label: "Guardias", path: "/guards", roles: ["ADMIN", "SHIFT"] },
-            { id: "schedule", label: "Horarios", path: "/schedules", roles: ["ADMIN"] },
-            { id: "uniform", label: "Uniforme", path: "/uniform", roles: ["ADMIN", "SHIFT"] },
-            { id: "users", label: "Usuarios", path: "/users", roles: ["ADMIN"] },
+            { id: "guards", label: "Guardias", path: "/guards", permission: P.ASSIGNMENTS_MANAGE },
+            { id: "schedule", label: "Horarios", path: "/schedules", permission: P.SCHEDULES_MANAGE },
+            { id: "uniform", label: "Uniforme", path: "/uniform", permission: P.UNIFORM_MANAGE },
+            { id: "users", label: "Usuarios", path: "/users", permission: P.USERS_MANAGE },
           ],
         },
       ],
@@ -140,17 +139,17 @@ export const useNavigationItems = (): any[] => {
       label: "Catálogos",
       path: "/catalogs",
       icon: <FaLayerGroup />,
-      roles: ["ADMIN"],
+      permission: P.CATALOGS_MANAGE,
     },
   ];
 
-  const role = user?.role;
-  const allowed = (roles: string[]) => !!role && roles.includes(role);
+  const allowed = (permission?: PermissionRequirement) =>
+    !permission || can(permission);
 
   const items: any[] = [];
   for (const section of sections) {
     if (!section.groups) {
-      if (!allowed(section.roles!)) continue;
+      if (!allowed(section.permission)) continue;
       items.push({
         id: section.id,
         label: section.label,
@@ -166,7 +165,7 @@ export const useNavigationItems = (): any[] => {
         id: group.id,
         label: group.label,
         items: group.items
-          .filter((leaf) => allowed(leaf.roles))
+          .filter((leaf) => allowed(leaf.permission))
           .map((leaf) => ({
             id: leaf.id,
             label: leaf.label,

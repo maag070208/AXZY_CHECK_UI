@@ -6,17 +6,20 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
 import { LiveOpsDashboard } from "../../dashboard/pages/LiveOpsDashboard";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const user = useSelector((state: AppState) => state.auth);
+  const can = useCan();
 
   const [homeCardItem, setHomeCardItem] = useState<any[]>([]);
 
   // El dashboard administrativo en vivo (rondas activas, guardias en turno,
   // alertas + analytics históricos integrados) reemplaza el Home para quienes
   // supervisan guardias día a día: ADMIN y SHIFT (Jefe de Guardias).
-  const showLiveDashboard = user.role === "ADMIN" || user.role === "SHIFT";
+  const showLiveDashboard = can(P.DASHBOARD_VIEW);
 
   useEffect(() => {
     if (!user || !user.token) {
@@ -33,12 +36,12 @@ const HomePage = () => {
         description: "Gestión de reportes técnicos",
         icon: <FaWrench className="text-white" />,
         action: () => navigate("/maintenances"),
-        roles: ["MAINT"],
+        permission: P.MAINTENANCE_MANAGE,
       },
     ];
 
-    setHomeCardItem(cards.filter((card) => (user.role ? card.roles.includes(user.role) : false)));
-  }, [user, showLiveDashboard]);
+    setHomeCardItem(cards.filter((card) => can(card.permission)));
+  }, [user, showLiveDashboard, can]);
 
   if (showLiveDashboard) return <LiveOpsDashboard />;
 

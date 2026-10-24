@@ -8,6 +8,8 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheck, FaCheckCircle, FaEye, FaFileAlt, FaFilePdf, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield, FaWrench } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
 import { useSearchParams } from "react-router-dom";
 import { deleteMaintenance, deleteMaintenanceMedia, getPaginatedMaintenances, Maintenance, resolveMaintenance } from "../services/MaintenanceService";
 import MaintenanceCreateForm from "../components/MaintenanceCreateForm";
@@ -16,7 +18,8 @@ import MaintenanceReportModal from "../components/MaintenanceReportModal";
 const MaintenancesPage = () => {
   const dispatch = useDispatch();
   const auth = useSelector((state: AppState) => state.auth);
-  const isAdmin = auth.role === 'ADMIN';
+  const can = useCan();
+  const isAdmin = can(P.MAINTENANCE_RESOLVE);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategoryId = searchParams.get('categoryId');
   const initialTypeId = searchParams.get('typeId');

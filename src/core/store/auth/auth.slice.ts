@@ -7,6 +7,8 @@ interface AuthState {
   email: string | null;
   role: string | null;
   token: string | null;
+  /** Permisos efectivos que devuelve `GET /users/me/permissions`. */
+  permissions: string[] | null;
 }
 
 const initialState: AuthState = {
@@ -15,6 +17,7 @@ const initialState: AuthState = {
   email: null,
   role: null,
   token: null,
+  permissions: null,
 };
 
 const authSlice = createSlice({
@@ -34,6 +37,7 @@ const authSlice = createSlice({
         state.email = null;
         state.role = null;
         state.token = null;
+        state.permissions = null;
         return;
       }
 
@@ -43,6 +47,11 @@ const authSlice = createSlice({
       state.email = decoded.email ?? null;
       state.role = decoded.role ?? null;
       state.token = token;
+      state.permissions = null;
+    },
+
+    setPermissions: (state, action) => {
+      state.permissions = Array.isArray(action.payload) ? action.payload : [];
     },
 
     logout: (state) => {
@@ -51,11 +60,12 @@ const authSlice = createSlice({
       state.email = null;
       state.role = null;
       state.token = null;
+      state.permissions = null;
     },
   },
 });
 
 export default authSlice.reducer;
 
-export const { setAuth, logout } = authSlice.actions;
+export const { setAuth, setPermissions, logout } = authSlice.actions;
 export const { isAuthenticated } = authSlice.selectors;

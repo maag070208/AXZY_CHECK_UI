@@ -1,6 +1,7 @@
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import {
+  ITBadget,
   ITButton,
   ITCard,
   ITDataTable,
@@ -11,8 +12,7 @@ import {
   ITPage,
   ITText,
 } from "@axzydev/axzy_ui_system";
-import QRCode from "qrcode";
-import { buildLocationQrPayload } from "@core/utils/locationQr";
+import { createBrandedLocationQrDataUrl } from "@core/utils/brandedLocationQr";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaEdit, FaPlus, FaPrint, FaQrcode, FaSearch, FaSearchLocation, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -86,9 +86,7 @@ const LocationsPage = () => {
 
   const openQr = async (location: Location) => {
     try {
-      const dataUrl = await QRCode.toDataURL(buildLocationQrPayload(location.id), {
-        width: 300,
-      });
+      const dataUrl = await createBrandedLocationQrDataUrl(location.id);
       setQrPreview({ location, dataUrl });
     } catch (error) {
       console.error("Error generating QR", error);
@@ -109,18 +107,34 @@ const LocationsPage = () => {
     printWindow.document.write(`
       <html>
         <head>
+          <title>QR ${location.name}</title>
           <style>
-            body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: Arial, sans-serif; }
-            .container { text-align: center; border: 2px solid #000; padding: 40px; border-radius: 20px; }
-            img { margin-bottom: 20px; }
-            h1 { font-size: 32px; margin: 0; }
-            p { font-size: 18px; color: #555; }
+            @page { size: A4; margin: 12mm; }
+            * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #F4F9F6; font-family: Arial, sans-serif; }
+            .card { width: 92mm; border-radius: 24px; overflow: hidden; background: #fff; box-shadow: 0 18px 50px rgba(15, 23, 42, .16); }
+            .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 18px; background: #12A36F; color: #fff; }
+            .brand { font-size: 18px; font-weight: 900; letter-spacing: -.02em; }
+            .tag { padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, .2); font-size: 8px; font-weight: 900; letter-spacing: .09em; }
+            .body { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 18px 16px; text-align: center; }
+            .qr { padding: 10px; border-radius: 22px; background: #fff; box-shadow: 0 10px 28px rgba(15, 23, 42, .14); }
+            img { display: block; width: 62mm; height: 62mm; border-radius: 16px; }
+            h1 { font-size: 26px; margin: 4px 0 0; color: #0F172A; letter-spacing: -.03em; }
+            .pill { padding: 5px 12px; border-radius: 999px; background: #E8F7EF; color: #065911; font-size: 10px; font-weight: 800; }
+            .hint { margin: 0; max-width: 62mm; color: #64748B; font-size: 11px; line-height: 1.45; font-weight: 600; }
+            .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 18px; border-top: 1px dashed #E6EEE9; color: #94A3B8; font-size: 8px; font-weight: 700; }
           </style>
         </head>
         <body>
-          <div class="container">
-            <img src="${dataUrl}" alt="QR Code" />
-            <h1>${location.name}</h1>
+          <div class="card">
+            <div class="head"><span class="brand">CheckApp</span><span class="tag">PUNTO DE ESCANEO</span></div>
+            <div class="body">
+              <div class="qr"><img src="${dataUrl}" alt="QR ${location.name}" /></div>
+              <h1>${location.name}</h1>
+              <span class="pill">Sección ${location.aisle} · #${location.spot}</span>
+              <p class="hint">Escanea este código para verificar el punto de control.</p>
+            </div>
+            <div class="foot"><span>CheckApp Security</span><span>powered by axzy.dev</span></div>
           </div>
           <script>
             window.onload = function() {
@@ -329,25 +343,40 @@ const LocationsPage = () => {
       >
         {qrPreview && (
           <ITFlex direction="column" gap={4}>
-            <ITCard className="rounded-3xl" contentClassName="flex flex-col items-center gap-4 p-6!">
-              <ITFlex
-                align="center"
-                justify="center"
-                className="rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/40"
-              >
-                <ITImage
-                  src={qrPreview.dataUrl}
-                  alt={`Código QR de ${qrPreview.location.name}`}
-                  fit="contain"
-                  className="h-48 w-48"
-                />
+            <ITCard className="overflow-hidden rounded-3xl border-0! shadow-xl!" contentClassName="p-0!">
+              <ITFlex align="center" justify="between" gap={2} className="bg-[#12A36F] px-5 py-4">
+                <ITText as="p" className="text-lg font-black text-white">CheckApp</ITText>
+                <ITBadget color="secondary" variant="filled" size="sm" className="bg-white/20! text-white!">
+                  PUNTO DE ESCANEO
+                </ITBadget>
               </ITFlex>
-              <ITFlex direction="column" align="center" gap={1}>
-                <ITText as="p" className="text-base font-black text-slate-900 dark:text-white">
+
+              <ITFlex direction="column" align="center" gap={3} className="px-6 py-6">
+                <ITFlex align="center" justify="center" className="rounded-3xl bg-white p-3 shadow-lg">
+                  <ITImage
+                    src={qrPreview.dataUrl}
+                    alt={`Código QR de ${qrPreview.location.name}`}
+                    fit="contain"
+                    className="h-56 w-56 rounded-2xl"
+                  />
+                </ITFlex>
+                <ITText as="p" className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
                   {qrPreview.location.name}
                 </ITText>
-                <ITText as="p" className="text-xs text-slate-400">
-                  Sección {qrPreview.location.aisle} · #{qrPreview.location.spot} · {qrPreview.location.number}
+                <ITBadget color="success" variant="filled" size="sm">
+                  Sección {qrPreview.location.aisle} · #{qrPreview.location.spot}
+                </ITBadget>
+                <ITText as="p" className="text-center text-xs text-slate-500">
+                  Escanea este código para verificar el punto de control.
+                </ITText>
+              </ITFlex>
+
+              <ITFlex align="center" justify="between" gap={2} className="border-t border-dashed border-slate-200 px-5 py-3">
+                <ITText as="span" className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  CheckApp Security
+                </ITText>
+                <ITText as="span" className="text-[10px] font-semibold text-slate-400">
+                  powered by axzy.dev
                 </ITText>
               </ITFlex>
             </ITCard>

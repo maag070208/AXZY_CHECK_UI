@@ -1,0 +1,52 @@
+/**
+ * Códigos de permiso del API. La fuente de verdad es `RolePermission` en base
+ * de datos; esta lista solo tipa el contrato `GET /users/me/permissions`.
+ */
+export const P = {
+  ASSIGNMENTS_MANAGE: "assignments.manage",
+  ACCESS_CHECK: "access.check",
+  CATALOGS_MANAGE: "catalogs.manage",
+  CHAT_USE: "chat.use",
+  CLUB_MANAGE: "club.manage",
+  DASHBOARD_VIEW: "dashboard.view",
+  DOCUMENTS_VIEW: "documents.view",
+  INCIDENTS_MANAGE: "incidents.manage",
+  KARDEX_MANAGE: "kardex.manage",
+  LOCATIONS_MANAGE: "locations.manage",
+  MAINTENANCE_MANAGE: "maintenance.manage",
+  OCCUPANCY_CHANGE: "occupancy.change",
+  PROPERTIES_MANAGE: "properties.manage",
+  PROPERTIES_VIEW: "properties.view",
+  RECURRING_MANAGE: "recurring.manage",
+  RECURRING_OPERATE: "recurring.operate",
+  RESIDENTS_MANAGE: "residents.manage",
+  SCHEDULES_MANAGE: "schedules.manage",
+  SETTINGS_MANAGE: "settings.manage",
+  SHIFT_HANDOVER_MANAGE: "shift-handover.manage",
+  UNIFORM_MANAGE: "uniform.manage",
+  USERS_MANAGE: "users.manage",
+  USERS_READ: "users.read",
+  ROUND_VIEW: "round.view",
+  ROUND_START: "round.start",
+  ROUND_END: "round.end",
+  ROUND_SCAN: "round.scan",
+  ASSIGNMENT_VIEW: "assignment.view",
+  KARDEX_VIEW: "kardex.view",
+  KARDEX_DELETE: "kardex.delete",
+  INCIDENT_VIEW: "incident.view",
+  INCIDENT_CREATE: "incident.create",
+  INCIDENT_RESOLVE: "incident.resolve",
+  INCIDENT_DELETE: "incident.delete",
+  MAINTENANCE_VIEW: "maintenance.view",
+  MAINTENANCE_CREATE: "maintenance.create",
+  MAINTENANCE_RESOLVE: "maintenance.resolve",
+  MAINTENANCE_DELETE: "maintenance.delete",
+  CLUB_VIEW: "club.view",
+  CLUB_CREATE: "club.create",
+  CLUB_RESOLVE: "club.resolve",
+  CLUB_DELETE: "club.delete",
+} as const;
+
+export type PermissionCode = (typeof P)[keyof typeof P];
+
+export type PermissionRequirement = PermissionCode | PermissionCode[];

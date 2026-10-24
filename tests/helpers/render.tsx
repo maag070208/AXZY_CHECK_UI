@@ -1,5 +1,5 @@
 import store from "@app/core/store/store";
-import { logout, setAuth } from "@app/core/store/auth/auth.slice";
+import { logout, setAuth, setPermissions } from "@app/core/store/auth/auth.slice";
 import ToastProvider from "@app/providers/toast.provider";
 import { theme } from "@app/theme/theme";
 import { ITThemeProvider } from "@axzydev/axzy_ui_system";
@@ -9,6 +9,7 @@ import type { ReactElement } from "react";
 import { Provider } from "react-redux";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import App from "@app/App";
+import { permissionsForRole } from "./permissions";
 
 const b64 = (o: object) => btoa(JSON.stringify(o)).replace(/=+$/, "");
 
@@ -25,7 +26,10 @@ export const makeToken = (payload: Record<string, unknown> = {}) =>
 
 export function renderWithProviders(ui: ReactElement, { route = "/", role }: { route?: string | string[]; role?: string } = {}) {
   const entries = Array.isArray(route) ? route : [route];
-  if (role) store.dispatch(setAuth(makeToken({ role })));
+  if (role) {
+    store.dispatch(setAuth(makeToken({ role })));
+    store.dispatch(setPermissions(permissionsForRole(role)));
+  }
   return {
     user: userEvent.setup(),
     ...render(
@@ -39,6 +43,12 @@ export function renderWithProviders(ui: ReactElement, { route = "/", role }: { r
     ),
   };
 }
+
+/** Autentica en el store con rol + permisos (para tests de navegación). */
+export const authAs = (role: string) => {
+  store.dispatch(setAuth(makeToken({ role })));
+  store.dispatch(setPermissions(permissionsForRole(role)));
+};
 
 /** Monta la app completa. Con `role` entra ya autenticado (token en localStorage como en producción). */
 export function renderApp({ route = "/", role, claims }: { route?: string | string[]; role?: string; claims?: Record<string, unknown> } = {}) {

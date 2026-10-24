@@ -1,12 +1,13 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
-import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { ITAlert, ITBadget, ITButton, ITCard, ITDataTable, ITDialog, ITFlex, ITGrid, ITInput, ITLoader, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { AgeBadge } from "@core/components/AgeBadge";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheck, FaCheckCircle, FaExclamationTriangle, FaEye, FaFileAlt, FaFilePdf, FaPlus, FaSync, FaTag, FaTimes, FaTrash, FaUserShield } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
 import { useSearchParams } from "react-router-dom";
 import IncidentCreateForm from "../components/IncidentCreateForm";
 import IncidentReportModal from "../components/IncidentReportModal";
@@ -15,8 +16,8 @@ import { IncidentDetailDialog } from "../components/IncidentDetailDialog";
 
 const IncidentsPage = () => {
     const dispatch = useDispatch();
-    const auth = useSelector((state: AppState) => state.auth);
-    const isAdmin = auth.role === 'ADMIN';
+      const can = useCan();
+    const isAdmin = can(P.INCIDENT_RESOLVE);
     const [searchParams, setSearchParams] = useSearchParams();
     const initialCategoryId = searchParams.get('categoryId');
     const initialTypeId = searchParams.get('typeId');

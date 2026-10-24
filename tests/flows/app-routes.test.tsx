@@ -4,12 +4,13 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { liveDashboard } from "../helpers/fixtures";
 import { renderApp } from "../helpers/render";
 import { server } from "../helpers/server";
+import { permissionsForRole, roleFromAuthHeader } from "../helpers/permissions";
 
 type Role = "ADMIN" | "SHIFT" | "GUARD" | "MAINT" | "CLIENT" | "RESDN";
 
 const ROLES: Role[] = ["ADMIN", "SHIFT", "GUARD", "MAINT"];
 
-/** Rutas protegidas por `RoleRoute` en `src/App.tsx`, con los roles que las pueden montar. */
+/** Rutas protegidas por `PermissionRoute`, con los roles que cumplen el permiso (fixture RBAC). */
 const GUARDED: { path: string; roles: Role[]; title: string }[] = [
   { path: "/users", roles: ["ADMIN"], title: "Directorio de Usuarios" },
   { path: "/schedules", roles: ["ADMIN"], title: "Directorio de Horarios" },
@@ -17,25 +18,21 @@ const GUARDED: { path: string; roles: Role[]; title: string }[] = [
   { path: "/guards", roles: ["ADMIN", "SHIFT"], title: "Módulo de Guardias" },
   { path: "/locations", roles: ["ADMIN", "SHIFT"], title: "Ubicaciones" },
   { path: "/incidents", roles: ["ADMIN", "SHIFT"], title: "Gestión de Incidencias" },
-  { path: "/maintenances", roles: ["ADMIN", "MAINT"], title: "Gestión de Mantenimientos" },
+  { path: "/maintenances", roles: ["ADMIN", "SHIFT", "MAINT"], title: "Gestión de Mantenimientos" },
   { path: "/club", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT"], title: "Gestión de Casa Club" },
-  { path: "/rounds", roles: ["ADMIN", "SHIFT"], title: "Historial de recorridos" },
+  { path: "/rounds", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT"], title: "Historial de recorridos" },
   { path: "/routes", roles: ["ADMIN", "SHIFT"], title: "Gestión de Rutas" },
   { path: "/kardex", roles: ["ADMIN", "SHIFT"], title: "Kardex" },
-  { path: "/chat", roles: ["ADMIN", "SHIFT"], title: "Chat del equipo" },
+  { path: "/chat", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT"], title: "Chat del equipo" },
   { path: "/guard-tracking", roles: ["ADMIN", "SHIFT"], title: "Seguimiento de Guardia" },
   { path: "/shift-handover", roles: ["ADMIN", "SHIFT"], title: "Entrega de Turno" },
   { path: "/uniform", roles: ["ADMIN", "SHIFT"], title: "Uniforme" },
+  { path: "/properties", roles: ["ADMIN", "SHIFT"], title: "Propiedades" },
+  { path: "/residents", roles: ["ADMIN", "SHIFT"], title: "Directorio de Residentes" },
+  { path: "/invitations", roles: ["ADMIN", "SHIFT", "GUARD"], title: "Directorio de Invitados" },
 ];
 
-/** Rutas sin `RoleRoute` (solo exigen sesión). */
-const OPEN: { path: string; title: string }[] = [
-  { path: "/properties", title: "Propiedades" },
-  { path: "/residents", title: "Directorio de Residentes" },
-  { path: "/invitations", title: "Directorio de Invitados" },
-];
-
-const ALL_PATHS = ["/home", ...GUARDED.map((r) => r.path), ...OPEN.map((r) => r.path)];
+const ALL_PATHS = ["/home", ...GUARDED.map((r) => r.path)];
 
 /**
  * El shell y las pantallas piden datos variados. Para no acoplar la matriz a
@@ -47,6 +44,13 @@ beforeEach(() => {
   server.use(
     http.all(/\/api\/v1\/.*/, ({ request }) => {
       const path = new URL(request.url).pathname.replace("/api/v1", "");
+      if (path === "/users/me/permissions") {
+        const role = roleFromAuthHeader(request.headers.get("Authorization"));
+        return HttpResponse.json({
+          success: true,
+          data: { role, permissions: permissionsForRole(role) },
+        });
+      }
       if (path === "/dashboard/live") {
         return HttpResponse.json({ success: true, data: liveDashboard() });
       }
@@ -95,14 +99,6 @@ describe("App · matriz rol × ruta", () => {
       expect(screen.queryByRole("heading", { level: 1, name: route.title })).toBeNull();
     }
   });
-
-  it.each(ROLES.flatMap((role) => OPEN.map((route) => ({ role, route }))))(
-    "$role puede entrar a $route.path (solo pide sesión)",
-    async ({ role, route }) => {
-      renderApp({ route: route.path, role });
-      await expectHeading(route.title);
-    },
-  );
 
   it.each(ROLES)("%s entra a /home", async (role) => {
     renderApp({ route: "/home", role });

@@ -10,7 +10,7 @@ import { PrivateRoutes } from "@app/core/routes/PrivateRoutes";
 import { logout, setAuth } from "@app/core/store/auth/auth.slice";
 import store from "@app/core/store/store";
 import { hideToast, showToast } from "@app/core/store/toast/toast.slice";
-import { makeToken, renderWithProviders } from "../../helpers/render";
+import { authAs, makeToken, renderWithProviders } from "../../helpers/render";
 import { API, server } from "../../helpers/server";
 
 const Where = () => <span data-testid="where">{useLocation().pathname}</span>;
@@ -102,17 +102,19 @@ describe("useNavigationItems / Navbar", () => {
   const labels = (items: any[]) => items.map((i) => i.label);
 
   it("ADMIN ve todas las secciones", () => {
-    store.dispatch(setAuth(makeToken({ role: "ADMIN" })));
+    authAs("ADMIN");
     const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/home") });
     expect(labels(result.current)).toEqual(["Inicio", "Operación", "Residencial", "Reportes", "Personal", "Catálogos"]);
   });
 
   it("GUARD solo ve lo suyo y no ve secciones vacías", () => {
-    store.dispatch(setAuth(makeToken({ role: "GUARD" })));
+    authAs("GUARD");
     const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/home") });
-    expect(labels(result.current)).toEqual(["Inicio", "Residencial", "Reportes"]);
+    expect(labels(result.current)).toEqual(["Inicio", "Operación", "Residencial", "Reportes"]);
     const reports = result.current.find((i: any) => i.id === "reports");
     expect(reports.subitems[0].items.map((i: any) => i.label)).toEqual(["Casa Club"]);
+    const operation = result.current.find((i: any) => i.id === "operation");
+    expect(operation.subitems[0].items.map((i: any) => i.label)).toEqual(["Chat"]);
   });
 
   it("sin rol no hay ítems", () => {
@@ -122,7 +124,7 @@ describe("useNavigationItems / Navbar", () => {
   });
 
   it("marca activa la sección y la hoja de la ruta actual, incluso en subrutas", () => {
-    store.dispatch(setAuth(makeToken({ role: "ADMIN" })));
+    authAs("ADMIN");
     const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/properties/5") });
     const residential = result.current.find((i: any) => i.id === "residential");
     expect(residential.isActive).toBe(true);
@@ -132,7 +134,7 @@ describe("useNavigationItems / Navbar", () => {
   });
 
   it("las acciones navegan", () => {
-    store.dispatch(setAuth(makeToken({ role: "ADMIN" })));
+    authAs("ADMIN");
     const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/home") });
     act(() => result.current.find((i: any) => i.id === "catalogs").action());
     act(() => result.current.find((i: any) => i.id === "operation").subitems[0].items[0].action());
@@ -140,7 +142,7 @@ describe("useNavigationItems / Navbar", () => {
   });
 
   it("Navbar legacy pinta botones y logos", async () => {
-    store.dispatch(setAuth(makeToken({ role: "ADMIN" })));
+    authAs("ADMIN");
     const { user } = renderWithProviders(<><Navbar /><NAVBAR_LOGO /><SIDEBAR_LOGO /><Where /></>, { route: "/home" });
     await user.click(screen.getByRole("button", { name: "Catálogos" }));
     expect(screen.getByTestId("where").textContent).toBe("/catalogs");

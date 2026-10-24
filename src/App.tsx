@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { PrivateRoutes } from "./core/routes/PrivateRoutes";
-import { RoleRoute } from "./core/routes/RoleRoute";
-import { setAuth } from "./core/store/auth/auth.slice";
+import { PermissionRoute } from "./core/routes/PermissionRoute";
+import { P } from "./core/permissions/permissions.constants";
+import { setAuth, setPermissions } from "./core/store/auth/auth.slice";
+import { getMyPermissions } from "./modules/auth/services/AuthService";
 import HomePage from "./modules/home/pages/HomePage";
 
 import LocationsPage from "./modules/locations/pages/LocationsPage";
@@ -34,9 +36,9 @@ import NewShiftHandoverPage from "./modules/shift-handover/pages/NewShiftHandove
 import UniformPage from "./modules/uniform/pages/UniformPage";
 import NewUniformCheckPage from "./modules/uniform/pages/NewUniformCheckPage";
 
-
 function App() {
   const token = useSelector((state: any) => state.auth.token);
+  const permissions = useSelector((state: any) => state.auth.permissions);
   const dispatch = useDispatch();
 
   const [isAppReady, setIsAppReady] = useState(false);
@@ -49,7 +51,28 @@ function App() {
     setIsAppReady(true);
   }, [dispatch]);
 
-  if (!isAppReady) {
+  useEffect(() => {
+    if (!token || permissions !== null) return;
+
+    let active = true;
+    getMyPermissions()
+      .then((res) => {
+        if (!active) return;
+        dispatch(
+          setPermissions(res.success && res.data?.permissions ? res.data.permissions : []),
+        );
+      })
+      .catch(() => {
+        // Fail closed: sin permisos no se pinta nada protegido.
+        if (active) dispatch(setPermissions([]));
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [token, permissions, dispatch]);
+
+  if (!isAppReady || (token && permissions === null)) {
     return (
       <ITFlex align="center" justify="center" className="flex h-screen items-center justify-center">
         <ITLoader size="lg" />
@@ -71,35 +94,37 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<HomePage />} />
-        <Route path="/guards" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><GuardsPage /></RoleRoute>} />
 
-        <Route path="/locations" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><LocationsPage /></RoleRoute>} />
-        <Route path="/properties" element={<PropertiesPage />} />
-        <Route path="/properties/:id" element={<PropertyDetailPage />} />
+        <Route path="/guards" element={<PermissionRoute permissions={P.ASSIGNMENTS_MANAGE}><GuardsPage /></PermissionRoute>} />
+        <Route path="/locations" element={<PermissionRoute permissions={P.LOCATIONS_MANAGE}><LocationsPage /></PermissionRoute>} />
 
-        <Route path="/residents" element={<ResidentsPage />} />
-        <Route path="/residents/nuevo" element={<ResidentFormPage />} />
-        <Route path="/residents/:id" element={<ResidentDetailPage />} />
-        <Route path="/residents/:id/editar" element={<ResidentFormPage />} />
-        <Route path="/invitations" element={<InvitationsPage />} />
-        <Route path="/users" element={<RoleRoute roles={["ADMIN"]}><UsersPage /></RoleRoute>} />
-        <Route path="/incidents" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><IncidentsPage /></RoleRoute>} />
-        <Route path="/club" element={<RoleRoute roles={["ADMIN", "SHIFT", "GUARD", "MAINT"]}><ClubPage /></RoleRoute>} />
-        <Route path="/maintenances" element={<RoleRoute roles={["ADMIN", "MAINT"]}><MaintenancesPage /></RoleRoute>} />
-        <Route path="/kardex" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><KardexPage /></RoleRoute>} />
-        <Route path="/schedules" element={<RoleRoute roles={["ADMIN"]}><SchedulesPage /></RoleRoute>} />
+        <Route path="/properties" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><PropertiesPage /></PermissionRoute>} />
+        <Route path="/properties/:id" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><PropertyDetailPage /></PermissionRoute>} />
 
-        <Route path="/rounds" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><RoundsPage /></RoleRoute>} />
-        <Route path="/rounds/:id" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><RoundDetailPage /></RoleRoute>} />
-        <Route path="/routes" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><RoutesPage /></RoleRoute>} />
-        <Route path="/catalogs" element={<RoleRoute roles={["ADMIN"]}><CatalogsPage /></RoleRoute>} />
-        <Route path="/guard-tracking" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><GuardTrackingPage /></RoleRoute>} />
-        <Route path="/chat" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><ChatPage /></RoleRoute>} />
-        <Route path="/shift-handover" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><ShiftHandoverPage /></RoleRoute>} />
-        <Route path="/shift-handover/nuevo" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><NewShiftHandoverPage /></RoleRoute>} />
-        <Route path="/uniform" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><UniformPage /></RoleRoute>} />
-        <Route path="/uniform/nuevo" element={<RoleRoute roles={["ADMIN", "SHIFT"]}><NewUniformCheckPage /></RoleRoute>} />
+        <Route path="/residents" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentsPage /></PermissionRoute>} />
+        <Route path="/residents/nuevo" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentFormPage /></PermissionRoute>} />
+        <Route path="/residents/:id" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentDetailPage /></PermissionRoute>} />
+        <Route path="/residents/:id/editar" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentFormPage /></PermissionRoute>} />
+        <Route path="/invitations" element={<PermissionRoute permissions={P.ACCESS_CHECK}><InvitationsPage /></PermissionRoute>} />
 
+        <Route path="/users" element={<PermissionRoute permissions={P.USERS_MANAGE}><UsersPage /></PermissionRoute>} />
+        <Route path="/incidents" element={<PermissionRoute permissions={P.INCIDENT_VIEW}><IncidentsPage /></PermissionRoute>} />
+        {/* Crear reportes de club lo puede hacer cualquier staff; resolver exige club.manage. */}
+        <Route path="/club" element={<PermissionRoute permissions={P.CLUB_VIEW}><ClubPage /></PermissionRoute>} />
+        <Route path="/maintenances" element={<PermissionRoute permissions={P.MAINTENANCE_VIEW}><MaintenancesPage /></PermissionRoute>} />
+        <Route path="/kardex" element={<PermissionRoute permissions={P.KARDEX_VIEW}><KardexPage /></PermissionRoute>} />
+        <Route path="/schedules" element={<PermissionRoute permissions={P.SCHEDULES_MANAGE}><SchedulesPage /></PermissionRoute>} />
+
+        <Route path="/rounds" element={<PermissionRoute permissions={P.ROUND_VIEW}><RoundsPage /></PermissionRoute>} />
+        <Route path="/rounds/:id" element={<PermissionRoute permissions={P.ROUND_VIEW}><RoundDetailPage /></PermissionRoute>} />
+        <Route path="/routes" element={<PermissionRoute permissions={P.RECURRING_MANAGE}><RoutesPage /></PermissionRoute>} />
+        <Route path="/catalogs" element={<PermissionRoute permissions={P.CATALOGS_MANAGE}><CatalogsPage /></PermissionRoute>} />
+        <Route path="/guard-tracking" element={<PermissionRoute permissions={P.DASHBOARD_VIEW}><GuardTrackingPage /></PermissionRoute>} />
+        <Route path="/chat" element={<PermissionRoute permissions={P.CHAT_USE}><ChatPage /></PermissionRoute>} />
+        <Route path="/shift-handover" element={<PermissionRoute permissions={P.SHIFT_HANDOVER_MANAGE}><ShiftHandoverPage /></PermissionRoute>} />
+        <Route path="/shift-handover/nuevo" element={<PermissionRoute permissions={P.SHIFT_HANDOVER_MANAGE}><NewShiftHandoverPage /></PermissionRoute>} />
+        <Route path="/uniform" element={<PermissionRoute permissions={P.UNIFORM_MANAGE}><UniformPage /></PermissionRoute>} />
+        <Route path="/uniform/nuevo" element={<PermissionRoute permissions={P.UNIFORM_MANAGE}><NewUniformCheckPage /></PermissionRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/home" />} />
     </Routes>

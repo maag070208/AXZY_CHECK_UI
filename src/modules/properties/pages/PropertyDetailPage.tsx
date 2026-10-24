@@ -22,12 +22,13 @@ import {
     FaIdCard,
     FaFileAlt
 } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import QRCode from "qrcode";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { AppState } from "@app/core/store/store";
 import { getPropertyById, Property, updateProperty } from "../service/properties.service";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
 import { getPaginatedResidents, ResidentUser } from "../../residents/services/residents.service";
 import { GoogleMapComponent } from "../../../core/components/GoogleMapComponent";
 import { PropertyForm } from "../components/PropertyForm";
@@ -36,8 +37,8 @@ const PropertyDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const userRole = useSelector((state: AppState) => state.auth.role);
-    const isAdmin = userRole === 'ADMIN' || userRole === 'SHIFT';
+    const can = useCan();
+    const isAdmin = can(P.PROPERTIES_MANAGE);
 
     const [property, setProperty] = useState<Property | null>(null);
     const [loading, setLoading] = useState(true);

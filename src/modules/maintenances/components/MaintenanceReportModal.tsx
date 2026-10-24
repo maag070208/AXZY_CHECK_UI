@@ -1,6 +1,5 @@
 import { ITBadget, ITButton, ITCard, ITCheckbox, ITDatePicker, ITDialog, ITFlex, ITGrid, ITLoader, ITSearchSelect, ITSlideToggle, ITText } from "@axzydev/axzy_ui_system";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { AppState } from "@app/core/store/store";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -10,7 +9,9 @@ import {
     FaMapMarkerAlt,
     FaTimes,
 } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
 import { downloadMaintenancesPdf, getMaintenances, Maintenance, MaintenancePdfFilters } from "../services/MaintenanceService";
 
 interface MaintenanceReportModalProps {
@@ -29,8 +30,8 @@ type StatusFilter = "ALL" | "PENDING" | "ATTENDED";
 
 const MaintenanceReportModal = ({ isOpen, onClose }: MaintenanceReportModalProps) => {
     const dispatch = useDispatch();
-    const auth = useSelector((state: AppState) => state.auth);
-    const isAdmin = auth.role === 'ADMIN';
+      const can = useCan();
+    const isAdmin = can(P.MAINTENANCE_RESOLVE);
 
     const [dateRange, setDateRange] = useState<any>(() => getCurrentMonthRange());
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");

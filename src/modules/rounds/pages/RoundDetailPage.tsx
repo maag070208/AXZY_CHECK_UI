@@ -16,21 +16,22 @@ import {
 } from "@axzydev/axzy_ui_system";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { FaCheck, FaCheckCircle, FaPause, FaClipboardList, FaClock, FaExclamationTriangle, FaFileAlt, FaImage, FaLocationArrow, FaMapMarkedAlt, FaMapMarkerAlt, FaPlay, FaQrcode, FaRoute, FaStopwatch, FaTrash } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
 import { useNavigate, useParams } from "react-router-dom";
 import { RoundRouteMap, RoutePoint } from "../../guard-tracking/components/RoundRouteMap";
 import { getRoutesList } from "../../routes/services/RoutesService";
 import { getRoundDetail, IRoundDetail } from "../services/RoundsService";
 import { deleteKardexEntry, deleteKardexMedia } from "../../kardex/services/KardexService";
 import { deleteIncident, deleteIncidentMedia } from "../../incidents/services/IncidentService";
-import { AppState } from "@app/core/store/store";
 
 const RoundDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const role = useSelector((state: AppState) => state.auth.role);
-    const isAdmin = role === 'ADMIN';
+    const can = useCan();
+    const isAdmin = can(P.KARDEX_DELETE);
 
     const [data, setData] = useState<IRoundDetail | null>(null);
     const [loading, setLoading] = useState(true);

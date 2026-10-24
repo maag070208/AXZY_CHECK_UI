@@ -144,13 +144,13 @@ describe("ubicaciones", () => {
     const { user } = await open();
     await user.click(actionIn("B-202-Calle 2", "Ver código QR"));
     expect(await screen.findByAltText("Código QR de B-202-Calle 2")).toBeInTheDocument();
-    expect(screen.getByText("Sección B · #202 · Calle 2")).toBeInTheDocument();
+    expect(screen.getByText("Sección B · #202")).toBeInTheDocument();
     await user.click(screen.getByText("Cerrar", { selector: "button" }));
     await waitFor(() => expect(screen.queryByAltText("Código QR de B-202-Calle 2")).toBeNull());
   });
 
   it("si falla la generación del QR avisa", async () => {
-    vi.spyOn(QRCode, "toDataURL").mockRejectedValue(new Error("x"));
+    vi.spyOn(QRCode, "toString").mockRejectedValue(new Error("x"));
     vi.spyOn(console, "error").mockImplementation(() => {});
     const { user } = await open();
     await user.click(actionIn("A-101-Calle 1", "Ver código QR"));
