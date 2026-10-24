@@ -1,6 +1,6 @@
 # Pruebas de la WEB y la API — estado y pendientes
 
-Última actualización: 2026-10-21. Suite combinada de la WEB: **1.055 pruebas en 38 archivos**, todo en verde. Cobertura global del combinado: **statements 99,3 % · branches 95,49 % · functions 93,62 %** (`pnpm test:coverage`, ~2,5 min en una máquina descargada).
+Última actualización: 2026-10-22. Suite combinada de la WEB: **1.054 pruebas en 38 archivos**, todo en verde. Cobertura global del combinado: **99,07 % statements · 95,16 % branches · 93,38 % functions** (`pnpm test:coverage`, ~2,5 min en una máquina descargada).
 
 ## 1. Cómo correr
 
@@ -36,7 +36,7 @@ Archivos de flujo por pantalla (pruebas que aporta cada uno):
 | `residents.test.tsx` | 46 | listado, alta multietapa, detalle, contactos, pases e INE |
 | `invitations.test.tsx` | 36 | listado, alta, gafete QR/WhatsApp, revocación y validación de acceso |
 | `reports.test.tsx` | 84 | incidencias, mantenimientos y casa club (parametrizado): listado, filtros, detalle, resolver, eliminar y PDF |
-| `landing.test.tsx` | 15 | landing pública: navegación, menú móvil, tabs, FAQ y cotización por WhatsApp |
+| `landing.test.tsx` | 14 | landing pública: navegación, menú móvil, tabs, FAQ, offline/planes y cotización por WhatsApp |
 | `routes.test.tsx` | 21 | listado, alta/edición, QR de ubicaciones y descarga del PDF de QRs por ruta |
 | `guard-tracking.test.tsx` | 16 | seguimiento de guardias y ramas defensivas del selector/resumen |
 | `dashboard*.test.tsx`, `chat`, `kardex`, `login`, `locations`, `rounds`, `round-detail`, `schedules`, `shift-handover`, `uniform`, `users`, `guards` | — | flujos previos (sin cambios) + unit existentes |
@@ -64,7 +64,7 @@ Limitación: jsdom no es un navegador real; no valida layout, CSS ni mapas reale
 | incidents / maintenances / club | ✅ 84 flujos parametrizados (listado, filtros, detalle, resolver, eliminar, alta y PDF) |
 | residents | ✅ 46 flujos (lista, alta/edición, detalle, contactos, pases, INE) |
 | properties | ✅ 83 flujos (lista, detalle, ocupación, hogar, autorizaciones, importación) |
-| landing | ✅ 15 flujos (render, navegación, menú, tabs, cotización) |
+| landing | ✅ 14 flujos (render, navegación, menú, tabs, offline/planes, cotización) |
 | `src/App.tsx` (rutas por rol) | ✅ 129 pruebas de matriz rol → ruta |
 
 ## 4. Pendientes concretos

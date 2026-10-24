@@ -1,6 +1,5 @@
-import currentHome from "@assets/landing/current-home-crop.png";
 import currentUsers from "@assets/landing/current-users-crop.png";
-import currentAppInicio from "@assets/landing/current-app-inicio.png";
+import currentAppInicio from "@assets/landing/app-home-sync.png";
 
 const BrowserTop = () => (
   <div className="lp-browser-top">
@@ -8,22 +7,6 @@ const BrowserTop = () => (
     <span className="lp-browser-dot" />
     <span className="lp-browser-dot" />
     <span className="lp-browser-url" />
-  </div>
-);
-
-/** Hero: captura real del monitoreo en vivo (WEB actual). */
-export const DashboardMockup = () => (
-  <div className="lp-dashboard lp-dashboard-real">
-    <img className="lp-real-shot" src={currentHome} alt="Monitoreo en vivo de CheckApp" />
-  </div>
-);
-
-/** Teléfono del hero: captura real de la app actual. */
-export const PhoneMockup = () => (
-  <div className="lp-phone" aria-hidden="true">
-    <div className="lp-phone-screen lp-phone-screen-real">
-      <img src={currentAppInicio} alt="" />
-    </div>
   </div>
 );
 

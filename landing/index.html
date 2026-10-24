@@ -5,11 +5,35 @@
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
     <link rel="alternate icon" href="./favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#03100a" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #03100a;
+      }
+    </style>
     <meta
       name="description"
-      content="CheckApp digitaliza el patrullaje de tu empresa de seguridad: QR en sitio, validación GPS, evidencia y reportes en vivo."
+      content="CheckApp digitaliza el patrullaje de tu empresa de seguridad: QR, GPS, evidencia, modo offline con sincronización y planes desde $2,490 MXN/mes."
     />
-    <title>CheckApp — Control de rondas y seguridad en tiempo real</title>
+    <title>CheckApp — Rondas, evidencia y operación offline</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "CheckApp",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Android, Web",
+        "offers": [
+          { "@type": "Offer", "name": "Estándar", "price": "2490", "priceCurrency": "MXN" },
+          { "@type": "Offer", "name": "Pro", "price": "5990", "priceCurrency": "MXN" },
+          { "@type": "Offer", "name": "Enterprise", "price": "12990", "priceCurrency": "MXN" }
+        ]
+      }
+    </script>
+    <meta property="og:title" content="CheckApp — Rondas bajo control, incluso sin señal" />
+    <meta property="og:description" content="QR + GPS, evidencia, modo offline y sincronización. Planes Estándar, Pro y Enterprise." />
   </head>
   <body>
     <div id="root"></div>

@@ -1,5 +1,5 @@
-import { ITButton, ITInput, ITSearchSelect, ITTabs , ITFlex } from "@axzydev/axzy_ui_system";
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { ITButton, ITTabs, ITFlex } from "@axzydev/axzy_ui_system";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { IconType } from "react-icons";
 import {
   FaArrowRight,
@@ -10,7 +10,6 @@ import {
   FaChevronDown,
   FaCloudDownloadAlt,
   FaDesktop,
-  FaExternalLinkAlt,
   FaEye,
   FaHistory,
   FaLayerGroup,
@@ -25,16 +24,22 @@ import {
   FaUserShield,
   FaUserTie,
   FaWhatsapp,
+  FaWifi,
+  FaCrown,
+  FaRocket,
+  FaHeadset,
+  FaSyncAlt,
 } from "react-icons/fa";
 import logoGreen from "@assets/logo-green.svg";
 import homeShot from "@assets/landing/current-home-gallery-crop.png";
 import usersShot from "@assets/landing/current-users-crop.png";
 import catalogsShot from "@assets/landing/current-catalogs-crop.png";
 import roundsShot from "@assets/landing/current-rounds-crop.png";
+import appHomeSync from "@assets/landing/app-home-sync.png";
+import appOffline from "@assets/landing/app-offline-new.png";
+import appSync from "@assets/landing/app-sync-new.png";
 import {
-  DashboardMockup,
   GuardAppVisual,
-  PhoneMockup,
   WebConsoleVisual,
 } from "../components/LandingVisuals";
 import "../landing.css";
@@ -43,15 +48,14 @@ const WHATSAPP_URL = `https://wa.me/526647700088?text=${encodeURIComponent(
   "Hola, me gustaría recibir una cotización de CheckApp. Tengo una empresa de seguridad con ___ guardias y ___ ubicaciones.",
 )}`;
 
-const DEMO_URL = "https://cfsp.axzy.dev";
-
 const NAV_LINKS = [
   { id: "beneficios", label: "Beneficios" },
   { id: "modulos", label: "Módulos" },
   { id: "pantallas", label: "Pantallas" },
+  { id: "offline", label: "Offline" },
   { id: "como-funciona", label: "Cómo funciona" },
+  { id: "planes", label: "Planes" },
   { id: "faq", label: "FAQ" },
-  { id: "cotizacion", label: "Cotización" },
 ];
 
 const BENEFITS: { icon: IconType; title: string; text: string }[] = [
@@ -159,6 +163,73 @@ const SCREENS = [
   },
 ];
 
+const PLANS = [
+  {
+    id: "standard",
+    name: "Estándar",
+    eyebrow: "Para empezar",
+    price: "$2,490",
+    suffix: "MXN / mes",
+    tagline: "Una caseta o una operación pequeña, ordenada desde el día uno.",
+    guards: "10",
+    points: "100",
+    rounds: "300",
+    support: "Correo · 48 h",
+    highlight: false,
+    cta: "Elegir Estándar",
+    features: [
+      "App móvil + consola web",
+      "Rondas con QR y GPS",
+      "Modo offline y sync",
+      "Incidencias y mantenimiento",
+      "Reportes y bitácoras",
+    ],
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    eyebrow: "Para crecer",
+    ribbon: "El más elegido",
+    price: "$5,990",
+    suffix: "MXN / mes",
+    tagline: "Para empresas que ya operan varias rutas y necesitan control fino.",
+    guards: "30",
+    points: "500",
+    rounds: "1,500",
+    support: "Prioritario · 8 h",
+    highlight: true,
+    cta: "Elegir Pro",
+    features: [
+      "Todo lo de Estándar",
+      "Panel de cumplimiento y KPIs",
+      "Catálogos y reportes avanzados",
+      "Onboarding acompañado",
+      "Soporte prioritario",
+    ],
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    eyebrow: "Operación a escala",
+    price: "$12,990",
+    suffix: "MXN / mes",
+    tagline: "Multi-sitio, auditoría y acuerdos de servicio a la medida.",
+    guards: "100",
+    points: "2,000",
+    rounds: "6,000",
+    support: "24/7 + SLA",
+    highlight: false,
+    cta: "Hablar con ventas",
+    features: [
+      "Todo lo de Pro",
+      "Multi-sitio y multi-cliente",
+      "API y exportaciones",
+      "Account manager dedicado",
+      "SLA y soporte 24/7",
+    ],
+  },
+];
+
 const COMPARE_BAD = [
   "Rondas marcadas en papel o por WhatsApp.",
   "Reportes que llegan al día siguiente.",
@@ -225,7 +296,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "¿Cómo se cobra?",
-    a: "La cotización se arma según el número de guardias, ubicaciones y módulos que necesites. Sin costos escondidos ni permanencia forzada.",
+    a: "Tenemos planes Estándar, Pro y Enterprise con guardias, puntos QR y rondas mensuales incluidas. Si tu operación es más grande, armamos un plan a medida. Sin costos escondidos ni permanencia forzada.",
   },
   {
     q: "¿Puedo verlo funcionando antes de decidir?",
@@ -271,118 +342,49 @@ const ScreenCard = ({ screen }: { screen: (typeof SCREENS)[number] }) => (
   </figure>
 );
 
-const QuoteForm = () => {
-  const [form, setForm] = useState({
-    name: "",
-    company: "",
-    guards: "",
-    locations: "",
-    contact: "",
-  });
-  const [sent, setSent] = useState(false);
-
-  const update =
-    (field: keyof typeof form) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      setForm((prev) => ({ ...prev, [field]: event.target.value }));
-    };
-
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const message = [
-      "Hola, quiero cotizar CheckApp.",
-      `Nombre: ${form.name}`,
-      `Empresa: ${form.company}`,
-      `Guardias: ${form.guards}`,
-      `Ubicaciones: ${form.locations}`,
-      `Contacto: ${form.contact}`,
-    ].join("\n");
-    window.open(
-      `https://wa.me/526647700088?text=${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
-    setSent(true);
-  };
-
-  return (
-    <form className="lp-quote-form" onSubmit={submit}>
-      <div className="lp-quote-head">
-        <span className="lp-quote-badge">
-          <FaWhatsapp size={11} /> Respuesta el mismo día
-        </span>
-        <h3>Cotiza tu operación</h3>
-        <p>Completa tus datos y te enviamos una propuesta por WhatsApp.</p>
+const PlanCard = ({ plan, onQuote }: { plan: (typeof PLANS)[number]; onQuote: () => void }) => (
+  <article className={`lp-plan${plan.highlight ? " lp-plan-highlight" : ""}`} data-reveal>
+    {plan.highlight && (
+      <span className="lp-plan-ribbon">
+        <FaCrown size={11} /> {plan.ribbon ?? plan.eyebrow}
+      </span>
+    )}
+    <span className="lp-plan-eyebrow">{plan.eyebrow}</span>
+    <h3>{plan.name}</h3>
+    <p className="lp-plan-tagline">{plan.tagline}</p>
+    <div className="lp-plan-price">
+      <strong>{plan.price}</strong>
+      <span>{plan.suffix}</span>
+    </div>
+    <div className="lp-plan-limits">
+      <div>
+        <strong>{plan.guards}</strong>
+        <span>guardias</span>
       </div>
-
-      <div className="lp-form-grid">
-        <ITInput
-          name="name"
-          label="Nombre"
-          required
-          value={form.name}
-          onChange={update("name")}
-          placeholder="Tu nombre"
-        />
-        <ITInput
-          name="company"
-          label="Empresa"
-          required
-          value={form.company}
-          onChange={update("company")}
-          placeholder="Agencia o residencial"
-        />
-        <ITSearchSelect
-          name="guards"
-          label="Guardias"
-          required
-          value={form.guards}
-          onChange={(value) => setForm((prev) => ({ ...prev, guards: String(value) }))}
-          options={[
-            { label: "1 a 20", value: "1 a 20" },
-            { label: "21 a 50", value: "21 a 50" },
-            { label: "51 a 100", value: "51 a 100" },
-            { label: "Más de 100", value: "Más de 100" },
-          ]}
-          clearable={false}
-        />
-        <ITSearchSelect
-          name="locations"
-          label="Ubicaciones"
-          required
-          value={form.locations}
-          onChange={(value) => setForm((prev) => ({ ...prev, locations: String(value) }))}
-          options={[
-            { label: "1 a 5", value: "1 a 5" },
-            { label: "6 a 15", value: "6 a 15" },
-            { label: "16 a 30", value: "16 a 30" },
-            { label: "Más de 30", value: "Más de 30" },
-          ]}
-          clearable={false}
-        />
-        <div className="lp-form-full">
-          <ITInput
-            name="contact"
-            label="WhatsApp o email"
-            required
-            value={form.contact}
-            onChange={update("contact")}
-            placeholder="Para enviarte la propuesta"
-          />
-        </div>
+      <div>
+        <strong>{plan.points}</strong>
+        <span>puntos QR</span>
       </div>
-
-      <ITButton type="submit" color="primary" variant="filled" size="md">
-        <ITFlex align="center" gap={2}><FaWhatsapp size={14} /> Solicitar cotización
-      </ITFlex></ITButton>
-      <p className="lp-form-note">
-        {sent
-          ? "Abrimos WhatsApp con tus datos. Si no se abrió, escríbenos a aamaro@axzy.dev."
-          : "Sin compromiso. No compartimos tus datos."}
-      </p>
-    </form>
-  );
-};
+      <div>
+        <strong>{plan.rounds}</strong>
+        <span>rondas / mes</span>
+      </div>
+    </div>
+    <div className="lp-plan-support">
+      <FaHeadset size={13} /> Soporte {plan.support}
+    </div>
+    <ul className="lp-plan-features">
+      {plan.features.map((feature) => (
+        <li key={feature}>
+          <FaCheckCircle size={11} /> {feature}
+        </li>
+      ))}
+    </ul>
+    <button type="button" className={`lp-plan-cta${plan.highlight ? " is-solid" : ""}`} onClick={onQuote}>
+      {plan.cta} <FaArrowRight size={10} />
+    </button>
+  </article>
+);
 
 type ModulePanelProps = {
   item: ModuleItem;
@@ -403,16 +405,10 @@ const ModulePanel = ({ item, onQuote }: ModulePanelProps) => (
         ))}
       </ul>
       <div className="lp-module-actions">
-        <ITButton
-         
-          onClick={() => window.open(DEMO_URL, "_blank", "noopener,noreferrer")}
-        >
+        <ITButton type="button" onClick={onQuote}>
           <span className="lp-cta-inner">
-            Explorar demo <FaExternalLinkAlt size={10} />
+            Solicitar información <FaArrowRight size={10} />
           </span>
-        </ITButton>
-        <ITButton variant="text" color="gray" type="button" onClick={onQuote} size="md">
-          <ITFlex align="center" gap={2}>Solicitar información <FaArrowRight size={9} /></ITFlex>
         </ITButton>
       </div>
     </div>
@@ -420,9 +416,321 @@ const ModulePanel = ({ item, onQuote }: ModulePanelProps) => (
   </div>
 );
 
+const HELP_GUARDS = [
+  { label: "1–10", value: 10 },
+  { label: "11–30", value: 30 },
+  { label: "31–100", value: 100 },
+  { label: "+100", value: 150 },
+];
+
+const HELP_POINTS = [
+  { label: "1–100", value: 100 },
+  { label: "101–500", value: 500 },
+  { label: "501–2,000", value: 2000 },
+  { label: "+2,000", value: 2500 },
+];
+
+const HELP_DEMO_WHEN = ["Hoy", "Mañana", "Esta semana", "Coordinar"];
+
+type HelpStep = "guards" | "points" | "recommendation" | "demo" | "when" | "phone" | "done";
+type ChatMessage = { id: number; from: "a" | "me"; text: string };
+
+const HelpAssistant = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
+  const [step, setStep] = useState<HelpStep>("guards");
+  const [guards, setGuards] = useState<number | null>(null);
+  const [points, setPoints] = useState<number | null>(null);
+  const [demo, setDemo] = useState<string | null>(null);
+  const [phone, setPhone] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { id: 1, from: "a", text: "Hola, soy A. Te armo una cotización en menos de un minuto. ¿Cuántos guardias tienes?" },
+  ]);
+  const chatRef = useRef<HTMLDivElement | null>(null);
+
+  const plan = (() => {
+    if (guards === null || points === null) return null;
+    if (guards <= 10 && points <= 100) return PLANS[0];
+    if (guards <= 30 && points <= 500) return PLANS[1];
+    return PLANS[2];
+  })();
+
+  useEffect(() => {
+    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  }, [messages, step, open]);
+
+  const say = (text: string, from: "a" | "me" = "a") => {
+    setMessages(current => [...current, { id: Date.now() + Math.random(), from, text }]);
+  };
+
+  const respond = (text: string, next: HelpStep, delay = 500) => {
+    setTyping(true);
+    window.setTimeout(() => {
+      say(text);
+      setStep(next);
+      setTyping(false);
+    }, delay);
+  };
+
+  const pickGuards = (option: (typeof HELP_GUARDS)[number]) => {
+    if (step !== "guards" || typing) return;
+    setGuards(option.value);
+    say(option.label, "me");
+    respond("Perfecto. ¿Cuántos puntos QR necesitas controlar?", "points");
+  };
+
+  const pickPoints = (option: (typeof HELP_POINTS)[number]) => {
+    if (step !== "points" || guards === null) return;
+    setPoints(option.value);
+    const recommended =
+      guards <= 10 && option.value <= 100
+        ? PLANS[0]
+        : guards <= 30 && option.value <= 500
+          ? PLANS[1]
+          : PLANS[2];
+    say(option.label, "me");
+    respond(
+      `Con eso te recomiendo el plan ${recommended.name}. ¿Quieres agendar una demo o solo la cotización?`,
+      "recommendation",
+    );
+  };
+
+  const chooseDemo = (wantsDemo: boolean) => {
+    if (step !== "recommendation" || typing) return;
+    if (wantsDemo) {
+      say("Quiero agendar una demo", "me");
+      respond("Excelente. ¿Cuándo te queda bien?", "when");
+    } else {
+      say("Solo la cotización por ahora", "me");
+      respond("Listo. ¿Me dejas tu WhatsApp? Es opcional.", "phone");
+    }
+  };
+
+  const chooseWhen = (when: string) => {
+    if (step !== "when" || typing) return;
+    setDemo(when);
+    say(when, "me");
+    respond("Perfecto, lo dejo anotado. ¿Me dejas tu WhatsApp? Es opcional.", "phone");
+  };
+
+  const finish = (withPhone: boolean) => {
+    if (step !== "phone") return;
+    const cleanPhone = phone.trim();
+    if (withPhone && cleanPhone) say(cleanPhone, "me");
+    if (!withPhone || !cleanPhone) say("Prefiero no dejar teléfono", "me");
+    say("Listo. Te dejo el resumen y el botón para enviarlo por WhatsApp.");
+    setStep("done");
+  };
+
+  const reset = () => {
+    setStep("guards");
+    setGuards(null);
+    setPoints(null);
+    setDemo(null);
+    setPhone("");
+    setTyping(false);
+    setMessages([
+      { id: Date.now(), from: "a", text: "Hola, soy A. Te armo una cotización en menos de un minuto. ¿Cuántos guardias tienes?" },
+    ]);
+  };
+
+  const send = () => {
+    if (!plan) return;
+    const parts = [
+      "Hola, quiero cotizar CheckApp.",
+      `Plan sugerido: ${plan.name} (${plan.price} MXN/mes).`,
+      `Guardias: ${guards}. Puntos QR: ${points}.`,
+    ];
+    if (demo) parts.push(`Demo: ${demo}.`);
+    if (phone.trim()) parts.push(`WhatsApp: ${phone.trim()}.`);
+    window.open(
+      `https://wa.me/526647700088?text=${encodeURIComponent(parts.join("\n"))}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
+  return (
+    <>
+      {open && (
+        <aside className="lp-help-panel lp-help-chat" aria-label="Asistente de cotización">
+          <div className="lp-help-head">
+            <div className="lp-help-avatar">A</div>
+            <div>
+              <strong>A · Asistente CheckApp</strong>
+              <span><i /> En línea · responde al instante</span>
+            </div>
+            <button type="button" aria-label="Cerrar asistente" onClick={() => onOpenChange(false)}>
+              <FaTimes size={14} />
+            </button>
+          </div>
+
+          <div className="lp-help-chat-log" ref={chatRef} aria-live="polite">
+            {messages.map(message => (
+              <div key={message.id} className={`lp-help-msg lp-help-msg-${message.from}`}>
+                {message.from === "a" && <span className="lp-help-mini-avatar">A</span>}
+                <p>{message.text}</p>
+              </div>
+            ))}
+
+            {typing && (
+              <div className="lp-help-msg lp-help-msg-a lp-help-typing">
+                <span className="lp-help-mini-avatar">A</span>
+                <p aria-label="A está escribiendo"><i /><i /><i /></p>
+              </div>
+            )}
+
+            {step === "guards" && (
+              <div className="lp-help-quick">
+                {HELP_GUARDS.map(option => (
+                  <button key={option.label} type="button" onClick={() => pickGuards(option)}
+                    disabled={typing}>
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {step === "points" && (
+              <div className="lp-help-quick">
+                {HELP_POINTS.map(option => (
+                  <button key={option.label} type="button" onClick={() => pickPoints(option)}
+                    disabled={typing}>
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {step === "recommendation" && plan && (
+              <>
+                <div className="lp-help-result lp-help-inline-result">
+                  <span>Recomendación de A</span>
+                  <strong>{plan.name} · {plan.price} MXN/mes</strong>
+                  <small>Hasta {plan.guards} guardias · {plan.points} puntos · {plan.rounds} rondas/mes.</small>
+                </div>
+                <div className="lp-help-quick">
+                  <button type="button" onClick={() => chooseDemo(true)}
+                    disabled={typing}>Agendar demo</button>
+                  <button type="button" onClick={() => chooseDemo(false)}
+                    disabled={typing}>Solo cotización</button>
+                </div>
+              </>
+            )}
+
+            {step === "when" && (
+              <div className="lp-help-quick lp-help-quick-wide">
+                {HELP_DEMO_WHEN.map(option => (
+                  <button key={option} type="button" onClick={() => chooseWhen(option)}
+                    disabled={typing}>
+                    {option}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {step === "phone" && (
+              <form
+                className="lp-help-phone"
+                onSubmit={event => {
+                  event.preventDefault();
+                  finish(true);
+                }}
+              >
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={event => setPhone(event.target.value)}
+                  placeholder="Tu WhatsApp (opcional)"
+                  aria-label="WhatsApp opcional"
+                />
+                <div>
+                  <button type="submit">Enviar</button>
+                  <button type="button" onClick={() => finish(false)}>Omitir</button>
+                </div>
+              </form>
+            )}
+
+            {step === "done" && plan && (
+              <div className="lp-help-final">
+                <div className="lp-help-result">
+                  <span>Resumen</span>
+                  <strong>{plan.name} · {plan.price} MXN/mes</strong>
+                  <small>
+                    {guards} guardias · {points} puntos
+                    {demo ? ` · Demo: ${demo}` : ""}
+                    {phone.trim() ? ` · WhatsApp: ${phone.trim()}` : " · Sin teléfono"}
+                  </small>
+                </div>
+                <button type="button" className="lp-help-send" onClick={send}>
+                  <FaWhatsapp size={13} /> Enviar por WhatsApp
+                </button>
+                <button type="button" className="lp-help-form" onClick={reset}>
+                  Volver a empezar
+                </button>
+              </div>
+            )}
+          </div>
+        </aside>
+      )}
+
+      <button
+        type="button"
+        className={`lp-help-toggle${open ? " is-open" : ""}`}
+        aria-label={open ? "Cerrar asistente" : "Abrir asistente de cotización"}
+        onClick={() => onOpenChange(!open)}
+      >
+        <span className="lp-help-toggle-avatar">A</span>
+        <span>Ayuda</span>
+      </button>
+    </>
+  );
+};
+
+
+/** Visual del hero construido con figuras (sin capturas): consola + teléfono con la UI de la app. */
+const HeroScene = () => (
+  <div className="lp-hero-scene" aria-hidden="true">
+    <div className="lp-hero-orbit lp-hero-orbit--a" />
+    <div className="lp-hero-orbit lp-hero-orbit--b" />
+    <div className="lp-hero-orbit lp-hero-orbit--c" />
+
+    <div className="lp-hero-phone">
+      <span className="lp-hero-phone-notch" />
+      <div className="lp-hero-phone-screen">
+        <div className="lp-hp-top">
+          <span className="lp-hp-dot" />
+          <span className="lp-hp-line" />
+          <span className="lp-hp-avatar" />
+        </div>
+        <div className="lp-hp-scan">
+          <FaQrcode />
+          <span className="lp-hp-scanline" />
+        </div>
+        <div className="lp-hp-skeletons">
+          <i />
+          <i />
+          <i />
+        </div>
+        <div className="lp-hp-pill">
+          <FaCheckCircle />
+          <span><i /></span>
+        </div>
+      </div>
+      <span className="lp-hero-phone-glare" />
+    </div>
+
+    <div className="lp-float-tiles">
+      <span className="lp-float-tile lp-float-tile--qr"><FaQrcode /></span>
+      <span className="lp-float-tile lp-float-tile--gps"><FaMapMarkerAlt /></span>
+      <span className="lp-float-tile lp-float-tile--offline"><FaCloudDownloadAlt /></span>
+      <span className="lp-float-tile lp-float-tile--sync"><FaSyncAlt /></span>
+    </div>
+  </div>
+);
+
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [ctaVisible, setCtaVisible] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const progressRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
@@ -433,17 +741,6 @@ const LandingPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const target = document.getElementById("cotizacion");
-    if (!target || !("IntersectionObserver" in window)) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setCtaVisible(entry.isIntersecting),
-      { threshold: 0.18 },
-    );
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const updateProgress = () => {
@@ -478,37 +775,37 @@ const LandingPage = () => {
       </div>
       <header className="lp-nav">
         <div className="lp-container lp-nav-inner">
-          <ITButton variant="text" color="gray"
+          <button
             type="button"
-           
-            ariaLabel="CheckApp, ir al inicio"
+            className="lp-logo"
+            aria-label="CheckApp, ir al inicio"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             <img src={logoGreen} alt="CheckApp" />
-          </ITButton>
+          </button>
 
           <nav className="lp-nav-links" aria-label="Navegación principal">
             {NAV_LINKS.map((link) => (
-              <ITButton variant="text" color="gray"
+              <button
                 key={link.id}
                 type="button"
-               
+                className="lp-nav-link"
                 onClick={() => scrollTo(link.id)}
               >
                 {link.label}
-              </ITButton>
+              </button>
             ))}
           </nav>
 
           <div className="lp-nav-actions">
-            <ITButton variant="text" color="gray"
+            <button
               type="button"
-             
-              ariaLabel={menuOpen ? "Cerrar menú" : "Abrir menú"}
+              className="lp-mobile-toggle"
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
               onClick={() => setMenuOpen((open) => !open)}
             >
               {menuOpen ? <FaTimes /> : <FaBars />}
-            </ITButton>
+            </button>
           </div>
         </div>
 
@@ -516,14 +813,14 @@ const LandingPage = () => {
           <div className="lp-mobile-panel" id="lp-mobile-menu">
             <div className="lp-container">
               {NAV_LINKS.map((link) => (
-                <ITButton variant="text" color="gray"
+                <button
                   key={link.id}
                   type="button"
-                 
+                  className="lp-nav-link"
                   onClick={() => scrollTo(link.id)}
                 >
                   {link.label}
-                </ITButton>
+                </button>
               ))}
             </div>
           </div>
@@ -536,7 +833,7 @@ const LandingPage = () => {
             <div className="lp-hero-copy">
               <span className="lp-hero-badge">
                 <span className="lp-live-dot" />
-                Ecosistema operativo de seguridad · v2.0
+                Ecosistema operativo de seguridad · v2.1 offline + sync
               </span>
 
               <h1>
@@ -554,13 +851,13 @@ const LandingPage = () => {
               </p>
 
               <div className="lp-hero-actions">
-                <ITButton onClick={() => scrollTo("cotizacion")}>
+                <ITButton className="lp-btn-primary" onClick={() => setHelpOpen(true)}>
                   <span className="lp-cta-inner">
                     Solicitar cotización <FaArrowRight size={10} />
                   </span>
                 </ITButton>
-                <ITButton onClick={() => scrollTo("como-funciona")}>
-                  <span className="lp-cta-inner">Ver cómo funciona</span>
+                <ITButton className="lp-btn-ghost" onClick={() => scrollTo("planes")}>
+                  <span className="lp-cta-inner">Ver planes</span>
                 </ITButton>
               </div>
 
@@ -569,29 +866,35 @@ const LandingPage = () => {
                   <FaCheckCircle size={11} /> QR + GPS en cada punto
                 </li>
                 <li>
-                  <FaCheckCircle size={11} /> Operación 100% offline
+                  <FaCheckCircle size={11} /> Offline + sync automático
                 </li>
                 <li>
                   <FaCheckCircle size={11} /> Reportes al instante
                 </li>
               </ul>
+
+              <p className="lp-hero-price">
+                Planes desde <strong>$2,490</strong> MXN/mes
+                <button type="button" onClick={() => scrollTo("planes")}>Ver planes <FaArrowRight size={9} /></button>
+              </p>
             </div>
 
             <div className="lp-hero-visual">
-              <DashboardMockup />
-              <PhoneMockup />
+              <HeroScene />
             </div>
           </div>
-
-          <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("problema")} size="md">
-            <ITFlex align="center" gap={2}><span>Desliza para recorrer</span>
-            <FaChevronDown size={12} /></ITFlex>
-          </ITButton>
         </section>
 
         <section className="lp-trust">
           <div className="lp-container lp-trust-inner" data-reveal>
             <span className="lp-trust-label">Diseñado para agencias de seguridad privada</span>
+            <div className="lp-trust-capabilities" aria-label="Capacidades de la plataforma">
+              <span>QR + GPS</span>
+              <span>Evidencia multimedia</span>
+              <span>Offline-first</span>
+              <span>Sync automático</span>
+              <span>Multi-sitio</span>
+            </div>
             <div className="lp-trust-stats">
               <div className="lp-trust-stat">
                 <strong>+100</strong>
@@ -678,7 +981,7 @@ const LandingPage = () => {
               <p>
                 <strong>No es un GPS. Es la prueba de que el trabajo se hizo.</strong>
               </p>
-              <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("cotizacion")} size="md">
+              <ITButton variant="text" color="gray" type="button" onClick={() => setHelpOpen(true)} size="md">
                 <ITFlex align="center" gap={2}>Quiero verlo en mi operación <FaArrowRight size={10} /></ITFlex>
               </ITButton>
             </div>
@@ -736,7 +1039,7 @@ const LandingPage = () => {
                   id: item.id,
                   label: item.label,
                   icon: <Icon size={12} />,
-                  content: <ModulePanel item={item} onQuote={() => scrollTo("cotizacion")} />,
+                  content: <ModulePanel item={item} onQuote={() => setHelpOpen(true)} />,
                 };
               })}
             />
@@ -792,6 +1095,77 @@ const LandingPage = () => {
               <FaCloudDownloadAlt size={13} /> Si no hay señal, la app guarda el registro y lo
               sincroniza al recuperar conexión.
             </p>
+          </div>
+        </section>
+
+        <section id="offline" className="lp-section lp-offline-section">
+          <div className="lp-container">
+            <div className="lp-offline-grid">
+              <div className="lp-offline-copy" data-reveal>
+                <span className="lp-eyebrow">
+                  <FaWifi size={10} /> Nuevo · Operación sin señal
+                </span>
+                <h2>El WiFi se puede caer. La operación no.</h2>
+                <p>
+                  El guardia escanea, reporta y cierra la ronda aunque no haya señal. Todo queda
+                  guardado en el teléfono y se sincroniza solo al recuperar conexión.
+                </p>
+                <ul className="lp-offline-points">
+                  <li><FaCheckCircle size={12} /> Escaneo y evidencias sin internet.</li>
+                  <li><FaCheckCircle size={12} /> Botón Sync con revisión paso a paso.</li>
+                  <li><FaCheckCircle size={12} /> Sin duplicados: fotos ya subidas no se repiten.</li>
+                  <li><FaCheckCircle size={12} /> Todo llega a la consola al volver la red.</li>
+                </ul>
+                <button type="button" className="lp-offline-link" onClick={() => scrollTo("planes")}>
+                  Ver planes con offline incluido <FaArrowRight size={10} />
+                </button>
+              </div>
+
+              <div className="lp-offline-gallery" data-reveal>
+                <figure className="lp-device lp-device-a">
+                  <div className="lp-device-frame"><img src={appOffline} alt="App CheckApp sin conexión con aviso de trabajo offline" loading="lazy" /></div>
+                  <figcaption><strong>Sin señal</strong><span>Sigue trabajando</span></figcaption>
+                </figure>
+                <figure className="lp-device lp-device-b">
+                  <div className="lp-device-frame"><img src={appSync} alt="Pantalla de sincronización de CheckApp" loading="lazy" /></div>
+                  <figcaption><strong>Sync</strong><span>Revisión y evidencias</span></figcaption>
+                </figure>
+                <figure className="lp-device lp-device-c">
+                  <div className="lp-device-frame"><img src={appHomeSync} alt="Home de CheckApp con botón de sincronización" loading="lazy" /></div>
+                  <figcaption><strong>Al volver</strong><span>Todo actualizado</span></figcaption>
+                </figure>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="planes" className="lp-section lp-pricing-section">
+          <div className="lp-container">
+            <div className="lp-section-head" data-reveal>
+              <span className="lp-eyebrow">
+                <FaRocket size={10} /> Planes claros
+              </span>
+              <h2>Elige el plan según tu operación.</h2>
+              <p>
+                Facturación mensual. Todos los planes incluyen consola web, app de campo, modo
+                offline y sincronización.
+              </p>
+            </div>
+
+            <div className="lp-billing-note" data-reveal>
+              <FaCheckCircle size={11} /> Sin permanencia forzada · Precios MXN + IVA · Pago anual: 2 meses gratis
+            </div>
+
+            <div className="lp-pricing-grid">
+              {PLANS.map((plan) => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  onQuote={() => setHelpOpen(true)}
+                />
+              ))}
+            </div>
+
           </div>
         </section>
 
@@ -859,48 +1233,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section id="cotizacion" className="lp-cta-section">
-          <div className="lp-container">
-            <div className="lp-cta" data-reveal>
-              <div className="lp-cta-copy">
-                <span className="lp-eyebrow lp-eyebrow-light">
-                  <FaWhatsapp size={11} /> Parada 08 · Cotización
-                </span>
-                <h2>¿Listo para tomar el control de tus rondas?</h2>
-                <p>
-                  Cuéntanos cuántos guardias y ubicaciones tienes. Te enviamos una propuesta clara,
-                  sin compromiso.
-                </p>
-
-                <ul className="lp-cta-list">
-                  <li>
-                    <FaCheckCircle size={12} /> Implementación acompañada en días.
-                  </li>
-                  <li>
-                    <FaCheckCircle size={12} /> Sin hardware especial ni instalaciones.
-                  </li>
-                  <li>
-                    <FaCheckCircle size={12} /> Propuesta según tu operación.
-                  </li>
-                </ul>
-
-                <div className="lp-cta-metrics">
-                  <span>
-                    <strong>1</strong> plataforma
-                  </span>
-                  <span>
-                    <strong>2</strong> interfaces
-                  </span>
-                  <span>
-                    <strong>100%</strong> trazabilidad
-                  </span>
-                </div>
-              </div>
-
-              <QuoteForm />
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="lp-footer">
@@ -939,9 +1271,6 @@ const LandingPage = () => {
             >
               Cómo funciona
             </ITButton>
-            <a className="lp-footer-link" href={DEMO_URL} target="_blank" rel="noreferrer">
-              Explorar demo
-            </a>
           </div>
 
           <div>
@@ -952,7 +1281,7 @@ const LandingPage = () => {
             <a className="lp-footer-link" href="mailto:aamaro@axzy.dev">
               aamaro@axzy.dev
             </a>
-            <ITButton variant="text" color="gray" type="button" onClick={() => scrollTo("cotizacion")}>
+            <ITButton variant="text" color="gray" type="button" onClick={() => setHelpOpen(true)}>
               Solicitar cotización
             </ITButton>
           </div>
@@ -1001,16 +1330,7 @@ const LandingPage = () => {
         </div>
       </footer>
 
-      <a
-        className={`lp-fab${ctaVisible ? " is-hidden" : ""}`}
-        href={WHATSAPP_URL}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Cotizar por WhatsApp"
-      >
-        <FaWhatsapp size={18} />
-        <span>Cotizar</span>
-      </a>
+      <HelpAssistant open={helpOpen} onOpenChange={setHelpOpen} />
     </div>
   );
 };

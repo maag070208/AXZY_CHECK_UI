@@ -2,40 +2,14 @@ import LandingPage from "@app/modules/landing/pages/LandingPage";
 import { screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../helpers/render";
-import { pickOption } from "../helpers/ui";
 
 const WA_BASE = "https://wa.me/526647700088?text=";
 const WA_MESSAGE =
   "Hola, me gustaría recibir una cotización de CheckApp. Tengo una empresa de seguridad con ___ guardias y ___ ubicaciones.";
 const WA_URL = `${WA_BASE}${encodeURIComponent(WA_MESSAGE)}`;
-const DEMO_URL = "https://cfsp.axzy.dev";
 const TITLE = "CheckApp — Control de rondas y seguridad en tiempo real";
 
 const openLanding = () => renderWithProviders(<LandingPage />);
-
-/** Input de un `ITSearchSelect` (no asocia `label`/`htmlFor`, así que se busca por `name`). */
-const byName = (container: HTMLElement, name: string) =>
-  container.querySelector<HTMLInputElement>(`input[name="${name}"]`)!;
-
-const quoteForm = (container: HTMLElement) =>
-  container.querySelector<HTMLFormElement>("form.lp-quote-form")!;
-
-const fillQuote = async (
-  r: ReturnType<typeof openLanding>,
-  values = {
-    name: "Ana",
-    company: "Seguridad Sur",
-    guards: "21 a 50",
-    locations: "6 a 15",
-    contact: "ana@example.com",
-  },
-) => {
-  await r.user.type(byName(r.container, "name"), values.name);
-  await r.user.type(byName(r.container, "company"), values.company);
-  await pickOption(r.user, byName(r.container, "guards"), values.guards);
-  await pickOption(r.user, byName(r.container, "locations"), values.locations);
-  await r.user.type(byName(r.container, "contact"), values.contact);
-};
 
 afterEach(() => {
   document.title = "";
@@ -49,9 +23,9 @@ describe("landing · render público", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: /tus rondas/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Ecosistema operativo de seguridad · v2\.0/)).toBeInTheDocument();
+    expect(screen.getByText(/Ecosistema operativo de seguridad · v2\.1/)).toBeInTheDocument();
     const nav = screen.getByRole("navigation", { name: "Navegación principal" });
-    for (const label of ["Beneficios", "Módulos", "Pantallas", "Cómo funciona", "FAQ", "Cotización"]) {
+    for (const label of ["Beneficios", "Módulos", "Pantallas", "Offline", "Cómo funciona", "Planes", "FAQ"]) {
       expect(within(nav).getByRole("button", { name: label })).toBeInTheDocument();
     }
     expect(screen.getByRole("button", { name: "CheckApp, ir al inicio" })).toBeInTheDocument();
@@ -124,12 +98,6 @@ describe("landing · render público", () => {
     expect(screen.getByText("¿Necesito señal en todos los puntos?")).toBeInTheDocument();
     expect(screen.getByText("¿Cómo se cobra?")).toBeInTheDocument();
 
-    // Cotización
-    expect(
-      screen.getByRole("heading", { name: "¿Listo para tomar el control de tus rondas?" }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Cotiza tu operación" })).toBeInTheDocument();
-
     // Footer
     const footer = container.querySelector("footer.lp-footer") as HTMLElement;
     expect(within(footer).getByText(/© 2026 AXZY Security Suite/)).toBeInTheDocument();
@@ -139,10 +107,6 @@ describe("landing · render público", () => {
     expect(within(footer).getByRole("link", { name: "aamaro@axzy.dev" })).toHaveAttribute(
       "href",
       "mailto:aamaro@axzy.dev",
-    );
-    expect(within(footer).getByRole("link", { name: "Explorar demo" })).toHaveAttribute(
-      "href",
-      DEMO_URL,
     );
   });
 
@@ -187,16 +151,33 @@ describe("landing · navegación", () => {
     expect(toFaq).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
   });
 
-  it("los botones del hero bajan a cotización y a cómo funciona", async () => {
+  it("el hero abre el asistente y lleva a los planes", async () => {
     const { user, container } = openLanding();
     const hero = container.querySelector("section.lp-hero") as HTMLElement;
-    const toQuote = vi.spyOn(document.getElementById("cotizacion")!, "scrollIntoView");
     await user.click(within(hero).getByRole("button", { name: /Solicitar cotización/i }));
-    expect(toQuote).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+    expect(screen.getByLabelText("Asistente de cotización")).toBeInTheDocument();
+    await user.click(within(screen.getByLabelText("Asistente de cotización")).getByRole("button", { name: "Cerrar asistente" }));
 
-    const toSteps = vi.spyOn(document.getElementById("como-funciona")!, "scrollIntoView");
-    await user.click(within(hero).getByRole("button", { name: /Ver cómo funciona/i }));
-    expect(toSteps).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+    const toPlans = vi.spyOn(document.getElementById("planes")!, "scrollIntoView");
+    await user.click(within(hero).getAllByRole("button", { name: /Ver planes/i })[0]);
+    expect(toPlans).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+  });
+
+  it("muestra la operación offline y los tres planes", async () => {
+    openLanding();
+    expect(
+      screen.getByRole("heading", { name: "El WiFi se puede caer. La operación no." }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Elige el plan según tu operación." }),
+    ).toBeInTheDocument();
+    for (const plan of ["Estándar", "Pro", "Enterprise"]) {
+      expect(screen.getByRole("heading", { name: plan })).toBeInTheDocument();
+    }
+    expect(screen.getAllByText("$2,490").length).toBeGreaterThan(0);
+    expect(screen.getByText("$5,990")).toBeInTheDocument();
+    expect(screen.getByText("$12,990")).toBeInTheDocument();
+    expect(screen.getAllByText("rondas / mes")).toHaveLength(3);
   });
 
   it("abre y cierra el menú móvil, y sus enlaces cierran el menú", async () => {
@@ -250,75 +231,55 @@ describe("landing · módulos", () => {
     ).toBeInTheDocument();
   });
 
-  it("'Explorar demo' abre la demo en otra pestaña", async () => {
-    const open = vi.spyOn(window, "open").mockReturnValue(null);
-    const { user } = openLanding();
-    await user.click(screen.getByRole("button", { name: /Explorar demo/i }));
-    expect(open).toHaveBeenCalledWith(DEMO_URL, "_blank", "noopener,noreferrer");
-  });
-});
-
-describe("landing · cotización", () => {
-  it("marca como requeridos los datos de contacto", async () => {
+  it("el topbar no muestra un CTA de cotización", () => {
     const { container } = openLanding();
-    for (const name of ["name", "company", "contact"]) {
-      expect(byName(container, name)).toBeRequired();
-    }
-    // Los ITSearchSelect no usan `required` nativo, pero muestran el asterisco.
-    expect(screen.getByText("Guardias").closest("label")).toHaveTextContent("Guardias*");
-    expect(screen.getByText("Ubicaciones").closest("label")).toHaveTextContent("Ubicaciones*");
-  });
-
-  it("no envía el formulario vacío (validación nativa)", async () => {
-    const open = vi.spyOn(window, "open").mockReturnValue(null);
-    const { user, container } = openLanding();
-    expect(quoteForm(container).checkValidity()).toBe(false);
-    await user.click(within(quoteForm(container)).getByRole("button", { name: /Solicitar cotización/i }));
-    expect(open).not.toHaveBeenCalled();
-    expect(screen.getByText("Sin compromiso. No compartimos tus datos.")).toBeInTheDocument();
-  });
-
-  it("envía los datos por WhatsApp y cambia la nota", async () => {
-    const open = vi.spyOn(window, "open").mockReturnValue(null);
-    const r = openLanding();
-    await fillQuote(r);
-
-    // Los selects reflejan la opción elegida.
-    expect(byName(r.container, "guards")).toHaveValue("21 a 50");
-    expect(byName(r.container, "locations")).toHaveValue("6 a 15");
-
-    await r.user.click(within(quoteForm(r.container)).getByRole("button", { name: /Solicitar cotización/i }));
-
-    const message = [
-      "Hola, quiero cotizar CheckApp.",
-      "Nombre: Ana",
-      "Empresa: Seguridad Sur",
-      "Guardias: 21 a 50",
-      "Ubicaciones: 6 a 15",
-      "Contacto: ana@example.com",
-    ].join("\n");
-    expect(open).toHaveBeenCalledTimes(1);
-    expect(open).toHaveBeenCalledWith(
-      `${WA_BASE}${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
-    expect(
-      await screen.findByText(
-        "Abrimos WhatsApp con tus datos. Si no se abrió, escríbenos a aamaro@axzy.dev.",
-      ),
-    ).toBeInTheDocument();
+    const header = container.querySelector("header.lp-nav") as HTMLElement;
+    expect(within(header).queryByRole("button", { name: /^Cotizar/i })).toBeNull();
   });
 });
 
 describe("landing · WhatsApp", () => {
-  it("los enlaces de WhatsApp del footer y del botón flotante llevan el mensaje codificado", async () => {
-    openLanding();
-    const fab = screen.getByRole("link", { name: "Cotizar por WhatsApp" });
-    expect(fab).toHaveAttribute("href", WA_URL);
+  it("el asistente A recomienda un plan y arma la cotización por WhatsApp", async () => {
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+    const { user } = openLanding();
+    await user.click(screen.getByRole("button", { name: "Abrir asistente de cotización" }));
+
+    const panel = screen.getByLabelText("Asistente de cotización");
+    expect(panel).toBeInTheDocument();
+    await user.click(within(panel).getByRole("button", { name: "1–10" }));
+    await user.click(await within(panel).findByRole("button", { name: "1–100" }));
+    expect(await within(panel).findByText("Estándar · $2,490 MXN/mes")).toBeInTheDocument();
+
+    await user.click(await within(panel).findByRole("button", { name: "Solo cotización" }));
+    await user.type(await within(panel).findByLabelText("WhatsApp opcional"), "6641234567");
+    await user.click(within(panel).getByRole("button", { name: "Enviar" }));
+    expect(within(panel).getByText("Resumen")).toBeInTheDocument();
+    await user.click(within(panel).getByRole("button", { name: /Enviar por WhatsApp/i }));
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(String(open.mock.calls[0][0])).toContain("wa.me/526647700088");
+    expect(String(open.mock.calls[0][0])).toContain("Est");
+
     const footer = document.querySelector("footer.lp-footer") as HTMLElement;
     expect(within(footer).getByRole("link", { name: "WhatsApp" })).toHaveAttribute("href", WA_URL);
     expect(new URL(WA_URL).searchParams.get("text")).toBe(WA_MESSAGE);
+  });
+
+  it("permite agendar demo y omitir el teléfono", async () => {
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+    const { user } = openLanding();
+    await user.click(screen.getByRole("button", { name: "Abrir asistente de cotización" }));
+
+    const panel = screen.getByLabelText("Asistente de cotización");
+    await user.click(within(panel).getByRole("button", { name: "1–10" }));
+    await user.click(await within(panel).findByRole("button", { name: "1–100" }));
+    await user.click(await within(panel).findByRole("button", { name: "Agendar demo" }));
+    await user.click(await within(panel).findByRole("button", { name: "Mañana" }));
+    await user.click(await within(panel).findByRole("button", { name: "Omitir" }));
+
+    expect(within(panel).getByText(/Demo: Mañana/)).toBeInTheDocument();
+    expect(within(panel).getByText(/Sin teléfono/)).toBeInTheDocument();
+    await user.click(within(panel).getByRole("button", { name: /Enviar por WhatsApp/i }));
+    expect(String(open.mock.calls[0][0])).toContain("Demo%3A%20Ma");
   });
 
   it("el botón de WhatsApp del FAQ abre el chat", async () => {
@@ -330,7 +291,6 @@ describe("landing · WhatsApp", () => {
 
   it("las 4 capturas de pantalla se muestran con su alt", async () => {
     openLanding();
-    expect(screen.getByAltText("Monitoreo en vivo de CheckApp")).toBeInTheDocument();
     expect(screen.getByAltText("Pantalla de Monitoreo en vivo en CheckApp")).toBeInTheDocument();
     expect(screen.getByAltText("Pantalla de Directorio de usuarios en CheckApp")).toBeInTheDocument();
     expect(screen.getByAltText("Pantalla de Catálogos en CheckApp")).toBeInTheDocument();
