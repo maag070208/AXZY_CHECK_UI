@@ -104,7 +104,7 @@ describe("useNavigationItems / Navbar", () => {
   it("ADMIN ve todas las secciones", () => {
     authAs("ADMIN");
     const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/home") });
-    expect(labels(result.current)).toEqual(["Inicio", "Operación", "Residencial", "Reportes", "Personal", "Catálogos"]);
+    expect(labels(result.current)).toEqual(["Inicio", "Operación", "Residencial", "Finanzas", "Reportes", "Personal", "Catálogos"]);
   });
 
   it("GUARD solo ve lo suyo y no ve secciones vacías", () => {

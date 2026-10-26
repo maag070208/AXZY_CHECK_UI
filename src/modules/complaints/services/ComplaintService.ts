@@ -1,7 +1,7 @@
 import { get, patch, post } from "@app/core/axios/axios";
 
 export type ComplaintCategory = "MANTENIMIENTO" | "SEGURIDAD" | "RUIDO" | "LIMPIEZA" | "ADMINISTRACION" | "SUGERENCIA" | "OTRA";
-export type ComplaintStatus = "NEW" | "IN_REVIEW" | "WAITING_RESIDENT" | "RESOLVED" | "CLOSED";
+export type ComplaintStatus = "NEW" | "IN_REVIEW" | "WAITING_RESIDENT" | "RESOLVED" | "CLOSED" | "REOPENED";
 
 export interface ComplaintAuthor {
   id: number;
@@ -56,6 +56,7 @@ export const COMPLAINT_STATUS_LABELS: Record<ComplaintStatus, string> = {
   WAITING_RESIDENT: "Esperando al residente",
   RESOLVED: "Resuelta",
   CLOSED: "Cerrada",
+  REOPENED: "Reabierta",
 };
 
 export const COMPLAINT_CATEGORY_LABELS: Record<ComplaintCategory, string> = {
@@ -73,8 +74,9 @@ export const NEXT_COMPLAINT_STATUSES: Record<ComplaintStatus, ComplaintStatus[]>
   NEW: ["IN_REVIEW"],
   IN_REVIEW: ["WAITING_RESIDENT", "RESOLVED"],
   WAITING_RESIDENT: ["IN_REVIEW", "RESOLVED"],
-  RESOLVED: ["CLOSED"],
+  RESOLVED: ["CLOSED", "REOPENED"],
   CLOSED: [],
+  REOPENED: ["IN_REVIEW", "RESOLVED"],
 };
 
 const errorOf = (messages: string[] | undefined, fallback: string) => new Error(messages?.[0] ?? fallback);

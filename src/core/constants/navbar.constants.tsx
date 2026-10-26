@@ -12,6 +12,7 @@ import {
   FaShieldAlt,
   FaUser,
   FaUsers,
+  FaWallet,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -116,6 +117,13 @@ export const NAV_SECTIONS: NavSection[] = [
         ],
       },
     ],
+  },
+  {
+    id: "finance",
+    label: "Finanzas",
+    icon: <FaWallet />,
+    path: "/finance",
+    permission: P.CHARGE_MANAGE,
   },
   {
     id: "reports",

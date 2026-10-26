@@ -20,6 +20,7 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "WAITING_RESIDENT", label: COMPLAINT_STATUS_LABELS.WAITING_RESIDENT },
   { value: "RESOLVED", label: COMPLAINT_STATUS_LABELS.RESOLVED },
   { value: "CLOSED", label: COMPLAINT_STATUS_LABELS.CLOSED },
+  { value: "REOPENED", label: COMPLAINT_STATUS_LABELS.REOPENED },
 ];
 
 const ComplaintsPage = () => {
@@ -113,7 +114,7 @@ const ComplaintsPage = () => {
             itemsPerPageOptions={[25, 50]}
             density="compact"
             rowHeight={50}
-            onRowClick={(row: ComplaintListItem) => setSelectedId(row.id)}
+            onRowClick={((row: ComplaintListItem) => setSelectedId(row.id)) as any}
           />
         </ITCard>
       </ITFlex>

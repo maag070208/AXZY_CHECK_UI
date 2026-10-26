@@ -15,6 +15,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "maintenance.view","maintenance.create","maintenance.resolve","maintenance.delete",
     "club.view","club.create","club.resolve","club.delete",
     "complaint.view","complaint.manage",
+    "charge.view","charge.manage","payment.view","payment.manage",
   ],
   SHIFT: [
     "access.check","assignments.manage","properties.view","chat.use","club.manage","dashboard.view",
@@ -38,5 +39,8 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "maintenance.view","maintenance.create","maintenance.resolve","maintenance.delete",
     "club.view","club.create","club.resolve","club.delete",
   ],
-  RESDN: ["resident.self", "invitation.view", "invitation.create", "invitation.revoke", "complaint.create", "complaint.view"],
+  RESDN: [
+    "resident.self", "invitation.view", "invitation.create", "invitation.revoke",
+    "complaint.create", "complaint.view", "charge.view", "payment.view",
+  ],
 };

@@ -66,6 +66,19 @@ describe("buzón de quejas (WEB)", () => {
     await waitFor(() => expect(sent.body).toEqual({ body: "Gracias por avisar", internal: false }));
   });
 
+  it("muestra una queja reabierta y permite devolverla a revisión", async () => {
+    const reopened = { ...complaint, status: "REOPENED" };
+    stub("get", "/complaints", { success: true, data: { items: [reopened], total: 1 } });
+    stub("get", "/complaints/7", { success: true, data: { ...detail, status: "REOPENED" } });
+    const changed = stub("patch", "/complaints/7/status", { success: true, data: { id: 7, status: "IN_REVIEW" } });
+    const { user } = renderApp({ route: "/complaints", role: "ADMIN" });
+
+    fireEvent.click(await screen.findByText("Ruido nocturno"));
+    expect((await screen.findAllByText("Reabierta")).length).toBeGreaterThan(0);
+    await user.click(await screen.findByRole("button", { name: "Marcar: En revisión" }));
+    await waitFor(() => expect(changed.body).toEqual({ status: "IN_REVIEW" }));
+  });
+
   it("cambia el estado con las transiciones válidas desde el detalle", async () => {
     stub("get", "/complaints", { success: true, data: { items: [complaint], total: 1 } });
     stub("get", "/complaints/7", { success: true, data: detail });
