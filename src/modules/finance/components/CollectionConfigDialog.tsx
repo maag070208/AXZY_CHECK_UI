@@ -8,7 +8,7 @@ import {
   ITGrid,
   ITInput,
   ITInputNumber,
-  ITSelect,
+  ITSearchSelect,
   ITText,
 } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
@@ -143,14 +143,15 @@ export const CollectionConfigDialog = ({ isOpen, onClose, onSaved, properties, c
 
         <ITGrid container columns={12} spacing={3}>
           <ITGrid item xs={12} md={6}>
-            <ITSelect
+            <ITSearchSelect
               name="propertyId"
               label="Propiedad"
-              placeholder="Selecciona una propiedad"
+              placeholder="Busca una propiedad…"
               options={propertyOptions}
               value={propertyId}
-              onChange={(event) => setPropertyId(event.target.value)}
+              onChange={(value) => setPropertyId(String(value))}
               disabled={!!config}
+              clearable={false}
               required
             />
           </ITGrid>
@@ -177,12 +178,13 @@ export const CollectionConfigDialog = ({ isOpen, onClose, onSaved, properties, c
             />
           </ITGrid>
           <ITGrid item xs={12} md={4}>
-            <ITSelect
+            <ITSearchSelect
               name="frequency"
               label="Periodicidad"
               options={COLLECTION_FREQUENCY_OPTIONS}
               value={frequency}
-              onChange={(event) => setFrequency(event.target.value as CollectionFrequency)}
+              onChange={(value) => setFrequency(String(value) as CollectionFrequency)}
+              clearable={false}
               required
             />
           </ITGrid>
@@ -221,12 +223,13 @@ export const CollectionConfigDialog = ({ isOpen, onClose, onSaved, properties, c
             <ITCheckbox label="Cobranza activa" checked={active} onChange={setActive} />
           </ITGrid>
           <ITGrid item xs={12} md={4}>
-            <ITSelect
+            <ITSearchSelect
               name="lateFeeType"
               label="Recargo por atraso"
               options={LATE_FEE_OPTIONS}
               value={lateFeeType}
-              onChange={(event) => setLateFeeType(event.target.value as LateFeeType)}
+              onChange={(value) => setLateFeeType(String(value) as LateFeeType)}
+              clearable={false}
             />
           </ITGrid>
           {lateFeeType !== "NONE" && (

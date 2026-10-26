@@ -2,6 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { fail, stub } from "../helpers/api";
 import { renderApp } from "../helpers/render";
+import { pickOption } from "../helpers/ui";
 
 const summary = {
   items: [
@@ -62,6 +63,41 @@ describe("finanzas (WEB)", () => {
     expect(await screen.findByText("Cuota mensual 2026-11")).toBeInTheDocument();
     expect(screen.getAllByText("A-101").length).toBeGreaterThan(0);
     expect(screen.getByText("Saldo total")).toBeInTheDocument();
+  });
+
+  it("incluye Multa / Infracción en los tipos de cargo", async () => {
+    stubCatalogs();
+    stub("get", "/charges", { success: true, data: { data: [charge], total: 1 } });
+    stub("get", "/payments", { success: true, data: { data: [], total: 0 } });
+
+    const { user } = renderApp({ route: "/finance", role: "ADMIN" });
+    await user.click(await screen.findByRole("button", { name: "Nuevo cargo" }));
+    const category = await screen.findByDisplayValue("Cuota mensual");
+    await pickOption(user, category, "Multa / Infracción");
+    expect(screen.getByDisplayValue("Multa / Infracción")).toBeInTheDocument();
+  });
+
+  it("registra el pago desde el cargo seleccionado", async () => {
+    stubCatalogs();
+    stub("get", "/charges", { success: true, data: { data: [charge], total: 1 } });
+    stub("get", "/payments", { success: true, data: { data: [payment], total: 1 } });
+    const created = stub("post", "/payments", { success: true, data: payment }, 201);
+
+    const { user } = renderApp({ route: "/finance", role: "ADMIN" });
+    await screen.findByText("Cuota mensual 2026-11");
+    await user.click(screen.getByRole("button", { name: "Pagar cargo" }));
+    expect(await screen.findByText(/El pago se aplicará al cargo seleccionado/)).toBeInTheDocument();
+
+    const submit = screen.getAllByRole("button", { name: "Registrar pago" });
+    await user.click(submit[submit.length - 1]);
+    await waitFor(() =>
+      expect(created.body).toMatchObject({
+        propertyId: 1,
+        residentId: 3,
+        amount: 400,
+        chargeIds: [10],
+      }),
+    );
   });
 
   it("cambia a pagos y muestra folio y recibo", async () => {

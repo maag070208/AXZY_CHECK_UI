@@ -1,8 +1,9 @@
-import { ITAvatar, ITBadget, ITButton, ITDialog, ITFlex, ITText } from "@axzydev/axzy_ui_system";
+import { ITBadget, ITButton, ITDialog, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { FaCheck, FaMapMarkerAlt } from "react-icons/fa";
 import { MediaCarousel, type MediaItem } from "@app/core/components/MediaCarousel";
 import { GoogleMapComponent } from "@core/components/GoogleMapComponent";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 export type ReportDetailKind = "incident" | "maintenance" | "club";
 
@@ -16,7 +17,7 @@ export interface ReportDetailReport {
   latitude?: number | null;
   longitude?: number | null;
   media?: MediaItem[];
-  guard?: { name?: string; lastName?: string; username?: string } | null;
+  guard?: { name?: string; lastName?: string; username?: string; photoUrl?: string | null } | null;
   resolvedBy?: { name?: string } | null;
 }
 
@@ -50,9 +51,6 @@ export const ReportDetailDialog = ({
   const reporterName = report.guard
     ? `${report.guard.name ?? ""} ${report.guard.lastName ?? ""}`.trim() || "Sin registro"
     : "Sin registro";
-  const initials = report.guard
-    ? `${report.guard.name?.charAt(0) ?? ""}${report.guard.lastName?.charAt(0) ?? ""}`.toUpperCase() || "?"
-    : "?";
   const hasMedia = !!report.media && report.media.length > 0;
   const hasLocation = report.latitude != null && report.longitude != null;
   const resolvedLabel = kind === "incident" ? "Atendida" : "Atendido";
@@ -100,7 +98,7 @@ export const ReportDetailDialog = ({
           </ITFlex>
 
           <ITFlex align="center" gap={3} className="rounded-xl bg-slate-50/70 p-3">
-            <ITAvatar initials={initials} size="md" />
+            <PersonAvatar name={reporterName} photoUrl={report.guard?.photoUrl} size={40} />
             <ITFlex direction="column">
               <ITText as="span" muted>Reportó</ITText>
               <ITText as="span" className="font-medium text-slate-800">

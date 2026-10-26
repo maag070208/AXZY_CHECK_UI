@@ -8,7 +8,7 @@ import {
   ITGrid,
   ITInput,
   ITInputNumber,
-  ITSelect,
+  ITSearchSelect,
   ITText,
   ITTextarea,
 } from "@axzydev/axzy_ui_system";
@@ -31,12 +31,21 @@ interface OptionResident {
   propertyId?: number;
 }
 
+export interface PaymentPreset {
+  propertyId: number;
+  residentId?: number | null;
+  amount?: number;
+  chargeId?: number;
+  concept?: string;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSaved: () => void;
   properties: OptionProperty[];
   residents: OptionResident[];
+  preset?: PaymentPreset | null;
 }
 
 const METHOD_OPTIONS = [
@@ -46,7 +55,7 @@ const METHOD_OPTIONS = [
   { value: "AJUSTE", label: "Ajuste" },
 ];
 
-export const PaymentFormDialog = ({ isOpen, onClose, onSaved, properties, residents }: Props) => {
+export const PaymentFormDialog = ({ isOpen, onClose, onSaved, properties, residents, preset }: Props) => {
   const dispatch = useDispatch();
   const [propertyId, setPropertyId] = useState("");
   const [residentId, setResidentId] = useState("");
@@ -61,16 +70,16 @@ export const PaymentFormDialog = ({ isOpen, onClose, onSaved, properties, reside
 
   useEffect(() => {
     if (!isOpen) return;
-    setPropertyId("");
-    setResidentId("");
-    setAmount(undefined);
+    setPropertyId(preset ? String(preset.propertyId) : "");
+    setResidentId(preset?.residentId ? String(preset.residentId) : "");
+    setAmount(preset?.amount);
     setMethod("EFECTIVO");
     setReference("");
     setPaidAt(new Date());
-    setNotes("");
+    setNotes(preset?.concept ? `Pago de: ${preset.concept}` : "");
     setAllowOverpayment(false);
     setError(null);
-  }, [isOpen]);
+  }, [isOpen, preset]);
 
   const propertyOptions = useMemo(
     () => properties.map((property) => ({
@@ -121,6 +130,7 @@ export const PaymentFormDialog = ({ isOpen, onClose, onSaved, properties, reside
         notes: notes.trim() || null,
         paidAt: dayjs(paidAt).format("YYYY-MM-DD"),
         allowOverpayment,
+        ...(preset?.chargeId ? { chargeIds: [preset.chargeId] } : {}),
       });
       dispatch(
         showToast({
@@ -142,36 +152,40 @@ export const PaymentFormDialog = ({ isOpen, onClose, onSaved, properties, reside
     <ITDialog isOpen={isOpen} onClose={onClose} title="Registrar pago" className="w-[760px] max-w-[95vw]">
       <ITFlex direction="column" gap={3} className="p-2">
         <ITText as="p" className="text-xs text-slate-500">
-          El pago se aplica a los cargos pendientes del residente, del más antiguo al más reciente.
-          Si sobra dinero, puedes registrarlo como saldo a favor.
+          {preset
+            ? "El pago se aplicará al cargo seleccionado. Revisa el monto y el método antes de guardar."
+            : "El pago se aplica a los cargos pendientes del residente, del más antiguo al más reciente. Si sobra dinero, puedes registrarlo como saldo a favor."}
         </ITText>
 
         {error && <ITAlert variant="error" title="Revisa el pago">{error}</ITAlert>}
 
         <ITGrid container columns={12} spacing={3}>
           <ITGrid item xs={12} md={6}>
-            <ITSelect
+            <ITSearchSelect
               name="propertyId"
               label="Propiedad"
-              placeholder="Selecciona una propiedad"
+              placeholder="Busca una propiedad…"
               options={propertyOptions}
               value={propertyId}
-              onChange={(event) => {
-                setPropertyId(event.target.value);
+              onChange={(value) => {
+                setPropertyId(String(value));
                 setResidentId("");
               }}
+              disabled={!!preset}
+              clearable={false}
               required
             />
           </ITGrid>
           <ITGrid item xs={12} md={6}>
-            <ITSelect
+            <ITSearchSelect
               name="residentId"
               label="Residente"
-              placeholder={propertyId ? "Selecciona al residente" : "Primero elige la propiedad"}
+              placeholder={propertyId ? "Busca al residente…" : "Primero elige la propiedad"}
               options={residentOptions}
               value={residentId}
-              onChange={(event) => setResidentId(event.target.value)}
-              disabled={!propertyId}
+              onChange={(value) => setResidentId(String(value))}
+              disabled={!!preset || !propertyId}
+              clearable={false}
               required
             />
           </ITGrid>
@@ -187,12 +201,13 @@ export const PaymentFormDialog = ({ isOpen, onClose, onSaved, properties, reside
             />
           </ITGrid>
           <ITGrid item xs={12} md={6}>
-            <ITSelect
+            <ITSearchSelect
               name="method"
               label="Método"
               options={METHOD_OPTIONS}
               value={method}
-              onChange={(event) => setMethod(event.target.value as PaymentMethod)}
+              onChange={(value) => setMethod(String(value) as PaymentMethod)}
+              clearable={false}
               required
             />
           </ITGrid>

@@ -25,6 +25,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getPaginatedShiftHandovers, getShiftHandoverDetail } from "../services/ShiftHandoverService";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<{ className?: string; size?: number }> }[] = [
   { key: "checklistPhones", label: "Teléfonos", icon: FaPhone },
@@ -34,9 +35,6 @@ const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<
   { key: "checklistLogbook", label: "Bitácora", icon: FaBook },
   { key: "checklistConsignas", label: "Consignas", icon: FaClipboardList },
 ];
-
-const initials = (name?: string, lastName?: string | null) =>
-  `${(name || "?").charAt(0)}${(lastName || "").charAt(0) || ""}`.toUpperCase();
 
 const ShiftHandoverPage = () => {
   const navigate = useNavigate();
@@ -226,9 +224,11 @@ const ShiftHandoverPage = () => {
               <ITGrid item xs={12} lg={6}>
                 <ITCard title="Jefe y caseta" className="h-full rounded-2xl border-0! bg-slate-50/40! shadow-none!" contentClassName="space-y-4 p-4!">
                   <ITFlex align="center" gap={3}>
-                    <ITFlex align="center" justify="center" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white">
-                      {initials(detail.createdBy?.name, detail.createdBy?.lastName)}
-                    </ITFlex>
+                    <PersonAvatar
+                      name={`${detail.createdBy?.name ?? ""} ${detail.createdBy?.lastName ?? ""}`.trim()}
+                      photoUrl={detail.createdBy?.photoUrl}
+                      size={40}
+                    />
                     <ITFlex direction="column">
                       <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-slate-400">Jefe operativo</ITText>
                       <ITText as="p" className="text-sm font-bold text-slate-800 dark:text-slate-100">
@@ -284,9 +284,11 @@ const ShiftHandoverPage = () => {
               ) : (
                 elements.map((el: any) => (
                   <ITFlex key={el.id} align="center" gap={3} className="rounded-xl bg-white px-3 py-2.5 dark:bg-slate-900/40">
-                    <ITFlex align="center" justify="center" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#065911] text-xs font-black dark:bg-emerald-950/30 dark:text-emerald-400">
-                      {initials(el.guard?.name, el.guard?.lastName)}
-                    </ITFlex>
+                    <PersonAvatar
+                      name={`${el.guard?.name ?? ""} ${el.guard?.lastName ?? ""}`.trim()}
+                      photoUrl={el.guard?.photoUrl}
+                      size={36}
+                    />
                     <ITFlex direction="column" className="min-w-0 flex-1">
                       <ITText as="p" className="truncate text-sm font-bold text-slate-800 dark:text-slate-100">
                         {el.guard?.name} {el.guard?.lastName}

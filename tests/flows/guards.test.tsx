@@ -108,7 +108,7 @@ describe("guardias: nueva asignación", () => {
     const created = stub("post", "/assignments");
     const { dialog } = await openModal();
     expect(within(dialog).getByText("Ana Pérez")).toBeInTheDocument();
-    expect(within(dialog).getByText("AP")).toBeInTheDocument();
+    expect(within(dialog).getAllByRole("img", { name: /Ana Pérez/i }).length).toBeGreaterThan(0);
     expect(within(dialog).getByRole("button", { name: "Crear asignación" })).toBeDisabled();
     expect(created.method).toBe("");
   });
@@ -355,6 +355,6 @@ describe("guardias: ver tareas", () => {
     const ctx = await open();
     await ctx.user.click(rowBtn("Ver tareas", 3));
     const dialog = (await screen.findByText("Tareas asignadas")).closest("[data-it-dialog]") as HTMLElement;
-    expect(within(dialog).getByText("D")).toBeInTheDocument();
+    expect(within(dialog).getByRole("img", { name: /Dani/i })).toBeInTheDocument();
   });
 });

@@ -13,6 +13,7 @@ export interface ResidentProfile {
     email?: string;
     ineFrontUrl?: string;
     ineBackUrl?: string;
+    photoUrl?: string | null;
     emergencyContact?: string;
     emergencyPhone?: string;
     notes?: string;
@@ -24,6 +25,7 @@ export interface ResidentUser {
     lastName?: string;
     username: string;
     role: string;
+    photoUrl?: string | null;
     propertyId?: number;
     property?: Property;
     residentProfile?: ResidentProfile;

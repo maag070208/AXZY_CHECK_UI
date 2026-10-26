@@ -7,6 +7,7 @@ import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { ChangePasswordModal } from "../components/ChangePasswordModal";
 import { CreateUserWizard } from "../components/CreateUserWizard";
 import { deleteUser, getPaginatedUsers, User } from "../services/UserService";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 const UsersPage = () => {
     const dispatch = useDispatch();
@@ -137,9 +138,11 @@ const UsersPage = () => {
                             sortable: false,
                             render: (row: User) => (
                                 <ITFlex align="center" gap={3} className="flex items-center gap-3 py-2">
-                                    <ITFlex align="center" justify="center" className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-50 text-sm font-bold text-sky-600 dark:bg-sky-950/30 dark:text-sky-400">
-                                        {row.name.charAt(0)}{row.lastName?.charAt(0) || ''}
-                                    </ITFlex>
+                                    <PersonAvatar
+                                        name={`${row.name} ${row.lastName ?? ""}`.trim()}
+                                        photoUrl={row.photoUrl}
+                                        size={40}
+                                    />
                                     <ITFlex direction="column">
                                         <ITFlex direction="column" className="font-bold text-slate-800 text-sm">{row.name} {row.lastName}</ITFlex>
                                         <ITFlex direction="column" className="text-xs text-slate-500 font-medium">@{row.username}</ITFlex>

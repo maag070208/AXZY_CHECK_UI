@@ -1,6 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
 import {
-  ITAvatar,
   ITBadget,
   ITButton,
   ITCard,
@@ -19,6 +18,7 @@ import { getLocations, Location } from "../../locations/service/locations.servic
 import { getUsers, User } from "../../users/services/UserService";
 import { printLocationQRs } from "@core/utils/printLocationQRs";
 import { createRoute, ILocationCreate, updateRoute } from "../services/RoutesService";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 interface CreateRouteModalProps {
   isOpen: boolean;
@@ -27,7 +27,6 @@ interface CreateRouteModalProps {
   editConfig?: any;
 }
 
-const AVATAR_COLORS = ["#047857", "#0284c7", "#4f46e5", "#d97706", "#e11d48", "#0d9488"];
 
 export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: CreateRouteModalProps) => {
   const dispatch = useDispatch();
@@ -251,10 +250,10 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                           contentClassName="p-2!"
                         >
                           <ITFlex align="center" gap={2}>
-                            <ITAvatar
-                              initials={`${guard.name[0]}${guard.lastName?.[0] || ""}`}
-                              size="xs"
-                              color={on ? AVATAR_COLORS[guard.id % AVATAR_COLORS.length] : "#cbd5e1"}
+                            <PersonAvatar
+                              name={`${guard.name} ${guard.lastName ?? ""}`.trim()}
+                              photoUrl={guard.photoUrl}
+                              size={24}
                             />
                             <ITText as="span" className={`flex-1 min-w-0 truncate text-[13px] font-semibold ${on ? "text-slate-800 dark:text-slate-100" : "text-slate-500"}`}>
                               {guard.name} {guard.lastName}

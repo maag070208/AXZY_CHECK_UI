@@ -30,6 +30,7 @@ import {
   updateResidentContact,
   deleteResidentContact,
 } from "../services/residents.service";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 interface Props {
   resident: ResidentUser | null;
@@ -240,13 +241,7 @@ export const ResidentContactsManager = ({ resident, isOpen, initialContact, onCl
                   gap={3}
                   className="rounded-xl bg-slate-50/60 p-3 dark:bg-slate-900/40"
                 >
-                  <ITFlex
-                    align="center"
-                    justify="center"
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white"
-                  >
-                    {contact.name.split(" ").slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
-                  </ITFlex>
+                  <PersonAvatar name={contact.name} size={40} />
 
                   <ITFlex direction="column" className="min-w-0 flex-1">
                     <ITText as="p" className="truncate text-sm font-bold text-slate-800 dark:text-slate-100">

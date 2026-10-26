@@ -1,6 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
 import {
-  ITAvatar,
   ITButton,
   ITCard,
   ITDatePicker,
@@ -42,6 +41,7 @@ import {
   createShiftHandover,
   ICreateShiftHandoverElement,
 } from "../services/ShiftHandoverService";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<{ className?: string; size?: number }> }[] = [
   { key: "checklistPhones", label: "Teléfonos", icon: FaPhone },
@@ -67,14 +67,6 @@ const DEFAULT_CHECKLIST: ChecklistState = {
 };
 
 const defaultShiftType = (): "MATUTINO" | "NOCTURNO" => (new Date().getHours() >= 14 ? "MATUTINO" : "NOCTURNO");
-
-const getInitials = (label: string) =>
-  label
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase())
-    .join("") || "—";
 
 const SHIFT_OPTIONS = [
   { value: "NOCTURNO" as const, label: "Nocturno", description: "Turno de noche", icon: FaMoon },
@@ -127,7 +119,7 @@ const NewShiftHandoverPage = () => {
   const [novedades, setNovedades] = useState("");
   const [checklist, setChecklist] = useState<ChecklistState>(DEFAULT_CHECKLIST);
   const [reportedToAdmin, setReportedToAdmin] = useState(false);
-  const [elements, setElements] = useState<(ICreateShiftHandoverElement & { guardLabel: string })[]>([]);
+  const [elements, setElements] = useState<(ICreateShiftHandoverElement & { guardLabel: string; photoUrl?: string | null })[]>([]);
   const [pickerGuardId, setPickerGuardId] = useState("");
   const [pickerEntryTime, setPickerEntryTime] = useState("");
 
@@ -154,6 +146,7 @@ const NewShiftHandoverPage = () => {
       {
         guardId: Number(pickerGuardId),
         guardLabel: `${guard?.name ?? ""} ${guard?.lastName ?? ""}`.trim(),
+        photoUrl: guard?.photoUrl,
         entryTime: pickerEntryTime.trim(),
         punctual: true,
         observations: "",
@@ -363,10 +356,10 @@ const NewShiftHandoverPage = () => {
                         contentClassName="p-3!"
                       >
                         <ITFlex align="center" gap={3}>
-                          <ITAvatar initials={getInitials(el.guardLabel)} size="sm" color="#065911" />
+                          <PersonAvatar name={el.guardLabel} photoUrl={el.photoUrl} size={32} />
                           <ITFlex direction="column" className="min-w-0 flex-1">
                             <ITText as="p" className="truncate text-sm font-bold text-slate-800 dark:text-slate-100">
-                              {el.guardLabel}
+                              {el.guardLabel || "—"}
                             </ITText>
                             <ITText as="p" className="flex items-center gap-1 text-[11px] text-slate-400">
                               <FaClock size={10} /> Entrada: {el.entryTime}

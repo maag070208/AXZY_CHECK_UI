@@ -2,7 +2,7 @@ import { get, patch, post } from "@app/core/axios/axios";
 import { ITDataTableFetchParams, ITDataTableResponse } from "@axzydev/axzy_ui_system";
 import { TResult } from "@app/core/types/TResult";
 
-export type ChargeCategory = "CUOTA" | "MANTENIMIENTO" | "EXTRA" | "RECARGO";
+export type ChargeCategory = "CUOTA" | "MANTENIMIENTO" | "EXTRA" | "RECARGO" | "MULTA";
 export type ChargeStatus = "PENDING" | "PARTIAL" | "PAID" | "CANCELLED";
 export type PaymentMethod = "EFECTIVO" | "TRANSFERENCIA" | "TARJETA" | "AJUSTE";
 
@@ -94,6 +94,7 @@ export const CHARGE_CATEGORY_LABELS: Record<ChargeCategory, string> = {
   MANTENIMIENTO: "Mantenimiento",
   EXTRA: "Extra",
   RECARGO: "Recargo",
+  MULTA: "Multa / Infracción",
 };
 
 export const CHARGE_STATUS_LABELS: Record<ChargeStatus, string> = {

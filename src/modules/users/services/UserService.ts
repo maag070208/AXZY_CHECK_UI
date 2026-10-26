@@ -15,6 +15,7 @@ export interface User {
     value: string;
   };
   active: boolean;
+  photoUrl?: string | null;
   shiftStart?: string; // HH:mm
   shiftEnd?: string;   // HH:mm
   isLoggedIn?: boolean;

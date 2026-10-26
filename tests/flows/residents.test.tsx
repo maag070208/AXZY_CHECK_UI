@@ -216,7 +216,7 @@ describe("residentes: listado", () => {
     const { bodies } = await openList();
     expect(bodies[0]).toMatchObject({ page: 1, limit: 50, filters: { search: "" } });
     expect(screen.getByText("Ana Pérez")).toBeInTheDocument();
-    expect(screen.getByText("AP")).toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: /Ana Pérez/i }).length).toBeGreaterThan(0);
     expect(screen.getByText("@ana")).toBeInTheDocument();
     expect(screen.getByText("A-101")).toBeInTheDocument();
     expect(screen.getAllByText("Casa 101").length).toBeGreaterThan(0);
@@ -226,7 +226,7 @@ describe("residentes: listado", () => {
     expect(screen.getByText("Luis Pérez")).toBeInTheDocument();
 
     expect(screen.getByText("Beto Ruiz")).toBeInTheDocument();
-    expect(screen.getByText("BR")).toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: /Beto Ruiz/i }).length).toBeGreaterThan(0);
     expect(screen.getByText("@beto")).toBeInTheDocument();
     expect(screen.getByText("Sin Asignar")).toBeInTheDocument();
     expect(screen.getAllByText("No registrado")).toHaveLength(2);
@@ -613,7 +613,7 @@ describe("residente: detalle", () => {
   it("muestra expediente, propiedad, emergencia, INE y notas", async () => {
     await openDetail();
     expect(screen.getAllByText("Ana Pérez").length).toBeGreaterThan(0);
-    expect(screen.getByText("AP")).toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: /Ana Pérez/i }).length).toBeGreaterThan(0);
     expect(screen.getByText("@ana")).toBeInTheDocument();
     expect(screen.getByText("6641234567")).toBeInTheDocument();
     expect(screen.getByText("ana@mail.com")).toBeInTheDocument();

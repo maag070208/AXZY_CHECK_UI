@@ -11,6 +11,7 @@ export interface ILiveGuardRef {
   id: number;
   name: string;
   lastName: string | null;
+  photoUrl?: string | null;
 }
 
 export interface ILiveScan {

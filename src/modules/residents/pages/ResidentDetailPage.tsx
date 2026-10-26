@@ -29,6 +29,7 @@ import { showToast } from "@app/core/store/toast/toast.slice";
 import { useCan } from "@app/core/permissions/useCan";
 import { P } from "@app/core/permissions/permissions.constants";
 import { ResidentFinancePanel } from "../components/ResidentFinancePanel";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 import { ResidentContactsManager } from "../components/ResidentContactsManager";
 import { ResidentPassesPanel } from "../components/ResidentPassesPanel";
 import {
@@ -149,22 +150,6 @@ export const ResidentDetailPage = () => {
   const fullName = resident
     ? `${profile?.firstName || resident.name} ${profile?.fatherLastName || resident.lastName || ""}`.trim()
     : "";
-  const initials = fullName
-    .split(" ")
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-
-  const getInitials = (name: string) =>
-    name
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0])
-      .join("")
-      .toUpperCase();
-
   return (
     <ITPage
       className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
@@ -200,13 +185,11 @@ export const ResidentDetailPage = () => {
         <ITGrid item xs={12} lg={4}>
           <ITCard className="h-fit rounded-3xl border-0! bg-white! shadow-none! lg:sticky lg:top-6" contentClassName="p-6!">
             <ITFlex direction="column" align="center" gap={3}>
-              <ITFlex
-                align="center"
-                justify="center"
-                className="flex h-20 w-20 items-center justify-center rounded-full bg-[#065911] text-2xl font-black text-white"
-              >
-                {initials || "—"}
-              </ITFlex>
+              <PersonAvatar
+                name={fullName}
+                photoUrl={resident?.photoUrl ?? profile?.photoUrl}
+                size={80}
+              />
               <ITFlex direction="column" align="center" gap={1}>
                 <ITText as="h2" className="text-center text-lg font-black text-slate-900 dark:text-white">
                   {fullName}
@@ -342,13 +325,7 @@ export const ResidentDetailPage = () => {
                           contentClassName="flex h-full flex-col gap-2 p-3!"
                         >
                           <ITFlex align="center" gap={3} wrap="wrap" className="mb-1">
-                            <ITFlex
-                              align="center"
-                              justify="center"
-                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white"
-                            >
-                              {getInitials(contact.name)}
-                            </ITFlex>
+                            <PersonAvatar name={contact.name} size={40} />
 
                             <ITFlex direction="column" className="min-w-0 flex-1">
                               <ITText as="p" className="truncate text-sm font-bold text-black">

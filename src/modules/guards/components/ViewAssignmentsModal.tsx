@@ -15,6 +15,7 @@ import { getAllAssignmentsByGuard, updateAssignmentStatus } from "../service/gua
 import { Assignment, AssignmentStatus } from "../types/guards.types";
 import dayjs from "dayjs";
 import { MediaCarousel } from "@app/core/components/MediaCarousel";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 const API_BASE_URL = "http://localhost:4444";
 
@@ -45,9 +46,6 @@ const statusColor = (status: AssignmentStatus) => {
     default: return "secondary";
   }
 };
-
-const initials = (name: string) =>
-  name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
 
 export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Props) => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -101,9 +99,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
             title="Volver al historial"
           />
         )}
-        <ITFlex align="center" justify="center" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white">
-          {initials(guardName)}
-        </ITFlex>
+        <PersonAvatar name={guardName} size={40} />
         <ITFlex direction="column">
           <ITText as="p" className="text-sm font-black text-slate-900 dark:text-white">{guardName}</ITText>
           <ITText as="p" className="text-[11px] text-slate-400">

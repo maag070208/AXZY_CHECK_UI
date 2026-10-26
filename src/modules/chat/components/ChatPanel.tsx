@@ -1,5 +1,4 @@
 import {
-  ITAvatar,
   ITButton,
   ITDivider,
   ITEmptyState,
@@ -14,6 +13,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FaComments, FaPaperPlane } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { ChatMessage, getMessages, getRealtimeToken, sendMessage } from "../services/ChatService";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 const POLL_INTERVAL_MS = 10000;
 const ABLY_CHAT_CHANNEL = "chat:team";
@@ -312,12 +312,8 @@ const buildRows = (messages: ChatMessage[], currentUserId: unknown): Row[] => {
   return rows;
 };
 
-const AVATAR_COLORS = ["#047857", "#0284c7", "#4f46e5", "#d97706", "#e11d48", "#0d9488"];
-
 const MessageRow = ({ row, compact }: { row: Extract<Row, { kind: "msg" }>; compact: boolean }) => {
   const { msg, own, first, last } = row;
-  const initials = `${msg.user.name?.charAt(0) ?? ""}${msg.user.lastName?.charAt(0) ?? ""}`.toUpperCase();
-  const color = AVATAR_COLORS[Number(msg.user.id) % AVATAR_COLORS.length];
   const time = new Date(msg.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
 
   return (
@@ -329,10 +325,10 @@ const MessageRow = ({ row, compact }: { row: Extract<Row, { kind: "msg" }>; comp
       className={first ? "mt-3 first:mt-0" : "mt-0.5"}
     >
       {!own && (
-        <ITAvatar
-          initials={initials}
-          size={compact ? "xs" : "sm"}
-          color={color}
+        <PersonAvatar
+          name={`${msg.user.name ?? ""} ${msg.user.lastName ?? ""}`.trim()}
+          photoUrl={msg.user.photoUrl}
+          size={compact ? 24 : 32}
           className={last ? "" : "invisible"}
         />
       )}

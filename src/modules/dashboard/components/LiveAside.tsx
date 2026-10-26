@@ -1,5 +1,4 @@
 import {
-  ITAvatar,
   ITBadget,
   ITCard,
   ITChip,
@@ -27,6 +26,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ChatPanel } from "../../chat/components/ChatPanel";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 import type { ILiveActiveRound, ILiveAlert, ILiveDashboard, ILiveTimelineEvent } from "../services/DashboardService";
 
 const formatDuration = (minutes: number): string => {
@@ -85,7 +85,6 @@ const AlertItem = ({ alert }: { alert: ILiveAlert }) => {
 };
 
 const RoundItem = ({ round, onClick }: { round: ILiveActiveRound; onClick: () => void }) => {
-  const initials = `${round.guard.name.charAt(0)}${round.guard.lastName?.charAt(0) ?? ""}`.toUpperCase();
   const pct = round.progressPercent;
 
   return (
@@ -98,10 +97,10 @@ const RoundItem = ({ round, onClick }: { round: ILiveActiveRound; onClick: () =>
       actions={round.stale ? <ITBadget label="Estancada" color="danger" size="sm" /> : undefined}
     >
       <ITFlex align="center" gap={2} className="flex items-center gap-2">
-        <ITAvatar
-          initials={initials}
-          size="xs"
-          color={round.stale ? "#b91c1c" : "#047857"}
+        <PersonAvatar
+          name={`${round.guard.name} ${round.guard.lastName ?? ""}`.trim()}
+          photoUrl={round.guard.photoUrl}
+          size={24}
         />
         <ITText as="p" className="min-w-0 truncate text-[10px] font-medium text-slate-400">
           {round.routeTitle ?? "Sin ruta asignada"}

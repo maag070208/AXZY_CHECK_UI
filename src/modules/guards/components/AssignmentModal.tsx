@@ -6,6 +6,7 @@ import { FaClipboardList, FaMapMarkerAlt, FaPlus, FaTrash } from "react-icons/fa
 import { useDispatch, useSelector } from "react-redux";
 import { getLocations, Location } from "../../locations/service/locations.service";
 import { createAssignment } from "../service/guards.service";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 interface Props {
     isOpen: boolean;
@@ -88,9 +89,7 @@ export const AssignmentModal = ({ isOpen, onClose, guardId, guardName, onSuccess
             <ITFlex direction="column" gap={4}>
                 <ITCard className="rounded-2xl border-0! bg-emerald-50/60! shadow-none!" contentClassName="p-3!">
                     <ITFlex align="center" gap={3}>
-                        <ITFlex align="center" justify="center" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white">
-                            {guardName.split(" ").slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
-                        </ITFlex>
+                        <PersonAvatar name={guardName} size={44} />
                         <ITFlex direction="column">
                             <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-emerald-700/70">Guardia</ITText>
                             <ITText as="p" className="text-sm font-bold text-emerald-950 dark:text-emerald-100">{guardName}</ITText>

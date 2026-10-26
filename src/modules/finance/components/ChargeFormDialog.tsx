@@ -7,7 +7,7 @@ import {
   ITGrid,
   ITInput,
   ITInputNumber,
-  ITSelect,
+  ITSearchSelect,
   ITText,
   ITTextarea,
 } from "@axzydev/axzy_ui_system";
@@ -42,6 +42,7 @@ const CATEGORY_OPTIONS = [
   { value: "CUOTA", label: "Cuota mensual" },
   { value: "MANTENIMIENTO", label: "Mantenimiento" },
   { value: "EXTRA", label: "Extra" },
+  { value: "MULTA", label: "Multa / Infracción" },
 ];
 
 export const ChargeFormDialog = ({ isOpen, onClose, onSaved, properties, residents }: Props) => {
@@ -158,37 +159,40 @@ export const ChargeFormDialog = ({ isOpen, onClose, onSaved, properties, residen
 
         <ITGrid container columns={12} spacing={3}>
           <ITGrid item xs={12} md={6}>
-            <ITSelect
+            <ITSearchSelect
               name="propertyId"
               label="Propiedad"
-              placeholder="Selecciona una propiedad"
+              placeholder="Busca una propiedad…"
               options={propertyOptions}
               value={propertyId}
-              onChange={(event) => {
-                setPropertyId(event.target.value);
+              onChange={(value) => {
+                setPropertyId(String(value));
                 setResidentId("");
               }}
+              clearable={false}
               required
             />
           </ITGrid>
           <ITGrid item xs={12} md={6}>
-            <ITSelect
+            <ITSearchSelect
               name="residentId"
               label="Residente"
-              placeholder={propertyId ? "Titular automático" : "Primero elige la propiedad"}
+              placeholder={propertyId ? "Busca al residente…" : "Primero elige la propiedad"}
               options={residentOptions}
               value={residentId}
-              onChange={(event) => setResidentId(event.target.value)}
+              onChange={(value) => setResidentId(String(value))}
               disabled={!propertyId}
+              clearable={false}
             />
           </ITGrid>
           <ITGrid item xs={12} md={6}>
-            <ITSelect
+            <ITSearchSelect
               name="category"
               label="Tipo de cargo"
               options={CATEGORY_OPTIONS}
               value={category}
-              onChange={(event) => changeCategory(event.target.value as ChargeCategory)}
+              onChange={(value) => changeCategory(String(value) as ChargeCategory)}
+              clearable={false}
               required
             />
           </ITGrid>

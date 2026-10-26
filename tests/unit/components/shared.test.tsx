@@ -251,7 +251,7 @@ describe("ReportDetailDialog", () => {
       <ReportDetailDialog kind="incident" report={{ ...base, guard: {} }} categoryLabel="x" onClose={() => {}} />,
     );
     expect(screen.getByText("Sin registro")).toBeInTheDocument();
-    expect(screen.getByText("?")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Sin registro" })).toBeInTheDocument();
   });
 
   it("atendido con fecha pero sin quién resolvió", () => {

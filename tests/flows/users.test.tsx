@@ -34,7 +34,7 @@ describe("usuarios: listado", () => {
   it("muestra usuarios con rol, horario, estado e iniciales", async () => {
     await open();
     expect(screen.getByText("Ana Pérez")).toBeInTheDocument();
-    expect(screen.getByText("AP")).toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: /Ana Pérez/i }).length).toBeGreaterThan(0);
     expect(screen.getByText("Administrador")).toBeInTheDocument();
     expect(screen.getByText("S/R")).toBeInTheDocument();
     expect(screen.getAllByText("Sin Horario").length).toBe(3);

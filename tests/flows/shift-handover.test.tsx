@@ -64,7 +64,7 @@ describe("entrega de turno: historial", () => {
     expect(within(dialog).getByText("Puntual")).toBeInTheDocument();
     expect(within(dialog).getByText("Retraso")).toBeInTheDocument();
     for (const l of ["Teléfonos", "Tablet", "Radios", "Llaves", "Bitácora", "Consignas"]) expect(within(dialog).getByText(l)).toBeInTheDocument();
-    expect(within(dialog).getByText("AP")).toBeInTheDocument();
+    expect(within(dialog).getAllByRole("img", { name: /Ana Pérez/i }).length).toBeGreaterThan(0);
   });
 
   it("detalle matutino sin datos: guiones, 'Sin novedades' y sin elementos", async () => {
@@ -81,7 +81,7 @@ describe("entrega de turno: historial", () => {
     expect(within(dialog).getByText("Sin novedades")).toBeInTheDocument();
     expect(within(dialog).getByText("Sin elementos registrados.")).toBeInTheDocument();
     expect(within(dialog).getAllByText("—").length).toBeGreaterThanOrEqual(4);
-    expect(within(dialog).getByText("?")).toBeInTheDocument();
+    expect(within(dialog).getByRole("img", { name: "Usuario" })).toBeInTheDocument();
   });
 
   it("elemento sin guardia usa '?' como inicial", async () => {
@@ -185,7 +185,7 @@ describe("entrega de turno: nueva", () => {
     await pickOption(user, guardInput(), "Beto");
     await user.type(timeInput(), "08:00");
     await user.click(screen.getByRole("button", { name: "Agregar" }));
-    expect(screen.getByText("BE", { exact: false })).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Beto" })).toBeInTheDocument();
     await user.clear(guardInput()); // el selector conserva el texto anterior (ver nota en tests de rutas)
     await pickOption(user, guardInput(), /undefined/);
     await user.type(timeInput(), "09:00");

@@ -2,6 +2,7 @@ import { ITLayout } from "@axzydev/axzy_ui_system";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { NAVBAR_LOGO, useNavigationItems } from "../constants/navbar.constants";
+import { blobatarUri } from "blobatar/uri";
 import { post } from "../axios/axios";
 import { isAuthenticated, logout as logoutAction } from "../store/auth/auth.slice";
 import { AppState, AppDispatch } from "../store/store";
@@ -37,6 +38,7 @@ export const PrivateRoutes = () => {
         userMenu: {
           userName: user.name || "Usuario",
           userEmail: "",
+          userImage: user.photoUrl ?? blobatarUri(user.name || "Usuario", { size: 64 }),
           menuItems: [
             {
               label: "Cerrar Sesión",

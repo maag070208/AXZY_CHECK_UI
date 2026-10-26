@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { ResidentContactsManager } from "../components/ResidentContactsManager";
 import { ResidentUser, deleteResident, getPaginatedResidents } from "../services/residents.service";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 const ResidentsPage = () => {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -68,9 +69,11 @@ const ResidentsPage = () => {
             sortable: false,
             render: (row: ResidentUser) => (
                 <ITFlex align="center" gap={3} className="flex items-center gap-3">
-                    <ITFlex align="center" justify="center" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200">
-                        {row.name.charAt(0)}{row.lastName?.charAt(0) || ''}
-                    </ITFlex>
+                    <PersonAvatar
+                        name={`${row.name} ${row.lastName ?? ""}`.trim()}
+                        photoUrl={row.photoUrl ?? row.residentProfile?.photoUrl}
+                        size={40}
+                    />
                     <ITFlex direction="column">
                         <ITFlex direction="column" className="font-bold text-slate-800">{row.name} {row.lastName}</ITFlex>
                         <ITFlex direction="column" className="text-xs text-slate-500 font-medium">@{row.username}</ITFlex>

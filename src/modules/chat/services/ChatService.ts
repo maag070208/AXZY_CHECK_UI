@@ -9,6 +9,7 @@ export interface ChatMessage {
     id: number;
     name: string;
     lastName?: string | null;
+    photoUrl?: string | null;
     role?: { name: string; value: string } | null;
   };
 }

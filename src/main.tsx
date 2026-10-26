@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { HashRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
+import "blobatar/motion.css";
 import ToastProvider from "./providers/toast.provider.tsx";
 import React from "react";
 import dayjs from "dayjs";

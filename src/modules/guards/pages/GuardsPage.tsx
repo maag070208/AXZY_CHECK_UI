@@ -5,6 +5,7 @@ import { getPaginatedUsers, User } from "../../users/services/UserService";
 import { getSchedules, Schedule } from "../../schedules/SchedulesService";
 import { AssignmentModal } from "../components/AssignmentModal";
 import { ViewAssignmentsModal } from "../components/ViewAssignmentsModal";
+import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 const GuardsPage = () => {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -75,13 +76,6 @@ const GuardsPage = () => {
         return "primary";
     };
 
-    const roleAvatarClass = (row: any) => {
-        const role = roleNameOf(row);
-        if (role === "MAINT") return "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400";
-        if (role === "SHIFT") return "bg-sky-50 text-sky-600 dark:bg-sky-950/30 dark:text-sky-400";
-        return "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400";
-    };
-
     return (
         <ITPage
       className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
@@ -144,9 +138,11 @@ const GuardsPage = () => {
                             type: "string",
                             render: (row: any) => (
                                 <ITFlex align="center" gap={3} className="flex items-center gap-3 py-2">
-                                    <ITFlex align="center" justify="center" className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${roleAvatarClass(row)}`}>
-                                        {row.name.charAt(0)}{row.lastName?.charAt(0) || ''}
-                                    </ITFlex>
+                                    <PersonAvatar
+                                        name={`${row.name} ${row.lastName ?? ""}`.trim()}
+                                        photoUrl={row.photoUrl}
+                                        size={40}
+                                    />
                                     <ITFlex direction="column">
                                         <ITFlex direction="column" className="font-bold text-slate-800 text-sm uppercase">{row.name} {row.lastName}</ITFlex>
                                         <ITFlex direction="column" className="text-xs text-slate-500 font-medium">@{row.username}</ITFlex>

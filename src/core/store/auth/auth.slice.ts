@@ -6,6 +6,7 @@ interface AuthState {
   name: string | null;
   email: string | null;
   role: string | null;
+  photoUrl: string | null;
   token: string | null;
   /** Permisos efectivos que devuelve `GET /users/me/permissions`. */
   permissions: string[] | null;
@@ -16,6 +17,7 @@ const initialState: AuthState = {
   name: null,
   email: null,
   role: null,
+  photoUrl: null,
   token: null,
   permissions: null,
 };
@@ -46,6 +48,7 @@ const authSlice = createSlice({
       state.name = decoded.name ?? "Usuario";
       state.email = decoded.email ?? null;
       state.role = decoded.role ?? null;
+      state.photoUrl = decoded.photoUrl ?? null;
       state.token = token;
       state.permissions = null;
     },
@@ -59,6 +62,7 @@ const authSlice = createSlice({
       state.name = null;
       state.email = null;
       state.role = null;
+      state.photoUrl = null;
       state.token = null;
       state.permissions = null;
     },
