@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { generateMonthlyCharges } from "../services/finance.service";
+import { LottieLoader } from "@app/core/components/LottieLoader";
 
 interface Props {
   isOpen: boolean;
@@ -75,7 +76,7 @@ export const MonthlyChargesDialog = ({ isOpen, onClose, onSaved }: Props) => {
 
   return (
     <ITDialog isOpen={isOpen} onClose={onClose} title="Generar cuotas del mes" className="w-[620px] max-w-[95vw]">
-      <ITFlex direction="column" gap={3} className="p-2">
+      <ITFlex direction="column" gap={3} className="relative p-2">
         <ITText as="p" className="text-xs text-slate-500">
           Se genera una cuota por cada propiedad activa con residente titular. Las propiedades que ya
           tienen cuota en ese periodo se omiten.
@@ -130,6 +131,21 @@ export const MonthlyChargesDialog = ({ isOpen, onClose, onSaved }: Props) => {
           <ITButton label="Cancelar" variant="outlined" onClick={onClose} disabled={saving} />
           <ITButton label={saving ? "Generando..." : "Generar cuotas"} onClick={submit} disabled={saving} />
         </ITFlex>
+
+        {saving && (
+          <ITFlex
+            align="center"
+            justify="center"
+            direction="column"
+            className="absolute inset-0 z-20 rounded-2xl bg-white/95 p-4 dark:bg-slate-900/95"
+          >
+            <LottieLoader
+              label="Generando cuotas…"
+              hint="Estamos creando una cuota por propiedad. Esto puede tardar unos segundos."
+              size={148}
+            />
+          </ITFlex>
+        )}
       </ITFlex>
     </ITDialog>
   );

@@ -1,6 +1,7 @@
 import { get, post, put, remove } from "@app/core/axios/axios";
 import { ITDataTableFetchParams, ITDataTableResponse } from "@axzydev/axzy_ui_system";
 import { Property } from "@modules/properties/service/properties.service";
+import type { ChargeRow, PaymentRow } from "@modules/finance/services/finance.service";
 
 export interface ResidentProfile {
     id: number;
@@ -101,4 +102,37 @@ export const updateResidentContact = async (id: number, data: any) => {
 
 export const deleteResidentContact = async (id: number) => {
     return await remove(`/residents/contacts/${id}`);
+};
+
+// ESTADO DE CUENTA PARA EL EXPEDIENTE
+export interface ResidentFinanceSummary {
+    currency: string;
+    propertyId: number | null;
+    balance: number;
+    totalCharges: number;
+    totalPaid: number;
+    applied: number;
+    credit: number;
+    pendingCharges: number;
+}
+
+export interface ResidentPayment extends Omit<PaymentRow, "allocatedAmount"> {
+    allocatedAmount?: number;
+    /** Solo lo aplicado a los cargos del residente o su saldo a favor. */
+    credit?: number;
+}
+
+export interface ResidentFinance {
+    summary: ResidentFinanceSummary;
+    charges: ChargeRow[];
+    payments: ResidentPayment[];
+}
+
+/** Estado de cuenta de un residente para el personal (expediente). */
+export const getResidentFinance = async (residentId: number): Promise<ResidentFinance> => {
+    const res = await get<ResidentFinance>(`/residents/${residentId}/finance`);
+    if (!res.success || !res.data) {
+        throw new Error(res.messages?.[0] ?? "No se pudo cargar el estado de cuenta");
+    }
+    return res.data;
 };

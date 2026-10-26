@@ -659,6 +659,60 @@ describe("residente: detalle", () => {
     expect(del.path).toBe("/residents/contacts/5");
   });
 
+  it("pestaña de pagos muestra el estado de cuenta del residente", async () => {
+    stub("get", "/residents/1/finance", {
+      success: true,
+      data: {
+        summary: { currency: "MXN", propertyId: 10, balance: 600, totalCharges: 1000, totalPaid: 400, applied: 400, credit: 0, pendingCharges: 1 },
+        charges: [
+          {
+            id: 30,
+            propertyId: 10,
+            residentId: 1,
+            concept: "Cuota mensual 2026-11",
+            category: "CUOTA",
+            amount: 1000,
+            dueDate: "2026-11-10T00:00:00.000Z",
+            status: "PARTIAL",
+            period: "2026-11",
+            paidAmount: 400,
+            outstanding: 600,
+            createdAt: "2026-10-20T00:00:00.000Z",
+          },
+        ],
+        payments: [
+          {
+            id: 40,
+            propertyId: 10,
+            residentId: 1,
+            folio: 1,
+            amount: 400,
+            method: "EFECTIVO",
+            reference: "REC-001",
+            paidAt: "2026-11-05T12:00:00.000Z",
+            unallocatedAmount: 0,
+            appliedAmount: 400,
+            credit: 0,
+            allocations: [],
+          },
+        ],
+      },
+    });
+    const { user } = await openDetail();
+    await user.click(screen.getByRole("button", { name: "Pagos" }));
+    expect(await screen.findByText("Estado de cuenta")).toBeInTheDocument();
+    expect(screen.getByText("Cuota mensual 2026-11")).toBeInTheDocument();
+    expect(screen.getByText("Folio 000001")).toBeInTheDocument();
+    expect(screen.getAllByText("$1,000.00").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("$600.00").length).toBeGreaterThan(0);
+
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    mockTransport(() => ({ data: new Blob(["%PDF-1.7"], { type: "application/pdf" }), status: 200 }));
+    await user.click(screen.getByRole("button", { name: "Recibo" }));
+    await waitFor(() => expect(toast()).toMatchObject({ message: "Recibo descargado", type: "success" }));
+    expect(click).toHaveBeenCalled();
+  });
+
   it("pestaña de contactos vacía y pases sin propiedad", async () => {
     const { user } = await openDetail(resident2, []);
     await user.click(screen.getByRole("button", { name: "Contactos (0)" }));

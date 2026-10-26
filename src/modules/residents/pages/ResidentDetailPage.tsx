@@ -26,6 +26,9 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { showToast } from "@app/core/store/toast/toast.slice";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
+import { ResidentFinancePanel } from "../components/ResidentFinancePanel";
 import { ResidentContactsManager } from "../components/ResidentContactsManager";
 import { ResidentPassesPanel } from "../components/ResidentPassesPanel";
 import {
@@ -36,7 +39,7 @@ import {
   ResidentUser,
 } from "../services/residents.service";
 
-type DetailTab = "expediente" | "contactos" | "pases";
+type DetailTab = "expediente" | "contactos" | "pases" | "pagos";
 
 const TONES = {
   emerald: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400",
@@ -106,6 +109,8 @@ export const ResidentDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const can = useCan();
+  const canFinance = can([P.CHARGE_VIEW, P.PAYMENT_VIEW], "all");
   const [resident, setResident] = useState<ResidentUser | null>(null);
   const [contacts, setContacts] = useState<ResidentContact[]>([]);
   const [loading, setLoading] = useState(true);
@@ -174,7 +179,7 @@ export const ResidentDetailPage = () => {
         { label: "Directorio de Residentes", href: "#/residents" },
         { label: "Expediente" },
       ]}
-      description="Expediente, contactos y pases de acceso."
+      description="Expediente, contactos, pases de acceso y estado de cuenta."
       icon={<FaUserShield size={20} />}
       iconColor="#065911"
       actions={
@@ -254,6 +259,7 @@ export const ResidentDetailPage = () => {
                 { value: "expediente", label: "Expediente" },
                 { value: "contactos", label: `Contactos (${contacts.length})` },
                 { value: "pases", label: "Pases" },
+                ...(canFinance ? [{ value: "pagos", label: "Pagos" }] : []),
               ]}
               value={tab}
               onChange={(value) => setTab(value as DetailTab)}
@@ -407,6 +413,7 @@ export const ResidentDetailPage = () => {
             {tab === "pases" && resident && (
               <ResidentPassesPanel resident={resident} contacts={contacts} presetContactId={quickContactId} />
             )}
+            {tab === "pagos" && resident && <ResidentFinancePanel residentId={resident.id} />}
           </ITFlex>
         </ITGrid>
       </ITGrid>

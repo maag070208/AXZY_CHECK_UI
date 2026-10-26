@@ -37,3 +37,16 @@ test("el administrador abre el alta de cargo", async ({ page }) => {
   await expect(page.getByText("Propiedad", { exact: true }).first()).toBeVisible();
   await page.getByRole("button", { name: "Cancelar" }).click();
 });
+
+test("el administrador abre la configuración de cobranza", async ({ page }) => {
+  await login(page);
+  await page.getByRole("button", { name: "Finanzas" }).click();
+  await expect(page).toHaveURL(/#\/finance/);
+
+  await page.getByRole("button", { name: "Cobranza" }).click();
+  await expect(page.getByRole("button", { name: "Nueva configuración" })).toBeVisible();
+  await page.getByRole("button", { name: "Nueva configuración" }).click();
+  await expect(page.getByText("Nueva cobranza", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Periodicidad", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Cancelar" }).click();
+});

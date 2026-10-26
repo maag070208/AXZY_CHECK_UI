@@ -4,6 +4,7 @@ import {
   ITButton,
   ITCard,
   ITDataTable,
+  ITDialog,
   ITFlex,
   ITGrid,
   ITInput,
@@ -18,12 +19,14 @@ import { showToast } from "@app/core/store/toast/toast.slice";
 import { getPropertiesList, Property } from "@modules/properties/service/properties.service";
 import { getResidentsList, ResidentUser } from "@modules/residents/services/residents.service";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaBan, FaCalendarPlus, FaFileInvoiceDollar, FaMoneyBillWave, FaPlus, FaSearch, FaSync, FaUndo, FaWallet } from "react-icons/fa";
+import { FaBan, FaCalendarPlus, FaEdit, FaExclamationTriangle, FaFileInvoiceDollar, FaMoneyBillWave, FaPlay, FaPlus, FaSearch, FaSync, FaUndo, FaWallet } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { ChargeFormDialog } from "../components/ChargeFormDialog";
 import { MonthlyChargesDialog } from "../components/MonthlyChargesDialog";
 import { PaymentFormDialog } from "../components/PaymentFormDialog";
 import { ReasonDialog } from "../components/ReasonDialog";
+import { CollectionConfigDialog } from "../components/CollectionConfigDialog";
+import { LottieLoader } from "@app/core/components/LottieLoader";
 import {
   cancelCharge,
   ChargeRow,
@@ -40,15 +43,25 @@ import {
   PaymentRow,
   voidPayment,
 } from "../services/finance.service";
+import {
+  COLLECTION_FREQUENCY_LABELS,
+  CollectionConfigRow,
+  LATE_FEE_LABELS,
+  applyLateFees,
+  generateCollectionCharges,
+  getCollectionConfigs,
+  updateCollectionConfig,
+} from "../services/collection.service";
 import { formatDateOnly } from "../utils/date";
 import { money } from "../utils/money";
 
-type Tab = "charges" | "payments" | "balances";
+type Tab = "charges" | "payments" | "balances" | "collections";
 
 const TABS = [
   { value: "charges", label: "Cargos" },
   { value: "payments", label: "Pagos" },
   { value: "balances", label: "Saldos" },
+  { value: "collections", label: "Cobranza" },
 ];
 
 const CHARGE_STATUS_OPTIONS = [
@@ -92,6 +105,9 @@ const FinancePage = () => {
   const [monthlyOpen, setMonthlyOpen] = useState(false);
   const [chargeToCancel, setChargeToCancel] = useState<ChargeRow | null>(null);
   const [paymentToVoid, setPaymentToVoid] = useState<PaymentRow | null>(null);
+  const [collectionOpen, setCollectionOpen] = useState(false);
+  const [collectionToEdit, setCollectionToEdit] = useState<CollectionConfigRow | null>(null);
+  const [collectionBusy, setCollectionBusy] = useState<number | null>(null);
 
   const loadCatalogsAndSummary = useCallback(async () => {
     setSummaryLoading(true);
@@ -151,6 +167,66 @@ const FinancePage = () => {
     const start = (page - 1) * limit;
     return { data: all.slice(start, start + limit), total: all.length };
   }, [summary]);
+
+  const fetchCollections = useCallback(async () => {
+    try {
+      const rows = await getCollectionConfigs();
+      setTableError(null);
+      return { data: rows, total: rows.length };
+    } catch (error) {
+      setTableError(error instanceof Error ? error.message : "No se pudo cargar la cobranza.");
+      return { data: [], total: 0 };
+    }
+  }, []);
+
+  const handleGenerateCharges = async (propertyId?: number) => {
+    setCollectionBusy(propertyId ?? -1);
+    try {
+      const result = await generateCollectionCharges(propertyId ? { propertyId } : {});
+      dispatch(
+        showToast({
+          message: `Cargos generados: ${result.created}. Omitidos: ${result.skipped}.`,
+          type: "success",
+        }),
+      );
+      setRefreshKey((key) => key + 1);
+    } catch (error) {
+      dispatch(showToast({ message: error instanceof Error ? error.message : "No se pudieron generar los cargos.", type: "error" }));
+    } finally {
+      setCollectionBusy(null);
+    }
+  };
+
+  const handleApplyLateFees = async (propertyId?: number) => {
+    setCollectionBusy(propertyId ?? -2);
+    try {
+      const result = await applyLateFees(propertyId ? { propertyId } : {});
+      dispatch(
+        showToast({
+          message: `Recargos generados: ${result.created}. Omitidos: ${result.skipped}.`,
+          type: "success",
+        }),
+      );
+      setRefreshKey((key) => key + 1);
+    } catch (error) {
+      dispatch(showToast({ message: error instanceof Error ? error.message : "No se pudieron aplicar los recargos.", type: "error" }));
+    } finally {
+      setCollectionBusy(null);
+    }
+  };
+
+  const toggleCollection = async (row: CollectionConfigRow) => {
+    setCollectionBusy(row.id);
+    try {
+      await updateCollectionConfig(row.id, { active: !row.active });
+      dispatch(showToast({ message: row.active ? "Cobranza desactivada." : "Cobranza activada.", type: "success" }));
+      setRefreshKey((key) => key + 1);
+    } catch (error) {
+      dispatch(showToast({ message: error instanceof Error ? error.message : "No se pudo actualizar la cobranza.", type: "error" }));
+    } finally {
+      setCollectionBusy(null);
+    }
+  };
 
   const chargeFilters = useMemo(
     () => ({
@@ -439,6 +515,131 @@ const FinancePage = () => {
     [],
   );
 
+  const collectionColumns = useMemo(
+    () => [
+      {
+        key: "property",
+        label: "Propiedad",
+        width: 190,
+        render: (row: CollectionConfigRow) => (
+          <ITFlex direction="column" className="min-w-0">
+            <ITText as="span" className="truncate text-xs font-bold text-slate-800 dark:text-slate-100">
+              {row.property?.identifier ?? "—"}
+            </ITText>
+            <ITText as="span" className="truncate text-[10px] text-slate-400">{row.property?.name ?? ""}</ITText>
+          </ITFlex>
+        ),
+      },
+      {
+        key: "concept",
+        label: "Concepto",
+        width: 180,
+        render: (row: CollectionConfigRow) => (
+          <ITText as="span" className="truncate text-xs text-slate-600 dark:text-slate-300">{row.concept}</ITText>
+        ),
+      },
+      {
+        key: "frequency",
+        label: "Periodicidad",
+        width: 120,
+        render: (row: CollectionConfigRow) => (
+          <ITBadget color="primary" size="sm" variant="filled">{COLLECTION_FREQUENCY_LABELS[row.frequency]}</ITBadget>
+        ),
+      },
+      {
+        key: "amount",
+        label: "Cuota",
+        width: 100,
+        render: (row: CollectionConfigRow) => (
+          <ITText as="span" className="text-xs font-bold text-slate-800 dark:text-slate-100">{money(row.amount)}</ITText>
+        ),
+      },
+      {
+        key: "dueDay",
+        label: "Vence",
+        width: 75,
+        render: (row: CollectionConfigRow) => (
+          <ITText as="span" className="text-xs text-slate-600 dark:text-slate-300">Día {row.dueDay}</ITText>
+        ),
+      },
+      {
+        key: "nextChargeDate",
+        label: "Próximo cobro",
+        width: 110,
+        render: (row: CollectionConfigRow) => (
+          <ITText as="span" className="text-xs text-slate-600 dark:text-slate-300">{formatDateOnly(row.nextChargeDate)}</ITText>
+        ),
+      },
+      {
+        key: "lateFee",
+        label: "Recargo",
+        width: 130,
+        render: (row: CollectionConfigRow) => (
+          <ITFlex direction="column" className="min-w-0">
+            <ITText as="span" className="text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+              {row.lateFeeType === "NONE"
+                ? "Sin recargo"
+                : `${LATE_FEE_LABELS[row.lateFeeType]} ${row.lateFeeType === "PERCENT" ? `${row.lateFeeValue}%` : money(row.lateFeeValue)}`}
+            </ITText>
+            {row.lateFeeType !== "NONE" && (
+              <ITText as="span" className="text-[9px] text-slate-400">Gracia {row.graceDays} días</ITText>
+            )}
+          </ITFlex>
+        ),
+      },
+      {
+        key: "status",
+        label: "Estado",
+        width: 90,
+        render: (row: CollectionConfigRow) => (
+          <ITBadget color={row.active ? "success" : "gray"} size="sm" variant="filled">
+            {row.active ? "Activa" : "Inactiva"}
+          </ITBadget>
+        ),
+      },
+      {
+        key: "actions",
+        label: "Acciones",
+        width: 230,
+        render: (row: CollectionConfigRow) => (
+          <ITFlex align="center" gap={1} wrap="wrap">
+            <ITButton
+              size="sm"
+              variant="icon-only"
+              color="primary"
+              icon={<FaEdit />}
+              ariaLabel="Editar cobranza"
+              title="Editar cobranza"
+              onClick={() => {
+                setCollectionToEdit(row);
+                setCollectionOpen(true);
+              }}
+            />
+            <ITButton
+              size="sm"
+              variant="icon-only"
+              color="primary"
+              icon={<FaPlay />}
+              ariaLabel="Generar cargos de esta propiedad"
+              title="Generar cargos de esta propiedad"
+              disabled={!row.active || collectionBusy !== null}
+              onClick={() => void handleGenerateCharges(row.propertyId)}
+            />
+            <ITButton
+              size="sm"
+              variant="outlined"
+              disabled={collectionBusy !== null}
+              onClick={() => void toggleCollection(row)}
+            >
+              {row.active ? "Desactivar" : "Activar"}
+            </ITButton>
+          </ITFlex>
+        ),
+      },
+    ],
+    [collectionBusy],
+  );
+
   const handleReceipt = async (row: PaymentRow) => {
     const result = await downloadPaymentReceipt(row.id);
     dispatch(
@@ -456,7 +657,7 @@ const FinancePage = () => {
       noPadding
       className="m-0! px-4! max-w-screen!"
       title="Finanzas"
-      description="Cargos, pagos y saldos de las propiedades"
+      description="Cargos, pagos, saldos y cobranza de las propiedades"
       icon={<FaWallet />}
       actions={
         <ITButton
@@ -532,16 +733,18 @@ const FinancePage = () => {
             />
 
             <ITFlex align="center" gap={2} wrap="wrap">
-              <ITFlex className="min-w-[240px]! flex-1!">
-                <ITInput
-                  name="finance-search"
-                  label="Buscar"
-                  placeholder="Concepto, residente o propiedad"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  iconLeft={<FaSearch />}
-                />
-              </ITFlex>
+              {tab !== "collections" && (
+                <ITFlex className="min-w-[240px]! flex-1!">
+                  <ITInput
+                    name="finance-search"
+                    label="Buscar"
+                    placeholder="Concepto, residente o propiedad"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    iconLeft={<FaSearch />}
+                  />
+                </ITFlex>
+              )}
 
               {tab === "charges" && (
                 <>
@@ -576,6 +779,34 @@ const FinancePage = () => {
                     />
                   </ITFlex>
                   <ITButton label="Registrar pago" icon={<FaPlus />} onClick={() => setPaymentOpen(true)} />
+                </>
+              )}
+
+              {tab === "collections" && (
+                <>
+                  <ITButton
+                    label="Nueva configuración"
+                    icon={<FaPlus />}
+                    onClick={() => {
+                      setCollectionToEdit(null);
+                      setCollectionOpen(true);
+                    }}
+                  />
+                  <ITButton
+                    label="Generar cargos"
+                    variant="outlined"
+                    icon={<FaPlay />}
+                    disabled={collectionBusy !== null}
+                    onClick={() => void handleGenerateCharges()}
+                  />
+                  <ITButton
+                    label="Aplicar recargos"
+                    variant="outlined"
+                    color="warning"
+                    icon={<FaExclamationTriangle />}
+                    disabled={collectionBusy !== null}
+                    onClick={() => void handleApplyLateFees()}
+                  />
                 </>
               )}
             </ITFlex>
@@ -636,6 +867,23 @@ const FinancePage = () => {
                 />
               </ITCard>
             )}
+
+            {tab === "collections" && (
+              <ITCard contentClassName="p-0!">
+                <ITDataTable
+                  key={`collections-${refreshKey}`}
+                  fetchData={fetchCollections as any}
+                  columns={collectionColumns as any}
+                  defaultItemsPerPage={25}
+                  itemsPerPageOptions={[25, 50, 100]}
+                  layout="fixed"
+                  density="compact"
+                  rowHeight={54}
+                  virtualized
+                  virtualizedMaxHeight={520}
+                />
+              </ITCard>
+            )}
           </ITFlex>
         </ITCard>
       </ITFlex>
@@ -661,6 +909,38 @@ const FinancePage = () => {
         onClose={() => setMonthlyOpen(false)}
         onSaved={() => setRefreshKey((key) => key + 1)}
       />
+
+      <CollectionConfigDialog
+        isOpen={collectionOpen}
+        onClose={() => {
+          setCollectionOpen(false);
+          setCollectionToEdit(null);
+        }}
+        onSaved={() => setRefreshKey((key) => key + 1)}
+        properties={properties}
+        config={collectionToEdit}
+      />
+
+      <ITDialog
+        isOpen={collectionBusy !== null}
+        onClose={() => undefined}
+        title="Procesando cobranza"
+        className="w-[440px] max-w-[95vw]"
+      >
+        <ITFlex align="center" justify="center" className="p-4">
+          <LottieLoader
+            label={
+              collectionBusy === -1
+                ? "Generando cuotas…"
+                : collectionBusy === -2
+                  ? "Aplicando recargos…"
+                  : "Actualizando cobranza…"
+            }
+            hint="Estamos procesando las propiedades. Esto puede tardar unos segundos."
+            size={132}
+          />
+        </ITFlex>
+      </ITDialog>
 
       <ReasonDialog
         isOpen={!!chargeToCancel}

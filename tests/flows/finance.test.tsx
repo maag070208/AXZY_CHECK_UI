@@ -90,6 +90,47 @@ describe("finanzas (WEB)", () => {
     expect(screen.getByText("Pendientes")).toBeInTheDocument();
   });
 
+  it("gestiona la tabla de cobranza y genera cargos", async () => {
+    stubCatalogs();
+    stub("get", "/charges", { success: true, data: { data: [], total: 0 } });
+    stub("get", "/payments", { success: true, data: { data: [], total: 0 } });
+    stub("get", "/collections/configs", {
+      success: true,
+      data: [
+        {
+          id: 1,
+          propertyId: 1,
+          concept: "Cuota de mantenimiento",
+          amount: 1000,
+          frequency: "MONTHLY",
+          dueDay: 10,
+          nextChargeDate: "2026-11-10",
+          graceDays: 5,
+          lateFeeType: "PERCENT",
+          lateFeeValue: 10,
+          active: true,
+          property: { id: 1, identifier: "A-101", name: "Casa 101" },
+        },
+      ],
+    });
+    const generated = stub("post", "/collections/generate", {
+      success: true,
+      data: { created: 1, skipped: 0, results: [] },
+    });
+
+    const { user } = renderApp({ route: "/finance", role: "ADMIN" });
+    await user.click(await screen.findByRole("button", { name: "Cobranza" }));
+    expect(await screen.findByText("Cuota de mantenimiento")).toBeInTheDocument();
+    expect(screen.getByText("Mensual")).toBeInTheDocument();
+    expect(screen.getByText("Porcentaje 10%")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Generar cargos" }));
+    await waitFor(() => expect(generated.path).toBe("/collections/generate"));
+
+    await user.click(screen.getByRole("button", { name: "Nueva configuración" }));
+    expect(await screen.findByText("Nueva cobranza")).toBeInTheDocument();
+  });
+
   it("muestra el error de carga de cargos", async () => {
     stubCatalogs();
     fail("get", "/charges", ["Sin conexión con el servidor"], 500);

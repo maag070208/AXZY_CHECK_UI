@@ -14,6 +14,8 @@ import { server } from "./helpers/server";
 
 vi.mock("ably", () => ablyModule);
 vi.mock("@vis.gl/react-google-maps", () => mapsModule);
+// jsdom no implementa canvas; el loader Lottie se prueba en el build real.
+vi.mock("lottie-react", () => ({ Lottie: () => null }));
 
 // Igual que src/main.tsx.
 dayjs.extend(utc);
