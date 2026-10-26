@@ -92,6 +92,7 @@ export const NAV_SECTIONS: NavSection[] = [
         items: [
           { id: "kardex", label: "Kardex", path: "/kardex", permission: P.KARDEX_VIEW },
           { id: "shift-handover", label: "Entrega de turno", path: "/shift-handover", permission: P.SHIFT_HANDOVER_MANAGE },
+          { id: "access-log", label: "Bitácora de accesos", path: "/access-log", permission: P.ACCESS_EVENT_VIEW },
         ],
       },
     ],
