@@ -17,6 +17,8 @@ import ResidentsPage from "./modules/residents/pages/ResidentsPage";
 import ResidentDetailPage from "./modules/residents/pages/ResidentDetailPage";
 import ResidentFormPage from "./modules/residents/pages/ResidentFormPage";
 import InvitationsPage from "./modules/invitations/pages/InvitationsPage";
+import AnnouncementsPage from "./modules/announcements/pages/AnnouncementsPage";
+import VehiclesPage from "./modules/vehicles/pages/VehiclesPage";
 import UsersPage from "./modules/users/pages/UsersPage";
 import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
 import ComplaintsPage from "./modules/complaints/pages/ComplaintsPage";
@@ -82,6 +84,7 @@ function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/login/:role" element={<LoginPage />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     );
@@ -90,6 +93,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/login/:role" element={<LoginPage />} />
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<HomePage />} />
 
@@ -104,6 +108,8 @@ function App() {
         <Route path="/residents/:id" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentDetailPage /></PermissionRoute>} />
         <Route path="/residents/:id/editar" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentFormPage /></PermissionRoute>} />
         <Route path="/invitations" element={<PermissionRoute permissions={P.ACCESS_CHECK}><InvitationsPage /></PermissionRoute>} />
+        <Route path="/announcements" element={<PermissionRoute permissions={P.ANNOUNCEMENT_VIEW}><AnnouncementsPage /></PermissionRoute>} />
+        <Route path="/vehicles" element={<PermissionRoute permissions={P.VEHICLE_VIEW}><VehiclesPage /></PermissionRoute>} />
 
         <Route path="/users" element={<PermissionRoute permissions={P.USERS_MANAGE}><UsersPage /></PermissionRoute>} />
         <Route path="/roles" element={<PermissionRoute permissions={P.USERS_MANAGE}><RolesPermissionsPage /></PermissionRoute>} />

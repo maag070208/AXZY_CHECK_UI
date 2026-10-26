@@ -25,7 +25,7 @@ test("cerrar sesión regresa al login y /home ya no abre sin sesión", async ({ 
   await page.getByRole("button", { name: "Iniciar Sesión" }).click();
   await expect(page).toHaveURL(/\/home/);
 
-  await page.getByRole("button", { name: "Admin", exact: true }).click();
+  await page.getByRole("button", { name: /Admin/ }).first().click();
   await page.getByRole("button", { name: "Cerrar Sesión" }).click();
   await expect(page).toHaveURL(/\/login/);
   // La URL cambia antes de que signOut borre el token: esperamos a que se borre.

@@ -30,6 +30,7 @@ import { MonthlyChargesDialog } from "../components/MonthlyChargesDialog";
 import { PaymentFormDialog, PaymentPreset } from "../components/PaymentFormDialog";
 import { ReasonDialog } from "../components/ReasonDialog";
 import { CollectionConfigDialog } from "../components/CollectionConfigDialog";
+import { DelinquencyRuleCard } from "../components/DelinquencyRuleCard";
 import { LottieLoader } from "@app/core/components/LottieLoader";
 import {
   cancelCharge,
@@ -1053,6 +1054,8 @@ const FinancePage = () => {
             />
           </ITCard>
         )}
+
+        {tab === "collections" && <DelinquencyRuleCard properties={properties} />}
 
         {tab === "collections" && (
           <ITCard className="rounded-3xl border border-slate-200 shadow-sm" contentClassName="p-0!">

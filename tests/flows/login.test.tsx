@@ -55,3 +55,17 @@ describe("login", () => {
     expect(await screen.findByRole("button", { name: /iniciar sesión/i })).toBeInTheDocument();
   });
 });
+
+describe("login: variantes por rol", () => {
+  it.each([
+    ["admin", "ACCESO ADMINISTRATIVO", "La operación, clara y bajo control."],
+    ["jefe", "ACCESO JEFE DE GUARDIAS", "Cada turno, coordinado y sin huecos."],
+    ["guardia", "ACCESO GUARDIA", "Tu ronda, tu caseta, todo en un lugar."],
+    ["residente", "ACCESO RESIDENTE", "Tu comunidad, más simple y segura."],
+  ])("muestra la variante %s", async (role, eyebrow, headline) => {
+    renderApp({ route: `/login/${role}` });
+    expect(await screen.findByText(eyebrow)).toBeInTheDocument();
+    expect(screen.getByText(headline)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /iniciar sesión/i })).toBeInTheDocument();
+  });
+});

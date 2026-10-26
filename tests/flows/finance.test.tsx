@@ -130,6 +130,12 @@ describe("finanzas (WEB)", () => {
     stubCatalogs();
     stub("get", "/charges", { success: true, data: { data: [], total: 0 } });
     stub("get", "/payments", { success: true, data: { data: [], total: 0 } });
+    stub("get", "/access/delinquency-rule", {
+      success: true,
+      data: { id: 1, enabled: true, minOverdueDays: 30, blockVisitors: true, active: true, updatedById: null, updatedAt: "2026-10-26T00:00:00.000Z" },
+    });
+    stub("get", "/access/exceptions", { success: true, data: [] });
+    stub("get", "/access/events", { success: true, data: { items: [], total: 0 } });
     stub("get", "/collections/configs", {
       success: true,
       data: [

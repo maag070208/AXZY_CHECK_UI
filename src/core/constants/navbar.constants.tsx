@@ -114,6 +114,14 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Accesos",
         items: [
           { id: "invitations", label: "Invitaciones", path: "/invitations", permission: P.ACCESS_CHECK },
+          { id: "vehicles", label: "Vehículos", path: "/vehicles", permission: P.VEHICLE_VIEW },
+        ],
+      },
+      {
+        id: "communication",
+        label: "Comunicación",
+        items: [
+          { id: "announcements", label: "Avisos", path: "/announcements", permission: P.ANNOUNCEMENT_VIEW },
         ],
       },
     ],
