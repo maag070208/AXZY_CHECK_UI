@@ -19,6 +19,7 @@ import ResidentFormPage from "./modules/residents/pages/ResidentFormPage";
 import InvitationsPage from "./modules/invitations/pages/InvitationsPage";
 import UsersPage from "./modules/users/pages/UsersPage";
 import IncidentsPage from "./modules/incidents/pages/IncidentsPage";
+import ComplaintsPage from "./modules/complaints/pages/ComplaintsPage";
 import ClubPage from "./modules/club/pages/ClubPage";
 import MaintenancesPage from "./modules/maintenances/pages/MaintenancesPage";
 import KardexPage from "./modules/kardex/pages/KardexPage";
@@ -107,6 +108,7 @@ function App() {
         <Route path="/roles" element={<PermissionRoute permissions={P.USERS_MANAGE}><RolesPermissionsPage /></PermissionRoute>} />
         <Route path="/resident" element={<PermissionRoute permissions={P.RESIDENT_SELF}><ResidentPortalPage /></PermissionRoute>} />
         <Route path="/incidents" element={<PermissionRoute permissions={P.INCIDENT_VIEW}><IncidentsPage /></PermissionRoute>} />
+        <Route path="/complaints" element={<PermissionRoute permissions={P.COMPLAINT_VIEW}><ComplaintsPage /></PermissionRoute>} />
         {/* Crear reportes de club lo puede hacer cualquier staff; resolver exige club.manage. */}
         <Route path="/club" element={<PermissionRoute permissions={P.CLUB_VIEW}><ClubPage /></PermissionRoute>} />
         <Route path="/maintenances" element={<PermissionRoute permissions={P.MAINTENANCE_VIEW}><MaintenancesPage /></PermissionRoute>} />

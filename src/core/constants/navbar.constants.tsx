@@ -129,6 +129,7 @@ export const NAV_SECTIONS: NavSection[] = [
           { id: "incidents", label: "Incidencias", path: "/incidents", permission: P.INCIDENT_VIEW },
           { id: "maintenances", label: "Mantenimientos", path: "/maintenances", permission: P.MAINTENANCE_VIEW },
           { id: "club", label: "Casa Club", path: "/club", permission: P.CLUB_VIEW },
+          { id: "complaints", label: "Quejas", path: "/complaints", permission: P.COMPLAINT_VIEW },
         ],
       },
     ],
