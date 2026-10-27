@@ -30,10 +30,11 @@ import {
   FaHeadset,
   FaSyncAlt,
 } from "react-icons/fa";
-import logoGreen from "@assets/logo-green.svg";
 import appHomeSync from "@assets/landing/app-home-sync.png";
 import appOffline from "@assets/landing/app-offline-new.png";
 import appSync from "@assets/landing/app-sync-new.png";
+import { RoleLogo } from "@app/core/components/RoleLogo";
+import { setRoleFavicon } from "@core/utils/roleFavicon";
 import {
   GuardAppVisual,
   WebConsoleVisual,
@@ -232,8 +233,14 @@ const ROLE_APP: Record<string, { src: string; title: string }[]> = {
   ],
 };
 
-const RoleShowcase = () => {
-  const [role, setRole] = useState("admin");
+const LANDING_ROLE_THEMES: Record<string, Record<string, string>> = {
+  admin: { "--lp-bg": "#04120A", "--lp-nav-bg": "rgba(4,18,10,0.74)", "--lp-green": "#065911", "--lp-green-2": "#12A36F", "--lp-green-3": "#DFF0E3", "--lp-mint": "#5EE0A0", "--lp-dark": "#04120A", "--lp-dark-2": "#06270F" },
+  shift: { "--lp-bg": "#022C2A", "--lp-nav-bg": "rgba(2,44,42,0.78)", "--lp-green": "#064E4B", "--lp-green-2": "#14B8A6", "--lp-green-3": "#D9F5F0", "--lp-mint": "#5EEAD4", "--lp-dark": "#022C2A", "--lp-dark-2": "#064E4B" },
+  guard: { "--lp-bg": "#061A2C", "--lp-nav-bg": "rgba(6,26,44,0.8)", "--lp-green": "#0B2E4F", "--lp-green-2": "#0EA5E9", "--lp-green-3": "#DCEFFB", "--lp-mint": "#7DD3FC", "--lp-dark": "#061A2C", "--lp-dark-2": "#0B2E4F" },
+  resident: { "--lp-bg": "#1E0F30", "--lp-nav-bg": "rgba(30,15,48,0.82)", "--lp-green": "#3B1D5A", "--lp-green-2": "#A855F7", "--lp-green-3": "#F0E4FA", "--lp-mint": "#D8B4FE", "--lp-dark": "#1E0F30", "--lp-dark-2": "#3B1D5A" },
+};
+
+const RoleShowcase = ({ role, onRoleChange }: { role: string; onRoleChange: (role: string) => void }) => {
   const current = ROLE_VIEWS.find((item) => item.key === role) ?? ROLE_VIEWS[0];
 
   return (
@@ -258,7 +265,7 @@ const RoleShowcase = () => {
                 aria-selected={active}
                 className={`lp-role-tab${active ? " is-active" : ""}`}
                 style={active ? { backgroundColor: item.color, borderColor: item.color, color: "#fff" } : { borderColor: `${item.color}33`, color: item.color }}
-                onClick={() => setRole(item.key)}
+                onClick={() => onRoleChange(item.key)}
               >
                 <span className="lp-role-dot" style={{ backgroundColor: active ? "#fff" : item.color }} />
                 {item.label}
@@ -850,6 +857,11 @@ const HeroScene = () => (
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [landingRole, setLandingRole] = useState("admin");
+
+  useEffect(() => {
+    setRoleFavicon(landingRole);
+  }, [landingRole]);
   const progressRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
@@ -888,7 +900,7 @@ const LandingPage = () => {
   const openWhatsApp = () => window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
 
   return (
-    <div className="checkapp-landing">
+    <div className="checkapp-landing" style={LANDING_ROLE_THEMES[landingRole] as React.CSSProperties}>
       <div className="lp-progress" aria-hidden="true">
         <span ref={progressRef} />
       </div>
@@ -900,7 +912,7 @@ const LandingPage = () => {
             aria-label="CheckApp, ir al inicio"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            <img src={logoGreen} alt="CheckApp" />
+            <RoleLogo key={landingRole} role={landingRole} invert className="h-9 w-auto" />
           </button>
 
           <nav className="lp-nav-links" aria-label="Navegación principal">
@@ -1165,7 +1177,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <RoleShowcase />
+        <RoleShowcase role={landingRole} onRoleChange={setLandingRole} />
 
         <section id="como-funciona" className="lp-section lp-steps-section">
           <div className="lp-container">
@@ -1342,7 +1354,7 @@ const LandingPage = () => {
       <footer className="lp-footer">
         <div className="lp-container lp-footer-grid">
           <div className="lp-footer-brand">
-            <img src={logoGreen} alt="CheckApp" />
+            <RoleLogo key={landingRole} role={landingRole} invert className="h-9 w-auto" />
             <p>
               La plataforma integral para digitalizar la gestión de personal de seguridad en calle:
               rondas, evidencia y transparencia operativa.

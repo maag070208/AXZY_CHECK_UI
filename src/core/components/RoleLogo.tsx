@@ -14,11 +14,53 @@ const LOGOS: Record<string, string> = {
   MAINT: maintLogo,
 };
 
-/** Logo CheckApp con el color del rol activo (o del último rol guardado). */
-export const RoleLogo = ({ className = "h-8 w-auto", alt = "CheckApp", invert = false }: { className?: string; alt?: string; invert?: boolean }) => {
-  const authRole = useSelector((state: any) => state.auth?.role);
-  const role = authRole ?? (typeof window !== "undefined" ? localStorage.getItem("lastRole") : null);
-  const src = LOGOS[role ?? "ADMIN"] ?? LOGOS.ADMIN;
+interface RoleLogoProps {
+  className?: string;
+  alt?: string;
+  invert?: boolean;
+  role?: string;
+}
 
-  return <ITImage src={src} alt={alt} fit="contain" className={`${className}${invert ? " brightness-0 invert" : ""}`} />;
+const ROLE_KEYS: Record<string, string> = {
+  admin: "ADMIN",
+  jefe: "SHIFT",
+  shift: "SHIFT",
+  guardia: "GUARD",
+  guard: "GUARD",
+  residente: "RESDN",
+  resident: "RESDN",
+  resdn: "RESDN",
+  mantenimiento: "MAINT",
+  maint: "MAINT",
+};
+
+const RoleLogoImage = ({ role, className = "h-8 w-auto", alt = "CheckApp", invert = false }: RoleLogoProps) => {
+  const key = ROLE_KEYS[(role ?? "admin").toLowerCase()] ?? (role ?? "ADMIN").toUpperCase();
+  const src = LOGOS[key] ?? LOGOS.ADMIN;
+  return (
+    <ITImage
+      src={src}
+      alt={alt}
+      fit="contain"
+      className={`${className}${invert ? " role-logo-white" : ""}`}
+    />
+  );
+};
+
+const ConnectedRoleLogo = (props: RoleLogoProps) => {
+  const authRole = useSelector((state: any) => state.auth?.role);
+  const role =
+    authRole ??
+    (typeof window !== "undefined" ? localStorage.getItem("lastRole") : null) ??
+    "ADMIN";
+  return <RoleLogoImage {...props} role={role} />;
+};
+
+/**
+ * Logo CheckApp por rol. Si se pasa `role`, funciona fuera del store
+ * (por ejemplo, la landing pública). Sin `role`, toma la sesión de Redux.
+ */
+export const RoleLogo = ({ role, ...props }: RoleLogoProps) => {
+  if (role) return <RoleLogoImage {...props} role={role} />;
+  return <ConnectedRoleLogo {...props} />;
 };

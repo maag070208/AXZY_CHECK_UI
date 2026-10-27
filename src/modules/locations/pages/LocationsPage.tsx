@@ -117,8 +117,8 @@ const LocationsPage = () => {
             .brand { font-size: 18px; font-weight: 900; letter-spacing: -.02em; }
             .tag { padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, .2); font-size: 8px; font-weight: 900; letter-spacing: .09em; }
             .body { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 18px 16px; text-align: center; }
-            .qr { padding: 10px; border-radius: 22px; background: #fff; box-shadow: 0 10px 28px rgba(15, 23, 42, .14); }
-            img { display: block; width: 62mm; height: 62mm; border-radius: 16px; }
+            .qr { display: block; line-height: 0; }
+            img { display: block; width: 62mm; height: 62mm; }
             h1 { font-size: 26px; margin: 4px 0 0; color: #0F172A; letter-spacing: -.03em; }
             .pill { padding: 5px 12px; border-radius: 999px; background: #E8F7EF; color: #065911; font-size: 10px; font-weight: 800; }
             .hint { margin: 0; max-width: 62mm; color: #64748B; font-size: 11px; line-height: 1.45; font-weight: 600; }
@@ -343,7 +343,7 @@ const LocationsPage = () => {
         {qrPreview && (
           <ITFlex direction="column" gap={4}>
             <ITCard className="overflow-hidden rounded-3xl border-0! shadow-xl!" contentClassName="p-0!">
-              <ITFlex align="center" justify="between" gap={2} className="bg-[#12A36F] px-5 py-4">
+              <ITFlex align="center" justify="between" gap={2} className="bg-[#2F9E68] px-5 py-4">
                 <ITText as="p" className="text-lg font-black text-white">CheckApp</ITText>
                 <ITBadget color="secondary" variant="filled" size="sm" className="bg-white/20! text-white!">
                   PUNTO DE ESCANEO
@@ -351,14 +351,12 @@ const LocationsPage = () => {
               </ITFlex>
 
               <ITFlex direction="column" align="center" gap={3} className="px-6 py-6">
-                <ITFlex align="center" justify="center" className="rounded-3xl bg-white p-3 shadow-lg">
-                  <ITImage
-                    src={qrPreview.dataUrl}
-                    alt={`Código QR de ${qrPreview.location.name}`}
-                    fit="contain"
-                    className="h-56 w-56 rounded-2xl"
-                  />
-                </ITFlex>
+                <ITImage
+                  src={qrPreview.dataUrl}
+                  alt={`Código QR de ${qrPreview.location.name}`}
+                  fit="contain"
+                  className="h-64 w-64"
+                />
                 <ITText as="p" className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
                   {qrPreview.location.name}
                 </ITText>

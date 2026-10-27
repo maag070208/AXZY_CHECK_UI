@@ -2,8 +2,8 @@ import { ITButton, ITDatePicker, ITFlex, ITInput, ITLoader, ITSearchSelect, ITTe
 import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import { PersonLite, searchPersons } from "@app/modules/persons/persons.service";
-import QRCode from "qrcode";
 import { Authorization, createAuthorization, DAY_LABELS, issuePass, listAuthorizations, revokeAuthorization } from "./authorizations.service";
+import { createBrandedQrDataUrl } from "@core/utils/brandedLocationQr";
 
 interface Props {
   propertyId: number;
@@ -77,7 +77,7 @@ export const AuthorizationsPanel = ({ propertyId }: Props) => {
   const generatePass = async (id: number) => {
     const res: any = await issuePass(id);
     if (res.success === false) return setError(res.messages?.[0] ?? "No se pudo generar el pase");
-    setPassFor({ id, dataUrl: await QRCode.toDataURL(res.data.token, { width: 220, margin: 1 }) });
+    setPassFor({ id, dataUrl: await createBrandedQrDataUrl(res.data.token, 300) });
   };
 
   const revoke = async (id: number) => {

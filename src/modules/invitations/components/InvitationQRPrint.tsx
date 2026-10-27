@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import QRCode from "qrcode";
 import { Invitation } from "../services/invitations.service";
 import LOGO from "@assets/logo.svg";
 import { ITBadget, ITButton, ITCard, ITFlex, ITGrid, ITImage, ITText } from "@axzydev/axzy_ui_system";
@@ -7,6 +6,7 @@ import { FaPrint, FaWhatsapp } from "react-icons/fa";
 import { toBlob } from "html-to-image";
 import { useDispatch } from "react-redux";
 import { showToast } from "@app/core/store/toast/toast.slice";
+import { createBrandedQrDataUrl } from "@core/utils/brandedLocationQr";
 
 interface Props {
   invitation: Invitation;
@@ -44,11 +44,7 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
   const [shareNotice, setShareNotice] = useState<"copied" | "downloaded" | null>(null);
 
   useEffect(() => {
-    QRCode.toDataURL(invitation.code, {
-      width: 400,
-      margin: 2,
-      color: { dark: "#020617", light: "#ffffff" },
-    })
+    createBrandedQrDataUrl(invitation.code, 400)
       .then(setQrUrl)
       .catch(console.error);
   }, [invitation.code]);
@@ -189,9 +185,9 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
 
         <ITFlex direction="column" gap={3} className="p-5">
           <ITFlex justify="center">
-            <ITFlex align="center" justify="center" className="rounded-2xl bg-slate-50 p-2.5">
+            <ITFlex align="center" justify="center">
               {qrUrl ? (
-                <ITImage src={qrUrl} alt={`QR ${invitation.code}`} fit="contain" className="h-40 w-40 sm:h-44 sm:w-44" />
+                <ITImage src={qrUrl} alt={`QR ${invitation.code}`} fit="contain" className="h-44 w-44" />
               ) : (
                 <ITText as="p" className="flex h-40 w-40 items-center justify-center text-xs text-slate-400">
                   Generando QR...

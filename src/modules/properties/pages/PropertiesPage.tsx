@@ -1,4 +1,5 @@
 import { showToast } from "@app/core/store/toast/toast.slice";
+import { createBrandedQrDataUrl } from "@core/utils/brandedLocationQr";
 import {
   ITBadget,
   ITButton,
@@ -11,7 +12,6 @@ import {
   ITText,
 } from "@axzydev/axzy_ui_system";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
-import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaBuilding, FaEdit, FaEye, FaHome, FaMapMarkedAlt, FaPlus, FaQrcode, FaSearch, FaSync, FaTimes, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -100,11 +100,11 @@ const PropertiesPage = () => {
 
     const handlePrintQR = async (property: Property) => {
         try {
-            const qrDataUrl = await QRCode.toDataURL(JSON.stringify({
+            const qrDataUrl = await createBrandedQrDataUrl(JSON.stringify({
                 id: property.id,
                 identifier: property.identifier,
                 type: 'PROPERTY'
-            }), { width: 300 });
+            }), 300);
 
             const printWindow = window.open('', '_blank');
             if (!printWindow) {

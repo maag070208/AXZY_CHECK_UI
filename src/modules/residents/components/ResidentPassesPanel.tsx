@@ -16,9 +16,9 @@ import {
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaKey, FaMapMarkerAlt, FaQrcode, FaSync, FaTrash } from "react-icons/fa";
-import QRCode from "qrcode";
 import { useDispatch } from "react-redux";
 import { showToast } from "@app/core/store/toast/toast.slice";
+import { createBrandedQrDataUrl } from "@core/utils/brandedLocationQr";
 import { createPerson, searchPersons } from "@app/modules/persons/persons.service";
 import {
   Authorization,
@@ -117,7 +117,7 @@ export const ResidentPassesPanel = ({
       return;
     }
     const token = res.data?.token ?? res.token;
-    const dataUrl = await QRCode.toDataURL(token, { width: 240, margin: 1 });
+    const dataUrl = await createBrandedQrDataUrl(token, 300);
     setPass({ dataUrl, name: personName });
   };
 
@@ -298,7 +298,7 @@ export const ResidentPassesPanel = ({
       <ITDialog isOpen={!!pass} onClose={() => setPass(null)} title="Pase de acceso" className="max-w-sm w-full">
         {pass && (
           <ITFlex direction="column" align="center" gap={3}>
-            <ITImage src={pass.dataUrl} alt={`Pase de ${pass.name}`} fit="contain" className="h-56 w-56 rounded-xl" />
+            <ITImage src={pass.dataUrl} alt={`Pase de ${pass.name}`} fit="contain" className="h-64 w-64" />
             <ITText as="p" className="text-sm font-bold text-slate-800 dark:text-slate-100">{pass.name}</ITText>
             <ITText as="p" className="text-center text-xs text-slate-500">
               Este token se muestra una sola vez. Si generas otro, el anterior deja de funcionar.

@@ -1,0 +1,1 @@
+import { chromium } from '@playwright/test'; const b=await chromium.launch(); const p=await b.newPage(); await p.goto('http://localhost:5004/',{waitUntil:'networkidle'}); console.log(await p.evaluate(()=>{const i=document.querySelector('.lp-logo img'); return {outer:i?.outerHTML, parent:i?.parentElement?.outerHTML}})); await b.close();

@@ -1,4 +1,5 @@
 import { ITBadget, ITButton, ITDataTable, ITDialog, ITFlex, ITLoader, ITText } from "@axzydev/axzy_ui_system";
+import { createBrandedQrDataUrl } from "@core/utils/brandedLocationQr";
 import { OccupancyPanel } from "../occupancy/OccupancyPanel";
 import { AuthorizationsPanel } from "../authorizations/AuthorizationsPanel";
 import { HouseholdPanel } from "../household/HouseholdPanel";
@@ -24,7 +25,6 @@ import {
 } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import QRCode from "qrcode";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { getPropertyById, Property, updateProperty } from "../service/properties.service";
 import { useCan } from "@app/core/permissions/useCan";
@@ -100,11 +100,11 @@ const PropertyDetailPage = () => {
     const handlePrintQR = async () => {
         if (!property) return;
         try {
-            const qrDataUrl = await QRCode.toDataURL(JSON.stringify({
+            const qrDataUrl = await createBrandedQrDataUrl(JSON.stringify({
                 id: property.id,
                 identifier: property.identifier,
                 type: 'PROPERTY'
-            }), { width: 300 });
+            }), 300);
 
             const printWindow = window.open('', '_blank');
             if (!printWindow) {

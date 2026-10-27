@@ -1,4 +1,4 @@
-import QRCode from "qrcode";
+import { createBrandedQrDataUrl } from "./brandedLocationQr";
 import { buildLocationQrPayload } from "./locationQr";
 
 export interface PrintableLocation {
@@ -20,7 +20,7 @@ export const printLocationQRs = async (locations: PrintableLocation[], heading?:
 
   const cards = await Promise.all(
     locations.map(async (loc, i) => {
-      const dataUrl = await QRCode.toDataURL(buildLocationQrPayload(loc.id), { width: 400, margin: 1 });
+      const dataUrl = await createBrandedQrDataUrl(buildLocationQrPayload(loc.id), 360);
       return `
         <div class="card">
           <span class="num">${i + 1}</span>
