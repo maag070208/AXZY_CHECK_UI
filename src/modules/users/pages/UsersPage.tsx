@@ -78,7 +78,6 @@ const UsersPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Directorio de Usuarios" }]}
       description="Gestión de usuarios vecinales, expedientes y controles de acceso"
       icon={<FaUserShield size={20} />}
-      iconColor="#065911"
       actions={
         <ITButton onClick={() => setIsCreateModalOpen(true)} color="primary" size="md">
           <ITFlex align="center" gap={2}>Nuevo usuario<FaPlus /></ITFlex>

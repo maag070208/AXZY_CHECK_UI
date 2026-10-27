@@ -6835,3 +6835,62 @@ html {
     height: 300px;
   }
 }
+
+/* Selector de vistas por rol */
+.lp-role-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 28px auto 16px;
+}
+.lp-role-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.lp-role-tab:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(15,23,42,.08); }
+.lp-role-tab.is-active { box-shadow: 0 10px 24px rgba(15,23,42,.14); }
+.lp-role-dot { width: 7px; height: 7px; border-radius: 999px; }
+.lp-role-current {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid;
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin: 0 auto 28px;
+  max-width: 760px;
+  text-align: center;
+}
+.lp-role-current p { margin: 0; color: #475569; font-size: 12px; line-height: 1.6; font-weight: 600; }
+.lp-role-current strong { color: #0f172a; }
+.lp-role-current-dot { width: 8px; height: 8px; border-radius: 999px; flex: 0 0 auto; }
+
+.lp-role-app-block { margin-top: 52px; }
+.lp-role-app-head { text-align: center; max-width: 640px; margin: 0 auto 24px; }
+.lp-role-app-head h3 { margin: 8px 0 6px; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.03em; color: #ffffff; }
+.lp-role-app-head p { margin: 0; color: #cbd5e1; font-size: 13px; line-height: 1.65; font-weight: 600; }
+.lp-role-app-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; }
+.lp-phone {
+  width: 210px;
+  margin: 0;
+  padding: 9px;
+  border-radius: 34px;
+  background: #0f172a;
+  box-shadow: 0 24px 50px rgba(15,23,42,.22);
+  position: relative;
+}
+.lp-phone-notch { width: 72px; height: 7px; border-radius: 999px; background: rgba(255,255,255,.22); margin: 0 auto 7px; }
+.lp-phone img { display: block; width: 100%; height: 390px; object-fit: cover; object-position: top; border-radius: 26px; background: #eef2f6; }
+.lp-phone figcaption { text-align: center; color: #cbd5e1; font-size: 10px; font-weight: 800; letter-spacing: .02em; padding: 9px 4px 3px; }

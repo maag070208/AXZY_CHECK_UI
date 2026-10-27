@@ -389,7 +389,6 @@ const RoundDetailPage = () => {
                 title="Detalle de ronda"
                 description="Cargando información de la ronda..."
                 icon={<FaRoute size={20} />}
-                iconColor="#065911"
             >
                 <ITFlex />
             </ITPage>
@@ -404,7 +403,6 @@ const RoundDetailPage = () => {
                 title="Detalle de ronda"
                 description="No se encontró la ronda."
                 icon={<FaRoute size={20} />}
-                iconColor="#065911"
                 error="La ronda que buscas no existe o fue eliminada."
                 onRetry={() => getData(Number(id))}
             >
@@ -427,7 +425,6 @@ const RoundDetailPage = () => {
             ]}
             description={`${data.round.guard.name} ${data.round.guard.lastName ?? ""} · ${new Date(data.round.startTime).toLocaleDateString()}`}
             icon={<FaRoute size={20} />}
-            iconColor="#065911"
             actions={
                 <ITBadget
                     color={data.round.status === "COMPLETED" ? "success" : "warning"}

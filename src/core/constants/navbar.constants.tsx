@@ -5,10 +5,15 @@ import { useCan } from "@app/core/permissions/useCan";
 import LOGO from "@assets/logo-green.svg";
 import React from "react";
 import {
+  FaAddressBook,
   FaBuilding,
   FaClipboardList,
+  FaComments,
+  FaExclamationCircle,
   FaHome,
+  FaTools,
   FaLayerGroup,
+  FaQrcode,
   FaShieldAlt,
   FaUser,
   FaUsers,
@@ -22,6 +27,7 @@ export interface NavLeaf {
   label: string;
   path: string;
   permission?: PermissionRequirement;
+  icon?: React.ReactNode;
 }
 
 export interface NavGroup {
@@ -75,7 +81,7 @@ export const NAV_SECTIONS: NavSection[] = [
         items: [
           { id: "guard-tracking", label: "Seguimiento", path: "/guard-tracking", permission: P.DASHBOARD_VIEW },
           { id: "locations", label: "Ubicaciones", path: "/locations", permission: P.LOCATIONS_MANAGE },
-          { id: "chat", label: "Chat", path: "/chat", permission: P.CHAT_USE },
+          { id: "chat", label: "Chat", path: "/chat", permission: P.CHAT_USE, icon: <FaComments /> },
         ],
       },
       {
@@ -114,7 +120,7 @@ export const NAV_SECTIONS: NavSection[] = [
         id: "access",
         label: "Accesos",
         items: [
-          { id: "invitations", label: "Invitaciones", path: "/invitations", permission: P.ACCESS_CHECK },
+          { id: "invitations", label: "Invitaciones", path: "/invitations", permission: P.ACCESS_CHECK, icon: <FaQrcode /> },
           { id: "vehicles", label: "Vehículos", path: "/vehicles", permission: P.VEHICLE_VIEW },
         ],
       },
@@ -143,10 +149,10 @@ export const NAV_SECTIONS: NavSection[] = [
         id: "report-types",
         label: "Tipos de reporte",
         items: [
-          { id: "incidents", label: "Incidencias", path: "/incidents", permission: P.INCIDENT_VIEW },
-          { id: "maintenances", label: "Mantenimientos", path: "/maintenances", permission: P.MAINTENANCE_VIEW },
-          { id: "club", label: "Casa Club", path: "/club", permission: P.CLUB_VIEW },
-          { id: "complaints", label: "Quejas", path: "/complaints", permission: P.COMPLAINT_VIEW },
+          { id: "incidents", label: "Incidencias", path: "/incidents", permission: P.INCIDENT_VIEW, icon: <FaExclamationCircle /> },
+          { id: "maintenances", label: "Mantenimientos", path: "/maintenances", permission: P.MAINTENANCE_VIEW, icon: <FaTools /> },
+          { id: "club", label: "Casa Club", path: "/club", permission: P.CLUB_VIEW, icon: <FaHome /> },
+          { id: "complaints", label: "Quejas", path: "/complaints", permission: P.COMPLAINT_VIEW, icon: <FaClipboardList /> },
         ],
       },
     ],
@@ -178,9 +184,9 @@ export const NAV_SECTIONS: NavSection[] = [
         id: "my-account-main",
         label: "Mi cuenta",
         items: [
-          { id: "my-profile", label: "Mi perfil", path: "/resident?tab=perfil", permission: P.RESIDENT_SELF },
-          { id: "my-contacts", label: "Mis contactos", path: "/resident?tab=contactos", permission: P.RESIDENT_SELF },
-          { id: "my-passes", label: "Mis pases", path: "/resident?tab=invitaciones", permission: P.INVITATION_VIEW },
+          { id: "my-profile", label: "Mi perfil", path: "/resident?tab=perfil", permission: P.RESIDENT_SELF, icon: <FaUser /> },
+          { id: "my-contacts", label: "Mis contactos", path: "/resident?tab=contactos", permission: P.RESIDENT_SELF, icon: <FaAddressBook /> },
+          { id: "my-passes", label: "Mis pases", path: "/resident?tab=invitaciones", permission: P.INVITATION_VIEW, icon: <FaQrcode /> },
         ],
       },
     ],
@@ -202,10 +208,28 @@ export const buildNavigationItems = (
   hasPermission: (permission?: PermissionRequirement) => boolean,
   navigate?: (path: string) => void,
   isRouteActive?: (path: string) => boolean,
+  flat = false,
 ): NavigationItem[] => {
   const items: NavigationItem[] = [];
 
   for (const section of NAV_SECTIONS) {
+    // Residentes: el sidebar es una sola lista, sin acordeones ni submenús.
+    if (flat && section.groups) {
+      for (const group of section.groups) {
+        for (const leaf of group.items) {
+          if (!hasPermission(leaf.permission)) continue;
+          items.push({
+            id: leaf.id,
+            label: leaf.label,
+            icon: leaf.icon ?? section.icon,
+            action: navigate ? () => navigate(leaf.path) : undefined,
+            isActive: isRouteActive?.(leaf.path) ?? false,
+          });
+        }
+      }
+      continue;
+    }
+
     if (!section.groups) {
       if (!hasPermission(section.permission)) continue;
       items.push({
@@ -265,7 +289,12 @@ export const useNavigationItems = (): NavigationItem[] => {
     return currentTab === targetTab;
   };
 
-  return buildNavigationItems((permission) => !permission || can(permission), navigate, isRouteActive);
+  return buildNavigationItems(
+    (permission) => !permission || can(permission),
+    navigate,
+    isRouteActive,
+    role === "RESDN" || role === "GUARD",
+  );
 };
 
 // ------------- NAVBAR (legacy) -----------------

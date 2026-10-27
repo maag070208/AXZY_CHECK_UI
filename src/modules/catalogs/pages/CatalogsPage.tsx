@@ -212,7 +212,6 @@ const CatalogsPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Catálogos" }]}
       description="Catálogos base: categorías, tipos, propiedades, invitaciones y parentescos."
       icon={<FaLayerGroup size={20} />}
-      iconColor="#065911"
       actions={
         <ITButton variant="icon-only" color="secondary" size="md" icon={<FaSync />} onClick={() => { void loadCategories(); void loadCounts(); if (!isReport) void loadBase(activeKey as GenericCatalogKey); }} ariaLabel="Actualizar" title="Actualizar" />
       }
@@ -236,7 +235,7 @@ const CatalogsPage = () => {
                 >
                   {item.label} ({count})
                 </ITButton>
-                <ITFlex className={`h-0.5 w-full rounded-full ${selected ? "bg-[#065911]" : "bg-transparent"}`} />
+                <ITFlex className={`h-0.5 w-full rounded-full ${selected ? "bg-[var(--color-primary)]" : "bg-transparent"}`} />
               </ITFlex>
             );
           })}

@@ -77,7 +77,7 @@ export const CategoryFormModal = ({
       <ITFlex direction="column" gap={4}>
         <ITCard className="rounded-2xl border-0! bg-emerald-50/60! shadow-none!" contentClassName="p-4!">
           <ITFlex align="center" gap={3}>
-            <ITFlex align="center" justify="center" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#065911] text-white">
+            <ITFlex align="center" justify="center" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)] text-white">
               <MetaIcon size={16} />
             </ITFlex>
             <ITFlex direction="column" className="min-w-0 flex-1">

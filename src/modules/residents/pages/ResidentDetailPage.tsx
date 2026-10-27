@@ -166,7 +166,6 @@ export const ResidentDetailPage = () => {
       ]}
       description="Expediente, contactos, pases de acceso y estado de cuenta."
       icon={<FaUserShield size={20} />}
-      iconColor="#065911"
       actions={
         <ITFlex align="center" gap={2} wrap="wrap">
           <ITButton variant="outlined" color="secondary" size="md" icon={<FaAddressBook />} onClick={() => setTab("contactos")}>

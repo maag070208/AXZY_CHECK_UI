@@ -31,10 +31,6 @@ import {
   FaSyncAlt,
 } from "react-icons/fa";
 import logoGreen from "@assets/logo-green.svg";
-import homeShot from "@assets/landing/current-home-gallery-crop.png";
-import usersShot from "@assets/landing/current-users-crop.png";
-import catalogsShot from "@assets/landing/current-catalogs-crop.png";
-import roundsShot from "@assets/landing/current-rounds-crop.png";
 import appHomeSync from "@assets/landing/app-home-sync.png";
 import appOffline from "@assets/landing/app-offline-new.png";
 import appSync from "@assets/landing/app-sync-new.png";
@@ -136,33 +132,172 @@ const MODULES: ModuleItem[] = [
   },
 ];
 
-const SCREENS = [
+const ROLE_VIEWS = [
   {
-    id: "home",
-    image: homeShot,
-    title: "Monitoreo en vivo",
-    text: "Rondas, guardias e incidencias en tiempo real.",
+    key: "admin",
+    label: "Admin",
+    color: "#065911",
+    soft: "#E8F7EF",
+    description: "La consola completa: operación, personas, accesos y finanzas.",
+    screens: [
+      { id: "home", image: "/landing/roles/admin/home.png", title: "Monitoreo en vivo", text: "Rondas, guardias e incidencias en tiempo real." },
+      { id: "locations", image: "/landing/roles/admin/locations.png", title: "Ubicaciones y QR", text: "Puntos de control listos para imprimir." },
+      { id: "locations-qr", image: "/landing/roles/admin/locations-qr.png", title: "QR de ubicación", text: "Vista e impresión del punto de control." },
+      { id: "residents", image: "/landing/roles/admin/residents.png", title: "Residentes", text: "Padrón, contactos y estado de cada hogar." },
+      { id: "residents-new", image: "/landing/roles/admin/residents-new.png", title: "Alta de residente", text: "Formulario guiado con validaciones." },
+      { id: "access-log", image: "/landing/roles/admin/access-log.png", title: "Bitácora de accesos", text: "Cada entrada y salida con su evidencia." },
+      { id: "finance", image: "/landing/roles/admin/finance.png", title: "Finanzas", text: "Cobranza, pagos y morosidad en una vista." },
+      { id: "announcements", image: "/landing/roles/admin/announcements.png", title: "Avisos", text: "Comunicación directa con la comunidad." },
+      { id: "guards", image: "/landing/roles/admin/guards.png", title: "Guardias", text: "Turnos, asignaciones y desempeño." },
+      { id: "vehicles", image: "/landing/roles/admin/vehicles.png", title: "Vehículos", text: "Tags, aprobaciones y accesos." },
+    ],
   },
   {
-    id: "users",
-    image: usersShot,
-    title: "Directorio de usuarios",
-    text: "Altas, roles y accesos del personal.",
+    key: "shift",
+    label: "Jefe",
+    color: "#064E4B",
+    soft: "#E6FFFA",
+    description: "El turno bajo control: equipo, rondas y entrega de novedades.",
+    screens: [
+      { id: "home", image: "/landing/roles/shift/home.png", title: "Pulso del turno", text: "KPIs, alertas y cobertura en vivo." },
+      { id: "guards", image: "/landing/roles/shift/guards.png", title: "Equipo en turno", text: "Guardias, tareas y asignaciones." },
+      { id: "shift-handover", image: "/landing/roles/shift/shift-handover.png", title: "Entrega de turno", text: "Checklist y novedades firmadas." },
+      { id: "new-shift", image: "/landing/roles/shift/new-shift.png", title: "Nueva entrega", text: "Captura guiada del cambio de turno." },
+      { id: "guard-tracking", image: "/landing/roles/shift/guard-tracking.png", title: "Seguimiento", text: "Rondas y recorridos del equipo." },
+      { id: "incidents", image: "/landing/roles/shift/incidents.png", title: "Incidencias", text: "Novedades atendidas y pendientes." },
+      { id: "club", image: "/landing/roles/shift/club.png", title: "Casa Club", text: "Reservas y reportes de amenidades." },
+    ],
   },
   {
-    id: "catalogs",
-    image: catalogsShot,
-    title: "Catálogos",
-    text: "Categorías y tipos de incidencia.",
+    key: "guard",
+    label: "Guardia",
+    color: "#0B2E4F",
+    soft: "#E0F2FE",
+    description: "La operación en campo: accesos, incidencias y apoyo al residente.",
+    screens: [
+      { id: "home", image: "/landing/roles/guard/home.png", title: "Inicio de caseta", text: "Accesos rápidos a la operación diaria." },
+      { id: "incidents", image: "/landing/roles/guard/incidents.png", title: "Incidencias", text: "Reporta y da seguimiento desde campo." },
+      { id: "club", image: "/landing/roles/guard/club.png", title: "Casa Club", text: "Reportes de amenidades." },
+      { id: "invitations", image: "/landing/roles/guard/invitations.png", title: "Invitaciones", text: "Pases de visita y códigos QR." },
+      { id: "chat", image: "/landing/roles/guard/chat.png", title: "Chat", text: "Comunicación con el equipo." },
+    ],
   },
   {
-    id: "rounds",
-    image: roundsShot,
-    title: "Historial de recorridos",
-    text: "Avance y desempeño de cada ronda.",
+    key: "resident",
+    label: "Residente",
+    color: "#3B1D5A",
+    soft: "#F3E8FF",
+    description: "La comunidad desde el teléfono: perfil, contactos y pases.",
+    screens: [
+      { id: "home", image: "/landing/roles/resident/home.png", title: "Mi comunidad", text: "Accesos rápidos a lo importante." },
+      { id: "profile", image: "/landing/roles/resident/profile.png", title: "Mi perfil", text: "Datos del hogar y de contacto." },
+      { id: "contacts", image: "/landing/roles/resident/contacts.png", title: "Mi agenda", text: "Contactos de confianza y accesos." },
+      { id: "passes", image: "/landing/roles/resident/passes.png", title: "Mis pases", text: "Invitaciones y QR de visitas." },
+      { id: "pass-modal", image: "/landing/roles/resident/pass-modal.png", title: "Nuevo pase", text: "Alta de visita con vigencia y QR." },
+    ],
   },
 ];
 
+const ScreenCard = ({ screen }: { screen: (typeof ROLE_VIEWS)[number]["screens"][number] }) => (
+  <figure className="lp-screen" data-reveal>
+    <div className="lp-screen-top">
+      <span />
+      <span />
+      <span />
+      <span className="lp-screen-url">CheckApp · {screen.title}</span>
+    </div>
+    <img src={screen.image} alt={`Pantalla de ${screen.title} en CheckApp`} loading="lazy" />
+    <figcaption>
+      <strong>{screen.title}</strong>
+      <span>{screen.text}</span>
+    </figcaption>
+  </figure>
+);
+
+const ROLE_APP: Record<string, { src: string; title: string }[]> = {
+  admin: [{ src: "/landing/app/admin/home.png", title: "Inicio administrativo" }],
+  shift: [
+    { src: "/landing/app/shift/home.png", title: "Pulso del turno" },
+    { src: "/landing/app/shift/menu.png", title: "Módulos del jefe" },
+  ],
+  guard: [
+    { src: "/landing/app/guard/home.png", title: "Caseta del guardia" },
+    { src: "/landing/app/guard/vehicles.png", title: "Consulta de vehículos" },
+    { src: "/landing/app/guard/pin.png", title: "Clave peatonal" },
+  ],
+  resident: [
+    { src: "/landing/app/resident/home.png", title: "Mi comunidad" },
+    { src: "/landing/app/resident/contacts.png", title: "Mi agenda" },
+    { src: "/landing/app/resident/access.png", title: "Mis accesos" },
+  ],
+};
+
+const RoleShowcase = () => {
+  const [role, setRole] = useState("admin");
+  const current = ROLE_VIEWS.find((item) => item.key === role) ?? ROLE_VIEWS[0];
+
+  return (
+    <section id="pantallas" className="lp-section lp-screens">
+      <div className="lp-container">
+        <div className="lp-section-head" data-reveal>
+          <span className="lp-eyebrow">
+            <FaDesktop size={10} /> Parada 04 · Así se ve
+          </span>
+          <h2>Una plataforma. La vista de cada rol.</h2>
+          <p>Cambia de rol y conoce cómo se ve la operación para administración, jefe, guardia y residente.</p>
+        </div>
+
+        <div className="lp-role-tabs" role="tablist" aria-label="Vistas por rol">
+          {ROLE_VIEWS.map((item) => {
+            const active = item.key === current.key;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                className={`lp-role-tab${active ? " is-active" : ""}`}
+                style={active ? { backgroundColor: item.color, borderColor: item.color, color: "#fff" } : { borderColor: `${item.color}33`, color: item.color }}
+                onClick={() => setRole(item.key)}
+              >
+                <span className="lp-role-dot" style={{ backgroundColor: active ? "#fff" : item.color }} />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="lp-role-current" style={{ backgroundColor: current.soft, borderColor: `${current.color}22` }}>
+          <span className="lp-role-current-dot" style={{ backgroundColor: current.color }} />
+          <p><strong>{current.label}</strong> · {current.description}</p>
+        </div>
+
+        <div className="lp-screens-grid">
+          {current.screens.map((screen) => (
+            <ScreenCard key={`${current.key}-${screen.id}`} screen={screen} />
+          ))}
+        </div>
+
+        <div className="lp-role-app-block">
+          <div className="lp-role-app-head" data-reveal>
+            <span className="lp-eyebrow"><FaMobileAlt size={10} /> También en la APP</span>
+            <h3>La misma operación, en la mano</h3>
+            <p>Capturas reales de la app para {current.label.toLowerCase()}.</p>
+          </div>
+          <div className="lp-role-app-strip">
+            {ROLE_APP[current.key].map((shot) => (
+              <figure className="lp-phone" key={shot.src}>
+                <div className="lp-phone-notch" />
+                <img src={shot.src} alt={`${shot.title} en la app CheckApp`} loading="lazy" />
+                <figcaption>{shot.title}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 const PLANS = [
   {
     id: "standard",
@@ -325,22 +460,6 @@ const STEPS: { icon: IconType; title: string; text: string }[] = [
     text: "Tú y tu cliente ven la ronda completada en la consola web, al instante.",
   },
 ];
-
-const ScreenCard = ({ screen }: { screen: (typeof SCREENS)[number] }) => (
-  <figure className="lp-screen" data-reveal>
-    <div className="lp-screen-top">
-      <span />
-      <span />
-      <span />
-      <span className="lp-screen-url">checkapp / {screen.title}</span>
-    </div>
-    <img src={screen.image} alt={`Pantalla de ${screen.title} en CheckApp`} loading="lazy" />
-    <figcaption>
-      <strong>{screen.title}</strong>
-      <span>{screen.text}</span>
-    </figcaption>
-  </figure>
-);
 
 const PlanCard = ({ plan, onQuote }: { plan: (typeof PLANS)[number]; onQuote: () => void }) => (
   <article className={`lp-plan${plan.highlight ? " lp-plan-highlight" : ""}`} data-reveal>
@@ -1046,22 +1165,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section id="pantallas" className="lp-section lp-screens">
-          <div className="lp-container">
-            <div className="lp-section-head" data-reveal>
-              <span className="lp-eyebrow">
-                <FaDesktop size={10} /> Parada 04 · Así se ve
-              </span>
-              <h2>Pantallas reales de la operación</h2>
-              <p>Un vistazo a la consola que usa tu equipo todos los días.</p>
-            </div>
-            <div className="lp-screens-grid">
-              {SCREENS.map((screen) => (
-                <ScreenCard key={screen.id} screen={screen} />
-              ))}
-            </div>
-          </div>
-        </section>
+        <RoleShowcase />
 
         <section id="como-funciona" className="lp-section lp-steps-section">
           <div className="lp-container">

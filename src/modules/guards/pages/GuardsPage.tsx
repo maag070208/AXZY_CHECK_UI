@@ -6,8 +6,10 @@ import { getSchedules, Schedule } from "../../schedules/SchedulesService";
 import { AssignmentModal } from "../components/AssignmentModal";
 import { ViewAssignmentsModal } from "../components/ViewAssignmentsModal";
 import { PersonAvatar } from "@app/core/components/PersonAvatar";
+import { useRolePalette } from "@app/core/hooks/useRolePalette";
 
 const GuardsPage = () => {
+    const palette = useRolePalette();
     const [refreshKey, setRefreshKey] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [scheduleFilter, setScheduleFilter] = useState("ALL");
@@ -84,7 +86,7 @@ const GuardsPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Módulo de Guardias" }]}
       description="Gestión de personal operativo, turnos y controles de seguridad"
       icon={<FaUserShield size={20} />}
-      iconColor="#065911"
+      iconColor={palette.primary}
     >
 
             <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">

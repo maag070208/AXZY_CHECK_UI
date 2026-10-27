@@ -98,7 +98,6 @@ const RoutesPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Gestión de Rutas" }]}
       description="Gestión de recorridos y puntos de control (Catálogo de Rondas)"
       icon={<FaRoute size={20} />}
-      iconColor="#065911"
       actions={
         <ITFlex align="center" gap={2} wrap="wrap" justify="end" className="w-full justify-end">
           <ITFlex align="center" gap={1} className="w-64 shrink-0">
@@ -176,7 +175,7 @@ const RoutesPage = () => {
                   <ITFlex
                     align="center"
                     justify="center"
-                    className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-[#065911] dark:bg-emerald-950/30 dark:text-emerald-400"
+                    className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-[var(--color-primary)] dark:bg-emerald-950/30 dark:text-emerald-400"
                   >
                     <FaRoute size={12} />
                   </ITFlex>

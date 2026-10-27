@@ -15,7 +15,6 @@ const ChatPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Chat" }]}
       description="Canal grupal para administración, guardias, jefe de guardias y mantenimiento."
       icon={<FaComments size={20} />}
-      iconColor="#065911"
     >
       <ITFlex direction="column" className="h-[calc(100vh-17rem)] min-h-[440px] w-full pb-10 pt-5">
         <ChatPanel variant="page" />

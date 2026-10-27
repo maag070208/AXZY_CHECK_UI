@@ -11,19 +11,19 @@ const ROLE_THEMES: Record<string, Partial<ITThemePalette>> = {
   },
   SHIFT: {
     primary: "#064E4B",
-    secondary: "#0f766e",
+    secondary: "#64748b",
     ternary: "#14b8a6",
     table: { ...baseTheme.table, rowHover: "#e6f7f6" },
   },
   GUARD: {
     primary: "#0B2E4F",
-    secondary: "#0369a1",
+    secondary: "#64748b",
     ternary: "#38bdf8",
     table: { ...baseTheme.table, rowHover: "#e6f2fb" },
   },
   RESDN: {
     primary: "#3B1D5A",
-    secondary: "#7e22ce",
+    secondary: "#64748b",
     ternary: "#c084fc",
     table: { ...baseTheme.table, rowHover: "#f3e8ff" },
   },

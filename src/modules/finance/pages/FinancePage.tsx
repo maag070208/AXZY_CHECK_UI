@@ -757,7 +757,6 @@ const FinancePage = () => {
       title={`${greeting}, ${displayName}`}
       description={`${dateCap} · Cargos, pagos y cobranza del residencial.`}
       icon={<FaWallet />}
-      iconColor="#065911"
       actions={
         <ITFlex align="center" gap={2} wrap="wrap">
           <ITChip label="Finanzas" color="primary" size="sm" variant="soft" icon={<FaWallet size={10} />} />

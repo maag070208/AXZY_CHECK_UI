@@ -85,7 +85,6 @@ const SchedulesPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Directorio de Horarios" }]}
       description="Gestión de turnos operativos, entradas, salidas y controles de asistencia"
       icon={<FaClock size={20} />}
-      iconColor="#065911"
       actions={
         <ITFlex align="center" gap={2} wrap="wrap">
           <ITButton onClick={refreshTable} variant="icon-only" color="secondary" size="md" icon={<FaSync />} ariaLabel="Actualizar" title="Actualizar" />
@@ -132,7 +131,7 @@ const SchedulesPage = () => {
               label: "ENTRADA", 
               type: "string", 
               render: (row: any) => (
-                  <ITFlex align="center" gap={2} className="flex items-center gap-2 text-[#065911] font-bold">
+                  <ITFlex align="center" gap={2} className="flex items-center gap-2 text-[var(--color-primary)] font-bold">
                       <FaClock className="text-xs opacity-50" />
                       <ITText as="span">{row.startTime}</ITText>
                   </ITFlex>

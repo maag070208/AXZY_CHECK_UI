@@ -262,7 +262,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                               align="center"
                               justify="center"
                               className={`h-4 w-4 shrink-0 rounded ${
-                                on ? "bg-[#065911] text-white" : "bg-white text-transparent dark:bg-slate-800"
+                                on ? "bg-[var(--color-primary)] text-white" : "bg-white text-transparent dark:bg-slate-800"
                               }`}
                             >
                               {on && <FaCheck size={8} />}
@@ -330,7 +330,7 @@ export const CreateRouteModal = ({ isOpen, onClose, onSuccess, editConfig }: Cre
                       contentClassName="p-3!"
                     >
                       <ITFlex align="center" gap={3}>
-                        <ITText as="span" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-sm font-black text-[#065911] dark:bg-emerald-950/30 dark:text-emerald-400">
+                        <ITText as="span" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-sm font-black text-[var(--color-primary)] dark:bg-emerald-950/30 dark:text-emerald-400">
                           {idx + 1}
                         </ITText>
                         <ITFlex direction="column" className="min-w-0 flex-1">

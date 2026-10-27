@@ -256,7 +256,7 @@ const CompactHeader = () => (
     className="border-b border-slate-100 px-4 py-3 dark:border-slate-800"
   >
     <ITFlex align="center" gap={2}>
-      <FaComments className="text-[#065911]" size={13} />
+      <FaComments className="text-[var(--color-primary)]" size={13} />
       <ITText as="p" className="text-[13px] font-black text-slate-800 dark:text-slate-100">
         Chat del equipo
       </ITText>

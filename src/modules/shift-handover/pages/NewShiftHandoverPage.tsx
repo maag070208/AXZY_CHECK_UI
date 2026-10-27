@@ -42,6 +42,7 @@ import {
   ICreateShiftHandoverElement,
 } from "../services/ShiftHandoverService";
 import { PersonAvatar } from "@app/core/components/PersonAvatar";
+import { useRolePalette } from "@app/core/hooks/useRolePalette";
 
 const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<{ className?: string; size?: number }> }[] = [
   { key: "checklistPhones", label: "Teléfonos", icon: FaPhone },
@@ -81,12 +82,15 @@ const SectionHeader = ({
   icon: React.ComponentType<{ size?: number; className?: string }>;
   title: string;
   description: string;
-}) => (
+}) => {
+  const palette = useRolePalette();
+  return (
   <ITFlex align="center" gap={3}>
     <ITFlex
       align="center"
       justify="center"
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400"
+      style={{ backgroundColor: palette.soft, color: palette.primary }}
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
     >
       <Icon size={14} />
     </ITFlex>
@@ -97,7 +101,8 @@ const SectionHeader = ({
       <ITText as="p" className="text-[11px] text-slate-500">{description}</ITText>
     </ITFlex>
   </ITFlex>
-);
+  );
+};
 
 const noop = () => { };
 
@@ -107,6 +112,7 @@ const noop = () => { };
  * que la APP.
  */
 const NewShiftHandoverPage = () => {
+  const palette = useRolePalette();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
@@ -212,7 +218,7 @@ const NewShiftHandoverPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Entrega de Turno", href: "#/shift-handover" }, { label: "Nueva entrega" }]}
       description="Reporte de cambio de turno: caseta, elementos y verificación."
       icon={<FaSwatchbook size={20} />}
-      iconColor="#065911"
+      iconColor={palette.primary}
     >
       <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
         <ITGrid container columns={12} spacing={5}>
@@ -232,9 +238,7 @@ const NewShiftHandoverPage = () => {
                       <ITCard
                         key={option.value}
                         onClick={() => setShiftType(option.value)}
-                        className={`flex-1 min-w-[140px] rounded-2xl border-0! shadow-none! ${
-                          selected ? "bg-emerald-50!" : "bg-slate-50/70!"
-                        }`}
+                        className={`flex-1 min-w-[140px] rounded-2xl border-0! shadow-none! ${selected ? palette.softClass : "bg-slate-50/70"}`}
                         contentClassName="p-4!"
                       >
                         <ITFlex align="center" gap={3}>
@@ -242,20 +246,20 @@ const NewShiftHandoverPage = () => {
                             align="center"
                             justify="center"
                             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                              selected ? "bg-emerald-600 text-white" : "bg-white text-slate-500 dark:bg-slate-800"
+                              selected ? `${palette.primaryBgClass} text-white` : "bg-white text-slate-500 dark:bg-slate-800"
                             }`}
                           >
                             <option.icon size={16} />
                           </ITFlex>
                           <ITFlex direction="column" className="min-w-0 flex-1">
-                            <ITText as="span" className={`text-sm font-black ${selected ? "text-emerald-800 dark:text-emerald-300" : "text-slate-700 dark:text-slate-200"}`}>
+                            <ITText as="span" className={`text-sm font-black ${selected ? palette.primaryTextClass : "text-slate-700 dark:text-slate-200"}`}>
                               {option.label}
                             </ITText>
-                            <ITText as="span" className={`text-[10px] ${selected ? "text-emerald-600/80" : "text-slate-400"}`}>
+                            <ITText as="span" className={`text-[10px] ${selected ? palette.primaryTextClass : "text-slate-400"}`}>
                               {option.description}
                             </ITText>
                           </ITFlex>
-                          {selected && <FaCheck className="shrink-0 text-emerald-600" size={12} />}
+                          {selected && <FaCheck className={`shrink-0 ${palette.primaryTextClass}`} size={12} />}
                         </ITFlex>
                       </ITCard>
                     );
@@ -422,8 +426,8 @@ const NewShiftHandoverPage = () => {
                   </ITFlex>
                 ))}
 
-                <ITFlex align="center" gap={3} className="rounded-xl bg-emerald-50 px-3 py-2.5 dark:bg-emerald-950/20">
-                  <ITText as="span" className="flex-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+                <ITFlex align="center" gap={3} style={{ backgroundColor: palette.soft }} className="rounded-xl px-3 py-2.5">
+                  <ITText as="span" style={{ color: palette.primary }} className="flex-1 text-xs font-semibold">
                     Se reportaron las novedades a la administración
                   </ITText>
                   <ITSlideToggle isOn={reportedToAdmin} onToggle={setReportedToAdmin} />
@@ -442,11 +446,11 @@ const NewShiftHandoverPage = () => {
                 </ITFlex>
                 <ITFlex justify="between">
                   <ITText as="span" className="text-xs text-slate-500">Puntuales</ITText>
-                  <ITText as="span" className="text-sm font-black text-emerald-600">{elements.filter((e) => e.punctual).length}</ITText>
+                  <ITText as="span" style={{ color: palette.primary }} className="text-sm font-black">{elements.filter((e) => e.punctual).length}</ITText>
                 </ITFlex>
                 <ITFlex justify="between">
                   <ITText as="span" className="text-xs text-slate-500">Novedades reportadas</ITText>
-                  <ITText as="span" className={`text-sm font-black ${reportedToAdmin ? "text-emerald-600" : "text-amber-600"}`}>
+                  <ITText as="span" style={{ color: reportedToAdmin ? palette.primary : "#D97706" }} className="text-sm font-black">
                     {reportedToAdmin ? "Sí" : "No"}
                   </ITText>
                 </ITFlex>

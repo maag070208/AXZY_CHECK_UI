@@ -15,6 +15,7 @@ import {
 } from "@axzydev/axzy_ui_system";
 import {
   FaAddressBook,
+  FaArrowRight,
   FaBan,
   FaCalendarAlt,
   FaEnvelope,
@@ -43,6 +44,7 @@ import {
 } from "@modules/invitations/services/invitations.service";
 import { InvitationForm } from "@modules/invitations/components/InvitationForm";
 import { InvitationQRPrint } from "@modules/invitations/components/InvitationQRPrint";
+import { useRolePalette } from "@app/core/hooks/useRolePalette";
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "En espera",
@@ -69,6 +71,7 @@ const TABS = [
 const ResidentPortalPage = () => {
   const dispatch = useDispatch();
   const auth = useSelector((state: any) => state.auth);
+  const palette = useRolePalette();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = TABS.some((item) => item.value === searchParams.get("tab"))
     ? (searchParams.get("tab") as string)
@@ -181,19 +184,18 @@ const ResidentPortalPage = () => {
     );
   }
 
+  const firstName = fullName.split(" ")[0] || "Residente";
+  const activePasses = invitations.filter((inv) => inv.status === "PENDING" || inv.status === "ENTERED");
+  const upcoming = [...invitations]
+    .filter((inv) => inv.status === "PENDING" || inv.status === "ENTERED")
+    .sort((a, b) => +new Date(a.validFrom) - +new Date(b.validFrom))
+    .slice(0, 3);
+
   return (
     <ITPage
+      className="m-0! mx-auto! max-w-[1600px]! bg-slate-50! px-2! py-1!"
       title="Mi cuenta"
       description="Tu perfil, tus contactos y los pases de acceso de tu propiedad."
-      icon={<FaUser size={20} />}
-      iconColor="#065911"
-      actions={
-        <ITButton variant="solid" color="primary" size="md" onClick={() => setCreateOpen(true)} disabled={!property}>
-          <ITFlex align="center" gap={2}>
-            <FaPlus /> Generar invitación
-          </ITFlex>
-        </ITButton>
-      }
     >
       {error ? (
         <ITAlert variant="error" title="No se pudo cargar" className="mb-4">
@@ -201,207 +203,304 @@ const ResidentPortalPage = () => {
         </ITAlert>
       ) : null}
 
+      <ITFlex
+        direction="column"
+        className="relative mb-5 overflow-hidden rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm sm:p-8"
+      >
+        <ITFlex className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full" style={{ backgroundColor: palette.soft }} />
+        <ITFlex className="pointer-events-none absolute -bottom-28 left-1/3 h-56 w-56 rounded-full opacity-60" style={{ backgroundColor: palette.soft }} />
+
+        <ITFlex align="start" justify="between" gap={4} wrap="wrap" className="relative z-10">
+          <ITFlex align="center" gap={3}>
+            <ITFlex align="center" justify="center" style={{ backgroundColor: palette.soft, color: palette.primary }} className="h-14 w-14 shrink-0 rounded-2xl">
+              <FaUser size={23} />
+            </ITFlex>
+            <ITFlex direction="column" gap={1}>
+              <ITText as="span" className="text-[9px] font-black uppercase tracking-[0.18em]" style={{ color: palette.primary }}>Portal del residente</ITText>
+              <ITText as="h1" className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Hola, {firstName}</ITText>
+              <ITFlex align="center" gap={2} className="text-slate-500!">
+                <FaHome size={11} />
+                <ITText as="span" className="text-xs font-semibold text-slate-500!">
+                  {property ? `${property.identifier} · ${property.name}` : "Sin propiedad asignada"}
+                </ITText>
+              </ITFlex>
+            </ITFlex>
+          </ITFlex>
+
+          <ITButton
+            variant="filled"
+            color="primary"
+            size="md"
+            onClick={() => setCreateOpen(true)}
+            disabled={!property}
+          >
+            <ITFlex align="center" gap={2}><FaPlus /> Generar invitación</ITFlex>
+          </ITButton>
+        </ITFlex>
+
+        <ITGrid container columns={12} spacing={0} className="relative z-10 mt-6 border-t border-slate-100 pt-5">
+          {[
+            { label: "Contactos", value: contacts.length, icon: <FaAddressBook size={13} /> },
+            { label: "Pases activos", value: activePasses.length, icon: <FaQrcode size={13} /> },
+            { label: "Propiedad", value: property?.identifier ?? "—", icon: <FaHome size={13} /> },
+          ].map((item) => (
+            <ITGrid item xs={12} sm={4} key={item.label}>
+              <ITFlex align="center" gap={2} className="px-0 py-2 sm:px-4">
+                <ITFlex align="center" justify="center" style={{ backgroundColor: palette.soft, color: palette.primary }} className="h-8 w-8 rounded-xl">
+                  {item.icon}
+                </ITFlex>
+                <ITFlex direction="column">
+                  <ITText as="span" className="text-[8px] font-black uppercase tracking-widest text-slate-400">{item.label}</ITText>
+                  <ITText as="span" className="text-sm font-black text-slate-900">{item.value}</ITText>
+                </ITFlex>
+              </ITFlex>
+            </ITGrid>
+          ))}
+        </ITGrid>
+      </ITFlex>
+
       <ITFlex align="center" justify="between" gap={3} wrap="wrap" className="mb-4">
         <ITSegmentedControl size="md" options={TABS} value={tab} onChange={changeTab} />
-        <ITBadget color="success" variant="filled" size="sm">
+        <ITBadget color="primary" variant="outlined" size="sm">
           {property ? `${property.identifier} · ${property.name}` : "Sin propiedad asignada"}
         </ITBadget>
       </ITFlex>
 
       {tab === "perfil" ? (
         <ITGrid container columns={12} spacing={4}>
-          <ITGrid item xs={12} md={7}>
-            <ITCard title="Mis datos" contentClassName="p-5">
-              <ITFlex align="center" gap={3} className="mb-4">
-                <ITFlex align="center" justify="center" className="h-12 w-12 rounded-2xl bg-emerald-50 text-[#065911]">
-                  <FaUser size={18} />
+          <ITGrid item xs={12} lg={8}>
+            <ITFlex direction="column" gap={4}>
+              <ITCard title="Información personal" contentClassName="p-5!">
+                <ITFlex align="center" gap={3} className="mb-5">
+                  <ITFlex align="center" justify="center" style={{ backgroundColor: palette.soft, color: palette.primary }} className="h-14 w-14 rounded-2xl">
+                    <FaUser size={22} />
+                  </ITFlex>
+                  <ITFlex direction="column">
+                    <ITText as="p" className="text-lg font-black text-slate-900">{fullName}</ITText>
+                    <ITText as="p" className="text-xs text-slate-500">@{resident?.username ?? auth.name} · Residente</ITText>
+                  </ITFlex>
+                  <ITBadget color="primary" variant="outlined" size="sm">Cuenta activa</ITBadget>
                 </ITFlex>
-                <ITFlex direction="column">
-                  <ITText as="p" className="text-lg font-black text-slate-900">{fullName}</ITText>
-                  <ITText as="p" className="text-xs text-slate-500">@{resident?.username ?? auth.name}</ITText>
-                </ITFlex>
-              </ITFlex>
 
-              <ITGrid container columns={12} spacing={3}>
-                <ITGrid item xs={12} sm={6}>
-                  <ITFlex align="center" gap={2} className="rounded-xl bg-slate-50 px-3 py-2">
-                    <FaIdCard className="text-slate-400" />
-                    <ITFlex direction="column">
-                      <ITText as="span" className="text-[10px] font-bold uppercase text-slate-400">Teléfono</ITText>
-                      <ITText as="span" className="text-sm font-semibold text-slate-700">{profile?.phoneNumber || "—"}</ITText>
-                    </ITFlex>
-                  </ITFlex>
+                <ITGrid container columns={12} spacing={3}>
+                  {[
+                    { label: "Teléfono", value: profile?.phoneNumber || "—", icon: <FaIdCard /> },
+                    { label: "Email", value: profile?.email || "—", icon: <FaEnvelope /> },
+                    { label: "Propiedad", value: property ? `${property.identifier} · ${property.name}` : "Sin asignar", icon: <FaHome /> },
+                    { label: "Emergencia", value: profile?.emergencyContact || profile?.emergencyPhone || "—", icon: <FaPhone /> },
+                  ].map((item) => (
+                    <ITGrid item xs={12} sm={6} key={item.label}>
+                      <ITFlex align="center" gap={2} className="rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-3">
+                        <ITText as="span" className="text-slate-400">{item.icon}</ITText>
+                        <ITFlex direction="column" className="min-w-0">
+                          <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-slate-400">{item.label}</ITText>
+                          <ITText as="span" className="truncate text-sm font-semibold text-slate-700">{item.value}</ITText>
+                        </ITFlex>
+                      </ITFlex>
+                    </ITGrid>
+                  ))}
                 </ITGrid>
-                <ITGrid item xs={12} sm={6}>
-                  <ITFlex align="center" gap={2} className="rounded-xl bg-slate-50 px-3 py-2">
-                    <FaEnvelope className="text-slate-400" />
-                    <ITFlex direction="column">
-                      <ITText as="span" className="text-[10px] font-bold uppercase text-slate-400">Email</ITText>
-                      <ITText as="span" className="text-sm font-semibold text-slate-700">{profile?.email || "—"}</ITText>
+
+                <ITFlex align="center" gap={2} style={{ backgroundColor: palette.soft }} className="mt-4 rounded-xl px-3 py-2.5">
+                  <FaUser size={12} style={{ color: palette.primary }} />
+                  <ITText as="span" className="text-[11px] font-semibold" style={{ color: palette.primary }}>
+                    Tu perfil es de solo lectura. Para cambiarlo, contacta a administración.
+                  </ITText>
+                </ITFlex>
+              </ITCard>
+
+              <ITCard
+                title="Próximos pases"
+                contentClassName="p-5!"
+                headerActions={<ITButton size="sm" variant="outlined" color="secondary" onClick={() => changeTab("invitaciones")}>Ver todos</ITButton>}
+              >
+                {upcoming.length === 0 ? (
+                  <ITFlex align="center" justify="between" gap={3} wrap="wrap" className="rounded-xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-4">
+                    <ITFlex align="center" gap={3}>
+                      <ITFlex align="center" justify="center" style={{ backgroundColor: palette.soft, color: palette.primary }} className="h-9 w-9 rounded-xl"><FaQrcode size={14} /></ITFlex>
+                      <ITFlex direction="column">
+                        <ITText as="p" className="text-sm font-bold text-slate-700">Sin pases próximos</ITText>
+                        <ITText as="p" className="text-[11px] text-slate-500">Genera una invitación para recibir visitas.</ITText>
+                      </ITFlex>
                     </ITFlex>
+                    <ITButton size="sm" variant="outlined" color="primary" onClick={() => setCreateOpen(true)} disabled={!property}>
+                      <ITFlex align="center" gap={2}><FaPlus size={11} /> Generar pase</ITFlex>
+                    </ITButton>
                   </ITFlex>
-                </ITGrid>
-                <ITGrid item xs={12} sm={6}>
-                  <ITFlex align="center" gap={2} className="rounded-xl bg-slate-50 px-3 py-2">
-                    <FaHome className="text-slate-400" />
-                    <ITFlex direction="column">
-                      <ITText as="span" className="text-[10px] font-bold uppercase text-slate-400">Propiedad</ITText>
-                      <ITText as="span" className="text-sm font-semibold text-slate-700">
-                        {property ? `${property.identifier} · ${property.name}` : "Sin asignar"}
-                      </ITText>
-                    </ITFlex>
+                ) : (
+                  <ITFlex direction="column" gap={2}>
+                    {upcoming.map((invitation) => (
+                      <ITFlex key={invitation.id} align="center" justify="between" gap={3} className="rounded-xl border border-slate-100 px-3 py-3">
+                        <ITFlex align="center" gap={3} className="min-w-0">
+                          <ITFlex align="center" justify="center" style={{ backgroundColor: palette.soft, color: palette.primary }} className="h-10 w-10 shrink-0 rounded-xl">
+                            <FaCalendarAlt size={15} />
+                          </ITFlex>
+                          <ITFlex direction="column" className="min-w-0">
+                            <ITText as="p" className="truncate text-sm font-bold text-slate-800">{invitation.guestName}</ITText>
+                            <ITText as="p" className="text-[11px] text-slate-500">
+                              {dayjs(invitation.validFrom).format("DD MMM")} → {dayjs(invitation.validUntil).format("DD MMM")} · {invitation.code}
+                            </ITText>
+                          </ITFlex>
+                        </ITFlex>
+                        <ITFlex align="center" gap={2}>
+                          <ITBadget color={STATUS_COLOR[invitation.status] ?? "secondary"} variant="outlined" size="sm">
+                            {STATUS_LABEL[invitation.status] ?? invitation.status}
+                          </ITBadget>
+                          <ITButton size="sm" variant="outlined" color="primary" onClick={() => setViewingQr(invitation)}><FaQrcode /></ITButton>
+                        </ITFlex>
+                      </ITFlex>
+                    ))}
                   </ITFlex>
-                </ITGrid>
-                <ITGrid item xs={12} sm={6}>
-                  <ITFlex align="center" gap={2} className="rounded-xl bg-slate-50 px-3 py-2">
-                    <FaPhone className="text-slate-400" />
-                    <ITFlex direction="column">
-                      <ITText as="span" className="text-[10px] font-bold uppercase text-slate-400">Emergencia</ITText>
-                      <ITText as="span" className="text-sm font-semibold text-slate-700">
-                        {profile?.emergencyContact || profile?.emergencyPhone || "—"}
-                      </ITText>
-                    </ITFlex>
-                  </ITFlex>
-                </ITGrid>
-              </ITGrid>
-              <ITAlert variant="info" className="mt-4">
-                Tu perfil es de solo lectura. Para cambiarlo, contacta a administración.
-              </ITAlert>
-            </ITCard>
+                )}
+              </ITCard>
+            </ITFlex>
           </ITGrid>
 
-          <ITGrid item xs={12} md={5}>
-            <ITCard title="Resumen" contentClassName="p-5">
-              <ITFlex direction="column" gap={3}>
-                <ITFlex align="center" justify="between">
-                  <ITText as="span" className="text-sm text-slate-500">Contactos registrados</ITText>
-                  <ITBadget color="secondary" variant="filled" size="sm">{contacts.length}</ITBadget>
+          <ITGrid item xs={12} lg={4}>
+            <ITFlex direction="column" gap={4}>
+              <ITCard title="Resumen" contentClassName="p-5!">
+                <ITFlex direction="column" gap={2}>
+                  {[
+                    { label: "Contactos registrados", value: contacts.length, icon: <FaAddressBook size={14} /> },
+                    { label: "Pases activos", value: activePasses.length, icon: <FaQrcode size={14} /> },
+                    { label: "Propiedad", value: property?.identifier ?? "—", icon: <FaHome size={14} /> },
+                  ].map((item) => (
+                    <ITFlex key={item.label} align="center" justify="between" className="rounded-xl bg-slate-50 px-3 py-3">
+                      <ITFlex align="center" gap={2}>
+                        <ITText as="span" style={{ color: palette.primary }}>{item.icon}</ITText>
+                        <ITText as="span" className="text-xs text-slate-600">{item.label}</ITText>
+                      </ITFlex>
+                      <ITText as="span" className="text-base font-black" style={{ color: palette.primary }}>{item.value}</ITText>
+                    </ITFlex>
+                  ))}
+                  <ITButton variant="filled" color="primary" size="sm" onClick={() => changeTab("invitaciones")}>
+                    <ITFlex align="center" gap={2}>Ver mis pases <FaArrowRight size={10} /></ITFlex>
+                  </ITButton>
                 </ITFlex>
-                <ITFlex align="center" justify="between">
-                  <ITText as="span" className="text-sm text-slate-500">Pases activos</ITText>
-                  <ITBadget color="success" variant="filled" size="sm">
-                    {invitations.filter((inv) => inv.status === "PENDING" || inv.status === "ENTERED").length}
-                  </ITBadget>
+              </ITCard>
+
+              <ITCard title="Accesos rápidos" contentClassName="p-4!">
+                <ITFlex direction="column" gap={2}>
+                  <ITButton variant="outlined" color="secondary" size="sm" onClick={() => changeTab("contactos")}>
+                    <ITFlex align="center" gap={2}><FaAddressBook size={12} /> Mis contactos</ITFlex>
+                  </ITButton>
+                  <ITButton variant="outlined" color="secondary" size="sm" onClick={() => changeTab("invitaciones")}>
+                    <ITFlex align="center" gap={2}><FaQrcode size={12} /> Mis pases</ITFlex>
+                  </ITButton>
+                  <ITButton variant="outlined" color="secondary" size="sm" onClick={() => setCreateOpen(true)} disabled={!property}>
+                    <ITFlex align="center" gap={2}><FaPlus size={12} /> Generar pase</ITFlex>
+                  </ITButton>
                 </ITFlex>
-                <ITButton variant="outlined" color="secondary" size="sm" onClick={() => changeTab("invitaciones")}>
-                  Ver mis pases
-                </ITButton>
+              </ITCard>
+
+              <ITCard title="¿Necesitas ayuda?" contentClassName="p-5!">
+                <ITText as="p" className="text-xs leading-5 text-slate-500">
+                  Para actualizar tus datos, contactos o accesos, comunícate con la administración de tu propiedad.
+                </ITText>
+                <ITFlex align="center" gap={2} className="mt-3 rounded-xl bg-slate-50 px-3 py-2">
+                  <FaHome size={12} style={{ color: palette.primary }} />
+                  <ITText as="span" className="text-[11px] font-bold text-slate-600">
+                    {property?.identifier ?? "Sin propiedad"} · Administración
+                  </ITText>
+                </ITFlex>
+              </ITCard>
+            </ITFlex>
+          </ITGrid>
+        </ITGrid>
+      ) : null}
+
+      {tab === "contactos" ? (
+        <ITGrid container columns={12} spacing={4}>
+          <ITGrid item xs={12} lg={8}>
+            <ITCard title="Mis contactos" contentClassName="p-5!">
+              {contacts.length === 0 ? (
+                <ITFlex align="center" gap={3} className="rounded-xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-5">
+                  <ITFlex align="center" justify="center" style={{ backgroundColor: palette.soft, color: palette.primary }} className="h-10 w-10 rounded-xl"><FaAddressBook size={16} /></ITFlex>
+                  <ITFlex direction="column">
+                    <ITText as="p" className="text-sm font-bold text-slate-700">Sin contactos</ITText>
+                    <ITText as="p" className="text-[11px] text-slate-500">Administración aún no ha registrado contactos para ti.</ITText>
+                  </ITFlex>
+                </ITFlex>
+              ) : (
+                <ITFlex direction="column" gap={2}>
+                  {contacts.map((contact) => (
+                    <ITFlex key={contact.id} align="center" justify="between" gap={3} className="rounded-xl border border-slate-100 px-3 py-3">
+                      <ITFlex align="center" gap={3}>
+                        <ITFlex align="center" justify="center" style={{ backgroundColor: palette.soft, color: palette.primary }} className="h-10 w-10 rounded-xl">
+                          <FaAddressBook size={15} />
+                        </ITFlex>
+                        <ITFlex direction="column">
+                          <ITText as="p" className="text-sm font-bold text-slate-800">{contact.name}</ITText>
+                          <ITText as="p" className="text-xs text-slate-500">
+                            {[contact.phone, contact.email].filter(Boolean).join(" · ") || "Sin datos de contacto"}
+                          </ITText>
+                        </ITFlex>
+                      </ITFlex>
+                      {contact.relationship ? <ITBadget color="secondary" variant="outlined" size="sm">{contact.relationship}</ITBadget> : null}
+                    </ITFlex>
+                  ))}
+                </ITFlex>
+              )}
+            </ITCard>
+          </ITGrid>
+          <ITGrid item xs={12} lg={4}>
+            <ITCard title="Contactos de confianza" contentClassName="p-5!">
+              <ITText as="p" className="text-xs leading-5 text-slate-500">
+                Tus contactos son de solo lectura. Administración los actualiza y pueden recibir visitas con tu autorización.
+              </ITText>
+              <ITFlex align="center" gap={2} style={{ backgroundColor: palette.soft }} className="mt-4 rounded-xl px-3 py-2.5">
+                <FaAddressBook size={12} style={{ color: palette.primary }} />
+                <ITText as="span" className="text-[11px] font-semibold" style={{ color: palette.primary }}>{contacts.length} contacto(s) registrado(s)</ITText>
               </ITFlex>
             </ITCard>
           </ITGrid>
         </ITGrid>
       ) : null}
 
-      {tab === "contactos" ? (
-        <ITCard title="Mis contactos" contentClassName="p-5">
-          {contacts.length === 0 ? (
-            <ITEmptyState
-              icon={<FaAddressBook />}
-              title="Sin contactos"
-              description="Administración aún no ha registrado contactos para ti."
-            />
-          ) : (
-            <ITFlex direction="column" gap={2}>
-              {contacts.map((contact) => (
-                <ITFlex
-                  key={contact.id}
-                  align="center"
-                  justify="between"
-                  gap={3}
-                  className="rounded-xl border border-slate-100 px-4 py-3"
-                >
-                  <ITFlex align="center" gap={3}>
-                    <ITFlex align="center" justify="center" className="h-9 w-9 rounded-xl bg-slate-50 text-slate-500">
-                      <FaAddressBook size={14} />
-                    </ITFlex>
-                    <ITFlex direction="column">
-                      <ITText as="p" className="text-sm font-bold text-slate-800">{contact.name}</ITText>
-                      <ITText as="p" className="text-xs text-slate-500">
-                        {[contact.phone, contact.email].filter(Boolean).join(" · ") || "Sin datos de contacto"}
-                      </ITText>
-                    </ITFlex>
-                  </ITFlex>
-                  {contact.relationship ? (
-                    <ITBadget color="secondary" variant="outlined" size="sm">{contact.relationship}</ITBadget>
-                  ) : null}
-                </ITFlex>
-              ))}
-            </ITFlex>
-          )}
-          <ITAlert variant="info" className="mt-4">
-            Tus contactos son de solo lectura. Administración los actualiza.
-          </ITAlert>
-        </ITCard>
-      ) : null}
-
       {tab === "invitaciones" ? (
         <ITCard
           title="Mis pases"
-          headerActions={
-            <ITButton size="sm" variant="solid" color="primary" onClick={() => setCreateOpen(true)} disabled={!property}>
-              <ITFlex align="center" gap={2}><FaPlus /> Nuevo pase</ITFlex>
-            </ITButton>
-          }
-          contentClassName="p-5"
+          headerActions={<ITButton size="sm" variant="filled" color="primary" onClick={() => setCreateOpen(true)} disabled={!property}><ITFlex align="center" gap={2}><FaPlus /> Nuevo pase</ITFlex></ITButton>}
+          contentClassName="p-5!"
         >
           {invitations.length === 0 ? (
-            <ITEmptyState
-              icon={<FaQrcode />}
-              title="Sin pases"
-              description="Genera un pase para que tus visitantes puedan entrar."
-            />
+            <ITEmptyState icon={<FaQrcode />} title="Sin pases" description="Genera un pase para que tus visitantes puedan entrar." />
           ) : (
-            <ITFlex direction="column" gap={2}>
+            <ITGrid container columns={12} spacing={3}>
               {invitations.map((invitation) => (
-                <ITFlex
-                  key={invitation.id}
-                  align="center"
-                  justify="between"
-                  gap={3}
-                  className="rounded-xl border border-slate-100 px-4 py-3"
-                >
-                  <ITFlex align="center" gap={3} className="min-w-0">
-                    <ITFlex align="center" justify="center" className="h-9 w-9 rounded-xl bg-slate-50 text-slate-500">
-                      <FaCalendarAlt size={14} />
+                <ITGrid item xs={12} md={6} key={invitation.id}>
+                  <ITFlex direction="column" gap={3} className="h-full rounded-2xl border border-slate-100 p-4">
+                    <ITFlex align="start" justify="between" gap={3}>
+                      <ITFlex align="center" gap={2}>
+                        <ITFlex align="center" justify="center" style={{ backgroundColor: palette.soft, color: palette.primary }} className="h-10 w-10 rounded-xl">
+                          <FaCalendarAlt size={15} />
+                        </ITFlex>
+                        <ITFlex direction="column">
+                          <ITText as="p" className="text-sm font-bold text-slate-800">{invitation.guestName}</ITText>
+                          <ITText as="p" className="text-[11px] text-slate-500">{invitation.code}</ITText>
+                        </ITFlex>
+                      </ITFlex>
+                      <ITBadget color={STATUS_COLOR[invitation.status] ?? "secondary"} variant="outlined" size="sm">
+                        {STATUS_LABEL[invitation.status] ?? invitation.status}
+                      </ITBadget>
                     </ITFlex>
-                    <ITFlex direction="column" className="min-w-0">
-                      <ITText as="p" className="truncate text-sm font-bold text-slate-800">
-                        {invitation.guestName}
-                      </ITText>
-                      <ITText as="p" className="text-xs text-slate-500">
-                        {dayjs(invitation.validFrom).format("DD MMM")} → {dayjs(invitation.validUntil).format("DD MMM")}
-                        {" · "}
-                        {invitation.code}
-                      </ITText>
-                    </ITFlex>
-                  </ITFlex>
-
-                  <ITFlex align="center" gap={2}>
-                    <ITBadget color={STATUS_COLOR[invitation.status] ?? "secondary"} variant="filled" size="sm">
-                      {STATUS_LABEL[invitation.status] ?? invitation.status}
-                    </ITBadget>
-                    <ITButton
-                      size="sm"
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => setViewingQr(invitation)}
-                    >
-                      <FaQrcode />
-                    </ITButton>
-                    {invitation.status === "PENDING" ? (
-                      <ITButton
-                        size="sm"
-                        variant="outlined"
-                        color="danger"
-                        onClick={() => setRevoking(invitation)}
-                      >
-                        <FaBan />
+                    <ITText as="p" className="text-xs text-slate-500">
+                      {dayjs(invitation.validFrom).format("DD MMM YYYY")} → {dayjs(invitation.validUntil).format("DD MMM YYYY")}
+                    </ITText>
+                    <ITFlex align="center" gap={2} className="mt-auto">
+                      <ITButton size="sm" variant="outlined" color="primary" onClick={() => setViewingQr(invitation)}>
+                        <ITFlex align="center" gap={2}><FaQrcode size={11} /> Ver QR</ITFlex>
                       </ITButton>
-                    ) : null}
+                      {invitation.status === "PENDING" ? (
+                        <ITButton size="sm" variant="outlined" color="danger" onClick={() => setRevoking(invitation)}>
+                          <ITFlex align="center" gap={2}><FaBan size={11} /> Revocar</ITFlex>
+                        </ITButton>
+                      ) : null}
+                    </ITFlex>
                   </ITFlex>
-                </ITFlex>
+                </ITGrid>
               ))}
-            </ITFlex>
+            </ITGrid>
           )}
         </ITCard>
       ) : null}
@@ -440,7 +539,7 @@ const ResidentPortalPage = () => {
           </ITText>
           <ITFlex justify="end" gap={2}>
             <ITButton variant="outlined" color="secondary" onClick={() => setRevoking(null)}>Cancelar</ITButton>
-            <ITButton variant="solid" color="danger" onClick={() => void confirmRevoke()}>Revocar</ITButton>
+            <ITButton variant="filled" color="danger" onClick={() => void confirmRevoke()}>Revocar</ITButton>
           </ITFlex>
         </ITFlex>
       </ITDialog>

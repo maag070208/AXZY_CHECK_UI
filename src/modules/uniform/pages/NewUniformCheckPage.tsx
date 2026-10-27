@@ -82,7 +82,6 @@ const NewUniformCheckPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Uniforme", href: "#/uniform" }, { label: "Nuevo checklist" }]}
       description="Evaluación de uniformidad y aseo por elemento."
       icon={<FaTshirt size={20} />}
-      iconColor="#065911"
     >
       <ITGrid container columns={12} spacing={5} className="w-full pb-10 pt-5">
         <ITGrid item xs={12} lg={7}>
@@ -98,7 +97,7 @@ const NewUniformCheckPage = () => {
               />
               {selectedGuard && (
                 <ITFlex align="center" gap={3} className="rounded-xl bg-emerald-50/70 p-3 dark:bg-emerald-950/20">
-                  <ITFlex align="center" justify="center" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white">
+                  <ITFlex align="center" justify="center" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-black text-white">
                     {(selectedGuard.name || "?").charAt(0)}{(selectedGuard.lastName || "").charAt(0)}
                   </ITFlex>
                   <ITFlex direction="column" className="min-w-0 flex-1">

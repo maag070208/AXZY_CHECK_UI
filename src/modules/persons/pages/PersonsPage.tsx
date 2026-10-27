@@ -74,7 +74,6 @@ export const PersonsPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personas" }]}
       description="Directorio general del residencial. Los residentes con acceso a la app se administran en Residentes."
       icon={<FaAddressBook size={20} />}
-      iconColor="#065911"
       actions={
         <ITFlex align="center" gap={2} wrap="wrap">
           <ITButton variant="outlined" color="secondary" size="md" icon={<FaHome />} onClick={() => navigate("/residents")}>
@@ -168,7 +167,7 @@ export const PersonsPage = () => {
                         <ITFlex
                           align="center"
                           justify="center"
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#065911] text-[10px] font-black text-white"
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-[10px] font-black text-white"
                         >
                           {initials(person)}
                         </ITFlex>

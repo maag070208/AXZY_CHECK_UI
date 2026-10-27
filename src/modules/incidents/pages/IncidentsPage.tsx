@@ -18,6 +18,7 @@ const IncidentsPage = () => {
     const dispatch = useDispatch();
       const can = useCan();
     const isAdmin = can(P.INCIDENT_RESOLVE);
+    const canCreate = can(P.INCIDENT_CREATE);
     const [searchParams, setSearchParams] = useSearchParams();
     const initialCategoryId = searchParams.get('categoryId');
     const initialTypeId = searchParams.get('typeId');
@@ -247,7 +248,7 @@ const IncidentsPage = () => {
                         ariaLabel="Ver detalles"
                         title="Ver detalles"
                     />
-                    {row.status === 'PENDING' && (
+                    {isAdmin && row.status === 'PENDING' && (
                         <ITButton
                             onClick={() => handleResolve(row.id)}
                             size="md"
@@ -284,21 +285,22 @@ const IncidentsPage = () => {
             breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Reportes" }, { label: "Gestión de Incidencias" }]}
             description="Seguimiento y resolución de reportes de seguridad en sitio."
             icon={<FaExclamationTriangle size={20} />}
-            iconColor="#065911"
             actions={
                 <ITFlex align="center" gap={2} wrap="wrap">
-                    <ITButton
-                        onClick={() => setShowReportModal(true)}
-                        color="danger"
-                        variant="outlined"
-                        size="md"
-                    >
-                        <ITFlex align="center" gap={2}>
-                            Reporte
-                            <FaFilePdf />
-                        </ITFlex>
-                    </ITButton>
                     {isAdmin && (
+                        <ITButton
+                            onClick={() => setShowReportModal(true)}
+                            color="danger"
+                            variant="outlined"
+                            size="md"
+                        >
+                            <ITFlex align="center" gap={2}>
+                                Reporte
+                                <FaFilePdf />
+                            </ITFlex>
+                        </ITButton>
+                    )}
+                    {canCreate && (
                         <ITButton onClick={() => setShowCreateModal(true)} color="primary" size="md">
                             <ITFlex align="center" gap={2}>Nuevo reporte<FaPlus /></ITFlex>
                         </ITButton>
@@ -410,7 +412,7 @@ const IncidentsPage = () => {
                 title="Confirmar Resolución"
             >
                 <ITFlex direction="column" className="p-8 text-center">
-                    <ITFlex align="center" justify="center" className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <ITFlex align="center" justify="center" className="w-16 h-16 bg-[var(--color-primary-50)] text-[var(--color-primary)] rounded-full flex items-center justify-center mx-auto mb-6">
                         <FaCheckCircle size={32} />
                     </ITFlex>
                     <ITText as="h4" className="text-xl font-bold text-slate-800 mb-2">¿Marcar como atendida?</ITText>

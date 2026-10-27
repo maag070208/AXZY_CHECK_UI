@@ -241,7 +241,6 @@ const InvitationsPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Directorio de Invitados" }]}
       description="Generación y control de pases de acceso mediante código QR"
       icon={<FaIdBadge size={20} />}
-      iconColor="#065911"
       actions={
         <ITButton color="primary" size="md" icon={<FaPlus />} onClick={() => setIsCreateModalOpen(true)}>
           Crear pase
@@ -394,20 +393,20 @@ const InvitationsPage = () => {
             >
                 {scanningCode && (
                     <ITFlex direction="column" gap={4}>
-                        <ITCard className="rounded-2xl border-0! bg-emerald-50/60! shadow-none!" contentClassName="p-4!">
+                        <ITCard className="rounded-2xl border-0! bg-[var(--color-primary-50)]! shadow-none!" contentClassName="p-4!">
                             <ITFlex align="center" gap={3}>
                                 <ITFlex
                                     align="center"
                                     justify="center"
-                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#065911] text-xs font-black text-white"
+                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-black text-white"
                                 >
                                     {scanningCode.inv.guestName.split(" ").slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
                                 </ITFlex>
                                 <ITFlex direction="column" className="min-w-0 flex-1">
-                                    <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-emerald-700/70">
+                                    <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-[var(--color-primary-700)]">
                                         Invitado autorizado
                                     </ITText>
-                                    <ITText as="p" className="truncate text-lg font-black text-emerald-950 dark:text-emerald-100">
+                                    <ITText as="p" className="truncate text-lg font-black text-[var(--color-primary)] dark:text-emerald-100">
                                         {scanningCode.inv.guestName}
                                     </ITText>
                                 </ITFlex>
@@ -463,7 +462,7 @@ const InvitationsPage = () => {
                                 <ITFlex
                                     align="center"
                                     justify="center"
-                                    className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400"
+                                    className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-primary-50)] text-[var(--color-primary)] dark:bg-emerald-950/30 dark:text-emerald-400"
                                 >
                                     <FaQrcode size={20} />
                                 </ITFlex>

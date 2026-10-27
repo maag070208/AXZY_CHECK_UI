@@ -1,6 +1,8 @@
 import { ITCard, ITFlex, ITText } from "@axzydev/axzy_ui_system";
+import { useRolePalette } from "@app/core/hooks/useRolePalette";
 
 export const HomeCardItem = ({ item, index }: any) => {
+  const palette = useRolePalette();
   return (
     <ITCard
       onClick={item.action}
@@ -10,7 +12,7 @@ export const HomeCardItem = ({ item, index }: any) => {
     >
       <ITFlex align="center" className="flex items-center space-x-4 w-full">
         {/* Primary Color circular icon container */}
-        <ITFlex align="center" justify="center" className="bg-[#065911] rounded-full p-3 flex items-center justify-center flex-shrink-0 w-12 h-12">
+        <ITFlex align="center" justify="center" style={{ backgroundColor: palette.primary }} className="rounded-full p-3 flex items-center justify-center flex-shrink-0 w-12 h-12">
           {item.icon && <ITFlex direction="column" className="text-2xl">{item.icon}</ITFlex>}
         </ITFlex>
         {/* Cyan text for module name to match sidebar */}

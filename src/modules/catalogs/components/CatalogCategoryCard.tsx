@@ -65,9 +65,9 @@ const IconButton = ({ label, onClick, children, tone = "default", size = "sm", d
     disabled={disabled}
     className={cx(
       "inline-flex items-center justify-center rounded-lg border border-transparent text-slate-400 transition-colors",
-      "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#065911]/30",
+      "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30",
       size === "sm" ? "h-[30px] w-[30px]" : "h-7 w-7",
-      tone === "primary" && "hover:bg-[#065911]/10 hover:text-[#065911]",
+      tone === "primary" && "hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)]",
       tone === "danger" && "hover:bg-rose-50 hover:text-rose-600",
       tone === "default" && "hover:bg-slate-100 hover:text-slate-700",
       disabled && "pointer-events-none opacity-40",
@@ -95,7 +95,7 @@ const TypeSearch = ({
       onChange={(event) => onChange(event.target.value)}
       placeholder="Filtrar tipos..."
       aria-label="Filtrar tipos de esta categoría"
-      className="h-8 w-40 rounded-lg border border-slate-200 bg-white pl-7 pr-7 text-[11px] font-medium text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#065911]/40 focus:ring-2 focus:ring-[#065911]/10"
+      className="h-8 w-40 rounded-lg border border-slate-200 bg-white pl-7 pr-7 text-[11px] font-medium text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[var(--color-primary)]/40 focus:ring-2 focus:ring-[var(--color-primary)]/10"
     />
     {value && (
       <button
@@ -286,7 +286,7 @@ export const CatalogCategoryCard = ({
               <button
                 type="button"
                 onClick={onAddType}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#065911]/25 bg-white px-2.5 text-[11px] font-bold text-[#065911] transition-colors hover:bg-[#065911]/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#065911]/30"
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[var(--color-primary)]/25 bg-white px-2.5 text-[11px] font-bold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30"
               >
                 <FaPlus size={8} /> Nuevo tipo
               </button>
@@ -328,7 +328,7 @@ export const CatalogCategoryCard = ({
               <button
                 type="button"
                 onClick={onAddType}
-                className="mt-2 text-[11px] font-bold text-[#065911] underline underline-offset-2 hover:text-[#04400c]"
+                className="mt-2 text-[11px] font-bold text-[var(--color-primary)] underline underline-offset-2 hover:text-[#04400c]"
               >
                 Agregar tipo
               </button>
@@ -343,7 +343,7 @@ export const CatalogCategoryCard = ({
               <button
                 type="button"
                 onClick={() => onTypeQueryChange("")}
-                className="mt-1.5 text-[11px] font-bold text-[#065911] underline underline-offset-2"
+                className="mt-1.5 text-[11px] font-bold text-[var(--color-primary)] underline underline-offset-2"
               >
                 Limpiar búsqueda
               </button>

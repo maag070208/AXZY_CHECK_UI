@@ -38,6 +38,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AnalyticsTab } from "../../home/components/tabs/AnalyticsTab";
 import { useLiveDashboard } from "../hooks/useLiveDashboard";
+import { useRolePalette } from "@app/core/hooks/useRolePalette";
 import type { ILiveInsights } from "../services/DashboardService";
 import { LiveAside } from "../components/LiveAside";
 import { IncidentsByCategory, IncidentsByHour, RoundsTrend, TodaySummary } from "../components/LiveInsights";
@@ -55,7 +56,7 @@ const TONE_ICON: Record<KpiTone, string> = {
 };
 
 const TONE_PROGRESS: Record<KpiTone, "success" | "info" | "warning" | "danger" | "purple" | "primary"> = {
-  green: "success",
+  green: "primary",
   blue: "info",
   amber: "warning",
   red: "danger",
@@ -75,6 +76,7 @@ interface KpiCardProps {
 }
 
 const KpiCard = ({ title, value, hint, progress, icon, tone, loading, onClick }: KpiCardProps) => {
+  const palette = useRolePalette();
   if (loading) {
     return <ITSkeleton variant="rectangular" height={112} className="rounded-2xl" />;
   }
@@ -88,7 +90,7 @@ const KpiCard = ({ title, value, hint, progress, icon, tone, loading, onClick }:
         <ITFlex
           align="center"
           justify="center"
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${TONE_ICON[tone]}`}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${tone === "green" ? `${palette.softClass} ${palette.primaryTextClass}` : TONE_ICON[tone]}`}
         >
           {icon}
         </ITFlex>
@@ -322,6 +324,7 @@ export const LiveOpsDashboard = () => {
     stale: staleRoundIds.has(p.roundId),
   }));
 
+  const palette = useRolePalette();
   const firstName = auth.name?.trim().split(/\s+/)[0] || "equipo";
   const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
   const hour = dayjs().hour();
@@ -343,7 +346,7 @@ export const LiveOpsDashboard = () => {
       title={`${greeting}, ${displayName}`}
       description={`${dateCap} · El pulso de tu operación en tiempo real.`}
       icon={<FaShieldAlt size={20} />}
-      iconColor="#065911"
+      iconColor={palette.primary}
       error={error && !data ? error : null}
       onRetry={refetch}
       actions={

@@ -221,7 +221,6 @@ const KardexPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Kardex" }]}
       description="Historial de actividades y reportes en tiempo real"
       icon={<FaBook size={20} />}
-      iconColor="#065911"
     >
       <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
         <ITCard className="rounded-3xl" contentClassName="p-4!">

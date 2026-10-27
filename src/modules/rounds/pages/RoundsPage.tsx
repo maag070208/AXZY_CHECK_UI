@@ -302,7 +302,6 @@ const RoundsPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Historial de recorridos" }]}
       description="Historial y supervisión de recorridos de seguridad. Solo los escaneos con al menos una foto cuentan para Avance y Desempeño."
       icon={<FaClock size={20} />}
-      iconColor="#065911"
     >
       <ITFlex direction="column" gap={5} className="w-full pb-10 pt-5">
         <ITCard className="rounded-3xl" contentClassName="p-4!">

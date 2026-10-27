@@ -7,8 +7,10 @@ import * as Yup from "yup";
 
 const LoginFormComponent = ({
   onSubmit,
+  loading = false,
 }: {
   onSubmit: (values: IAuthLogin) => void;
+  loading?: boolean;
 }) => {
   const initialValues = {
     username: "",
@@ -67,8 +69,8 @@ const LoginFormComponent = ({
             errors={errors}
           />
           <ITFlex direction="column" className="mt-4">
-            <ITButton disabled={!isValid} type="submit">
-              Iniciar Sesión
+            <ITButton disabled={!isValid || loading} type="submit">
+              {loading ? "Iniciando sesión…" : "Iniciar Sesión"}
             </ITButton>
           </ITFlex>
         </Form>

@@ -26,6 +26,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { getPaginatedShiftHandovers, getShiftHandoverDetail } from "../services/ShiftHandoverService";
 import { PersonAvatar } from "@app/core/components/PersonAvatar";
+import { useRolePalette } from "@app/core/hooks/useRolePalette";
 
 const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<{ className?: string; size?: number }> }[] = [
   { key: "checklistPhones", label: "Teléfonos", icon: FaPhone },
@@ -37,6 +38,7 @@ const CHECKLIST_LABELS: { key: string; label: string; icon: React.ComponentType<
 ];
 
 const ShiftHandoverPage = () => {
+  const palette = useRolePalette();
   const navigate = useNavigate();
   const [detail, setDetail] = useState<any>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -63,7 +65,7 @@ const ShiftHandoverPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Operación" }, { label: "Entrega de Turno" }]}
       description="Historial de reportes de cambio de turno (caseta, elementos y checklist de verificación)."
       icon={<FaSwatchbook size={20} />}
-      iconColor="#065911"
+      iconColor={palette.primary}
       actions={
         <ITButton onClick={() => navigate("/shift-handover/nuevo")} color="primary" size="md" icon={<FaPlus />}>
           Nueva entrega de turno
@@ -200,15 +202,15 @@ const ShiftHandoverPage = () => {
 
             <ITGrid container columns={12} spacing={3}>
               {[
-                { value: elements.length, label: "Elementos", color: "bg-emerald-50 text-[#065911] dark:bg-emerald-950/30 dark:text-emerald-400" },
-                { value: punctualCount, label: "Puntuales", color: "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400" },
-                { value: detail.credentialsCount ?? "—", label: "Credenciales", color: "bg-sky-50 text-sky-700 dark:bg-sky-950/30 dark:text-sky-400" },
-                { value: detail.tarjetonesCount ?? "—", label: "Tarjetones", color: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
+                { value: elements.length, label: "Elementos", bg: palette.soft, fg: palette.primary },
+                { value: punctualCount, label: "Puntuales", bg: palette.soft, fg: palette.primary },
+                { value: detail.credentialsCount ?? "—", label: "Credenciales", bg: "#E0F2FE", fg: "#0369A1" },
+                { value: detail.tarjetonesCount ?? "—", label: "Tarjetones", bg: "#FFFBEB", fg: "#B45309" },
               ].map((stat) => (
                 <ITGrid item xs={6} lg={3} key={stat.label}>
                   <ITCard className="h-full rounded-2xl border-0! bg-slate-50/40! shadow-none!" contentClassName="p-3!">
                     <ITFlex align="center" gap={2}>
-                      <ITText as="span" className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black ${stat.color}`}>
+                      <ITText as="span" style={{ backgroundColor: stat.bg, color: stat.fg }} className="flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black">
                         {stat.value}
                       </ITText>
                       <ITText as="span" className="text-[9px] font-black uppercase tracking-widest text-slate-400">
@@ -260,14 +262,13 @@ const ShiftHandoverPage = () => {
                     const ok = !!detail[item.key];
                     return (
                       <ITFlex key={item.key} align="center" gap={2} className="rounded-lg bg-white px-3 py-2 dark:bg-slate-900/40">
-                        <item.icon className={ok ? "text-emerald-600" : "text-slate-300"} size={12} />
+                        <item.icon className={ok ? palette.primaryTextClass : "text-slate-300"} size={12} />
                         <ITText as="span" className="flex-1 text-xs font-semibold text-slate-700 dark:text-slate-200">{item.label}</ITText>
                         <ITFlex
                           align="center"
                           justify="center"
-                          className={`flex h-4 w-4 items-center justify-center rounded ${
-                            ok ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800"
-                          }`}
+                          style={{ backgroundColor: ok ? palette.primary : "#F1F5F9", color: ok ? "#FFFFFF" : "#94A3B8" }}
+                          className="flex h-4 w-4 items-center justify-center rounded"
                         >
                           {ok ? <FaCheck size={8} /> : <FaTimes size={8} />}
                         </ITFlex>

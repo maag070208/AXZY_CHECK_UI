@@ -78,7 +78,6 @@ export const ResidentFormPage = () => {
       ]}
       description={isEdit ? "Actualiza datos, acceso, contactos e identificación." : "Alta de residente, acceso y expediente."}
       icon={<FaUserShield size={20} />}
-      iconColor="#065911"
     >
       <ITCard className="mt-5 rounded-3xl border-0! bg-white! shadow-none!" contentClassName="p-4!">
         <ResidentForm

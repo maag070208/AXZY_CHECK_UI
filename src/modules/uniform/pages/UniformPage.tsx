@@ -45,7 +45,6 @@ const UniformPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Personal" }, { label: "Uniforme" }]}
       description="Checklist de uniformidad y aseo por elemento."
       icon={<FaTshirt size={20} />}
-      iconColor="#065911"
       actions={
         <ITButton onClick={() => navigate("/uniform/nuevo")} color="primary" size="md">
           <ITFlex align="center" gap={2}>Nuevo checklist<FaPlus /></ITFlex>
@@ -144,7 +143,7 @@ const UniformPage = () => {
             <ITCard className="rounded-2xl border-0! bg-emerald-50/60! shadow-none!" contentClassName="p-4!">
               <ITFlex align="center" justify="between" gap={3} wrap="wrap">
                 <ITFlex align="center" gap={3}>
-                  <ITFlex align="center" justify="center" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#065911] text-sm font-black text-white">
+                  <ITFlex align="center" justify="center" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-black text-white">
                     {(detail.guard?.name || "?").charAt(0)}{(detail.guard?.lastName || "").charAt(0)}
                   </ITFlex>
                   <ITFlex direction="column">

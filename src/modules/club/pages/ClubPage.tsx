@@ -295,7 +295,6 @@ const ClubPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Reportes" }, { label: "Gestión de Casa Club" }]}
       description="Seguimiento y resolución de reportes de casa club."
       icon={<FaGlassCheers size={20} />}
-      iconColor="#065911"
       actions={
         <ITFlex align="center" gap={2} wrap="wrap">
           <ITButton onClick={() => setShowReportModal(true)} color="danger" variant="outlined" size="md">
@@ -381,7 +380,7 @@ const ClubPage = () => {
         title="Confirmar Resolución"
       >
         <ITFlex direction="column" className="p-8 text-center">
-            <ITFlex align="center" justify="center" className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ITFlex align="center" justify="center" className="w-16 h-16 bg-[var(--color-primary-50)] text-[var(--color-primary)] rounded-full flex items-center justify-center mx-auto mb-6">
                 <FaCheckCircle size={32} />
             </ITFlex>
             <ITText as="h4" className="text-xl font-bold text-slate-800 mb-2">¿Marcar como atendido?</ITText>

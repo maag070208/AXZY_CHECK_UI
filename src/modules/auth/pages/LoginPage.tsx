@@ -4,7 +4,7 @@ import { AppDispatch } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { Blobatar } from "@blobatar/react";
 import { IAuthLogin } from "@core/types/auth.types";
-import type { ComponentType } from "react";
+import { useState, type ComponentType } from "react";
 import {
   FaArrowRight,
   FaClipboardList,
@@ -21,6 +21,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import LoginFormComponent from "../components/LoginForm";
 import { RoleLogo } from "@app/core/components/RoleLogo";
+import { RoleLottieLoader } from "@app/core/components/RoleLottieLoader";
 import { login } from "../services/AuthService";
 import { decodeToken } from "react-jwt";
 
@@ -242,8 +243,10 @@ const LoginPage = () => {
   const lastRole = typeof window !== "undefined" ? localStorage.getItem("lastRole") : null;
   const roleKey = lastRole ? ROLE_ALIASES[lastRole.toLowerCase()] : undefined;
   const design = roleKey ? ROLE_DESIGNS[roleKey] : GENERIC;
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (values: IAuthLogin) => {
+    setSubmitting(true);
     const response = await login({ ...values }).catch(() => {
       dispatch(
         showToast({
@@ -255,8 +258,11 @@ const LoginPage = () => {
       return null;
     });
 
+    if (!response) setSubmitting(false);
+
     if (response) {
       if (!response.success) {
+        setSubmitting(false);
         dispatch(
           showToast({
             message: response.message,
@@ -273,6 +279,7 @@ const LoginPage = () => {
       if (decoded?.role) localStorage.setItem("lastRole", decoded.role);
       dispatch(setAuth(response.data));
       navigate("/home");
+      setSubmitting(false);
     }
   };
 
@@ -357,7 +364,7 @@ const LoginPage = () => {
             </ITText>
 
             <ITFlex direction="column" className="mt-8">
-              <LoginFormComponent onSubmit={handleSubmit} />
+              <LoginFormComponent onSubmit={handleSubmit} loading={submitting} />
             </ITFlex>
 
             <ITText as="p" className="mt-8 text-center text-[10px] font-semibold text-slate-400">
@@ -368,6 +375,14 @@ const LoginPage = () => {
           </ITFlex>
         </ITFlex>
       </ITFlex>
+
+      {submitting && (
+        <ITFlex align="center" justify="center" className="fixed inset-0 z-[200] bg-white/90 p-6 backdrop-blur-sm">
+          <ITFlex direction="column" align="center" gap={3} className="w-full max-w-sm rounded-3xl border border-slate-100 bg-white p-8 shadow-2xl">
+            <RoleLottieLoader role={roleKey} />
+          </ITFlex>
+        </ITFlex>
+      )}
     </ITFlex>
   );
 };

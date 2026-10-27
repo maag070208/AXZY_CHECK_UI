@@ -269,7 +269,6 @@ const RolesPermissionsPage = () => {
       title="Roles y permisos"
       description="Compara y edita la matriz RBAC de los 5 roles."
       icon={<FaShieldAlt size={20} />}
-      iconColor="#065911"
       actions={
         <ITFlex align="center" gap={2}>
           <ITButton

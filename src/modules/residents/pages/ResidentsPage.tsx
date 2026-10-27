@@ -201,7 +201,6 @@ const ResidentsPage = () => {
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Directorio de Residentes" }]}
       description="Gestión de usuarios vecinales, expedientes y controles de acceso"
       icon={<FaUserShield size={20} />}
-      iconColor="#065911"
       actions={
 <ITFlex align="center" gap={2} wrap="wrap" justify="end" className="w-full justify-end">
                     <ITFlex align="center" gap={1} className="w-64 shrink-0">

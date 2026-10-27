@@ -28,6 +28,7 @@ import {
 } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
 import { MediaCarousel, type MediaItem } from "@app/core/components/MediaCarousel";
+import { useRolePalette } from "@app/core/hooks/useRolePalette";
 import { getUsers, User } from "../../users/services/UserService";
 import * as ReportService from "../../home/services/ReportService";
 import { getPaginatedRounds, getRoundDetail, IRound, IRoundDetail } from "../../rounds/services/RoundsService";
@@ -40,12 +41,15 @@ const ROLE_TRANSLATIONS: Record<string, string> = {
   MAINT: "Mantenimiento",
 };
 
-const LiveDot = () => (
+const LiveDot = () => {
+  const palette = useRolePalette();
+  return (
   <ITText as="span" className="relative flex h-2 w-2">
-    <ITText as="span" className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-    <ITText as="span" className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+    <ITText as="span" style={{ backgroundColor: palette.accent }} className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" />
+    <ITText as="span" style={{ backgroundColor: palette.primary }} className="relative inline-flex rounded-full h-2 w-2" />
   </ITText>
-);
+  );
+};
 
 /**
  * "Seguimiento de Guardia" — reemplaza la vieja "Detalle Operativo".
@@ -57,6 +61,7 @@ const LiveDot = () => (
  * están en ronda AHORA MISMO (mismo dato que el dashboard en vivo).
  */
 const GuardTrackingPage = () => {
+  const palette = useRolePalette();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialGuardId = searchParams.get("guardId");
 
@@ -226,7 +231,7 @@ const GuardTrackingPage = () => {
           : "Elige un guardia para ver su resumen del periodo, sus rondas y el mapa de cada una."
       }
       icon={<FaUserShield size={20} />}
-      iconColor="#065911"
+      iconColor={palette.primary}
       actions={
         isLiveGuard ? (
           <ITChip
@@ -384,10 +389,10 @@ const GuardTrackingPage = () => {
                             className={`rounded-2xl! shrink-0 ${
                               isSelected
                                 ? isActive
-                                  ? "bg-emerald-50! border-emerald-300!"
+                                  ? `${palette.softClass}! border-transparent!`
                                   : "bg-sky-50! border-sky-200!"
                                 : isActive
-                                  ? "bg-emerald-50/40! border-emerald-100!"
+                                  ? `${palette.softClass}!/40 border-transparent!`
                                   : "bg-slate-50/60! border-slate-100!"
                             }`}
                             contentClassName="space-y-2 p-3!"
@@ -569,8 +574,9 @@ const SummaryCard = ({
   color: string;
   loading?: boolean;
 }) => {
+  const palette = useRolePalette();
   const colorClasses: Record<string, string> = {
-    emerald: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400",
+    emerald: `${palette.softClass} ${palette.primaryTextClass}`,
     sky: "bg-sky-50 text-sky-600 dark:bg-sky-950/30 dark:text-sky-400",
     red: "bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400",
     indigo: "bg-violet-50 text-violet-600 dark:bg-violet-950/30 dark:text-violet-400",

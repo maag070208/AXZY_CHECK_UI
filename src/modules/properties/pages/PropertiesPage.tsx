@@ -274,7 +274,6 @@ const PropertiesPage = () => {
             breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Propiedades" }]}
             description="Gestión de casas y departamentos (Catálogo Habitacional)"
             icon={<FaHome size={20} />}
-            iconColor="#065911"
             actions={
                 <ITFlex align="center" gap={2} wrap="wrap" justify="end" className="w-full justify-end">
                     <ITFlex align="center" gap={1} className="w-64 shrink-0">

@@ -137,7 +137,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
             <ITCard className="rounded-2xl border-0! bg-emerald-50/60! shadow-none!" contentClassName="p-4!">
               <ITFlex align="center" justify="between" gap={3} wrap="wrap">
                 <ITFlex align="center" gap={3}>
-                  <ITFlex align="center" justify="center" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#065911] text-white"><FaMapMarkerAlt size={15} /></ITFlex>
+                  <ITFlex align="center" justify="center" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-primary)] text-white"><FaMapMarkerAlt size={15} /></ITFlex>
                   <ITFlex direction="column">
                     <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-emerald-700/70">Asignación #{selectedAssignment.id}</ITText>
                     <ITText as="p" className="text-lg font-black text-emerald-950 dark:text-emerald-100">{selectedAssignment.location?.name || "Sin ubicación"}</ITText>
@@ -197,7 +197,7 @@ export const ViewAssignmentsModal = ({ isOpen, onClose, guardId, guardName }: Pr
                             contentClassName="p-0!"
                           >
                             <ITFlex align="center" gap={2.5} className="px-3 py-2">
-                              <ITFlex align="center" justify="center" className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${task.completed ? "bg-[#065911] text-white" : "border-2 border-amber-400 bg-white text-amber-600 dark:bg-slate-800"}`}>
+                              <ITFlex align="center" justify="center" className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${task.completed ? "bg-[var(--color-primary)] text-white" : "border-2 border-amber-400 bg-white text-amber-600 dark:bg-slate-800"}`}>
                                 {task.completed && <FaCheckCircle size={9} />}
                               </ITFlex>
                               <ITText as="span" className={`min-w-0 flex-1 text-[11px] ${task.completed ? "font-medium text-slate-500 line-through" : "font-bold text-slate-800 dark:text-slate-100"}`}>{task.description}</ITText>
