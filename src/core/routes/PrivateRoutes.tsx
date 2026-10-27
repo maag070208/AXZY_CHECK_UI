@@ -1,8 +1,9 @@
 import { ITLayout } from "@axzydev/axzy_ui_system";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import { NAVBAR_LOGO, useNavigationItems } from "../constants/navbar.constants";
+import { useNavigationItems } from "../constants/navbar.constants";
 import { blobatarUri } from "blobatar/uri";
+import { RoleLogo } from "../components/RoleLogo";
 import { post } from "../axios/axios";
 import { isAuthenticated, logout as logoutAction } from "../store/auth/auth.slice";
 import { AppState, AppDispatch } from "../store/store";
@@ -34,7 +35,7 @@ export const PrivateRoutes = () => {
   return isAuth ? (
     <ITLayout
       topBar={{
-        logo: <NAVBAR_LOGO />,
+        logo: <RoleLogo className="h-8 w-auto" />,
         userMenu: {
           userName: user.name || "Usuario",
           userEmail: "",

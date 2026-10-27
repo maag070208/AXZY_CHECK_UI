@@ -1,9 +1,8 @@
-import { ITButton, ITChip, ITFlex, ITImage, ITText } from "@axzydev/axzy_ui_system";
+import { ITChip, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import { setAuth } from "@app/core/store/auth/auth.slice";
 import { AppDispatch } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { Blobatar } from "@blobatar/react";
-import Logo from "@assets/logo-green.svg";
 import { IAuthLogin } from "@core/types/auth.types";
 import type { ComponentType } from "react";
 import {
@@ -19,9 +18,11 @@ import {
   FaWallet,
 } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import LoginFormComponent from "../components/LoginForm";
+import { RoleLogo } from "@app/core/components/RoleLogo";
 import { login } from "../services/AuthService";
+import { decodeToken } from "react-jwt";
 
 type Feature = { icon: ComponentType<{ size?: number }>; label: string };
 type Person = { name: string; role: string };
@@ -167,6 +168,29 @@ const ROLE_DESIGNS: Record<string, RoleDesign> = {
     rightTitle: "Bienvenido a tu turno",
     rightDescription: "Consulta tu ronda, escanea accesos y reporta novedades.",
   },
+  mantenimiento: {
+    ...GENERIC,
+    panelClass: "bg-[#334155]",
+    orbClass: "bg-slate-700/50",
+    accentClass: "bg-slate-400/15 text-slate-200",
+    chipColor: "info",
+    chipClass: "bg-white/10! text-slate-100!",
+    eyebrow: "MANTENIMIENTO",
+    headline: "El mantenimiento, sin perder el hilo.",
+    description: "Tus órdenes, reportes y pendientes del residencial en un solo lugar.",
+    people: PEOPLE_ADMIN,
+    communityTitle: "Tu operación",
+    communityLabel: "Mantenimiento",
+    communityHint: "Órdenes y reportes",
+    features: [
+      { icon: FaClipboardList, label: "Mis órdenes" },
+      { icon: FaExclamationTriangle, label: "Reportar novedad" },
+    ],
+    footerLabel: "Operación en tiempo real",
+    rightEyebrow: "ACCESO MANTENIMIENTO",
+    rightTitle: "Bienvenido a tu turno",
+    rightDescription: "Consulta tus órdenes y reporta novedades.",
+  },
   residente: {
     ...GENERIC,
     panelClass: "bg-[#3B1D5A]",
@@ -194,13 +218,6 @@ const ROLE_DESIGNS: Record<string, RoleDesign> = {
   },
 };
 
-const ROLE_OPTIONS = [
-  { key: "admin", label: "Admin" },
-  { key: "jefe", label: "Jefe" },
-  { key: "guardia", label: "Guardia" },
-  { key: "residente", label: "Residente" },
-];
-
 const ROLE_ALIASES: Record<string, string> = {
   admin: "admin",
   administrador: "admin",
@@ -212,13 +229,18 @@ const ROLE_ALIASES: Record<string, string> = {
   residente: "residente",
   resident: "residente",
   resdn: "residente",
+  maint: "mantenimiento",
+  mantenimiento: "mantenimiento",
+  maintenance: "mantenimiento",
 };
 
 const LoginPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { role } = useParams<{ role?: string }>();
-  const roleKey = role ? ROLE_ALIASES[role.toLowerCase()] : undefined;
+  // Sin sesión mostramos el verde normal. Si alguien ya inició sesión antes,
+  // el login conserva el color del último rol guardado en localStorage.
+  const lastRole = typeof window !== "undefined" ? localStorage.getItem("lastRole") : null;
+  const roleKey = lastRole ? ROLE_ALIASES[lastRole.toLowerCase()] : undefined;
   const design = roleKey ? ROLE_DESIGNS[roleKey] : GENERIC;
 
   const handleSubmit = async (values: IAuthLogin) => {
@@ -247,6 +269,8 @@ const LoginPage = () => {
 
       // El token se guarda al iniciar sesión; signOut lo borra al cerrarla.
       localStorage.setItem("token", response.data);
+      const decoded = decodeToken<{ role?: string }>(response.data);
+      if (decoded?.role) localStorage.setItem("lastRole", decoded.role);
       dispatch(setAuth(response.data));
       navigate("/home");
     }
@@ -263,7 +287,7 @@ const LoginPage = () => {
           <ITFlex className="pointer-events-none absolute -bottom-32 -left-24 h-[360px] w-[360px] rounded-full border border-white/10 bg-white/5" />
 
           <ITFlex className="relative z-10">
-            <ITImage src={Logo} alt="CheckApp" className="h-9 w-[150px] brightness-0 invert" fit="contain" />
+            <RoleLogo className="h-9 w-[150px]" invert />
 
             <ITFlex direction="column" className="mt-12 max-w-[440px]">
               <ITChip label={design.eyebrow} size="sm" variant="soft" color={design.chipColor} className={`w-fit ${design.chipClass}`} />
@@ -321,7 +345,7 @@ const LoginPage = () => {
         <ITFlex align="center" justify="center" className="bg-white px-6 py-12 sm:px-10 lg:px-16">
           <ITFlex direction="column" className="w-full max-w-[400px]">
             <ITFlex align="center" justify="between" className="lg:hidden">
-              <ITImage src={Logo} alt="CheckApp" className="h-9 w-auto" />
+              <RoleLogo className="h-9 w-auto" />
             </ITFlex>
 
             <ITChip label={design.rightEyebrow} size="sm" variant="soft" color={design.chipColor} className="mt-8 w-fit lg:mt-0" />
@@ -340,25 +364,7 @@ const LoginPage = () => {
               CheckApp · Gestión residencial inteligente
             </ITText>
 
-            {import.meta.env.DEV && (
-              <ITFlex direction="column" align="center" className="mt-6 border-t border-slate-100 pt-4">
-                <ITText as="p" className="text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">
-                  Vista previa de roles
-                </ITText>
-                <ITFlex align="center" gap={1} wrap="wrap" className="mt-2">
-                  {ROLE_OPTIONS.map((option) => (
-                    <ITButton
-                      key={option.key}
-                      label={option.label}
-                      size="sm"
-                      variant={roleKey === option.key ? "filled" : "text"}
-                      color={roleKey === option.key ? "primary" : "secondary"}
-                      onClick={() => navigate(`/login/${option.key}`)}
-                    />
-                  ))}
-                </ITFlex>
-              </ITFlex>
-            )}
+
           </ITFlex>
         </ITFlex>
       </ITFlex>

@@ -56,16 +56,27 @@ describe("login", () => {
   });
 });
 
-describe("login: variantes por rol", () => {
+describe("login: color del último rol", () => {
+  it("sin sesión previa muestra el verde normal", async () => {
+    renderApp({ route: "/login" });
+    expect(await screen.findByText("CHECKAPP RESIDENCIAL")).toBeInTheDocument();
+    expect(screen.getByText("La comunidad, más simple y segura.")).toBeInTheDocument();
+  });
+
   it.each([
-    ["admin", "ACCESO ADMINISTRATIVO", "La operación, clara y bajo control."],
-    ["jefe", "ACCESO JEFE DE GUARDIAS", "Cada turno, coordinado y sin huecos."],
-    ["guardia", "ACCESO GUARDIA", "Tu ronda, tu caseta, todo en un lugar."],
-    ["residente", "ACCESO RESIDENTE", "Tu comunidad, más simple y segura."],
-  ])("muestra la variante %s", async (role, eyebrow, headline) => {
-    renderApp({ route: `/login/${role}` });
+    ["GUARD", "ACCESO GUARDIA", "Tu ronda, tu caseta, todo en un lugar."],
+    ["RESDN", "ACCESO RESIDENTE", "Tu comunidad, más simple y segura."],
+    ["SHIFT", "ACCESO JEFE DE GUARDIAS", "Cada turno, coordinado y sin huecos."],
+    ["ADMIN", "ACCESO ADMINISTRATIVO", "La operación, clara y bajo control."],
+  ])("recuerda el último rol %s tras cerrar sesión", async (role, eyebrow, headline) => {
+    renderApp({ route: "/login", lastRole: role });
     expect(await screen.findByText(eyebrow)).toBeInTheDocument();
     expect(screen.getByText(headline)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /iniciar sesión/i })).toBeInTheDocument();
+  });
+
+  it("guarda el rol al iniciar sesión para el próximo login", async () => {
+    server.use(http.post(`${API}/users/login`, () => HttpResponse.json({ success: true, data: makeToken({ role: "GUARD" }) })));
+    await fillAndSubmit(renderApp({ route: "/login" }), "123456");
+    await waitFor(() => expect(localStorage.getItem("lastRole")).toBe("GUARD"));
   });
 });
