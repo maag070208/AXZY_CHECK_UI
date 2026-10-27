@@ -41,6 +41,7 @@ import NewShiftHandoverPage from "./modules/shift-handover/pages/NewShiftHandove
 import UniformPage from "./modules/uniform/pages/UniformPage";
 import NewUniformCheckPage from "./modules/uniform/pages/NewUniformCheckPage";
 import RolesPermissionsPage from "./modules/rbac/pages/RolesPermissionsPage";
+import LegalPage from "./modules/legal/pages/LegalPage";
 import ResidentPortalPage from "./modules/resident/pages/ResidentPortalPage";
 
 function App() {
@@ -85,6 +86,8 @@ function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/legal" element={<LegalPage />} />
+        <Route path="/legal/:doc" element={<LegalPage />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     );
@@ -94,6 +97,8 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/login/:role" element={<LoginPage />} />
+      <Route path="/legal" element={<LegalPage />} />
+      <Route path="/legal/:doc" element={<LegalPage />} />
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<HomePage />} />
 

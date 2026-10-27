@@ -6975,3 +6975,46 @@ html {
 .checkapp-landing .lp-shift-after {
   box-shadow: none !important;
 }
+
+
+/* El bloque de reportes no lleva borde. */
+.checkapp-landing .lp-shift-metric {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* La comparativa se separa por contraste y sombra, no por borders. */
+.checkapp-landing .lp-shift,
+.checkapp-landing .lp-shift-side,
+.checkapp-landing .lp-shift-before,
+.checkapp-landing .lp-shift-after,
+.checkapp-landing .lp-shift-metric,
+.checkapp-landing .lp-shift-footer {
+  border: 0 !important;
+}
+
+.checkapp-landing .lp-shift-side {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22) !important;
+}
+
+.checkapp-landing .lp-shift-footer {
+  background: color-mix(in srgb, var(--lp-green) 18%, var(--lp-dark)) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16) !important;
+}
+
+/* Reportes: sin caja oscura ni sombra, integrado a la tarjeta. */
+.checkapp-landing .lp-shift-metric {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  backdrop-filter: none !important;
+}
+
+.checkapp-landing .lp-plan-quote strong {
+  font-size: clamp(20px, 2vw, 26px) !important;
+  letter-spacing: -0.03em;
+}
+.checkapp-landing .lp-plan-quote span {
+  color: var(--lp-muted);
+  font-size: 11px;
+}

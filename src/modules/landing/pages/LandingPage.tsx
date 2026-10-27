@@ -1,4 +1,5 @@
 import { ITButton, ITTabs, ITFlex } from "@axzydev/axzy_ui_system";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { IconType } from "react-icons";
 import {
@@ -310,15 +311,12 @@ const PLANS = [
     id: "standard",
     name: "Estándar",
     eyebrow: "Para empezar",
-    price: "$2,490",
-    suffix: "MXN / mes",
     tagline: "Una caseta o una operación pequeña, ordenada desde el día uno.",
     guards: "10",
     points: "100",
     rounds: "300",
     support: "Correo · 48 h",
     highlight: false,
-    cta: "Elegir Estándar",
     features: [
       "App móvil + consola web",
       "Rondas con QR y GPS",
@@ -332,15 +330,12 @@ const PLANS = [
     name: "Pro",
     eyebrow: "Para crecer",
     ribbon: "El más elegido",
-    price: "$5,990",
-    suffix: "MXN / mes",
     tagline: "Para empresas que ya operan varias rutas y necesitan control fino.",
     guards: "30",
     points: "500",
     rounds: "1,500",
     support: "Prioritario · 8 h",
     highlight: true,
-    cta: "Elegir Pro",
     features: [
       "Todo lo de Estándar",
       "Panel de cumplimiento y KPIs",
@@ -353,15 +348,12 @@ const PLANS = [
     id: "enterprise",
     name: "Enterprise",
     eyebrow: "Operación a escala",
-    price: "$12,990",
-    suffix: "MXN / mes",
     tagline: "Multi-sitio, auditoría y acuerdos de servicio a la medida.",
     guards: "100",
     points: "2,000",
     rounds: "6,000",
     support: "24/7 + SLA",
     highlight: false,
-    cta: "Hablar con ventas",
     features: [
       "Todo lo de Pro",
       "Multi-sitio y multi-cliente",
@@ -478,9 +470,9 @@ const PlanCard = ({ plan, onQuote }: { plan: (typeof PLANS)[number]; onQuote: ()
     <span className="lp-plan-eyebrow">{plan.eyebrow}</span>
     <h3>{plan.name}</h3>
     <p className="lp-plan-tagline">{plan.tagline}</p>
-    <div className="lp-plan-price">
-      <strong>{plan.price}</strong>
-      <span>{plan.suffix}</span>
+    <div className="lp-plan-price lp-plan-quote">
+      <strong>Cotiza tu plan</strong>
+      <span>Propuesta a tu medida</span>
     </div>
     <div className="lp-plan-limits">
       <div>
@@ -507,7 +499,7 @@ const PlanCard = ({ plan, onQuote }: { plan: (typeof PLANS)[number]; onQuote: ()
       ))}
     </ul>
     <button type="button" className={`lp-plan-cta${plan.highlight ? " is-solid" : ""}`} onClick={onQuote}>
-      {plan.cta} <FaArrowRight size={10} />
+      Cotizar por WhatsApp <FaWhatsapp size={11} />
     </button>
   </article>
 );
@@ -663,7 +655,7 @@ const HelpAssistant = ({ open, onOpenChange }: { open: boolean; onOpenChange: (o
     if (!plan) return;
     const parts = [
       "Hola, quiero cotizar CheckApp.",
-      `Plan sugerido: ${plan.name} (${plan.price} MXN/mes).`,
+      `Plan sugerido: ${plan.name}.`,
       `Guardias: ${guards}. Puntos QR: ${points}.`,
     ];
     if (demo) parts.push(`Demo: ${demo}.`);
@@ -731,7 +723,7 @@ const HelpAssistant = ({ open, onOpenChange }: { open: boolean; onOpenChange: (o
               <>
                 <div className="lp-help-result lp-help-inline-result">
                   <span>Recomendación de A</span>
-                  <strong>{plan.name} · {plan.price} MXN/mes</strong>
+                  <strong>{plan.name}</strong>
                   <small>Hasta {plan.guards} guardias · {plan.points} puntos · {plan.rounds} rondas/mes.</small>
                 </div>
                 <div className="lp-help-quick">
@@ -780,7 +772,7 @@ const HelpAssistant = ({ open, onOpenChange }: { open: boolean; onOpenChange: (o
               <div className="lp-help-final">
                 <div className="lp-help-result">
                   <span>Resumen</span>
-                  <strong>{plan.name} · {plan.price} MXN/mes</strong>
+                  <strong>{plan.name}</strong>
                   <small>
                     {guards} guardias · {points} puntos
                     {demo ? ` · Demo: ${demo}` : ""}
@@ -855,6 +847,7 @@ const HeroScene = () => (
 );
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [landingRole, setLandingRole] = useState("admin");
@@ -898,6 +891,12 @@ const LandingPage = () => {
   };
 
   const openWhatsApp = () => window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
+  const openWhatsAppForPlan = (planName: string) => {
+    const url = `https://wa.me/526647700088?text=${encodeURIComponent(
+      `Hola, quiero cotizar el plan ${planName} de CheckApp. Tengo una empresa de seguridad con ___ guardias y ___ ubicaciones.`,
+    )}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="checkapp-landing" style={LANDING_ROLE_THEMES[landingRole] as React.CSSProperties}>
@@ -1004,10 +1003,6 @@ const LandingPage = () => {
                 </li>
               </ul>
 
-              <p className="lp-hero-price">
-                Planes desde <strong>$2,490</strong> MXN/mes
-                <button type="button" onClick={() => scrollTo("planes")}>Ver planes <FaArrowRight size={9} /></button>
-              </p>
             </div>
 
             <div className="lp-hero-visual">
@@ -1263,13 +1258,9 @@ const LandingPage = () => {
               </span>
               <h2>Elige el plan según tu operación.</h2>
               <p>
-                Facturación mensual. Todos los planes incluyen consola web, app de campo, modo
-                offline y sincronización.
+                Cada operación es distinta. Cotiza tu plan por WhatsApp y te armamos una propuesta
+                a la medida.
               </p>
-            </div>
-
-            <div className="lp-billing-note" data-reveal>
-              <FaCheckCircle size={11} /> Sin permanencia forzada · Precios MXN + IVA · Pago anual: 2 meses gratis
             </div>
 
             <div className="lp-pricing-grid">
@@ -1277,7 +1268,7 @@ const LandingPage = () => {
                 <PlanCard
                   key={plan.id}
                   plan={plan}
-                  onQuote={() => setHelpOpen(true)}
+                  onQuote={() => openWhatsAppForPlan(plan.name)}
                 />
               ))}
             </div>
@@ -1404,22 +1395,15 @@ const LandingPage = () => {
 
           <div>
             <h4>Legal</h4>
-            <a
-              className="lp-footer-link"
-              href="https://checkapp.axzy.dev/privacidad.html"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/legal/privacidad")}>
               Aviso de privacidad
-            </a>
-            <a
-              className="lp-footer-link"
-              href="https://checkapp.axzy.dev/terminos.html"
-              target="_blank"
-              rel="noreferrer"
-            >
+            </ITButton>
+            <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/legal/terminos")}>
               Términos y condiciones
-            </a>
+            </ITButton>
+            <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/legal/arco")}>
+              Derechos ARCO
+            </ITButton>
             <a
               className="lp-footer-link"
               href="https://checkapp.axzy.dev/valores.html"

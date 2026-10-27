@@ -1,0 +1,4 @@
+import { chromium } from '@playwright/test'; const b=await chromium.launch(); const p=await b.newPage({viewport:{width:1440,height:1000}});
+await p.goto('http://localhost:5004/',{waitUntil:'networkidle'}); await p.locator('#pantallas').scrollIntoViewIfNeeded(); await p.getByRole('tab',{name:'Guardia'}).click(); await p.locator('#problema').scrollIntoViewIfNeeded(); await p.waitForTimeout(300);
+console.log(await p.evaluate(()=>{const m=document.querySelector('.lp-shift-metric'); const r=m.getBoundingClientRect(); const el=document.elementFromPoint(r.left+100,r.top+1); return {rect:r.toJSON(), at:el?.className, chain:(()=>{let x=el, a=[]; for(let i=0;i<5&&x;i++,x=x.parentElement)a.push({c:x.className,b:getComputedStyle(x).border,bt:getComputedStyle(x).borderTop,bs:getComputedStyle(x).boxShadow,bg:getComputedStyle(x).background}); return a})()}}));
+await b.close();

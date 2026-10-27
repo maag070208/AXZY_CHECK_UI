@@ -1,4 +1,4 @@
-import { ITChip, ITFlex, ITText } from "@axzydev/axzy_ui_system";
+import { ITButton, ITChip, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import { setAuth } from "@app/core/store/auth/auth.slice";
 import { AppDispatch } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
@@ -370,6 +370,14 @@ const LoginPage = () => {
             <ITText as="p" className="mt-8 text-center text-[10px] font-semibold text-slate-400">
               CheckApp · Gestión residencial inteligente
             </ITText>
+            <ITFlex align="center" justify="center" wrap="wrap" gap={1}>
+              <ITButton variant="text" color="gray" size="sm" type="button" onClick={() => navigate("/legal/privacidad")}>
+                Aviso de privacidad
+              </ITButton>
+              <ITButton variant="text" color="gray" size="sm" type="button" onClick={() => navigate("/legal/terminos")}>
+                Términos y condiciones
+              </ITButton>
+            </ITFlex>
 
 
           </ITFlex>
