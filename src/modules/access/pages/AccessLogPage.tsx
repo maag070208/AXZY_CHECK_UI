@@ -31,6 +31,7 @@ const REASON_LABEL: Record<string, string> = {
   PROPERTY_DEBT: "Adeudo",
   EXCEPTION: "Excepción",
   PIN_VALID: "PIN válido",
+  PERSONAL_QR: "Pase QR personal",
   INVALID_PIN: "PIN inválido",
   VEHICLE_ENTRY: "Entrada de vehículo",
   VEHICLE_EXIT: "Salida de vehículo",
