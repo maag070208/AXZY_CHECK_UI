@@ -11,8 +11,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/es";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { ITThemeProvider } from "@axzydev/axzy_ui_system";
-import { theme } from "./theme/theme.ts";
+import { RoleThemeProvider } from "./theme/RoleThemeProvider.tsx";
 
 if (!localStorage.getItem("it-theme-dark-mode")) {
   localStorage.setItem("it-theme-dark-mode", "light");
@@ -26,13 +25,13 @@ dayjs.locale("es");
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
   <Provider store={store}>
-    <ITThemeProvider theme={theme} showFab={false} density={0.9} appearance="flat">
-    <ToastProvider>
-      <HashRouter>
-        <App />
-      </HashRouter>
-    </ToastProvider>
-    </ITThemeProvider>
+    <RoleThemeProvider>
+      <ToastProvider>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </ToastProvider>
+    </RoleThemeProvider>
   </Provider>
   </React.StrictMode>
 );
