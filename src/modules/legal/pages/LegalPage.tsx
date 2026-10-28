@@ -13,7 +13,7 @@ const LegalPage = () => {
     <ITFlex direction="column" gap={4} className="mx-auto w-full max-w-3xl p-4 pb-10">
       <ITFlex align="center" justify="between" wrap="wrap" gap={2}>
         <ITText as="h1" className="text-xl font-bold! text-slate-900!">Información legal</ITText>
-        <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/login")}>Volver</ITButton>
+        <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/")}>Volver</ITButton>
       </ITFlex>
 
       <ITText as="nav" aria-label="Documentos legales">

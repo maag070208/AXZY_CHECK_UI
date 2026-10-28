@@ -1540,8 +1540,14 @@ const LandingPage = () => {
 
           <div>
             <h4>Legal</h4>
+            <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/legal")}>
+              Centro legal
+            </ITButton>
             <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/legal/privacidad")}>
               Aviso de privacidad
+            </ITButton>
+            <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/legal/simplificado")}>
+              Aviso simplificado
             </ITButton>
             <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/legal/terminos")}>
               Términos y condiciones

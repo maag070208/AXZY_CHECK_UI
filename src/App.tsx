@@ -6,8 +6,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { PrivateRoutes } from "./core/routes/PrivateRoutes";
 import { PermissionRoute } from "./core/routes/PermissionRoute";
 import { P } from "./core/permissions/permissions.constants";
-import { setAuth, setPermissions } from "./core/store/auth/auth.slice";
+import { setPermissions, setSession } from "./core/store/auth/auth.slice";
 import { getMyPermissions } from "./modules/auth/services/AuthService";
+import { get } from "./core/axios/axios";
 import HomePage from "./modules/home/pages/HomePage";
 
 import LocationsPage from "./modules/locations/pages/LocationsPage";
@@ -46,21 +47,29 @@ import ResidentPortalPage from "./modules/resident/pages/ResidentPortalPage";
 
 function App() {
   const token = useSelector((state: any) => state.auth.token);
+  const session = useSelector((state: any) => state.auth.session);
   const permissions = useSelector((state: any) => state.auth.permissions);
   const dispatch = useDispatch();
 
   const [isAppReady, setIsAppReady] = useState(false);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken && storedToken !== "null") {
-      dispatch(setAuth(storedToken));
+    // Si ya hay token en memoria (login recién hecho), no hace falta consultar /me.
+    if (token) {
+      setIsAppReady(true);
+      return;
     }
-    setIsAppReady(true);
+    // La sesión WEB vive en una cookie HttpOnly; nunca se lee un JWT de localStorage.
+    get("/users/me")
+      .then((res) => {
+        if (res.success && res.data) dispatch(setSession(res.data));
+      })
+      .catch(() => undefined)
+      .finally(() => setIsAppReady(true));
   }, [dispatch]);
 
   useEffect(() => {
-    if (!token || permissions !== null) return;
+    if ((!token && !session) || permissions !== null) return;
 
     getMyPermissions()
       .then((res) => {
@@ -72,7 +81,7 @@ function App() {
         // Fail closed: sin permisos no se pinta nada protegido.
         dispatch(setPermissions([]));
       });
-  }, [token, permissions, dispatch]);
+  }, [token, session, permissions, dispatch]);
 
   if (!isAppReady) {
     return (
@@ -82,7 +91,7 @@ function App() {
     );
   }
 
-  if (!token) {
+  if (!token && !session) {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />

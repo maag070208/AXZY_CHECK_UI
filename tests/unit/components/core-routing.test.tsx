@@ -72,24 +72,21 @@ describe("PrivateRoutes", () => {
   it("cerrar sesión avisa al API, borra el token y va a /login", async () => {
     let called = false;
     server.use(http.post(`${API}/users/logout`, () => ((called = true), HttpResponse.json({ success: true }))));
-    localStorage.setItem("token", "t");
     const { user } = renderWithProviders(ui, { route: "/home", role: "ADMIN" });
     await user.click(screen.getAllByText("Admin")[0]);
     await user.click(screen.getByText("Cerrar Sesión"));
     await waitFor(() => expect(screen.getByText("LOGIN")).toBeInTheDocument());
     expect(called).toBe(true);
-    expect(localStorage.getItem("token")).toBeNull();
     expect(store.getState().auth.token).toBeNull();
+    expect(store.getState().auth.session).toBe(false);
   });
 
   it("si el API falla igual cierra la sesión local", async () => {
     server.use(http.post(`${API}/users/logout`, () => HttpResponse.json({ message: "x" }, { status: 500 })));
-    localStorage.setItem("token", "t");
     const { user } = renderWithProviders(ui, { route: "/home", role: "ADMIN" });
     await user.click(screen.getAllByText("Admin")[0]);
     await user.click(screen.getByText("Cerrar Sesión"));
     await waitFor(() => expect(screen.getByText("LOGIN")).toBeInTheDocument());
-    expect(localStorage.getItem("token")).toBeNull();
   });
 });
 
@@ -110,11 +107,8 @@ describe("useNavigationItems / Navbar", () => {
   it("GUARD solo ve lo suyo y no ve secciones vacías", () => {
     authAs("GUARD");
     const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/home") });
-    expect(labels(result.current)).toEqual(["Inicio", "Operación", "Residencial", "Reportes"]);
-    const reports = result.current.find((i: any) => i.id === "reports");
-    expect(reports.subitems[0].items.map((i: any) => i.label)).toEqual(["Casa Club"]);
-    const operation = result.current.find((i: any) => i.id === "operation");
-    expect(operation.subitems[0].items.map((i: any) => i.label)).toEqual(["Chat"]);
+    expect(labels(result.current)).toEqual(["Inicio", "Chat", "Invitaciones", "Incidencias", "Mantenimientos", "Casa Club"]);
+    expect(result.current.every((i: any) => !i.subitems)).toBe(true);
   });
 
   it("sin rol no hay ítems", () => {

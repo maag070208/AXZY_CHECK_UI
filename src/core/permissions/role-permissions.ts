@@ -5,7 +5,7 @@
  */
 export const ROLE_PERMISSIONS: Record<string, string[]> = {
   ADMIN: [
-    "assignments.manage","access.check","catalogs.manage","chat.use","club.manage","dashboard.view",
+    "assignments.manage","access.check","accesspin.validate","catalogs.manage","chat.use","club.manage","dashboard.view",
     "documents.view","incidents.manage","kardex.manage","locations.manage","maintenance.manage",
     "occupancy.change","properties.manage","properties.view","recurring.manage","recurring.operate",
     "residents.manage","schedules.manage","settings.manage","shift-handover.manage","uniform.manage",
@@ -18,10 +18,10 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "charge.view","charge.manage","payment.view","payment.manage",
     "delinquency.view","delinquency.manage","access.event.view",
     "announcement.view","announcement.manage",
-    "vehicle.view","vehicle.manage",
+    "vehicle.view","vehicle.manage","invitation.manage",
   ],
   SHIFT: [
-    "access.check","assignments.manage","properties.view","chat.use","club.manage","dashboard.view",
+    "access.check","accesspin.validate","assignments.manage","properties.view","chat.use","club.manage","dashboard.view",
     "incidents.manage","kardex.manage","locations.manage","recurring.manage","recurring.operate",
     "shift-handover.manage","uniform.manage","users.read","round.view","round.start","round.end","round.scan",
     "assignment.view","kardex.view","kardex.delete",
@@ -30,21 +30,21 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "club.view","club.create","club.resolve","club.delete",
     "complaint.view","complaint.manage",
     "delinquency.view","access.event.view","announcement.view","vehicle.view",
+    "invitation.manage",
   ],
   GUARD: [
-    "access.check","chat.use","recurring.operate",
+    "access.check","accesspin.validate","invitation.manage","chat.use","recurring.operate",
     "round.view","round.start","round.end","round.scan",
-    "assignment.view","incident.create","maintenance.create","club.view","club.create",
+    "assignment.view","incident.create","incident.view","maintenance.create","maintenance.view",
+    "club.view","club.create",
   ],
   MAINT: [
-    "chat.use","maintenance.manage","recurring.operate",
-    "round.view","round.start","round.end","round.scan",
-    "assignment.view","incident.create",
-    "maintenance.view","maintenance.create","maintenance.resolve","maintenance.delete",
+    "chat.use","maintenance.manage","recurring.operate","round.view","round.start","round.end","round.scan",
+    "assignment.view","incident.create","maintenance.view","maintenance.create","maintenance.resolve","maintenance.delete",
     "club.view","club.create","club.resolve","club.delete",
   ],
   RESDN: [
-    "resident.self", "invitation.view", "invitation.create", "invitation.revoke",
-    "complaint.create", "complaint.view", "charge.view", "payment.view", "vehicle.self",
+    "resident.self","invitation.view","invitation.create","invitation.revoke",
+    "complaint.create","complaint.view","charge.view","payment.view","vehicle.self","accesspin.manage",
   ],
 };

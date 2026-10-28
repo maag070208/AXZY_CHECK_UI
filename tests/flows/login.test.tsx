@@ -1,6 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
+import store from "@app/core/store/store";
 import { makeToken, renderApp } from "../helpers/render";
 import { API, server } from "../helpers/server";
 
@@ -16,7 +17,7 @@ describe("login", () => {
     server.use(http.post(`${API}/users/login`, () => HttpResponse.json({ success: true, data: makeToken() })));
     await fillAndSubmit(renderApp({ route: "/login" }), "123456");
     expect(await screen.findByText("Hoy en números")).toBeInTheDocument();
-    expect(localStorage.getItem("token")).not.toBeNull();
+    expect(store.getState().auth.token).not.toBeNull();
   });
 
   it("con contraseña incorrecta se queda en el login", async () => {
@@ -25,14 +26,14 @@ describe("login", () => {
     );
     await fillAndSubmit(renderApp({ route: "/login" }), "incorrecta");
     expect(await screen.findByText("Credenciales inválidas")).toBeInTheDocument();
-    expect(localStorage.getItem("token")).toBeNull();
+    expect(store.getState().auth.token).toBeNull();
   });
 
   it("si el API responde error HTTP muestra el aviso genérico", async () => {
     server.use(http.post(`${API}/users/login`, () => HttpResponse.json({ message: "boom" }, { status: 500 })));
     await fillAndSubmit(renderApp({ route: "/login" }), "123456");
     expect(await screen.findByText("Error al iniciar sesión")).toBeInTheDocument();
-    expect(localStorage.getItem("token")).toBeNull();
+    expect(store.getState().auth.token).toBeNull();
   });
 
   it("el candado muestra y oculta la contraseña", async () => {
@@ -51,7 +52,7 @@ describe("login", () => {
     await screen.findByText("Hoy en números");
     await user.click(screen.getAllByText("Admin")[0]);
     await user.click(screen.getByText("Cerrar Sesión"));
-    await waitFor(() => expect(localStorage.getItem("token")).toBeNull());
+    await waitFor(() => expect(store.getState().auth.token).toBeNull());
     expect(await screen.findByRole("button", { name: /iniciar sesión/i })).toBeInTheDocument();
   });
 });

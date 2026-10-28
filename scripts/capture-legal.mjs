@@ -1,0 +1,1 @@
+import { chromium } from '@playwright/test'; const b=await chromium.launch(); const p=await b.newPage({viewport:{width:1440,height:1000}}); await p.goto('http://localhost:5004/#/legal/privacidad',{waitUntil:'networkidle'}); await p.waitForTimeout(500); await p.screenshot({path:'public/landing/preview/legal-privacidad.png',fullPage:false}); await b.close();

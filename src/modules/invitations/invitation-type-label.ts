@@ -13,5 +13,5 @@ const INVITATION_TYPE_LABELS: Record<string, string> = {
 export const invitationTypeLabel = (type?: { name?: string | null; value?: string | null } | null): string => {
   const raw = (type?.name ?? type?.value ?? "").trim();
   const key = raw.toUpperCase();
-  return INVITATION_TYPE_LABELS[key] ?? type?.value ?? raw ?? "Visita";
+  return INVITATION_TYPE_LABELS[key] ?? type?.value ?? (raw || "Visita");
 };

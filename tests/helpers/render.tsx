@@ -50,13 +50,13 @@ export const authAs = (role: string) => {
   store.dispatch(setPermissions(permissionsForRole(role)));
 };
 
-/** Monta la app completa. Con `role` entra ya autenticado (token en localStorage como en producción). */
+/** Monta la app completa. Con `role` entra ya autenticado (token en memoria; nunca localStorage). */
 export function renderApp({ route = "/", role, claims, lastRole }: { route?: string | string[]; role?: string; claims?: Record<string, unknown>; lastRole?: string } = {}) {
   store.dispatch(logout());
   localStorage.removeItem("token");
   localStorage.removeItem("lastRole");
   if (lastRole) localStorage.setItem("lastRole", lastRole);
-  if (role) localStorage.setItem("token", makeToken({ role, ...claims }));
+  if (role) store.dispatch(setAuth(makeToken({ role, ...claims })));
   return renderWithProviders(<App />, { route });
 }
 

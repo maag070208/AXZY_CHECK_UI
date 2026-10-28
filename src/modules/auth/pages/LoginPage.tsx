@@ -273,8 +273,7 @@ const LoginPage = () => {
         return;
       }
 
-      // El token se guarda al iniciar sesión; signOut lo borra al cerrarla.
-      localStorage.setItem("token", response.data);
+      // El JWT no se guarda en localStorage: el servidor deja una cookie HttpOnly.
       const decoded = decodeToken<{ role?: string }>(response.data);
       if (decoded?.role) localStorage.setItem("lastRole", decoded.role);
       dispatch(setAuth(response.data));
