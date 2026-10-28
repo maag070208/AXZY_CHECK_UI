@@ -120,7 +120,7 @@ export const NAV_SECTIONS: NavSection[] = [
         id: "access",
         label: "Accesos",
         items: [
-          { id: "invitations", label: "Invitaciones", path: "/invitations", permission: P.ACCESS_CHECK, icon: <FaQrcode /> },
+          { id: "invitations", label: "Invitaciones", path: "/invitations", permission: P.INVITATION_MANAGE, icon: <FaQrcode /> },
           { id: "vehicles", label: "Vehículos", path: "/vehicles", permission: P.VEHICLE_VIEW },
         ],
       },

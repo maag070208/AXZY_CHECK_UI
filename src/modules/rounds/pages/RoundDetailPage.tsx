@@ -383,7 +383,7 @@ const RoundDetailPage = () => {
     if (loading) {
         return (
             <ITPage
-                className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+                className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
                 noPadding
                 loading
                 title="Detalle de ronda"
@@ -398,7 +398,7 @@ const RoundDetailPage = () => {
     if (!data) {
         return (
             <ITPage
-                className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+                className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
                 noPadding
                 title="Detalle de ronda"
                 description="No se encontró la ronda."
@@ -413,7 +413,7 @@ const RoundDetailPage = () => {
 
     return (
         <ITPage
-            className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+            className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
             noPadding
             backAction={() => navigate(-1)}
             title={routeTitle || `Ronda #${data.round.id}`}

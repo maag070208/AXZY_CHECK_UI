@@ -112,7 +112,7 @@ function App() {
         <Route path="/residents/nuevo" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentFormPage /></PermissionRoute>} />
         <Route path="/residents/:id" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentDetailPage /></PermissionRoute>} />
         <Route path="/residents/:id/editar" element={<PermissionRoute permissions={P.PROPERTIES_VIEW}><ResidentFormPage /></PermissionRoute>} />
-        <Route path="/invitations" element={<PermissionRoute permissions={P.ACCESS_CHECK}><InvitationsPage /></PermissionRoute>} />
+        <Route path="/invitations" element={<PermissionRoute permissions={P.INVITATION_MANAGE}><InvitationsPage /></PermissionRoute>} />
         <Route path="/announcements" element={<PermissionRoute permissions={P.ANNOUNCEMENT_VIEW}><AnnouncementsPage /></PermissionRoute>} />
         <Route path="/vehicles" element={<PermissionRoute permissions={P.VEHICLE_VIEW}><VehiclesPage /></PermissionRoute>} />
         <Route path="/access-log" element={<PermissionRoute permissions={P.ACCESS_EVENT_VIEW}><AccessLogPage /></PermissionRoute>} />

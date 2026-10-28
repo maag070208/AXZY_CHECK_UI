@@ -156,7 +156,7 @@ export const GuardHomeDashboard = () => {
 
   return (
     <ITPage
-      className="m-0! mx-auto! max-w-[1600px]! bg-slate-50! px-2! py-1!"
+      className="m-0! mx-auto! max-w-[1600px]! bg-slate-50! mb-12! px-2! py-1!"
       title={`Caseta · ${firstName}`}
       description="Visitas por llegar, quién está dentro y validación de pases."
     >

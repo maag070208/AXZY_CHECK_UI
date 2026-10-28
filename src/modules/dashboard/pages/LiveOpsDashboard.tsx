@@ -341,7 +341,7 @@ export const LiveOpsDashboard = () => {
     : 0;
   return (
     <ITPage
-      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
       noPadding
       title={`${greeting}, ${displayName}`}
       description={`${dateCap} · El pulso de tu operación en tiempo real.`}

@@ -79,7 +79,7 @@ const HomePage = () => {
         description: "Pases y accesos de visitas",
         icon: <FaQrcode className="text-white" />,
         action: () => navigate("/invitations"),
-        permission: P.ACCESS_CHECK,
+        permission: P.INVITATION_MANAGE,
       },
       {
         title: "Casa Club",

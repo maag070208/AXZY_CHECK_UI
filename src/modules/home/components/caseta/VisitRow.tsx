@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { FaHome, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import type { Invitation } from "@modules/invitations/services/invitations.service";
 import { visitWindow, type VisitAction } from "./visit.utils";
+import { invitationTypeLabel } from "../../../invitations/invitation-type-label";
 
 
 /** Estado de llegada: ya puede entrar, o desde qué hora. */
@@ -45,7 +46,7 @@ export const VisitRow = ({ invitation, mode, onAction }: Props) => {
       <ITFlex direction="column" className="min-w-0 flex-1">
         <ITFlex align="center" gap={2} className="min-w-0">
           <ITText as="span" className="truncate text-sm font-bold text-slate-900">{invitation.guestName}</ITText>
-          {invitation.type?.name && <ITChip size="sm" variant="outlined" color="gray" label={invitation.type.name} />}
+          {invitation.type && <ITChip size="sm" variant="outlined" color="gray" label={invitationTypeLabel(invitation.type)} />}
         </ITFlex>
         <ITFlex align="center" gap={2} wrap="wrap" className="text-[11px] text-slate-500">
           <ITFlex align="center" gap={1} className="font-semibold text-slate-600">

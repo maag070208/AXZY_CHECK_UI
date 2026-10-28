@@ -195,7 +195,7 @@ const ResidentsPage = () => {
 
     return (
         <ITPage
-      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
       noPadding
       title="Directorio de Residentes"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Directorio de Residentes" }]}

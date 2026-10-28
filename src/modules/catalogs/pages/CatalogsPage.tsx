@@ -206,7 +206,7 @@ const CatalogsPage = () => {
 
   return (
     <ITPage
-      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
       noPadding
       title="Catálogos"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Catálogos" }]}

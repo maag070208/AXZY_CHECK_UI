@@ -753,7 +753,7 @@ const FinancePage = () => {
   return (
     <ITPage
       noPadding
-      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
       title={`${greeting}, ${displayName}`}
       description={`${dateCap} · Cargos, pagos y cobranza del residencial.`}
       icon={<FaWallet />}

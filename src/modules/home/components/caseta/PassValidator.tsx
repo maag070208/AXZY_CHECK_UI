@@ -3,6 +3,7 @@ import { ITAlert, ITButton, ITChip, ITFlex, ITInput, ITText } from "@axzydev/axz
 import dayjs from "dayjs";
 import { FaHome, FaQrcode, FaSearch, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import { getInvitationByCode, Invitation } from "@modules/invitations/services/invitations.service";
+import { invitationTypeLabel } from "@modules/invitations/invitation-type-label";
 import { visitWindow, type VisitAction } from "./visit.utils";
 
 const STATUS_LABEL: Record<Invitation["status"], { label: string; color: "success" | "warning" | "gray" | "danger" | "info" }> = {
@@ -83,7 +84,7 @@ export const PassValidator = ({ onAction, resetKey }: Props) => {
               <ITText as="p" className="truncate text-lg font-black text-slate-900">{result.guestName}</ITText>
               <ITFlex align="center" gap={2} wrap="wrap" className="text-xs text-slate-600">
                 <ITFlex align="center" gap={1} className="font-semibold"><FaHome size={11} /> {result.property?.identifier ?? result.property?.name}</ITFlex>
-                {result.type?.name && <ITChip size="sm" variant="outlined" color="gray" label={result.type.name} />}
+                {result.type && <ITChip size="sm" variant="outlined" color="gray" label={invitationTypeLabel(result.type)} />}
                 <ITText as="span" className="text-xs text-slate-500">{visitWindow(result)}</ITText>
               </ITFlex>
             </ITFlex>

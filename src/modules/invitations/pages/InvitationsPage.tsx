@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useCallback, useMemo, useState } from "react";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { getPaginatedInvitations, createInvitation, updateInvitationStatus, Invitation } from "../services/invitations.service";
+import { invitationTypeLabel } from "../invitation-type-label";
 import { InvitationForm } from "../components/InvitationForm";
 import { InvitationQRPrint } from "../components/InvitationQRPrint";
 import dayjs from "dayjs";
@@ -147,11 +148,9 @@ const InvitationsPage = () => {
             label: "Tipo",
             type: "string",
             render: (row: Invitation) => (
-                row.type?.name === "PROV" ? (
-                    <ITBadget color="primary" variant="filled" size="sm">{row.type.value}</ITBadget>
-                ) : (
-                    <ITBadget color="secondary" variant="filled" size="sm">{row.type?.value || "Visita"}</ITBadget>
-                )
+                <ITBadget color={row.type?.name === "PROV" ? "primary" : "secondary"} variant="filled" size="sm">
+                    {invitationTypeLabel(row.type)}
+                </ITBadget>
             )
         },
         { 
@@ -235,7 +234,7 @@ const InvitationsPage = () => {
 
     return (
         <ITPage
-      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50"
+      className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
       noPadding
       title="Directorio de Invitados"
       breadcrumbs={[{ label: "Inicio", href: "#/home" }, { label: "Directorio de Invitados" }]}
