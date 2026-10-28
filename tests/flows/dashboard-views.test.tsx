@@ -365,10 +365,10 @@ describe("HomePage", () => {
     expect(await screen.findByTestId("where")).toHaveTextContent("/maintenances");
   });
 
-  it("GUARD no tiene accesos rápidos", async () => {
+  it("GUARD ve el inicio de caseta", async () => {
     home("GUARD");
-    expect(await screen.findByText(/Accesos rápidos/)).toBeInTheDocument();
-    expect(screen.queryByText("Mantenimiento")).toBeNull();
+    expect(await screen.findByText("Validar pase")).toBeInTheDocument();
+    expect(screen.queryByText("Kardex")).toBeNull();
   });
 
   it("el rol sin definir no muestra accesos", async () => {
@@ -384,7 +384,7 @@ describe("HomePage", () => {
   });
 
   it("nombre vacío en el saludo", async () => {
-    store.dispatch(setAuth(makeToken({ role: "GUARD", name: "" })));
+    store.dispatch(setAuth(makeToken({ role: "MAINT", name: "" })));
     renderWithProviders(<Routes><Route path="/" element={<HomePage />} /></Routes>);
     expect(await screen.findByText("Bienvenido. Accesos rápidos a tus módulos.")).toBeInTheDocument();
   });

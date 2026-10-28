@@ -1,4 +1,4 @@
-import { post, put } from "@app/core/axios/axios";
+import { get, post, put } from "@app/core/axios/axios";
 
 export interface Invitation {
     id: number;
@@ -43,5 +43,15 @@ export const updateInvitationStatus = async (id: number, status: string, reason?
         return { success: result.success, data: result.data, messages: result.messages };
     } catch (error: any) {
         return { success: false, data: null, messages: error.messages || ["Error updating status"] };
+    }
+};
+
+/** Busca un pase por su código (o id). Lo usa la caseta al escanear o teclear el código. */
+export const getInvitationByCode = async (code: string) => {
+    try {
+        const result = await get<Invitation>(`/invitations/${encodeURIComponent(code)}`);
+        return { success: result.success, data: result.data, messages: result.messages };
+    } catch (error: any) {
+        return { success: false, data: null, messages: error.messages || ["Pase no encontrado"] };
     }
 };
