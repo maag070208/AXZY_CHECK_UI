@@ -12,6 +12,9 @@ export interface Invitation {
     typeId: number;
     type?: { id: number, name: string, value: string };
     notes?: string;
+    revokedReason?: string | null;
+    revokedAt?: string | null;
+    revokedById?: number | null;
     entryTime?: string;
     exitTime?: string;
     property?: { id: number, identifier: string, name: string };

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Invitation } from "../services/invitations.service";
 import LOGO from "@assets/logo.svg";
 import { ITBadget, ITButton, ITCard, ITFlex, ITGrid, ITImage, ITText } from "@axzydev/axzy_ui_system";
-import { FaPrint, FaWhatsapp } from "react-icons/fa";
+import { FaBan, FaPrint, FaWhatsapp } from "react-icons/fa";
 import { toBlob } from "html-to-image";
 import { useDispatch } from "react-redux";
 import { showToast } from "@app/core/store/toast/toast.slice";
@@ -160,6 +160,8 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
   const from = new Date(invitation.validFrom).toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
   const until = new Date(invitation.validUntil).toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
   const isProv = invitation.type?.name === "PROV";
+  const legacyReason = invitation.notes?.match(/\[Revocación\]\s*([\s\S]*)/)?.[1]?.trim();
+  const revocationReason = invitation.revokedReason || legacyReason || "Sin motivo registrado";
 
   return (
     <ITFlex direction="column" align="center" gap={4} className="w-full bg-slate-100 p-3 sm:p-4">
@@ -240,6 +242,23 @@ export const InvitationQRPrint: React.FC<Props> = ({ invitation, onClose }) => {
               </ITFlex>
             </ITGrid>
           </ITGrid>
+
+          {invitation.status === "CANCELLED" && (
+            <ITFlex direction="column" gap={1} className="rounded-xl border border-rose-100 bg-rose-50 p-3">
+              <ITFlex align="center" gap={2}>
+                <FaBan size={11} className="text-rose-600" />
+                <ITText as="p" className="text-[9px] font-black uppercase tracking-widest text-rose-600">
+                  Pase revocado
+                </ITText>
+              </ITFlex>
+              <ITText as="p" className="text-xs font-semibold text-rose-900">{revocationReason}</ITText>
+              {invitation.revokedAt && (
+                <ITText as="p" className="text-[10px] text-rose-700/70">
+                  Revocado el {new Date(invitation.revokedAt).toLocaleString("es-MX")}
+                </ITText>
+              )}
+            </ITFlex>
+          )}
 
           <ITText as="p" className="text-center text-[10px] font-medium text-slate-400">
             Presentar este código en caseta de seguridad.
