@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { renderApp } from "../helpers/render";
 import { LEGAL_KEYS, LEGAL_DOCS } from "@app/modules/legal/legal.config";
-import { parseMarkdown } from "@app/modules/legal/components/LegalMarkdown";
+import { parseMarkdown } from "@app/modules/legal/components/parseMarkdown";
 
 describe("información legal pública (WEB)", () => {
   it("sin sesión, /legal/privacidad muestra el aviso y el menú de documentos", async () => {

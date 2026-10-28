@@ -27,6 +27,7 @@ FROM nginx:alpine
 
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY security-headers.inc /etc/nginx/conf.d/security-headers.inc
 
 # Copy build artifacts from builder stage (Vite outputs to 'dist' by default)
 COPY --from=builder /app/dist /usr/share/nginx/html

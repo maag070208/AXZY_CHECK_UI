@@ -1,6 +1,7 @@
 import { ITChip, ITDivider, ITFlex, ITText } from "@axzydev/axzy_ui_system";
 import type { ReactNode } from "react";
 import { LEGAL_VALUES } from "../legal.config";
+import { parseMarkdown } from "./parseMarkdown";
 
 /** Pinta `[[CAMPO]]`: el valor configurado, o una marca "pendiente" para que no pase como texto final. */
 const placeholder = (raw: string, key: string): ReactNode => {
@@ -22,53 +23,6 @@ const inline = (text: string, base = "i"): ReactNode[] =>
     if (part.startsWith("*")) return <ITText as="em" key={key}>{inline(part.slice(1, -1), key)}</ITText>;
     return part;
   });
-
-type Block =
-  | { t: "h"; level: 1 | 2 | 3; text: string }
-  | { t: "p"; text: string }
-  | { t: "quote"; text: string }
-  | { t: "list"; ordered: boolean; items: string[] }
-  | { t: "table"; head: string[]; rows: string[][] }
-  | { t: "hr" };
-
-const cells = (line: string) => line.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
-
-export const parseMarkdown = (source: string): Block[] => {
-  const lines = source.replace(/\r/g, "").split("\n");
-  const blocks: Block[] = [];
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    if (!line.trim()) { i++; continue; }
-    const h = line.match(/^(#{1,3})\s+(.*)/);
-    if (h) { blocks.push({ t: "h", level: h[1].length as 1 | 2 | 3, text: h[2] }); i++; continue; }
-    if (/^-{3,}$/.test(line.trim())) { blocks.push({ t: "hr" }); i++; continue; }
-    if (line.startsWith(">")) {
-      const buf: string[] = [];
-      while (i < lines.length && lines[i].startsWith(">")) buf.push(lines[i++].replace(/^>\s?/, ""));
-      blocks.push({ t: "quote", text: buf.join(" ") });
-      continue;
-    }
-    if (line.startsWith("|")) {
-      const rows: string[][] = [];
-      while (i < lines.length && lines[i].startsWith("|")) rows.push(cells(lines[i++]));
-      blocks.push({ t: "table", head: rows[0], rows: rows.slice(2) });
-      continue;
-    }
-    const li = line.match(/^(-|\d+\.)\s+/);
-    if (li) {
-      const ordered = li[1] !== "-";
-      const items: string[] = [];
-      while (i < lines.length && /^(-|\d+\.)\s+/.test(lines[i])) items.push(lines[i++].replace(/^(-|\d+\.)\s+/, ""));
-      blocks.push({ t: "list", ordered, items });
-      continue;
-    }
-    const buf: string[] = [];
-    while (i < lines.length && lines[i].trim() && !/^(#|>|\||-{3,}|(-|\d+\.)\s)/.test(lines[i])) buf.push(lines[i++]);
-    blocks.push({ t: "p", text: buf.join(" ") });
-  }
-  return blocks;
-};
 
 const HEADING_CLASS = {
   1: "text-2xl font-bold! text-slate-900!",

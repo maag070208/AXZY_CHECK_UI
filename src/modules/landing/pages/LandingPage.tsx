@@ -30,16 +30,16 @@ import {
   FaRocket,
   FaHeadset,
   FaSyncAlt,
+  FaCamera,
+  FaExclamationTriangle,
 } from "react-icons/fa";
-import appHomeSync from "@assets/landing/app-home-sync.png";
-import appOffline from "@assets/landing/app-offline-new.png";
-import appSync from "@assets/landing/app-sync-new.png";
 import { RoleLogo } from "@app/core/components/RoleLogo";
 import { setRoleFavicon } from "@core/utils/roleFavicon";
 import {
   GuardAppVisual,
   WebConsoleVisual,
 } from "../components/LandingVisuals";
+import { SHOTS } from "../landing.shots";
 import "../landing.css";
 
 const WHATSAPP_URL = `https://wa.me/526647700088?text=${encodeURIComponent(
@@ -217,7 +217,11 @@ const ScreenCard = ({ screen }: { screen: (typeof ROLE_VIEWS)[number]["screens"]
 );
 
 const ROLE_APP: Record<string, { src: string; title: string }[]> = {
-  admin: [{ src: "/landing/app/admin/home.png", title: "Inicio administrativo" }],
+  admin: [
+    { src: "/landing/app/shift/home.png", title: "Supervisión en turno" },
+    { src: "/landing/app/guard/home.png", title: "Caseta del guardia" },
+    { src: "/landing/app/shift/menu.png", title: "Módulos en campo" },
+  ],
   shift: [
     { src: "/landing/app/shift/home.png", title: "Pulso del turno" },
     { src: "/landing/app/shift/menu.png", title: "Módulos del jefe" },
@@ -280,7 +284,7 @@ const RoleShowcase = ({ role, onRoleChange }: { role: string; onRoleChange: (rol
           <p><strong>{current.label}</strong> · {current.description}</p>
         </div>
 
-        <div className="lp-screens-grid">
+        <div className="lp-screens-grid lpx-swap" key={current.key}>
           {current.screens.map((screen) => (
             <ScreenCard key={`${current.key}-${screen.id}`} screen={screen} />
           ))}
@@ -290,11 +294,15 @@ const RoleShowcase = ({ role, onRoleChange }: { role: string; onRoleChange: (rol
           <div className="lp-role-app-head" data-reveal>
             <span className="lp-eyebrow"><FaMobileAlt size={10} /> También en la APP</span>
             <h3>La misma operación, en la mano</h3>
-            <p>Capturas reales de la app para {current.label.toLowerCase()}.</p>
+            <p>
+              {current.key === "admin"
+                ? "Lo que tu equipo usa en campo, conectado a tu consola."
+                : `Capturas reales de la app para ${current.label.toLowerCase()}.`}
+            </p>
           </div>
-          <div className="lp-role-app-strip">
+          <div className="lp-role-app-strip lpx-swap" key={`app-${current.key}`}>
             {ROLE_APP[current.key].map((shot) => (
-              <figure className="lp-phone" key={shot.src}>
+              <figure className="lp-phone" key={shot.src} data-reveal>
                 <div className="lp-phone-notch" />
                 <img src={shot.src} alt={`${shot.title} en la app CheckApp`} loading="lazy" />
                 <figcaption>{shot.title}</figcaption>
@@ -362,6 +370,18 @@ const PLANS = [
       "SLA y soporte 24/7",
     ],
   },
+];
+
+const CAPABILITIES = [
+  "QR + GPS",
+  "Evidencia multimedia",
+  "Offline-first",
+  "Sync automático",
+  "Multi-sitio",
+  "Control de accesos",
+  "Residentes y pases QR",
+  "Entrega de turno",
+  "Finanzas y morosidad",
 ];
 
 const COMPARE_BAD = [
@@ -805,46 +825,132 @@ const HelpAssistant = ({ open, onOpenChange }: { open: boolean; onOpenChange: (o
 };
 
 
-/** Visual del hero construido con figuras (sin capturas): consola + teléfono con la UI de la app. */
-const HeroScene = () => (
-  <div className="lp-hero-scene" aria-hidden="true">
-    <div className="lp-hero-orbit lp-hero-orbit--a" />
-    <div className="lp-hero-orbit lp-hero-orbit--b" />
-    <div className="lp-hero-orbit lp-hero-orbit--c" />
+/** Hero con capturas reales: consola web detrás y app del guardia al frente, con eventos en vivo. */
+const HERO_EVENTS = [
+  { icon: FaQrcode, title: "Punto E2E-03 escaneado", meta: "GPS a 4 m · 22:14" },
+  { icon: FaCamera, title: "Evidencia adjunta", meta: "2 fotos · nota de voz" },
+  { icon: FaExclamationTriangle, title: "Incidencia reportada", meta: "Acceso norte · ahora" },
+  { icon: FaSyncAlt, title: "Ronda sincronizada", meta: "8/8 puntos · consola al día" },
+];
 
-    <div className="lp-hero-phone">
-      <span className="lp-hero-phone-notch" />
-      <div className="lp-hero-phone-screen">
-        <div className="lp-hp-top">
-          <span className="lp-hp-dot" />
-          <span className="lp-hp-line" />
-          <span className="lp-hp-avatar" />
+const useCycle = (length: number, ms: number) => {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => setIndex((i) => (i + 1) % length), ms);
+    return () => window.clearInterval(id);
+  }, [length, ms]);
+  return index;
+};
+
+const HeroScene = () => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const eventIndex = useCycle(HERO_EVENTS.length, 2600);
+  const event = HERO_EVENTS[eventIndex];
+  const EventIcon = event.icon;
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el || e.pointerType !== "mouse") return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--rx", `${((e.clientY - r.top) / r.height - 0.5) * -6}deg`);
+    el.style.setProperty("--ry", `${((e.clientX - r.left) / r.width - 0.5) * 8}deg`);
+  };
+  const onLeave = () => {
+    ref.current?.style.setProperty("--rx", "0deg");
+    ref.current?.style.setProperty("--ry", "0deg");
+  };
+
+  return (
+    <div className="lpx-hero" ref={ref} onPointerMove={onMove} onPointerLeave={onLeave}>
+      <div className="lpx-hero-glow" aria-hidden="true" />
+      <div className="lpx-hero-stage">
+        <figure className="lpx-browser">
+          <div className="lpx-browser-bar" aria-hidden="true">
+            <i /><i /><i />
+            <span>checkapp · Monitoreo en vivo</span>
+          </div>
+          <img src={SHOTS.webHome} alt="Consola web de CheckApp con el monitoreo en vivo de la operación" />
+        </figure>
+
+        <figure className="lpx-phone">
+          <span className="lpx-phone-island" aria-hidden="true" />
+          <img src={SHOTS.guardHome} alt="App del guardia en CheckApp con su ronda y accesos rápidos" />
+          <span className="lpx-phone-scan" aria-hidden="true" />
+        </figure>
+
+        <div className="lpx-event" aria-live="polite" key={eventIndex}>
+          <span className="lpx-event-icon"><EventIcon /></span>
+          <span>
+            <strong>{event.title}</strong>
+            <small>{event.meta}</small>
+          </span>
         </div>
-        <div className="lp-hp-scan">
-          <FaQrcode />
-          <span className="lp-hp-scanline" />
+
+        <div className="lpx-chip lpx-chip--live" aria-hidden="true">
+          <span className="lp-live-dot" /> En vivo
         </div>
-        <div className="lp-hp-skeletons">
-          <i />
-          <i />
-          <i />
-        </div>
-        <div className="lp-hp-pill">
-          <FaCheckCircle />
-          <span><i /></span>
+        <div className="lpx-chip lpx-chip--offline" aria-hidden="true">
+          <FaCloudDownloadAlt /> Offline listo
         </div>
       </div>
-      <span className="lp-hero-phone-glare" />
     </div>
+  );
+};
 
-    <div className="lp-float-tiles">
-      <span className="lp-float-tile lp-float-tile--qr"><FaQrcode /></span>
-      <span className="lp-float-tile lp-float-tile--gps"><FaMapMarkerAlt /></span>
-      <span className="lp-float-tile lp-float-tile--offline"><FaCloudDownloadAlt /></span>
-      <span className="lp-float-tile lp-float-tile--sync"><FaSyncAlt /></span>
+const OFFLINE_QUEUE = [
+  { icon: FaQrcode, label: "Escaneo · Punto E2E-01" },
+  { icon: FaCamera, label: "Evidencia · 3 fotos" },
+  { icon: FaExclamationTriangle, label: "Incidencia · Portón sur" },
+  { icon: FaMapMarkerAlt, label: "Cierre de ronda · GPS" },
+];
+
+const OFFLINE_STATES = [
+  { tone: "off", icon: FaWifi, title: "Sin señal", text: "Todo se guarda en el teléfono." },
+  { tone: "sync", icon: FaSyncAlt, title: "Sincronizando", text: "Subiendo lo pendiente, sin duplicar." },
+  { tone: "ok", icon: FaCheckCircle, title: "Todo al día", text: "La consola ya tiene la ronda completa." },
+] as const;
+
+/** Escena offline: la app real del guardia y la cola de sincronización animada. */
+const OfflineScene = () => {
+  const step = useCycle(OFFLINE_STATES.length, 2800);
+  const state = OFFLINE_STATES[step];
+  const StateIcon = state.icon;
+
+  return (
+    <div className={`lpx-offline is-${state.tone}`}>
+      <div className="lpx-offline-rings" aria-hidden="true"><i /><i /><i /></div>
+
+      <figure className="lpx-phone lpx-phone--offline">
+        <span className="lpx-phone-island" aria-hidden="true" />
+        <img src={SHOTS.guardHome} alt="App del guardia con el botón Sync para revisar y enviar lo pendiente" />
+        <figcaption className="lpx-phone-signal" aria-hidden="true">
+          <FaWifi /> {state.tone === "off" ? "Sin conexión" : "Conectado"}
+        </figcaption>
+      </figure>
+
+      <div className="lpx-sync" role="status" aria-live="polite">
+        <div className="lpx-sync-head">
+          <span className="lpx-sync-icon"><StateIcon /></span>
+          <div>
+            <strong>{state.title}</strong>
+            <small>{state.text}</small>
+          </div>
+        </div>
+        <ul className="lpx-sync-list">
+          {OFFLINE_QUEUE.map(({ icon: Icon, label }, index) => (
+            <li key={label} style={{ "--i": index } as React.CSSProperties}>
+              <Icon />
+              <span>{label}</span>
+              <em>{state.tone === "off" ? "Guardado" : state.tone === "sync" ? "Enviando" : "Listo"}</em>
+            </li>
+          ))}
+        </ul>
+        <div className="lpx-sync-bar" aria-hidden="true"><span /></div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -856,6 +962,56 @@ const LandingPage = () => {
     setRoleFavicon(landingRole);
   }, [landingRole]);
   const progressRef = useRef<HTMLSpanElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  // Entrada escalonada al hacer scroll y conteo de cifras. Sin movimiento si el sistema lo pide.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    root.classList.add("lpx-js");
+
+    const countUp = (el: HTMLElement) => {
+      const target = Number(el.dataset.count);
+      const { prefix = "", suffix = "" } = el.dataset;
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / 1400);
+        el.textContent = `${prefix}${Math.round(target * (1 - Math.pow(1 - t, 3)))}${suffix}`;
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target as HTMLElement;
+          el.dataset.in = "true";
+          el.querySelectorAll<HTMLElement>("[data-count]").forEach(countUp);
+          observer.unobserve(el);
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
+    );
+    root.querySelectorAll("[data-reveal]:not([data-in])").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [landingRole]);
+
+  // Brillo que sigue al cursor en tarjetas.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const onMove = (event: PointerEvent) => {
+      const card = (event.target as HTMLElement).closest<HTMLElement>(".lp-benefit, .lp-plan, .lp-persona, .lp-step, .lp-screen");
+      if (!card) return;
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", `${event.clientX - r.left}px`);
+      card.style.setProperty("--my", `${event.clientY - r.top}px`);
+    };
+    root.addEventListener("pointermove", onMove, { passive: true });
+    return () => root.removeEventListener("pointermove", onMove);
+  }, []);
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -899,7 +1055,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="checkapp-landing" style={LANDING_ROLE_THEMES[landingRole] as React.CSSProperties}>
+    <div className="checkapp-landing" ref={rootRef} style={LANDING_ROLE_THEMES[landingRole] as React.CSSProperties}>
       <div className="lp-progress" aria-hidden="true">
         <span ref={progressRef} />
       </div>
@@ -1014,16 +1170,16 @@ const LandingPage = () => {
         <section className="lp-trust">
           <div className="lp-container lp-trust-inner" data-reveal>
             <span className="lp-trust-label">Diseñado para agencias de seguridad privada</span>
-            <div className="lp-trust-capabilities" aria-label="Capacidades de la plataforma">
-              <span>QR + GPS</span>
-              <span>Evidencia multimedia</span>
-              <span>Offline-first</span>
-              <span>Sync automático</span>
-              <span>Multi-sitio</span>
+            <div className="lp-trust-capabilities lpx-marquee" aria-label="Capacidades de la plataforma">
+              <div className="lpx-marquee-track">
+                {[...CAPABILITIES, ...CAPABILITIES].map((item, index) => (
+                  <span key={`${item}-${index}`} aria-hidden={index >= CAPABILITIES.length}>{item}</span>
+                ))}
+              </div>
             </div>
             <div className="lp-trust-stats">
               <div className="lp-trust-stat">
-                <strong>+100</strong>
+                <strong data-count="100" data-prefix="+">+100</strong>
                 <span>guardias por operación</span>
               </div>
               <div className="lp-trust-stat">
@@ -1031,7 +1187,7 @@ const LandingPage = () => {
                 <span>interfaces conectadas</span>
               </div>
               <div className="lp-trust-stat">
-                <strong>100%</strong>
+                <strong data-count="100" data-suffix="%">100%</strong>
                 <span>trazabilidad de rondas</span>
               </div>
               <div className="lp-trust-stat">
@@ -1232,19 +1388,8 @@ const LandingPage = () => {
                 </button>
               </div>
 
-              <div className="lp-offline-gallery" data-reveal>
-                <figure className="lp-device lp-device-a">
-                  <div className="lp-device-frame"><img src={appOffline} alt="App CheckApp sin conexión con aviso de trabajo offline" loading="lazy" /></div>
-                  <figcaption><strong>Sin señal</strong><span>Sigue trabajando</span></figcaption>
-                </figure>
-                <figure className="lp-device lp-device-b">
-                  <div className="lp-device-frame"><img src={appSync} alt="Pantalla de sincronización de CheckApp" loading="lazy" /></div>
-                  <figcaption><strong>Sync</strong><span>Revisión y evidencias</span></figcaption>
-                </figure>
-                <figure className="lp-device lp-device-c">
-                  <div className="lp-device-frame"><img src={appHomeSync} alt="Home de CheckApp con botón de sincronización" loading="lazy" /></div>
-                  <figcaption><strong>Al volver</strong><span>Todo actualizado</span></figcaption>
-                </figure>
+              <div className="lp-offline-visual" data-reveal>
+                <OfflineScene />
               </div>
             </div>
           </div>

@@ -7018,3 +7018,781 @@ html {
   color: var(--lp-muted);
   font-size: 11px;
 }
+
+/* ============================================================
+   LPX · Capa de pulido (oct 2026): capturas reales en hero y offline,
+   entrada escalonada, conteo de cifras, marquee y brillo bajo el cursor.
+   ============================================================ */
+
+/* ---------- Hero: consola web + app del guardia ---------- */
+.checkapp-landing .lpx-hero {
+  position: relative;
+  min-height: 560px;
+  perspective: 1600px;
+}
+
+.checkapp-landing .lpx-hero-glow {
+  position: absolute;
+  inset: 8% 4% 4% 10%;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, color-mix(in srgb, var(--lp-mint) 30%, transparent), transparent),
+    radial-gradient(closest-side at 70% 70%, color-mix(in srgb, var(--lp-green-2) 34%, transparent), transparent);
+  filter: blur(40px);
+  opacity: 0.55;
+  animation: lpx-breathe 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.checkapp-landing .lpx-hero-stage {
+  position: relative;
+  height: 560px;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.checkapp-landing .lpx-browser {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  width: 86%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow:
+    0 50px 110px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform: rotate(-2deg);
+  animation: lpx-rise 1s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.checkapp-landing .lpx-browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  background: #f1f5f2;
+  border-bottom: 1px solid #e2e8e4;
+}
+
+.checkapp-landing .lpx-browser-bar i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f87171;
+}
+
+.checkapp-landing .lpx-browser-bar i:nth-child(2) {
+  background: #fbbf24;
+}
+
+.checkapp-landing .lpx-browser-bar i:nth-child(3) {
+  background: #34d399;
+}
+
+.checkapp-landing .lpx-browser-bar span {
+  margin-left: 10px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.checkapp-landing .lpx-browser img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10.4;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.checkapp-landing .lpx-phone {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  z-index: 3;
+  width: 236px;
+  aspect-ratio: 1080 / 2240;
+  margin: 0;
+  padding: 9px;
+  border-radius: 42px;
+  background: linear-gradient(150deg, #2b3a33, #0b1410 45%, #1c2722);
+  box-shadow:
+    0 50px 100px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+  animation:
+    lpx-rise 1s 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both,
+    lpx-float 7s 1.4s ease-in-out infinite;
+}
+
+.checkapp-landing .lpx-phone img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 33px;
+  object-fit: cover;
+  object-position: top center;
+  background: #f1f5f2;
+}
+
+.checkapp-landing .lpx-phone-island {
+  position: absolute;
+  top: 17px;
+  left: 50%;
+  z-index: 2;
+  width: 68px;
+  height: 19px;
+  border-radius: 999px;
+  background: #050a07;
+  transform: translateX(-50%);
+}
+
+.checkapp-landing .lpx-phone-scan {
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  top: 12%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--lp-mint), transparent);
+  box-shadow: 0 0 18px 4px color-mix(in srgb, var(--lp-mint) 55%, transparent);
+  animation: lpx-scan 3.4s ease-in-out infinite;
+}
+
+.checkapp-landing .lpx-event {
+  position: absolute;
+  left: 4%;
+  bottom: 54px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 250px;
+  padding: 12px 16px 12px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 24, 16, 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  animation: lpx-pop 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+}
+
+.checkapp-landing .lpx-event-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--lp-mint) 20%, transparent);
+  color: var(--lp-mint);
+  font-size: 16px;
+}
+
+.checkapp-landing .lpx-event strong {
+  display: block;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+.checkapp-landing .lpx-event small {
+  display: block;
+  margin-top: 2px;
+  color: rgba(226, 247, 236, 0.62);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.checkapp-landing .lpx-chip {
+  position: absolute;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 24, 16, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  animation: lpx-float 6s ease-in-out infinite;
+}
+
+.checkapp-landing .lpx-chip svg {
+  color: var(--lp-mint);
+}
+
+.checkapp-landing .lpx-chip--live {
+  top: 0;
+  right: 30%;
+  animation-delay: -2s;
+}
+
+.checkapp-landing .lpx-chip--offline {
+  top: 46%;
+  right: 230px;
+  animation-delay: -4s;
+}
+
+/* ---------- Offline: app real + cola de sincronización ---------- */
+.checkapp-landing .lp-offline-visual {
+  position: relative;
+}
+
+.checkapp-landing .lpx-offline {
+  --tone: #f59e0b;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 34px;
+  min-height: 540px;
+}
+
+.checkapp-landing .lpx-offline.is-sync {
+  --tone: var(--lp-mint);
+}
+
+.checkapp-landing .lpx-offline.is-ok {
+  --tone: #34d399;
+}
+
+.checkapp-landing .lpx-offline-rings {
+  position: absolute;
+  top: 50%;
+  left: 125px;
+  pointer-events: none;
+}
+
+.checkapp-landing .lpx-offline-rings i {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  margin: -150px 0 0 -150px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--tone) 50%, transparent);
+  opacity: 0;
+  transition: border-color 0.6s ease;
+  animation: lpx-ring 3.6s ease-out infinite;
+}
+
+.checkapp-landing .lpx-offline-rings i:nth-child(2) {
+  animation-delay: 1.2s;
+}
+
+.checkapp-landing .lpx-offline-rings i:nth-child(3) {
+  animation-delay: 2.4s;
+}
+
+.checkapp-landing .lpx-phone--offline {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  width: 250px;
+}
+
+.checkapp-landing .lpx-phone-signal {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tone) 92%, #000000);
+  color: #04120a;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--tone) 40%, transparent);
+  transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+
+.checkapp-landing .is-off .lpx-phone-signal svg {
+  opacity: 0.45;
+}
+
+.checkapp-landing .lpx-sync {
+  position: relative;
+  z-index: 4;
+  min-width: 300px;
+  margin-left: -84px;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid color-mix(in srgb, var(--tone) 28%, rgba(255, 255, 255, 0.08));
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--tone) 12%, transparent), transparent 60%),
+    rgba(8, 24, 16, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 34px 80px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.6s ease, background 0.6s ease;
+}
+
+.checkapp-landing .lpx-sync-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.checkapp-landing .lpx-sync-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--tone) 18%, transparent);
+  color: var(--tone);
+  font-size: 19px;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.checkapp-landing .is-sync .lpx-sync-icon svg {
+  animation: lpx-spin 1.1s linear infinite;
+}
+
+.checkapp-landing .lpx-sync-head strong {
+  display: block;
+  color: #ffffff;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+
+.checkapp-landing .lpx-sync-head small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(226, 247, 236, 0.62);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.checkapp-landing .lpx-sync-list {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.checkapp-landing .lpx-sync-list li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(226, 247, 236, 0.86);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.checkapp-landing .lpx-sync-list li span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.checkapp-landing .lpx-sync-list li svg {
+  color: var(--lp-mint);
+}
+
+.checkapp-landing .lpx-sync-list em {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+  color: var(--tone);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: background 0.4s ease, color 0.4s ease;
+  transition-delay: calc(var(--i, 0) * 140ms);
+}
+
+.checkapp-landing .is-sync .lpx-sync-list em {
+  animation: lpx-blink 1s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 160ms);
+}
+
+.checkapp-landing .lpx-sync-bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.checkapp-landing .lpx-sync-bar span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--lp-green-2), var(--tone));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--tone) 60%, transparent);
+}
+
+.checkapp-landing .is-sync .lpx-sync-bar span {
+  animation: lpx-fill 2.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.checkapp-landing .is-ok .lpx-sync-bar span {
+  width: 100%;
+}
+
+/* ---------- Capacidades en marquee ---------- */
+.checkapp-landing .lp-trust-capabilities.lpx-marquee {
+  display: block;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000000 10%, #000000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000000 10%, #000000 90%, transparent);
+}
+
+.checkapp-landing .lpx-marquee-track {
+  display: flex;
+  gap: 9px;
+  width: max-content;
+  animation: lpx-marquee 34s linear infinite;
+}
+
+.checkapp-landing .lpx-marquee:hover .lpx-marquee-track {
+  animation-play-state: paused;
+}
+
+.checkapp-landing .lpx-marquee-track span {
+  white-space: nowrap;
+}
+
+/* ---------- Entrada escalonada (solo con JS y sin reduced-motion) ---------- */
+.checkapp-landing.lpx-js [data-reveal] {
+  --d: 0s;
+  animation: none;
+  opacity: 0;
+  translate: 0 34px;
+  scale: 0.98;
+  filter: blur(6px);
+  transition:
+    opacity 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d),
+    translate 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d),
+    scale 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d),
+    filter 0.85s ease var(--d),
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.checkapp-landing.lpx-js [data-reveal][data-in] {
+  opacity: 1;
+  translate: none;
+  scale: none;
+  filter: none;
+}
+
+.checkapp-landing.lpx-js :is(.lp-benefits-grid, .lp-pricing-grid, .lp-personas-grid) > [data-reveal]:nth-child(3n + 2),
+.checkapp-landing.lpx-js :is(.lp-screens-grid, .lp-role-app-strip) > [data-reveal]:nth-child(2n) {
+  --d: 0.1s;
+}
+
+.checkapp-landing.lpx-js :is(.lp-benefits-grid, .lp-pricing-grid, .lp-personas-grid) > [data-reveal]:nth-child(3n + 3),
+.checkapp-landing.lpx-js .lp-role-app-strip > [data-reveal]:nth-child(3) {
+  --d: 0.2s;
+}
+
+/* Al cambiar de rol, las pantallas entran con un fundido. */
+.checkapp-landing .lpx-swap {
+  animation: lpx-swap 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* ---------- Brillo bajo el cursor ---------- */
+.checkapp-landing :is(.lp-plan, .lp-persona, .lp-step, .lp-screen) {
+  position: relative;
+  isolation: isolate;
+}
+
+.checkapp-landing :is(.lp-plan, .lp-persona, .lp-step, .lp-screen)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, 0%),
+    color-mix(in srgb, var(--lp-mint) 13%, transparent),
+    transparent 62%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.checkapp-landing .lp-screen::after {
+  z-index: 2;
+}
+
+.checkapp-landing .lp-benefit::after {
+  background: radial-gradient(
+    300px circle at var(--mx, 100%) var(--my, 0%),
+    color-mix(in srgb, var(--lp-mint) 18%, transparent),
+    transparent 60%
+  );
+}
+
+.checkapp-landing :is(.lp-plan, .lp-persona, .lp-step, .lp-screen):hover::after {
+  opacity: 1;
+}
+
+/* El teléfono de la tira de rol también flota al pasar el cursor. */
+.checkapp-landing .lp-role-app-strip .lp-phone {
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.4s ease;
+}
+
+.checkapp-landing .lp-role-app-strip .lp-phone:hover {
+  transform: translateY(-10px) rotate(0deg);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), 0 0 50px color-mix(in srgb, var(--lp-mint) 18%, transparent);
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes lpx-rise {
+  from {
+    opacity: 0;
+    translate: 0 50px;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+@keyframes lpx-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes lpx-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+    scale: 1;
+  }
+  50% {
+    opacity: 0.7;
+    scale: 1.06;
+  }
+}
+
+@keyframes lpx-scan {
+  0%,
+  100% {
+    top: 12%;
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  50% {
+    top: 86%;
+  }
+}
+
+@keyframes lpx-pop {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+    scale: 0.94;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+    scale: none;
+  }
+}
+
+@keyframes lpx-ring {
+  from {
+    opacity: 0.7;
+    scale: 0.55;
+  }
+  to {
+    opacity: 0;
+    scale: 1.5;
+  }
+}
+
+@keyframes lpx-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes lpx-blink {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes lpx-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes lpx-marquee {
+  to {
+    transform: translateX(calc(-50% - 4.5px));
+  }
+}
+
+@keyframes lpx-swap {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 1180px) {
+  .checkapp-landing .lpx-phone {
+    width: 210px;
+  }
+
+  .checkapp-landing .lpx-chip--offline {
+    right: 200px;
+  }
+}
+
+@media (max-width: 900px) {
+  .checkapp-landing .lpx-hero,
+  .checkapp-landing .lpx-hero-stage {
+    min-height: 0;
+    height: 500px;
+  }
+
+  .checkapp-landing .lpx-browser {
+    width: 90%;
+  }
+}
+
+@media (max-width: 640px) {
+  .checkapp-landing .lpx-hero,
+  .checkapp-landing .lpx-hero-stage {
+    height: 420px;
+  }
+
+  .checkapp-landing .lpx-browser {
+    top: 10px;
+    width: 100%;
+    transform: none;
+  }
+
+  .checkapp-landing .lpx-phone {
+    width: 158px;
+    padding: 6px;
+    border-radius: 30px;
+  }
+
+  .checkapp-landing .lpx-phone img {
+    border-radius: 25px;
+  }
+
+  .checkapp-landing .lpx-phone-island {
+    top: 12px;
+    width: 46px;
+    height: 13px;
+  }
+
+  .checkapp-landing .lpx-event {
+    left: 0;
+    bottom: 18px;
+    min-width: 0;
+    max-width: 62%;
+    padding: 10px 12px 10px 10px;
+  }
+
+  .checkapp-landing .lpx-event-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .checkapp-landing .lpx-chip--offline {
+    display: none;
+  }
+
+  .checkapp-landing .lpx-chip--live {
+    top: auto;
+    bottom: 96px;
+    right: auto;
+    left: 0;
+  }
+
+  .checkapp-landing .lpx-offline {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 22px;
+    min-height: 0;
+  }
+
+  .checkapp-landing .lpx-offline-rings {
+    top: 230px;
+    left: 50%;
+  }
+
+  .checkapp-landing .lpx-phone--offline {
+    width: 220px;
+  }
+
+  .checkapp-landing .lpx-sync {
+    width: 100%;
+    min-width: 0;
+    margin: -120px 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkapp-landing :is(.lpx-hero-glow, .lpx-browser, .lpx-phone, .lpx-phone-scan, .lpx-event, .lpx-chip, .lpx-offline-rings i, .lpx-marquee-track, .lpx-swap),
+  .checkapp-landing .is-sync :is(.lpx-sync-icon svg, .lpx-sync-list em) {
+    animation: none;
+  }
+
+  .checkapp-landing .lpx-phone-scan,
+  .checkapp-landing .lpx-offline-rings {
+    display: none;
+  }
+
+  .checkapp-landing .is-sync .lpx-sync-bar span {
+    width: 60%;
+  }
+
+  .checkapp-landing .lpx-hero-stage {
+    transform: none;
+  }
+}

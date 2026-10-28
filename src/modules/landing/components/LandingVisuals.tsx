@@ -1,5 +1,4 @@
-import currentUsers from "@assets/landing/current-users-crop.png";
-import currentAppInicio from "@assets/landing/app-home-sync.png";
+import { SHOTS } from "../landing.shots";
 
 const BrowserTop = () => (
   <div className="lp-browser-top">
@@ -10,11 +9,11 @@ const BrowserTop = () => (
   </div>
 );
 
-/** Consola web: captura real del directorio de usuarios (WEB actual). */
+/** Consola web: captura real del monitoreo en vivo (WEB actual). */
 export const WebConsoleVisual = () => (
   <div className="lp-browser lp-browser-real" aria-hidden="true">
     <BrowserTop />
-    <img className="lp-module-shot" src={currentUsers} alt="" />
+    <img className="lp-module-shot" src={SHOTS.webHome} alt="" />
   </div>
 );
 
@@ -22,7 +21,7 @@ export const WebConsoleVisual = () => (
 export const GuardAppVisual = () => (
   <div className="lp-module-phone" aria-hidden="true">
     <div className="lp-module-phone-screen lp-phone-screen-real">
-      <img src={currentAppInicio} alt="" />
+      <img src={SHOTS.guardHome} alt="" />
     </div>
   </div>
 );

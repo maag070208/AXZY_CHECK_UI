@@ -51,8 +51,9 @@ describe("landing · render público", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Sin CheckApp")).toBeInTheDocument();
     expect(screen.getByText("Con CheckApp")).toBeInTheDocument();
-    expect(screen.getByText("Al día siguiente")).toBeInTheDocument();
-    expect(screen.getByText("En vivo")).toBeInTheDocument();
+    const compare = document.getElementById("problema") as HTMLElement;
+    expect(within(compare).getByText("Al día siguiente")).toBeInTheDocument();
+    expect(within(compare).getByText("En vivo")).toBeInTheDocument();
 
     // Módulos (tab por defecto: consola web)
     expect(
@@ -64,14 +65,9 @@ describe("landing · render público", () => {
 
     // Pantallas
     expect(
-      screen.getByRole("heading", { name: "Pantallas reales de la operación" }),
+      screen.getByRole("heading", { name: "Una plataforma. La vista de cada rol." }),
     ).toBeInTheDocument();
-    for (const title of [
-      "Monitoreo en vivo",
-      "Directorio de usuarios",
-      "Catálogos",
-      "Historial de recorridos",
-    ]) {
+    for (const title of ["Monitoreo en vivo", "Ubicaciones y QR", "Finanzas", "Vehículos"]) {
       expect(screen.getByAltText(`Pantalla de ${title} en CheckApp`)).toBeInTheDocument();
     }
 
@@ -101,9 +97,11 @@ describe("landing · render público", () => {
     // Footer
     const footer = container.querySelector("footer.lp-footer") as HTMLElement;
     expect(within(footer).getByText(/© 2026 AXZY Security Suite/)).toBeInTheDocument();
-    for (const link of ["Aviso de privacidad", "Términos y condiciones", "Nuestros valores"]) {
-      expect(within(footer).getByRole("link", { name: link })).toHaveAttribute("target", "_blank");
+    // Los documentos legales viven en la propia app (/legal/:doc); "Nuestros valores" sigue siendo externo.
+    for (const button of ["Aviso de privacidad", "Términos y condiciones", "Derechos ARCO"]) {
+      expect(within(footer).getByRole("button", { name: button })).toBeInTheDocument();
     }
+    expect(within(footer).getByRole("link", { name: "Nuestros valores" })).toHaveAttribute("target", "_blank");
     expect(within(footer).getByRole("link", { name: "aamaro@axzy.dev" })).toHaveAttribute(
       "href",
       "mailto:aamaro@axzy.dev",
@@ -174,9 +172,7 @@ describe("landing · navegación", () => {
     for (const plan of ["Estándar", "Pro", "Enterprise"]) {
       expect(screen.getByRole("heading", { name: plan })).toBeInTheDocument();
     }
-    expect(screen.getAllByText("$2,490").length).toBeGreaterThan(0);
-    expect(screen.getByText("$5,990")).toBeInTheDocument();
-    expect(screen.getByText("$12,990")).toBeInTheDocument();
+    expect(screen.getAllByText("Cotiza tu plan")).toHaveLength(3);
     expect(screen.getAllByText("rondas / mes")).toHaveLength(3);
   });
 
@@ -248,7 +244,8 @@ describe("landing · WhatsApp", () => {
     expect(panel).toBeInTheDocument();
     await user.click(within(panel).getByRole("button", { name: "1–10" }));
     await user.click(await within(panel).findByRole("button", { name: "1–100" }));
-    expect(await within(panel).findByText("Estándar · $2,490 MXN/mes")).toBeInTheDocument();
+    expect(await within(panel).findByText("Recomendación de A")).toBeInTheDocument();
+    expect(within(panel).getByText(/Hasta 10 guardias/)).toBeInTheDocument();
 
     await user.click(await within(panel).findByRole("button", { name: "Solo cotización" }));
     await user.type(await within(panel).findByLabelText("WhatsApp opcional"), "6641234567");
@@ -289,12 +286,14 @@ describe("landing · WhatsApp", () => {
     await waitFor(() => expect(open).toHaveBeenCalledWith(WA_URL, "_blank", "noopener,noreferrer"));
   });
 
-  it("las 4 capturas de pantalla se muestran con su alt", async () => {
+  it("las capturas reales de WEB y APP se muestran con su alt", async () => {
     openLanding();
     expect(screen.getByAltText("Pantalla de Monitoreo en vivo en CheckApp")).toBeInTheDocument();
-    expect(screen.getByAltText("Pantalla de Directorio de usuarios en CheckApp")).toBeInTheDocument();
-    expect(screen.getByAltText("Pantalla de Catálogos en CheckApp")).toBeInTheDocument();
-    expect(screen.getByAltText("Pantalla de Historial de recorridos en CheckApp")).toBeInTheDocument();
+    expect(screen.getByAltText("Consola web de CheckApp con el monitoreo en vivo de la operación")).toBeInTheDocument();
+    expect(screen.getByAltText("App del guardia en CheckApp con su ronda y accesos rápidos")).toBeInTheDocument();
+    expect(
+      screen.getByAltText("App del guardia con el botón Sync para revisar y enviar lo pendiente"),
+    ).toBeInTheDocument();
     // Logos de cabecera y pie.
     expect(screen.getAllByAltText("CheckApp").length).toBe(2);
   });

@@ -16,7 +16,8 @@ const LegalPage = () => {
         <ITButton variant="text" color="gray" type="button" onClick={() => navigate("/login")}>Volver</ITButton>
       </ITFlex>
 
-      <ITFlex as="nav" aria-label="Documentos legales" wrap="wrap" gap={2}>
+      <ITText as="nav" aria-label="Documentos legales">
+        <ITFlex wrap="wrap" gap={2}>
         {LEGAL_KEYS.map((key) => (
           <ITButton
             key={key}
@@ -28,7 +29,8 @@ const LegalPage = () => {
             {LEGAL_DOCS[key].label}
           </ITButton>
         ))}
-      </ITFlex>
+        </ITFlex>
+      </ITText>
 
       <ITCard>
         {current ? (
