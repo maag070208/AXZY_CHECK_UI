@@ -18,6 +18,7 @@ describe("login", () => {
     await fillAndSubmit(renderApp({ route: "/login" }), "123456");
     expect(await screen.findByText("Hoy en números")).toBeInTheDocument();
     expect(store.getState().auth.token).not.toBeNull();
+    expect(localStorage.getItem("token")).toBeNull();
   });
 
   it("con contraseña incorrecta se queda en el login", async () => {

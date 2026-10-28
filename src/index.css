@@ -33,3 +33,8 @@
 body {
   background-color: #f6fbf4;
 }
+
+/* Logo de marca en blanco puro sobre fondos oscuros (login, drawer, footer). */
+.role-logo-white img {
+  filter: brightness(0) invert(1) !important;
+}

@@ -1,0 +1,1 @@
+import { chromium } from '@playwright/test'; const b=await chromium.launch(); const p=await b.newPage({viewport:{width:1440,height:1000}}); await p.goto('http://localhost:5002/#/login',{waitUntil:'networkidle'}); await p.waitForTimeout(500); await p.screenshot({path:'public/landing/preview/login-white-logo.png'}); await b.close();

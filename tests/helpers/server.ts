@@ -8,6 +8,7 @@ export const API = "http://api.test/api/v1";
 /** Lo que el shell (Home + barra lateral) pide siempre; las pruebas lo pisan con `server.use(...)`. */
 export const baseHandlers = [
   http.get(`${API}/users/me`, () => HttpResponse.json({ success: false }, { status: 401 })),
+  http.post(`${API}/users/refresh`, () => HttpResponse.json({ success: false }, { status: 401 })),
   http.get(`${API}/users/me/permissions`, ({ request }) => {
     const role = roleFromAuthHeader(request.headers.get("Authorization"));
     const permissions = permissionsForRole(role);

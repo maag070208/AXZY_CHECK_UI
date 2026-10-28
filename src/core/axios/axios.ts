@@ -9,6 +9,8 @@ import { showLoader, hideLoader } from "../store/loader/loader.slice";
 import { logout } from "../store/auth/auth.slice";
 import store from "../store/store";
 
+type SessionConfig = InternalAxiosRequestConfig & { _retry?: boolean; skipAuth?: boolean };
+
 const axiosInstance = axios.create({
   withCredentials: true,
   baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:4444/api/v1',
@@ -20,7 +22,7 @@ axiosInstance.interceptors.request.use(
     const state = store.getState();
     const token = state.auth.token;
 
-    if (token) {
+    if (token && !(config as SessionConfig).skipAuth) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -37,12 +39,25 @@ axiosInstance.interceptors.response.use(
     store.dispatch(hideLoader());
     return response;
   },
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     store.dispatch(hideLoader());
+
+    const config = error.config as SessionConfig | undefined;
+    const url = String(config?.url ?? "");
+    if (error.response?.status === 401 && config && !config._retry && !url.includes("/users/refresh") && !url.includes("/users/login")) {
+      config._retry = true;
+      try {
+        // El refresh viaja en cookie HttpOnly; el access nuevo también queda en cookie.
+        await axios.post(`${axiosInstance.defaults.baseURL}/users/refresh`, {}, { withCredentials: true });
+        config.skipAuth = true;
+        return axiosInstance(config);
+      } catch {
+        // Sin refresh válido, se cierra la sesión local.
+      }
+    }
 
     if (error.response?.status === 401) {
       store.dispatch(logout());
-
       if (window.location.hash !== "#/login") {
         window.location.hash = "#/login";
       }
