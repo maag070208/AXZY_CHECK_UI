@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { ITAlert, ITButton, ITDialog, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useCatalog } from "@app/core/hooks/catalog.hook";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { getPropertiesList, Property } from "@app/modules/properties/service/properties.service";
+import { getPaginatedProperties, Property } from "@app/modules/properties/service/properties.service";
 import { createWalkInVisit, Invitation } from "@modules/invitations/services/invitations.service";
 import { invitationTypeLabel } from "@modules/invitations/invitation-type-label";
 
@@ -30,10 +30,9 @@ export const WalkInDialog = ({ isOpen, onClose, onCreated }: Props) => {
 
   useEffect(() => {
     if (!isOpen) return;
-    getPropertiesList().then((res) => {
-      if (res.success && res.data) {
-        setProperties(res.data.map((p: Property) => ({ label: `${p.identifier} - ${p.name}`, value: String(p.id) })));
-      }
+    // La lista de personal: el guardia no tiene `properties.view`, que además abre el padrón de cada casa.
+    getPaginatedProperties({ page: 1, limit: 1000, filters: {} } as never).then((res) => {
+      setProperties(res.data.map((p: Property) => ({ label: `${p.identifier} - ${p.name}`, value: String(p.id) })));
     });
   }, [isOpen]);
 

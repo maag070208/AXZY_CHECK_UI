@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { ITAlert, ITCard, ITChip, ITFlex, ITGrid, ITProgress, ITSkeleton, ITStatCard, ITText } from "@axzydev/axzy_ui_system";
+import { ITAlert, ITButton, ITCard, ITChip, ITFlex, ITGrid, ITProgress, ITSkeleton, ITStatCard, ITText } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
-import { FaClock, FaDoorOpen, FaExclamationTriangle, FaSignInAlt } from "react-icons/fa";
-import { getVisitStats, VisitStats } from "@modules/invitations/services/invitations.service";
+import { FaClock, FaDoorOpen, FaExclamationTriangle, FaFilePdf, FaSignInAlt } from "react-icons/fa";
+import { downloadVisitStatsPdf, getVisitStats, VisitStats } from "@modules/invitations/services/invitations.service";
 
 const RANGE_DAYS = 30;
 
@@ -17,12 +17,16 @@ export const VisitStatsPanel = () => {
   const [stats, setStats] = useState<VisitStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [range] = useState(() => ({
+    from: dayjs().subtract(RANGE_DAYS, "day").startOf("day").toISOString(),
+    to: new Date().toISOString(),
+  }));
 
   useEffect(() => {
     let active = true;
-    const to = new Date();
-    const from = dayjs().subtract(RANGE_DAYS, "day").startOf("day").toDate();
-    getVisitStats({ from: from.toISOString(), to: to.toISOString() }).then((res) => {
+    getVisitStats(range).then((res) => {
       if (!active) return;
       if (res.success && res.data) setStats(res.data);
       else setError(res.messages?.[0] ?? "No se pudieron cargar los indicadores de visitas");
@@ -31,7 +35,19 @@ export const VisitStatsPanel = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [range]);
+
+  const exportPdf = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      await downloadVisitStatsPdf(range);
+    } catch {
+      setExportError("No se pudo descargar el PDF. Intenta de nuevo.");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (loading) {
     return <ITSkeleton variant="rectangular" height={160} className="rounded-2xl" />;
@@ -45,8 +61,17 @@ export const VisitStatsPanel = () => {
   const busiest = Math.max(1, ...topProperties.map((p) => p.entries));
 
   return (
-    <ITCard title={`Visitas · últimos ${RANGE_DAYS} días`} contentClassName="p-4!">
+    <ITCard
+      title={`Visitas · últimos ${RANGE_DAYS} días`}
+      contentClassName="p-4!"
+      headerActions={
+        <ITButton size="sm" variant="outlined" color="secondary" onClick={() => void exportPdf()} disabled={exporting}>
+          <ITFlex align="center" gap={2}><FaFilePdf size={11} /> {exporting ? "Generando…" : "Descargar PDF"}</ITFlex>
+        </ITButton>
+      }
+    >
       <ITFlex direction="column" gap={4}>
+        {exportError && <ITAlert variant="error">{exportError}</ITAlert>}
         <ITGrid container columns={12} spacing={3}>
           {[
             { label: "Entradas", value: String(stats.entries), icon: <FaSignInAlt /> },

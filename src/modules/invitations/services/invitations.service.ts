@@ -1,4 +1,4 @@
-import { get, post, put } from "@app/core/axios/axios";
+import { axiosInstance, get, post, put } from "@app/core/axios/axios";
 
 export interface Invitation {
     id: number;
@@ -130,4 +130,17 @@ export const createWalkInVisit = async (data: { guestName: string; propertyId: n
         validFrom: now.toISOString(),
         validUntil: new Date(now.getTime() + 4 * 3600_000).toISOString(),
     });
+};
+
+/** Descarga los indicadores de visitas en PDF. */
+export const downloadVisitStatsPdf = async (params: { from: string; to: string }) => {
+    const response = await axiosInstance.get('/invitations/stats/export.pdf', { responseType: 'blob', params });
+    const url = window.URL.createObjectURL(response.data as Blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `indicadores-visitas-${new Date().toISOString().slice(0, 10)}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
 };
