@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { HomeCardItem } from "../components/HomeCardItem";
 import { ResidentHomeDashboard } from "../components/ResidentHomeDashboard";
 import { GuardHomeDashboard } from "../components/GuardHomeDashboard";
+import { PendingApprovalsCard } from "../components/PendingApprovalsCard";
 import { ShiftHomeDashboard } from "../components/ShiftHomeDashboard";
 import { LiveOpsDashboard } from "../../dashboard/pages/LiveOpsDashboard";
 import { useCan } from "@app/core/permissions/useCan";
@@ -100,9 +101,9 @@ const HomePage = () => {
     setHomeCardItem(cards.filter((card) => can(card.permission)));
   }, [user, showLiveDashboard, can]);
 
-  if (showLiveDashboard && !isShift) return <LiveOpsDashboard />;
-  if (isShift) return <ShiftHomeDashboard />;
-  if (isResident) return <ResidentHomeDashboard />;
+  if (showLiveDashboard && !isShift) return <><PendingApprovalsCard /><LiveOpsDashboard /></>;
+  if (isShift) return <><PendingApprovalsCard /><ShiftHomeDashboard /></>;
+  if (isResident) return <><PendingApprovalsCard /><ResidentHomeDashboard /></>;
   if (isGuard) return <GuardHomeDashboard />;
 
   return (

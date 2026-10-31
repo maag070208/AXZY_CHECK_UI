@@ -107,6 +107,7 @@ const InvitationsPage = () => {
 
     const getStatusUI = (status: string) => {
         switch(status) {
+            case 'PENDING_APPROVAL': return <ITBadget color="primary" variant="filled" size="sm">Por autorizar</ITBadget>;
             case 'PENDING': return <ITBadget color="warning" variant="filled" size="sm">En espera</ITBadget>;
             case 'ENTERED': return <ITBadget color="success" variant="filled" size="sm">Dentro</ITBadget>;
             case 'EXITED': return <ITBadget color="secondary" variant="filled" size="sm">Completado</ITBadget>;

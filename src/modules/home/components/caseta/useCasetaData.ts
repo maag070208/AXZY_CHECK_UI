@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { getPaginatedInvitations, Invitation } from "@modules/invitations/services/invitations.service";
+import { getCasetaStatus, getPaginatedInvitations, Invitation } from "@modules/invitations/services/invitations.service";
 import { getRounds, IRound } from "@modules/rounds/services/RoundsService";
 
 const REFRESH_MS = 60_000;
@@ -16,9 +16,14 @@ export type CasetaData = {
   expected: Invitation[];
   /** Visitas que entraron y no han salido. */
   inside: Invitation[];
+  /** Visitas sin cita esperando la decisión del residente, de la más antigua a la más reciente. */
+  awaiting: Invitation[];
   /** Entradas registradas hoy (sigan dentro o ya hayan salido). */
   entriesToday: number;
   activeRound: IRound | null;
+  /** Permanencia máxima (horas) y visitas dentro que ya la rebasaron. */
+  maxStayHours: number | null;
+  overstayedIds: number[];
 };
 
 /** Datos operativos de la caseta: visitas por llegar, visitas dentro y la ronda del guardia. Se refresca cada minuto. */
@@ -30,19 +35,24 @@ export const useCasetaData = (guardId?: number) => {
 
   const load = useCallback(async () => {
     try {
-      const [pending, entered, exited, rounds] = await Promise.all([
+      const [pending, awaiting, entered, exited, rounds, casetaStatus] = await Promise.all([
         fetchByStatus("PENDING", "validFrom", "asc"),
+        fetchByStatus("PENDING_APPROVAL", "createdAt", "asc"),
         fetchByStatus("ENTERED", "entryTime", "desc"),
         fetchByStatus("EXITED", "exitTime", "desc"),
         guardId ? getRounds(undefined, guardId).catch(() => null) : Promise.resolve(null),
+        getCasetaStatus(),
       ]);
       const now = dayjs();
       const isToday = (value?: string) => !!value && dayjs(value).isSame(now, "day");
       setData({
         expected: pending.filter((inv) => dayjs(inv.validUntil).isAfter(now)),
         inside: entered,
+        awaiting,
         entriesToday: [...entered, ...exited].filter((inv) => isToday(inv.entryTime)).length,
         activeRound: rounds?.success ? rounds.data?.find((round) => round.status === "IN_PROGRESS") ?? null : null,
+        maxStayHours: casetaStatus.data?.maxStayHours ?? null,
+        overstayedIds: casetaStatus.data?.overstayedIds ?? [],
       });
       setError(null);
       setUpdatedAt(new Date());

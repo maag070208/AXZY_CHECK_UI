@@ -42,6 +42,7 @@ export const InvitationForm = ({ onSubmit, onCancel, fixedProperty }: Props) => 
     const formik = useFormik({
         initialValues: {
             guestName: "",
+            expectedPlate: "",
             propertyId: fixedProperty ? String(fixedProperty.id) : "",
             typeId: "",
             dateRange: [new Date(), new Date(Date.now() + 86400000)], // default range from today to tomorrow
@@ -56,6 +57,7 @@ export const InvitationForm = ({ onSubmit, onCancel, fixedProperty }: Props) => 
         onSubmit: (values) => {
             const payload = {
                 guestName: values.guestName,
+                expectedPlate: values.expectedPlate.trim() || undefined,
                 propertyId: values.propertyId,
                 typeId: values.typeId,
                 notes: values.notes,
@@ -80,6 +82,16 @@ export const InvitationForm = ({ onSubmit, onCancel, fixedProperty }: Props) => 
                     error={formik.errors.guestName}
                     touched={formik.touched.guestName}
                     placeholder="Ej. Luis Hernandez Silva"
+                />
+
+                <ITInput
+                    label="Placa del vehículo (opcional)"
+                    name="expectedPlate"
+                    value={formik.values.expectedPlate}
+                    onChange={(e: any) => formik.setFieldValue("expectedPlate", String(e.target.value).toUpperCase())}
+                    onBlur={formik.handleBlur}
+                    placeholder="Ej. ABC-123-D"
+                    maxLength={12}
                 />
 
                 <ITFlex direction="column" className="grid grid-cols-2 gap-4">

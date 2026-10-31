@@ -25,7 +25,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@axzydev/axzy_ui_system": "1.7.4",
+    "@axzydev/axzy_ui_system": "1.8.15",
     "@blobatar/react": "^2.7.0",
     "@reduxjs/toolkit": "^2.5.1",
     "@types/qrcode": "^1.5.6",

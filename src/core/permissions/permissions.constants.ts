@@ -65,6 +65,7 @@ export const P = {
   INVITATION_CREATE: "invitation.create",
   INVITATION_REVOKE: "invitation.revoke",
   INVITATION_MANAGE: "invitation.manage",
+  INVITATION_APPROVE: "invitation.approve",
 } as const;
 
 export type PermissionCode = (typeof P)[keyof typeof P];

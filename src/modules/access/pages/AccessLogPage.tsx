@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import { FaClipboardList, FaDownload, FaSync } from "react-icons/fa";
 import { getPropertiesList, Property } from "@modules/properties/service/properties.service";
+import { VisitStatsPanel } from "../components/VisitStatsPanel";
 import {
   AccessDecision,
   AccessDirection,
@@ -194,6 +195,7 @@ const AccessLogPage = () => {
       }
     >
       <ITFlex direction="column" gap={4} className="py-4">
+        <VisitStatsPanel />
         <ITCard contentClassName="p-4!">
           <ITFlex direction="column" gap={3}>
             <ITGrid container columns={12} spacing={3}>

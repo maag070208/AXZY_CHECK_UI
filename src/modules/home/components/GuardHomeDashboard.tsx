@@ -27,6 +27,7 @@ import {
   FaSignInAlt,
   FaSyncAlt,
   FaUserClock,
+  FaUserPlus,
   FaUsers,
 } from "react-icons/fa";
 import dayjs from "dayjs";
@@ -35,10 +36,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
 import { useRolePalette } from "@app/core/hooks/useRolePalette";
-import { Invitation, updateInvitationStatus } from "@modules/invitations/services/invitations.service";
+import { decideApproval, Invitation, updateInvitationStatus } from "@modules/invitations/services/invitations.service";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
 import { useCasetaData } from "./caseta/useCasetaData";
 import { PassValidator } from "./caseta/PassValidator";
 import { VisitRow } from "./caseta/VisitRow";
+import { WalkInDialog } from "./caseta/WalkInDialog";
 import { visitWindow, type VisitAction } from "./caseta/visit.utils";
 
 const QUICK_ACTIONS = [
@@ -50,6 +54,20 @@ const QUICK_ACTIONS = [
 ];
 
 type ExpectedFilter = "today" | "all";
+
+const DIALOG_TITLE: Record<VisitAction, string> = {
+  ENTERED: "Registrar entrada",
+  EXITED: "Registrar salida",
+  APPROVE: "Autorizar visita",
+  REJECT: "Rechazar visita",
+};
+
+const DIALOG_CONFIRM: Record<VisitAction, string> = {
+  ENTERED: "Confirmar entrada",
+  EXITED: "Confirmar salida",
+  APPROVE: "Autorizar",
+  REJECT: "Rechazar",
+};
 
 const matches = (inv: Invitation, query: string) => {
   if (!query) return true;
@@ -108,12 +126,16 @@ export const GuardHomeDashboard = () => {
   const palette = useRolePalette();
   const now = useNow();
   const { data, error, loading, updatedAt, reload } = useCasetaData(auth.id ? Number(auth.id) : undefined);
+  const can = useCan();
+  const canApprove = can(P.INVITATION_APPROVE);
 
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<ExpectedFilter>("today");
   const [pending, setPending] = useState<{ invitation: Invitation; action: VisitAction } | null>(null);
+  const [reason, setReason] = useState("");
   const [saving, setSaving] = useState(false);
   const [resetKey, setResetKey] = useState(0);
+  const [walkInOpen, setWalkInOpen] = useState(false);
 
   const firstName = (auth.name ?? "Guardia").split(" ")[0];
 
@@ -128,27 +150,37 @@ export const GuardHomeDashboard = () => {
     () => (data?.expected ?? []).filter((inv) => !dayjs(inv.validFrom).isAfter(now.endOf("day"))).length,
     [data, now],
   );
-  const overstays = useMemo(() => (data?.inside ?? []).filter((inv) => dayjs(inv.validUntil).isBefore(now)).length, [data, now]);
+  const awaiting = data?.awaiting ?? [];
+  const overstayedIds = useMemo(() => new Set(data?.overstayedIds ?? []), [data]);
   const round = data?.activeRound ?? null;
   const progress = round?.progressPercent ?? 0;
 
   const confirm = async () => {
     if (!pending) return;
+    const { invitation, action } = pending;
+    if (action === "REJECT" && reason.trim().length < 3) {
+      dispatch(showToast({ message: "Escribe el motivo del rechazo", type: "warning" }));
+      return;
+    }
     setSaving(true);
-    const res = await updateInvitationStatus(pending.invitation.id, pending.action);
+    const res = action === "APPROVE" || action === "REJECT"
+      ? await decideApproval(invitation.id, action, reason.trim() || undefined)
+      : await updateInvitationStatus(invitation.id, action);
     setSaving(false);
     if (res.success) {
-      dispatch(showToast({
-        message: pending.action === "ENTERED"
-          ? `Entrada registrada: ${pending.invitation.guestName}`
-          : `Salida registrada: ${pending.invitation.guestName}`,
-        type: "success",
-      }));
+      const messages: Record<VisitAction, string> = {
+        ENTERED: `Entrada registrada: ${invitation.guestName}`,
+        EXITED: `Salida registrada: ${invitation.guestName}`,
+        APPROVE: `Visita autorizada: ${invitation.guestName}`,
+        REJECT: `Visita rechazada: ${invitation.guestName}`,
+      };
+      dispatch(showToast({ message: messages[action], type: "success" }));
       setPending(null);
+      setReason("");
       setResetKey((key) => key + 1);
       reload();
     } else {
-      dispatch(showToast({ message: res.messages?.[0] ?? "No se pudo registrar el movimiento", type: "error" }));
+      dispatch(showToast({ message: res.messages?.[0] ?? "No se pudo registrar la decisión", type: "error" }));
     }
   };
 
@@ -206,6 +238,9 @@ export const GuardHomeDashboard = () => {
               <ITFlex align="center" gap={2}><action.icon size={11} /> {action.label}</ITFlex>
             </ITButton>
           ))}
+          <ITButton size="sm" className="ml-auto" onClick={() => setWalkInOpen(true)}>
+            <ITFlex align="center" gap={2}><FaUserPlus size={11} /> Visita sin cita</ITFlex>
+          </ITButton>
         </ITFlex>
       </ITFlex>
 
@@ -224,7 +259,7 @@ export const GuardHomeDashboard = () => {
           { label: "Por llegar hoy", value: arrivingToday, icon: <FaUserClock />, tone: "amber" },
           { label: "Dentro ahora", value: data?.inside.length ?? 0, icon: <FaUsers />, tone: "emerald" },
           { label: "Entradas hoy", value: data?.entriesToday ?? 0, icon: <FaSignInAlt />, tone: "sky" },
-          { label: "Pase vencido dentro", value: overstays, icon: <FaExclamationCircle />, tone: "rose" },
+          { label: "Fuera de tiempo", value: overstayedIds.size, icon: <FaExclamationCircle />, tone: "rose" },
         ].map((stat) => (
           <ITGrid item xs={6} lg={3} key={stat.label}>
             <CasetaStat label={stat.label} value={stat.value} icon={stat.icon} tone={stat.tone} loading={loading && !data} />
@@ -237,6 +272,29 @@ export const GuardHomeDashboard = () => {
           <ITFlex direction="column" gap={4}>
             <ITCard title="Validar pase" className="h-full" contentClassName="p-5!">
               <PassValidator onAction={openAction} resetKey={resetKey} />
+            </ITCard>
+
+            <ITCard
+              title="Esperando autorización"
+              className="h-auto! self-start! w-full"
+              contentClassName="p-5!"
+              headerActions={<ITChip size="sm" color={awaiting.length ? "primary" : "gray"} label={String(awaiting.length)} />}
+            >
+              {loading && !data ? (
+                <ListSkeleton />
+              ) : awaiting.length === 0 ? (
+                <ITEmptyState
+                  icon={<FaUserClock size={28} />}
+                  title="Nadie esperando"
+                  description="Las visitas sin cita aparecen aquí hasta que el residente responde."
+                />
+              ) : (
+                <ITText as="ul" className="m-0 flex list-none flex-col gap-2 p-0" aria-label="Visitas por autorizar">
+                  {awaiting.map((inv) => (
+                    <VisitRow key={inv.id} invitation={inv} mode="awaiting" canApprove={canApprove} onAction={openAction} />
+                  ))}
+                </ITText>
+              )}
             </ITCard>
 
             <ITCard
@@ -315,7 +373,9 @@ export const GuardHomeDashboard = () => {
                 <ITEmptyState icon={<FaUsers size={32} />} title="No hay visitas dentro" description="Las entradas que registres aparecerán aquí." />
               ) : (
                 <ITText as="ul" className="m-0 flex max-h-[520px] list-none flex-col gap-2 overflow-y-auto p-0" aria-label="Visitas dentro">
-                  {inside.map((inv) => <VisitRow key={inv.id} invitation={inv} mode="inside" onAction={openAction} />)}
+                  {inside.map((inv) => (
+                    <VisitRow key={inv.id} invitation={inv} mode="inside" overstayed={overstayedIds.has(inv.id)} onAction={openAction} />
+                  ))}
                 </ITText>
               )}
             </ITCard>
@@ -329,7 +389,7 @@ export const GuardHomeDashboard = () => {
       <ITDialog
         isOpen={!!pending}
         onClose={() => !saving && setPending(null)}
-        title={pending?.action === "ENTERED" ? "Registrar entrada" : "Registrar salida"}
+        title={pending ? DIALOG_TITLE[pending.action] : ""}
         className="max-w-md"
       >
         {pending && (
@@ -346,15 +406,39 @@ export const GuardHomeDashboard = () => {
                 Verifica la identificación de la visita antes de confirmar. Si la casa tiene adeudo, el sistema bloqueará la entrada.
               </ITText>
             )}
+            {pending.action === "APPROVE" && (
+              <ITText as="p" className="text-xs text-slate-500">
+                Autorizas el acceso en nombre del residente. Quedará registrado quién lo autorizó.
+              </ITText>
+            )}
+            {pending.action === "REJECT" && (
+              <ITInput
+                name="reject-reason"
+                label="Motivo del rechazo"
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                maxLength={500}
+                autoFocus
+              />
+            )}
             <ITFlex justify="end" gap={2}>
               <ITButton variant="text" color="gray" onClick={() => setPending(null)} disabled={saving}>Cancelar</ITButton>
-              <ITButton onClick={confirm} disabled={saving}>
-                {saving ? "Registrando…" : pending.action === "ENTERED" ? "Confirmar entrada" : "Confirmar salida"}
+              <ITButton onClick={confirm} disabled={saving} color={pending.action === "REJECT" ? "danger" : "primary"}>
+                {saving ? "Registrando…" : DIALOG_CONFIRM[pending.action]}
               </ITButton>
             </ITFlex>
           </ITFlex>
         )}
       </ITDialog>
+
+      <WalkInDialog
+        isOpen={walkInOpen}
+        onClose={() => setWalkInOpen(false)}
+        onCreated={() => {
+          setResetKey((key) => key + 1);
+          reload();
+        }}
+      />
     </ITPage>
   );
 };

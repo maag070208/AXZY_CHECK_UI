@@ -7,6 +7,7 @@ import { invitationTypeLabel } from "@modules/invitations/invitation-type-label"
 import { visitWindow, type VisitAction } from "./visit.utils";
 
 const STATUS_LABEL: Record<Invitation["status"], { label: string; color: "success" | "warning" | "gray" | "danger" | "info" }> = {
+  PENDING_APPROVAL: { label: "Por autorizar", color: "info" },
   PENDING: { label: "Por llegar", color: "warning" },
   ENTERED: { label: "Dentro", color: "success" },
   EXITED: { label: "Ya salió", color: "gray" },
@@ -88,8 +89,15 @@ export const PassValidator = ({ onAction, resetKey }: Props) => {
                 <ITText as="span" className="text-xs text-slate-500">{visitWindow(result)}</ITText>
               </ITFlex>
             </ITFlex>
-            <ITChip color={status.color} label={status.label} />
+            <ITFlex align="center" gap={2} wrap="wrap">
+              {result.expectedPlate && <ITChip size="sm" variant="outlined" color="gray" label={`Placa ${result.expectedPlate}`} />}
+              <ITChip color={status.color} label={status.label} />
+            </ITFlex>
           </ITFlex>
+
+          {result.status === "PENDING_APPROVAL" && (
+            <ITAlert variant="info">Esta visita espera la autorización del residente. Sin ella no se registra la entrada.</ITAlert>
+          )}
 
           {result.status === "PENDING" && outsideWindow && (
             <ITAlert variant="warning">El pase no está vigente en este horario. No se puede registrar la entrada.</ITAlert>

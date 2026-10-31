@@ -41,9 +41,9 @@ const mockInvitations = (byStatus: Record<string, unknown[]>, status = 200) =>
     }),
   );
 
-const openCaseta = () => {
+const openCaseta = (role: "GUARD" | "SHIFT" = "GUARD") => {
   stub("get", "/rounds", { success: true, data: [] });
-  store.dispatch(setAuth(makeToken({ role: "GUARD", name: "Gabriela" })));
+  store.dispatch(setAuth(makeToken({ role, name: role === "GUARD" ? "Gabriela" : "Sergio" })));
   return renderWithProviders(<Routes><Route path="/" element={<HomePage />} /></Routes>);
 };
 
@@ -108,5 +108,44 @@ describe("inicio de caseta (GUARD)", () => {
     mockInvitations({ PENDING: [ARRIVING], ENTERED: [], EXITED: [] });
     await user.click(screen.getByRole("button", { name: "Reintentar" }));
     expect(await screen.findByText("Laura Méndez")).toBeInTheDocument();
+  });
+
+  it("las visitas sin cita esperan al residente: el guardia las ve sin botones de decisión", async () => {
+    const walkIn = visit(4, "Vendedor Sin Cita", "PENDING_APPROVAL", {
+      walkIn: true,
+      createdAt: dayjs().subtract(3, "minute").toISOString(),
+      validFrom: dayjs().toISOString(),
+    });
+    mockInvitations({ PENDING: [], PENDING_APPROVAL: [walkIn], ENTERED: [], EXITED: [] });
+    openCaseta("GUARD");
+
+    const awaiting = await screen.findByRole("list", { name: "Visitas por autorizar" });
+    expect(within(awaiting).getByText("Vendedor Sin Cita")).toBeInTheDocument();
+    expect(within(awaiting).getByText("Esperando residente")).toBeInTheDocument();
+    expect(within(awaiting).queryByRole("button", { name: /Autorizar a/ })).toBeNull();
+  });
+
+  it("el jefe autoriza una visita sin cita desde su inicio y el API recibe la decisión", async () => {
+    const walkIn = visit(5, "Técnico Sin Cita", "PENDING_APPROVAL", { walkIn: true, createdAt: dayjs().toISOString() });
+    stub("get", "/invitations/pending-approvals", { success: true, data: [walkIn] });
+    const approval = stub("put", "/invitations/5/approval", { success: true, data: { ...walkIn, status: "PENDING" } });
+    const { user } = openCaseta("SHIFT");
+
+    await user.click(await screen.findByRole("button", { name: "Autorizar a Técnico Sin Cita" }));
+    await waitFor(() => expect(approval.body).toEqual({ decision: "APPROVE" }));
+  });
+
+  it("rechazar desde el inicio del jefe exige el motivo antes de llamar al API", async () => {
+    const walkIn = visit(6, "Visitante Rechazado", "PENDING_APPROVAL", { walkIn: true, createdAt: dayjs().toISOString() });
+    stub("get", "/invitations/pending-approvals", { success: true, data: [walkIn] });
+    const approval = stub("put", "/invitations/6/approval", { success: true, data: { ...walkIn, status: "CANCELLED" } });
+    const { user } = openCaseta("SHIFT");
+
+    await user.click(await screen.findByRole("button", { name: "Rechazar a Visitante Rechazado" }));
+    await user.click(await screen.findByRole("button", { name: "Rechazar" }));
+    expect(approval.body).toBeUndefined();
+    await user.type(await screen.findByLabelText("Motivo del rechazo"), "No espero a nadie");
+    await user.click(screen.getByRole("button", { name: "Rechazar" }));
+    await waitFor(() => expect(approval.body).toEqual({ decision: "REJECT", reason: "No espero a nadie" }));
   });
 });
