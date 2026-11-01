@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { setAuth } from "@app/core/store/auth/auth.slice";
 import store from "@app/core/store/store";
 import HomePage from "@app/modules/home/pages/HomePage";
+import { emitAbly } from "../helpers/ably";
 import { stub } from "../helpers/api";
 import { makeToken, renderWithProviders } from "../helpers/render";
 import { API, server } from "../helpers/server";
@@ -31,15 +32,19 @@ const LATER = visit(2, "Pedro Ruiz", "PENDING", { validFrom: dayjs().add(3, "day
 const INSIDE = visit(3, "Carlos Díaz", "ENTERED", { entryTime: dayjs().subtract(30, "minute").toISOString() });
 
 /** La datatable responde según el estado que pide la caseta. */
-const mockInvitations = (byStatus: Record<string, unknown[]>, status = 200) =>
+const mockInvitations = (byStatus: Record<string, unknown[]>, status = 200) => {
+  let requests = 0;
   server.use(
     http.post(`${API}/invitations/datatable`, async ({ request }) => {
+      requests += 1;
       if (status !== 200) return HttpResponse.json({ success: false, messages: ["Servidor caído"] }, { status });
       const body = (await request.json()) as { filters?: { status?: string } };
       const rows = byStatus[body.filters?.status ?? ""] ?? [];
       return HttpResponse.json({ success: true, data: { rows, total: rows.length } });
     }),
   );
+  return () => requests;
+};
 
 const openCaseta = (role: "GUARD" | "SHIFT" = "GUARD") => {
   stub("get", "/rounds", { success: true, data: [] });
@@ -78,7 +83,7 @@ describe("inicio de caseta (GUARD)", () => {
 
   it("valida un pase por código y permite registrar la salida", async () => {
     mockInvitations({ PENDING: [], ENTERED: [INSIDE], EXITED: [] });
-    stub("get", "/invitations/AXZ-3", { success: true, data: INSIDE });
+    stub("post", "/invitations/scan", { success: true, data: INSIDE });
     const put = stub("put", "/invitations/3/status", { success: true, data: { ...INSIDE, status: "EXITED" } });
     const { user } = openCaseta();
 
@@ -89,9 +94,34 @@ describe("inicio de caseta (GUARD)", () => {
     await waitFor(() => expect(put.body).toEqual({ status: "EXITED" }));
   });
 
+  it("un pase vencido no deja registrar entrada y avisa que el intento quedó en la bitácora", async () => {
+    mockInvitations({ PENDING: [], ENTERED: [], EXITED: [] });
+    const scan = stub("post", "/invitations/scan", { success: true, data: visit(9, "Rosa Vega", "EXPIRED") });
+    const { user } = openCaseta();
+
+    await user.type(await screen.findByLabelText("Código del pase"), "axz-9{Enter}");
+    expect(await screen.findByText(/El intento quedó en la bitácora/)).toBeInTheDocument();
+    expect(scan.body).toEqual({ code: "AXZ-9" });
+    expect(screen.queryByRole("button", { name: "Registrar entrada" })).not.toBeInTheDocument();
+  });
+
+  it("recarga la caseta en cuanto el API avisa que cambió una visita", async () => {
+    const requests = mockInvitations({ PENDING: [], ENTERED: [], EXITED: [] });
+    openCaseta();
+    expect(await screen.findByText("Nadie por llegar")).toBeInTheDocument();
+    const before = requests();
+
+    emitAbly("dashboard:live-ops", "refresh", { reason: "round-started" });
+    await new Promise((resolve) => setTimeout(resolve, 1700));
+    expect(requests()).toBe(before);
+
+    emitAbly("dashboard:live-ops", "refresh", { reason: "invitation-updated" });
+    await waitFor(() => expect(requests()).toBeGreaterThan(before), { timeout: 3000 });
+  });
+
   it("avisa cuando el código no existe", async () => {
     mockInvitations({ PENDING: [], ENTERED: [], EXITED: [] });
-    stub("get", "/invitations/NOPE", { success: false, data: null, messages: ["Invitación no encontrada"] }, 404);
+    stub("post", "/invitations/scan", { success: false, data: null, messages: ["Invitación no encontrada"] }, 404);
     const { user } = openCaseta();
 
     await user.type(await screen.findByLabelText("Código del pase"), "nope{Enter}");

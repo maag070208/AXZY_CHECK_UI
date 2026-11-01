@@ -1,10 +1,8 @@
-import * as Ably from "ably";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getLiveDashboard, getRealtimeToken, ILiveDashboard } from "../services/DashboardService";
+import { useCallback, useEffect, useState } from "react";
+import { getLiveDashboard, ILiveDashboard } from "../services/DashboardService";
+import { useLiveRefresh } from "./useLiveRefresh";
 
 const POLL_INTERVAL_MS = 30000;
-const ABLY_DASHBOARD_CHANNEL = "dashboard:live-ops";
-const REFRESH_DEBOUNCE_MS = 1500;
 
 /**
  * Fetches the live-ops snapshot and keeps it fresh: Ably pushes a
@@ -19,8 +17,6 @@ export const useLiveDashboard = () => {
   const [data, setData] = useState<ILiveDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const ablyRef = useRef<Ably.Realtime | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchNow = useCallback(async () => {
     const res = await getLiveDashboard();
@@ -33,46 +29,13 @@ export const useLiveDashboard = () => {
     setLoading(false);
   }, []);
 
-  const scheduleRefresh = useCallback(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(fetchNow, REFRESH_DEBOUNCE_MS);
-  }, [fetchNow]);
-
   useEffect(() => {
     fetchNow();
-
     const pollTimer = setInterval(fetchNow, POLL_INTERVAL_MS);
+    return () => clearInterval(pollTimer);
+  }, [fetchNow]);
 
-    let client: Ably.Realtime | null = null;
-    try {
-      client = new Ably.Realtime({
-        authCallback: async (_tokenParams, callback) => {
-          try {
-            const res = await getRealtimeToken();
-            if (res.success && res.data) {
-              callback(null, res.data);
-            } else {
-              callback("No se pudo obtener el token de tiempo real", null);
-            }
-          } catch (error) {
-            callback(error as Ably.ErrorInfo, null);
-          }
-        },
-      });
-      ablyRef.current = client;
-      const channel = client.channels.get(ABLY_DASHBOARD_CHANNEL);
-      channel.subscribe("refresh", scheduleRefresh);
-    } catch (error) {
-      console.warn("[Dashboard] Ably no disponible, usando solo polling.", error);
-    }
-
-    return () => {
-      clearInterval(pollTimer);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      if (client) (client.close() as unknown as Promise<void> | void)?.catch?.(() => {});
-      ablyRef.current = null;
-    };
-  }, [fetchNow, scheduleRefresh]);
+  useLiveRefresh(fetchNow);
 
   return { data, loading, error, refetch: fetchNow };
 };

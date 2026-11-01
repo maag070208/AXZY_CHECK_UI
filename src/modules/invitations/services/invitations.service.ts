@@ -54,10 +54,10 @@ export const updateInvitationStatus = async (id: number, status: string, reason?
     }
 };
 
-/** Busca un pase por su código (o id). Lo usa la caseta al escanear o teclear el código. */
-export const getInvitationByCode = async (code: string) => {
+/** Lectura de un pase en caseta, por QR o tecleado. Si no puede entrar, el API deja el intento en la bitácora. */
+export const scanInvitation = async (code: string) => {
     try {
-        const result = await get<Invitation>(`/invitations/${encodeURIComponent(code)}`);
+        const result = await post<Invitation>('/invitations/scan', { code });
         return { success: result.success, data: result.data, messages: result.messages };
     } catch (error: any) {
         return { success: false, data: null, messages: error.messages || ["Pase no encontrado"] };
@@ -99,17 +99,28 @@ export const getCasetaStatus = async (): Promise<{ success: boolean; data: Caset
     }
 };
 
+export interface VisitPeriod {
+    period: string;
+    count: number;
+    deliveries: number;
+}
+
 /** Indicadores de visitas en un rango. Requiere bitácora de accesos. */
 export interface VisitStats {
     maxStayHours: number;
     entries: number;
     averageStayMinutes: number | null;
     byStatus: { status: string; count: number }[];
-    byDay: { day: string; count: number }[];
+    deliveries: number;
+    byDay: VisitPeriod[];
+    byWeek: VisitPeriod[];
+    byMonth: VisitPeriod[];
     byHour: { hour: number; count: number }[];
     byProperty: { propertyId: number; identifier: string; entries: number; averageStayMinutes: number | null }[];
-    rejected: { total: number; byReason: { reason: string; count: number }[] };
+    rejected: { total: number; byReason: { reason: string; label: string; count: number }[] };
     overstayedNow: number;
+    exceededStay: number;
+    noExit: number;
 }
 
 export const getVisitStats = async (params: { from: string; to: string; propertyId?: number }) => {
@@ -132,13 +143,13 @@ export const createWalkInVisit = async (data: { guestName: string; propertyId: n
     });
 };
 
-/** Descarga los indicadores de visitas en PDF. */
-export const downloadVisitStatsPdf = async (params: { from: string; to: string }) => {
-    const response = await axiosInstance.get('/invitations/stats/export.pdf', { responseType: 'blob', params });
+/** Descarga los indicadores de visitas en PDF o Excel. */
+export const downloadVisitStats = async (format: 'pdf' | 'xlsx', params: { from: string; to: string }) => {
+    const response = await axiosInstance.get(`/invitations/stats/export.${format}`, { responseType: 'blob', params });
     const url = window.URL.createObjectURL(response.data as Blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `indicadores-visitas-${new Date().toISOString().slice(0, 10)}.pdf`;
+    link.download = `indicadores-visitas-${new Date().toISOString().slice(0, 10)}.${format}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

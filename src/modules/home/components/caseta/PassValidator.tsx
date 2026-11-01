@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ITAlert, ITButton, ITChip, ITFlex, ITInput, ITText } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { FaHome, FaQrcode, FaSearch, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
-import { getInvitationByCode, Invitation } from "@modules/invitations/services/invitations.service";
+import { Invitation, scanInvitation } from "@modules/invitations/services/invitations.service";
 import { invitationTypeLabel } from "@modules/invitations/invitation-type-label";
 import { visitWindow, type VisitAction } from "./visit.utils";
 
@@ -43,7 +43,7 @@ export const PassValidator = ({ onAction, resetKey }: Props) => {
     setSearching(true);
     setError(null);
     setResult(null);
-    const res = await getInvitationByCode(value);
+    const res = await scanInvitation(value);
     setSearching(false);
     if (res.success && res.data) setResult(res.data);
     else setError("No encontramos un pase con ese código. Revísalo con la visita.");
@@ -101,6 +101,10 @@ export const PassValidator = ({ onAction, resetKey }: Props) => {
 
           {result.status === "PENDING" && outsideWindow && (
             <ITAlert variant="warning">El pase no está vigente en este horario. No se puede registrar la entrada.</ITAlert>
+          )}
+
+          {(result.status === "EXPIRED" || result.status === "CANCELLED" || result.status === "EXITED") && (
+            <ITAlert variant="error">Este pase ya no da acceso. El intento quedó en la bitácora.</ITAlert>
           )}
 
           <ITFlex gap={2} wrap="wrap">

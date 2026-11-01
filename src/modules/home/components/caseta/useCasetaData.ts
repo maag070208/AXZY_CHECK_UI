@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { getCasetaStatus, getPaginatedInvitations, Invitation } from "@modules/invitations/services/invitations.service";
 import { getRounds, IRound } from "@modules/rounds/services/RoundsService";
+import { useLiveRefresh } from "@modules/dashboard/hooks/useLiveRefresh";
 
+/** Respaldo por si el tiempo real no conecta. */
 const REFRESH_MS = 60_000;
 
 const fetchByStatus = async (status: Invitation["status"], sortKey: string, direction: "asc" | "desc") => {
@@ -26,7 +28,7 @@ export type CasetaData = {
   overstayedIds: number[];
 };
 
-/** Datos operativos de la caseta: visitas por llegar, visitas dentro y la ronda del guardia. Se refresca cada minuto. */
+/** Datos operativos de la caseta: visitas por llegar, visitas dentro y la ronda del guardia. Se recarga en cuanto cambia una visita. */
 export const useCasetaData = (guardId?: number) => {
   const [data, setData] = useState<CasetaData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +70,8 @@ export const useCasetaData = (guardId?: number) => {
     const id = window.setInterval(load, REFRESH_MS);
     return () => window.clearInterval(id);
   }, [load]);
+
+  useLiveRefresh(load, "invitation-updated");
 
   return { data, error, loading, updatedAt, reload: load };
 };

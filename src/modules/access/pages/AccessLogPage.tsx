@@ -13,7 +13,7 @@ import {
 } from "@axzydev/axzy_ui_system";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
-import { FaClipboardList, FaDownload, FaSync } from "react-icons/fa";
+import { FaClipboardList, FaDownload, FaFileExcel, FaFilePdf, FaSync } from "react-icons/fa";
 import { getPropertiesList, Property } from "@modules/properties/service/properties.service";
 import { VisitStatsPanel } from "../components/VisitStatsPanel";
 import {
@@ -21,7 +21,7 @@ import {
   AccessDirection,
   AccessEventRow,
   AccessMethod,
-  downloadAccessLogCsv,
+  downloadAccessLog,
   getAccessLog,
 } from "../services/access-log.service";
 
@@ -42,6 +42,7 @@ const REASON_LABEL: Record<string, string> = {
   OUT_OF_SCHEDULE: "Fuera de horario",
   REVOKED: "Revocado",
   EXPIRED: "Vencido",
+  ALREADY_USED: "Pase ya usado",
   NOT_YET_VALID: "Aún no vigente",
   SCOPE_MISMATCH: "Tipo de acceso distinto",
   UNKNOWN_PASS: "Pase desconocido",
@@ -66,6 +67,8 @@ const DECISION_OPTIONS = [
   { value: "DENIED", label: "Denegado" },
 ];
 
+type ExportFormat = "csv" | "xlsx" | "pdf";
+
 const personOf = (row: AccessEventRow) => {
   if (row.person) return `${row.person.firstName} ${row.person.lastName ?? ""}`.trim();
   if (row.vehicle) return row.vehicle.plate + (row.vehicle.tagCode ? ` · ${row.vehicle.tagCode}` : "");
@@ -84,7 +87,8 @@ const AccessLogPage = () => {
   const [to, setTo] = useState<any>(new Date());
   const [refreshKey, setRefreshKey] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [exporting, setExporting] = useState(false);
+  const [exporting, setExporting] = useState<ExportFormat | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   useEffect(() => {
     getPropertiesList()
@@ -171,12 +175,15 @@ const AccessLogPage = () => {
     ...properties.map((property) => ({ value: String(property.id), label: `${property.identifier} · ${property.name}` })),
   ];
 
-  const exportCsv = async () => {
-    setExporting(true);
+  const exportLog = async (format: ExportFormat) => {
+    setExporting(format);
+    setExportError(null);
     try {
-      await downloadAccessLogCsv(filters());
+      await downloadAccessLog(format, filters());
+    } catch {
+      setExportError("No se pudo exportar la bitácora. Intenta de nuevo.");
     } finally {
-      setExporting(false);
+      setExporting(null);
     }
   };
 
@@ -190,7 +197,9 @@ const AccessLogPage = () => {
       actions={
         <ITFlex gap={2}>
           <ITButton variant="outline" icon={<FaSync />} label="Refrescar" ariaLabel="Refrescar bitácora" onClick={() => setRefreshKey((key) => key + 1)} />
-          <ITButton variant="outline" icon={<FaDownload />} label={exporting ? "Exportando…" : "Exportar CSV"} onClick={() => void exportCsv()} disabled={exporting} />
+          <ITButton variant="outline" icon={<FaDownload />} label={exporting === "csv" ? "Exportando…" : "Exportar CSV"} onClick={() => void exportLog("csv")} disabled={!!exporting} />
+          <ITButton variant="outline" icon={<FaFileExcel />} label={exporting === "xlsx" ? "Exportando…" : "Exportar Excel"} onClick={() => void exportLog("xlsx")} disabled={!!exporting} />
+          <ITButton variant="outline" icon={<FaFilePdf />} label={exporting === "pdf" ? "Exportando…" : "Exportar PDF"} onClick={() => void exportLog("pdf")} disabled={!!exporting} />
         </ITFlex>
       }
     >
@@ -230,6 +239,7 @@ const AccessLogPage = () => {
         </ITCard>
 
         {loadError && <ITAlert variant="error" title="No se pudo cargar la bitácora">{loadError}</ITAlert>}
+        {exportError && <ITAlert variant="error">{exportError}</ITAlert>}
         <ITCard contentClassName="p-0!">
           <ITDataTable
             key={`${refreshKey}-${propertyId}-${method}-${direction}-${decision}-${query}`}

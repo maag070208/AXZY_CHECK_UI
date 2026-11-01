@@ -43,9 +43,9 @@ export const getAccessLog = async (filters: AccessLogFilters) => {
   }
 };
 
-export const downloadAccessLogCsv = async (filters: Omit<AccessLogFilters, "page" | "pageSize">) => {
+export const downloadAccessLog = async (format: "csv" | "xlsx" | "pdf", filters: Omit<AccessLogFilters, "page" | "pageSize">) => {
   const { axiosInstance } = await import("@app/core/axios/axios");
-  const response = await axiosInstance.get("/access/events/export.csv", {
+  const response = await axiosInstance.get(`/access/events/export.${format}`, {
     responseType: "blob",
     params: filters,
   });
@@ -53,7 +53,7 @@ export const downloadAccessLogCsv = async (filters: Omit<AccessLogFilters, "page
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `bitacora-accesos-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `bitacora-accesos-${new Date().toISOString().slice(0, 10)}.${format}`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

@@ -99,6 +99,13 @@ test.describe("Caseta en tablet", () => {
     const download = page.waitForEvent("download");
     await page.getByRole("button", { name: "Descargar PDF" }).click();
     expect((await download).suggestedFilename()).toMatch(/^indicadores-visitas-.*\.pdf$/);
+
+    await page.getByRole("button", { name: "12 meses" }).click();
+    await expect(page.getByText(/Visitas · últimos 12 meses/)).toBeVisible();
+    await page.getByRole("button", { name: "Semana", exact: true }).click();
+    const excel = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Descargar Excel" }).click();
+    expect((await excel).suggestedFilename()).toMatch(/^indicadores-visitas-.*\.xlsx$/);
     if (SHOTS) await page.screenshot({ path: `${SHOTS}/indicadores-tablet.png` });
   });
 });
