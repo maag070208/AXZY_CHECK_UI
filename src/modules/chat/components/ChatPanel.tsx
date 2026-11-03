@@ -16,7 +16,10 @@ import { ChatMessage, getMessages, getRealtimeToken, sendMessage } from "../serv
 import { PersonAvatar } from "@app/core/components/PersonAvatar";
 
 const POLL_INTERVAL_MS = 10000;
-const ABLY_CHAT_CHANNEL = "chat:team";
+/** Fase 5: el chat del equipo se publica por cliente (`chat:team:<clientId>`). */
+const ABLY_CHAT_CHANNEL_PREFIX = "chat:team:";
+/** Roles de organización: el cliente activo lo elige el selector global (tenant). */
+const ORGANIZATION_ROLES = ["ADMIN", "MAINT"];
 
 interface ChatPanelProps {
   /** "page" = /chat de pantalla completa; "sidebar" = panel compacto junto al dashboard en vivo (/home). */
@@ -34,6 +37,10 @@ export const ChatPanel = ({ variant = "page" }: ChatPanelProps) => {
   const compact = variant === "sidebar";
   const dispatch = useDispatch();
   const currentUserId = useSelector((state: AppState) => state.auth.id);
+  const role = useSelector((state: AppState) => state.auth.role);
+  const authClientId = useSelector((state: AppState) => state.auth.clientId);
+  const selectedClientId = useSelector((state: AppState) => state.tenant.selectedClientId);
+  const selectionVersion = useSelector((state: AppState) => state.tenant.selectionVersion);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -50,12 +57,24 @@ export const ChatPanel = ({ variant = "page" }: ChatPanelProps) => {
     }
   }, []);
 
+  // Cliente activo del chat: ADMIN/MAINT usan el selector global; el resto de
+  // roles trae su cliente fijo en `auth.clientId` (desde `GET /users/me`).
+  const isOrganizationRole = ORGANIZATION_ROLES.includes(String(role));
+  const activeClientId: number | null = isOrganizationRole ? selectedClientId : authClientId;
+  // Sin cliente no hay canal al que suscribirse: se queda el polling/REST.
+  const chatChannel = activeClientId === null ? null : `${ABLY_CHAT_CHANNEL_PREFIX}${activeClientId}`;
+
   useEffect(() => {
     loadMessages();
 
     // Polling fallback — always on, cheap, and guarantees the chat works
     // even if Ably never connects.
     const pollTimer = setInterval(loadMessages, POLL_INTERVAL_MS);
+    return () => clearInterval(pollTimer);
+  }, [loadMessages]);
+
+  useEffect(() => {
+    if (!chatChannel) return;
 
     // Best-effort realtime: if Ably can't authenticate (not configured on the
     // API, network blocked, etc.) we just keep relying on the poll above.
@@ -76,7 +95,7 @@ export const ChatPanel = ({ variant = "page" }: ChatPanelProps) => {
         },
       });
       ablyRef.current = client;
-      const channel = client.channels.get(ABLY_CHAT_CHANNEL);
+      const channel = client.channels.get(chatChannel);
       channel.subscribe("new-message", (msg) => {
         const incoming = msg.data as ChatMessage;
         setMessages((prev) => (prev.some((m) => m.id === incoming.id) ? prev : [...prev, incoming]));
@@ -86,10 +105,14 @@ export const ChatPanel = ({ variant = "page" }: ChatPanelProps) => {
     }
 
     return () => {
-      clearInterval(pollTimer);
+      // Se crea un cliente Ably por canal: su `authCallback` pide un token nuevo,
+      // así al cambiar de cliente se refresca el token además de la suscripción.
+      // Primero se cierra la conexión del canal anterior; luego se abre la nueva.
       (client?.close() as unknown as Promise<void> | void)?.catch?.(() => {});
+      if (ablyRef.current === client) ablyRef.current = null;
     };
-  }, [loadMessages]);
+    // `selectionVersion` fuerza la re-suscripción cuando el ADMIN cambia de cliente.
+  }, [chatChannel, selectionVersion]);
 
   // Solo se baja al último mensaje si la persona ya estaba al final (o si el mensaje es suyo),
   // para no arrancarla de la lectura de un mensaje anterior cuando llega uno nuevo.

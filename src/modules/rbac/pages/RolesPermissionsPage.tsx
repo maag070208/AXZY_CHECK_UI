@@ -33,16 +33,7 @@ import {
   RbacPermission,
   updateRolePermissions,
 } from "../services/rbac.service";
-
-const ROLE_SHORT: Record<string, string> = {
-  ADMIN: "Admin",
-  SHIFT: "Jefe",
-  GUARD: "Guardia",
-  MAINT: "Maint.",
-  RESDN: "Residente",
-};
-
-const ROLE_ORDER = ["ADMIN", "SHIFT", "GUARD", "MAINT", "RESDN"];
+import { ROLE_COLORS, ROLE_LABELS, sortRoles } from "../role-meta";
 
 const RESOURCE_LABELS: Record<string, string> = {
   round: "Rondas",
@@ -73,13 +64,6 @@ const RESOURCE_LABELS: Record<string, string> = {
 
 const resourceOf = (code: string) => code.split(".")[0] ?? "otros";
 const resourceLabel = (key: string) => RESOURCE_LABELS[key] ?? key;
-
-const sortRoles = <T extends { name: string }>(roles: T[] = []): T[] =>
-  [...roles].sort((a, b) => {
-    const ia = ROLE_ORDER.indexOf(a.name);
-    const ib = ROLE_ORDER.indexOf(b.name);
-    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-  });
 
 const sameSet = (a: Set<string>, b: string[]) =>
   a.size === b.length && b.every((code) => a.has(code));
@@ -267,7 +251,7 @@ const RolesPermissionsPage = () => {
       className="m-0! mx-auto! max-w-[1600px]! px-6! bg-slate-50 mb-8"
       noPadding
       title="Roles y permisos"
-      description="Compara y edita la matriz RBAC de los 5 roles."
+      description={`Compara y edita la matriz RBAC de ${roles.length} roles.`}
       icon={<FaShieldAlt size={20} />}
       actions={
         <ITFlex align="center" gap={2}>
@@ -319,17 +303,17 @@ const RolesPermissionsPage = () => {
               key={role.name}
               size="sm"
               variant={focusRole === role.name ? "solid" : "ghost"}
-              color={focusRole === role.name ? "primary" : "secondary"}
+              color={focusRole === role.name ? ROLE_COLORS[role.name] ?? "primary" : "secondary"}
               onClick={() => setFocusRole(focusRole === role.name ? null : role.name)}
             >
               <ITFlex align="center" gap={2}>
                 <ITText as="span" className="text-[11px] font-bold">
-                  {ROLE_SHORT[role.name] ?? role.name}
+                  {ROLE_LABELS[role.name] ?? role.name}
                 </ITText>
                 <ITBadget
                   size="sm"
                   variant="filled"
-                  color={focusRole === role.name ? "primary" : "secondary"}
+                  color={ROLE_COLORS[role.name] ?? "secondary"}
                 >
                   {draft[role.name]?.size ?? 0}
                 </ITBadget>
@@ -378,7 +362,7 @@ const RolesPermissionsPage = () => {
             )}
             {focusRole ? (
               <ITButton size="sm" variant="ghost" onClick={() => setFocusRole(null)}>
-                Quitar foco: {ROLE_SHORT[focusRole] ?? focusRole}
+                Quitar foco: {ROLE_LABELS[focusRole] ?? focusRole}
               </ITButton>
             ) : null}
             <ITButton
@@ -404,7 +388,7 @@ const RolesPermissionsPage = () => {
             {/* Header */}
             <ITFlex
               className="sticky top-0 z-20 border-b border-slate-200 bg-slate-50"
-              style={{ display: "grid", gridTemplateColumns: "minmax(360px,1fr) repeat(5, 104px)" }}
+              style={{ display: "grid", gridTemplateColumns: `minmax(360px,1fr) repeat(${roles.length}, 104px)` }}
             >
               <ITFlex
                 align="center"
@@ -426,9 +410,9 @@ const RolesPermissionsPage = () => {
                     }`}
                   onClick={() => setFocusRole(focusRole === role.name ? null : role.name)}
                 >
-                  <ITText as="span" className="text-[10px] font-black uppercase tracking-wide text-slate-600">
-                    {ROLE_SHORT[role.name] ?? role.name}
-                  </ITText>
+                  <ITBadget size="sm" variant="outlined" color={ROLE_COLORS[role.name] ?? "secondary"}>
+                    {ROLE_LABELS[role.name] ?? role.name}
+                  </ITBadget>
                   <ITText as="span" className="text-[10px] font-bold text-slate-400">
                     {draft[role.name]?.size ?? 0}
                   </ITText>
@@ -453,7 +437,7 @@ const RolesPermissionsPage = () => {
                       className="border-b border-slate-100 bg-white"
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "minmax(360px,1fr) repeat(5, 104px)",
+                        gridTemplateColumns: `minmax(360px,1fr) repeat(${roles.length}, 104px)`,
                       }}
                     >
                       <ITFlex align="center" className="px-4 py-2">
@@ -510,7 +494,7 @@ const RolesPermissionsPage = () => {
                             className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60"
                             style={{
                               display: "grid",
-                              gridTemplateColumns: "minmax(360px,1fr) repeat(5, 104px)",
+                              gridTemplateColumns: `minmax(360px,1fr) repeat(${roles.length}, 104px)`,
                             }}
                           >
                             <ITFlex
@@ -574,8 +558,8 @@ const RolesPermissionsPage = () => {
         <ITCard
           title="Menú lateral"
           headerActions={
-            <ITBadget size="sm" variant="filled" color="success">
-              {ROLE_SHORT[previewRole] ?? previewRole}
+            <ITBadget size="sm" variant="filled" color={ROLE_COLORS[previewRole] ?? "success"}>
+              {ROLE_LABELS[previewRole] ?? previewRole}
             </ITBadget>
           }
           contentClassName="p-3"

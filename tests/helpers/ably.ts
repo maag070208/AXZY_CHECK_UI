@@ -10,7 +10,9 @@ export const ablyProbe: {
   /** Valor que devuelve `close()` (por defecto una promesa). */
   closeReturns: "promise" | "undefined" | "rejected";
   closed: number;
-} = { throwOnConnect: false, closeReturns: "promise", closed: 0 };
+  /** Canales en los que la app llamó a `channels.get(...)` (en orden). */
+  channels: string[];
+} = { throwOnConnect: false, closeReturns: "promise", closed: 0, channels: [] };
 
 /** Dispara un evento de tiempo real como si lo enviara Ably. */
 export const emitAbly = (channel: string, event: string, data: unknown = {}) =>
@@ -22,6 +24,7 @@ export const resetAbly = () => {
   ablyProbe.throwOnConnect = false;
   ablyProbe.closeReturns = "promise";
   ablyProbe.closed = 0;
+  ablyProbe.channels = [];
 };
 
 class FakeRealtime {
@@ -30,15 +33,18 @@ class FakeRealtime {
     ablyProbe.options = options;
   }
   channels = {
-    get: (name: string) => ({
-      subscribe: (event: string, fn: Listener) => {
-        const byEvent = listeners.get(name) ?? new Map<string, Listener[]>();
-        byEvent.set(event, [...(byEvent.get(event) ?? []), fn]);
-        listeners.set(name, byEvent);
-      },
-      unsubscribe: () => {},
-      publish: () => {},
-    }),
+    get: (name: string) => {
+      ablyProbe.channels.push(name);
+      return {
+        subscribe: (event: string, fn: Listener) => {
+          const byEvent = listeners.get(name) ?? new Map<string, Listener[]>();
+          byEvent.set(event, [...(byEvent.get(event) ?? []), fn]);
+          listeners.set(name, byEvent);
+        },
+        unsubscribe: () => {},
+        publish: () => {},
+      };
+    },
   };
   close() {
     ablyProbe.closed += 1;

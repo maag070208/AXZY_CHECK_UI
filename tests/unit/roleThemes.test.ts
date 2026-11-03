@@ -10,6 +10,14 @@ describe("getRoleTheme", () => {
     expect(getRoleTheme("MAINT").primary).toBe("#475569");
   });
 
+  it("el rol CLIENT tiene identidad propia (no cae en ADMIN)", () => {
+    const client = getRoleTheme("CLIENT");
+    expect(client.primary).toBe("#B45309");
+    expect(client.ternary).toBe("#F59E0B");
+    expect(client.table?.rowHover).toBe("#fef3c7");
+    expect(client.primary).not.toBe(getRoleTheme("ADMIN").primary);
+  });
+
   it("cae en administración para un rol desconocido", () => {
     expect(getRoleTheme("UNKNOWN").primary).toBe("#065911");
     expect(getRoleTheme(null).primary).toBe("#065911");

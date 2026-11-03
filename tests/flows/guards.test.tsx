@@ -358,3 +358,124 @@ describe("guardias: ver tareas", () => {
     expect(within(dialog).getByRole("img", { name: /Dani/i })).toBeInTheDocument();
   });
 });
+
+describe("guardias: cliente asignado (fase 3)", () => {
+  const clients = [
+    { id: 7, name: "Plaza Centro", type: "PLAZA", active: true },
+    { id: 8, name: "Maquila Norte", type: "MAQUILA", active: true },
+  ];
+
+  const rowWithClient = (over: Record<string, unknown> = {}) => ({
+    ...guards[0],
+    guardAssignment: { id: 50, clientId: 7, client: { id: 7, name: "Plaza Centro", type: "PLAZA" } },
+    ...over,
+  });
+
+  const openGuards = async (rows: unknown[] = [rowWithClient(), guards[1], guards[2]], role = "ADMIN") => {
+    stub("get", "/schedules", { success: true, data: schedules });
+    const bodies = table("/users/datatable", rows);
+    const ctx = renderApp({ route: "/guards", role });
+    await waitFor(() => expect(bodies.length).toBeGreaterThanOrEqual(2));
+    await screen.findByText(`@${(rows[0] as { username: string }).username}`);
+    return { ...ctx, bodies };
+  };
+
+  it("muestra la columna Cliente con la asignación abierta", async () => {
+    await openGuards();
+    expect(screen.getByText("CLIENTE")).toBeInTheDocument();
+    expect(screen.getByText("Plaza Centro")).toBeInTheDocument();
+    expect(screen.getByText("Plaza")).toBeInTheDocument();
+    expect(screen.getAllByText("Sin cliente")).toHaveLength(2);
+  });
+
+  it("asigna el guardia a un cliente y refresca la plantilla", async () => {
+    stub("get", "/clients", { success: true, data: clients });
+    const created = stub("post", "/guard-assignments", { success: true, data: { id: 51 } });
+    const { user, bodies } = await openGuards();
+    const rowsBefore = bodies.length;
+
+    await user.click(rowBtn("Asignar a cliente", 0));
+    const dialog = (await screen.findByText("Asignar a cliente")).closest("[data-it-dialog]") as HTMLElement;
+    expect(within(dialog).getByText("Ana Pérez")).toBeInTheDocument();
+    expect(within(dialog).getByText("Actualmente en Plaza Centro")).toBeInTheDocument();
+
+    await pickOption(user, within(dialog).getByPlaceholderText("Selecciona el cliente..."), "Maquila Norte (Maquila)");
+    await user.click(within(dialog).getByRole("button", { name: "Asignar guardia" }));
+
+    await waitFor(() => expect(created.body).toEqual({ guardId: 1, clientId: 8 }));
+    await waitFor(() => expect(toast()).toMatchObject({ message: "Guardia asignado al cliente", type: "success" }));
+    await waitFor(() => expect(screen.queryByText("Asignar a cliente")).toBeNull());
+    await waitFor(() => expect(bodies.length).toBeGreaterThan(rowsBefore));
+  });
+
+  it("si la asignación falla muestra el mensaje del API y deja el modal abierto", async () => {
+    stub("get", "/clients", { success: true, data: clients });
+    stub("post", "/guard-assignments", { success: false, messages: ["Guardia ocupado"] });
+    const { user } = await openGuards();
+
+    await user.click(rowBtn("Asignar a cliente", 0));
+    const dialog = (await screen.findByText("Asignar a cliente")).closest("[data-it-dialog]") as HTMLElement;
+    await pickOption(user, within(dialog).getByPlaceholderText("Selecciona el cliente..."), "Plaza Centro (Plaza)");
+    await user.click(within(dialog).getByRole("button", { name: "Asignar guardia" }));
+
+    await waitFor(() => expect(toast()).toMatchObject({ message: "Guardia ocupado", type: "error" }));
+    expect(screen.getByText("Asignar a cliente")).toBeInTheDocument();
+  });
+
+  it("sin clientes activos el selector del modal queda vacío", async () => {
+    stub("get", "/clients", { success: true, data: [] });
+    const { user } = await openGuards();
+
+    await user.click(rowBtn("Asignar a cliente", 0));
+    const dialog = (await screen.findByText("Asignar a cliente")).closest("[data-it-dialog]") as HTMLElement;
+    expect(await within(dialog).findByText("No hay clientes activos disponibles.")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "Asignar guardia" })).toBeDisabled();
+  });
+
+  it("termina la asignación abierta del guardia", async () => {
+    const ended = stub("post", "/guard-assignments/50/end", { success: true });
+    const { user, bodies } = await openGuards();
+    const rowsBefore = bodies.length;
+
+    await user.click(rowBtn("Terminar asignación", 0));
+
+    await waitFor(() => expect(ended.method).toBe("POST"));
+    await waitFor(() => expect(toast()).toMatchObject({ message: "Asignación terminada correctamente", type: "success" }));
+    await waitFor(() => expect(bodies.length).toBeGreaterThan(rowsBefore));
+  });
+
+  it("si la fila no trae el id de asignación lo resuelve por GET /guard-assignments", async () => {
+    const rows = [
+      {
+        ...guards[0],
+        guardAssignment: { clientId: 7, client: { id: 7, name: "Plaza Centro", type: "PLAZA" } },
+      },
+      guards[1],
+    ];
+    const active = stub("get", "/guard-assignments", { success: true, data: [{ id: 60 }] });
+    const ended = stub("post", "/guard-assignments/60/end", { success: true });
+    const { user } = await openGuards(rows);
+
+    await user.click(rowBtn("Terminar asignación", 0));
+
+    await waitFor(() => expect(active.search).toBe("?guardId=1&active=true"));
+    await waitFor(() => expect(ended.method).toBe("POST"));
+  });
+
+  it("si terminar la asignación falla avisa al usuario", async () => {
+    stub("post", "/guard-assignments/50/end", { success: false, messages: ["No se pudo terminar"] });
+    const { user } = await openGuards();
+
+    await user.click(rowBtn("Terminar asignación", 0));
+
+    await waitFor(() => expect(toast()).toMatchObject({ message: "No se pudo terminar", type: "error" }));
+  });
+
+  it("SHIFT no ve cliente ni acciones de asignación a cliente", async () => {
+    await openGuards(undefined, "SHIFT");
+
+    expect(screen.queryByText("CLIENTE")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Asignar a cliente" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Terminar asignación" })).toBeNull();
+  });
+});

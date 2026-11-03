@@ -43,3 +43,20 @@ export interface CreateAssignmentDTO {
     notes?: string;
     tasks?: { description: string; reqPhoto: boolean }[];
 }
+
+/** Asignación de un guardia a un cliente (fase 3). Una abierta = `endsAt` null. */
+export interface GuardAssignment {
+    id: number;
+    guardId: number;
+    clientId: number;
+    startsAt?: string;
+    endsAt?: string | null;
+    guard?: { id: number; name: string; lastName?: string; username?: string };
+    client?: { id: number; name: string; type?: string };
+}
+
+export interface CreateGuardAssignmentDTO {
+    guardId: number;
+    clientId: number;
+    startsAt?: string;
+}

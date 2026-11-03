@@ -19,6 +19,7 @@ const PALETTES: Record<string, Omit<RolePalette, "role">> = {
   GUARD: { primary: "#0B2E4F", soft: "#E0F2FE", border: "#BAE6FD", hero: "#0B2E4F", accent: "#0EA5E9", hover: "#e6f2fb", softClass: "bg-sky-50", primaryBgClass: "bg-sky-900", primaryTextClass: "text-sky-800" },
   RESDN: { primary: "#3B1D5A", soft: "#F3E8FF", border: "#DDD6FE", hero: "#3B1D5A", accent: "#A855F7", hover: "#f3e8ff", softClass: "bg-violet-50", primaryBgClass: "bg-violet-700", primaryTextClass: "text-violet-800" },
   MAINT: { primary: "#475569", soft: "#F1F5F9", border: "#CBD5E1", hero: "#334155", accent: "#64748B", hover: "#f1f5f9", softClass: "bg-slate-50", primaryBgClass: "bg-slate-600", primaryTextClass: "text-slate-700" },
+  CLIENT: { primary: "#B45309", soft: "#FFFBEB", border: "#FDE68A", hero: "#92400E", accent: "#F59E0B", hover: "#fef3c7", softClass: "bg-amber-50", primaryBgClass: "bg-amber-700", primaryTextClass: "text-amber-800" },
 };
 
 export const useRolePalette = (): RolePalette => {

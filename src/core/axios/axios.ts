@@ -8,6 +8,7 @@ import { TResult } from "../types/TResult";
 import { showLoader, hideLoader } from "../store/loader/loader.slice";
 import { logout } from "../store/auth/auth.slice";
 import store from "../store/store";
+import { readPersistedClientSelection } from "../store/tenant/tenant.storage";
 
 type SessionConfig = InternalAxiosRequestConfig & { _retry?: boolean; skipAuth?: boolean };
 
@@ -24,6 +25,20 @@ axiosInstance.interceptors.request.use(
 
     if (token && !(config as SessionConfig).skipAuth) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Fase 3: ADMIN/MAINT eligen cliente con el selector global; su alcance
+    // viaja en X-Client-Id. El resto de roles lo tiene fijado en el token y
+    // mandar el encabezado les daría 403, así que nunca se agrega.
+    const choosesClient = state.auth.role === "ADMIN" || state.auth.role === "MAINT";
+    if (choosesClient) {
+      // Durante el arranque el slice aún no cargó los clientes: se usa la
+      // selección persistida para que las primeras peticiones ya lleven el
+      // cliente correcto (el token no basta cuando la organización tiene varios).
+      const selectedClientId = state.tenant.selectedClientId ?? readPersistedClientSelection(state.auth.id);
+      if (selectedClientId !== null) {
+        config.headers["X-Client-Id"] = String(selectedClientId);
+      }
     }
 
     return config;

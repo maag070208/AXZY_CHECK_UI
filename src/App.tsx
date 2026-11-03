@@ -1,12 +1,12 @@
 import LoginPage from "@app/modules/auth/pages/LoginPage";
 import { ITFlex, ITLoader } from "@axzydev/axzy_ui_system";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { PrivateRoutes } from "./core/routes/PrivateRoutes";
 import { PermissionRoute } from "./core/routes/PermissionRoute";
 import { P } from "./core/permissions/permissions.constants";
-import { setPermissions, setSession } from "./core/store/auth/auth.slice";
+import { setPermissions, setSession, setSessionScope } from "./core/store/auth/auth.slice";
 import { getMyPermissions } from "./modules/auth/services/AuthService";
 import { get } from "./core/axios/axios";
 import HomePage from "./modules/home/pages/HomePage";
@@ -42,16 +42,23 @@ import NewShiftHandoverPage from "./modules/shift-handover/pages/NewShiftHandove
 import UniformPage from "./modules/uniform/pages/UniformPage";
 import NewUniformCheckPage from "./modules/uniform/pages/NewUniformCheckPage";
 import RolesPermissionsPage from "./modules/rbac/pages/RolesPermissionsPage";
+import ClientsPage from "./modules/clients/pages/ClientsPage";
 import LegalPage from "./modules/legal/pages/LegalPage";
 import ResidentPortalPage from "./modules/resident/pages/ResidentPortalPage";
+
+/** Roles cuyo cliente lo fija el usuario/su asignación y viaja en `GET /users/me`. */
+const FIXED_CLIENT_ROLES = ["GUARD", "SHIFT", "RESDN", "CLIENT"];
 
 function App() {
   const token = useSelector((state: any) => state.auth.token);
   const session = useSelector((state: any) => state.auth.session);
+  const role = useSelector((state: any) => state.auth.role);
   const permissions = useSelector((state: any) => state.auth.permissions);
   const dispatch = useDispatch();
 
   const [isAppReady, setIsAppReady] = useState(false);
+  /** Evita repetir el enriquecimiento de alcance para el mismo token (incluido StrictMode). */
+  const scopeRequestedFor = useRef<string | null>(null);
 
   useEffect(() => {
     // Si ya hay token en memoria (login recién hecho), no hace falta consultar /me.
@@ -67,6 +74,28 @@ function App() {
       .catch(() => undefined)
       .finally(() => setIsAppReady(true));
   }, [dispatch]);
+
+  useEffect(() => {
+    // Login recién hecho: el JWT no trae el cliente fijo del rol. `GET /users/me`
+    // lo completa para que el chat se suscriba al canal correcto. ADMIN/MAINT no
+    // lo necesitan: su cliente activo sale del selector global (tenant).
+    if (!token || !session || !FIXED_CLIENT_ROLES.includes(String(role))) return;
+    if (scopeRequestedFor.current === token) return;
+    scopeRequestedFor.current = token;
+    get<{ clientId?: number | null; organizationId?: number | null }>("/users/me")
+      .then((res) => {
+        if (!res.success || !res.data || Array.isArray(res.data)) return;
+        dispatch(
+          setSessionScope({
+            clientId: res.data.clientId ?? null,
+            organizationId: res.data.organizationId ?? null,
+          }),
+        );
+      })
+      .catch(() => {
+        // Sin alcance, el chat sigue por REST/polling; no se bloquea la app.
+      });
+  }, [token, session, role, dispatch]);
 
   useEffect(() => {
     if ((!token && !session) || permissions !== null) return;
@@ -128,6 +157,7 @@ function App() {
 
         <Route path="/users" element={<PermissionRoute permissions={P.USERS_MANAGE}><UsersPage /></PermissionRoute>} />
         <Route path="/roles" element={<PermissionRoute permissions={P.USERS_MANAGE}><RolesPermissionsPage /></PermissionRoute>} />
+        <Route path="/clients" element={<PermissionRoute permissions={P.CLIENT_VIEW}><ClientsPage /></PermissionRoute>} />
         <Route path="/resident" element={<PermissionRoute permissions={P.RESIDENT_SELF}><ResidentPortalPage /></PermissionRoute>} />
         <Route path="/incidents" element={<PermissionRoute permissions={P.INCIDENT_VIEW}><IncidentsPage /></PermissionRoute>} />
         <Route path="/complaints" element={<PermissionRoute permissions={P.COMPLAINT_VIEW}><ComplaintsPage /></PermissionRoute>} />

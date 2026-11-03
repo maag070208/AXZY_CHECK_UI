@@ -1,15 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ITBadget, ITButton, ITCard, ITDataTable, ITFlex, ITGrid, ITInput, ITPage, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
-import { FaUserShield, FaClipboardList, FaClock, FaEye, FaSync, FaSearch, FaTimes } from "react-icons/fa";
+import { ITBadget, ITButton, ITCard, ITDataTable, ITFlex, ITGrid, ITInput, ITPage, ITSearchSelect, ITText, type Column } from "@axzydev/axzy_ui_system";
+import { FaUserShield, FaClipboardList, FaClock, FaEye, FaSync, FaSearch, FaTimes, FaBuilding, FaUnlink } from "react-icons/fa";
 import { getPaginatedUsers, User } from "../../users/services/UserService";
 import { getSchedules, Schedule } from "../../schedules/SchedulesService";
 import { AssignmentModal } from "../components/AssignmentModal";
+import { GuardAssignmentModal } from "../components/GuardAssignmentModal";
 import { ViewAssignmentsModal } from "../components/ViewAssignmentsModal";
 import { PersonAvatar } from "@app/core/components/PersonAvatar";
 import { useRolePalette } from "@app/core/hooks/useRolePalette";
+import { useCan } from "@app/core/permissions/useCan";
+import { P } from "@app/core/permissions/permissions.constants";
+import { CLIENT_TYPE_LABELS } from "../../clients/clients.constants";
+import { endGuardAssignment, getGuardAssignments } from "../service/guards.service";
+import { showToast } from "@app/core/store/toast/toast.slice";
+import { useDispatch } from "react-redux";
 
 const GuardsPage = () => {
     const palette = useRolePalette();
+    const dispatch = useDispatch();
+    const can = useCan();
+    const canViewClients = can(P.CLIENT_VIEW);
+    const canAssignClient = can(P.GUARD_ASSIGN);
     const [refreshKey, setRefreshKey] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [scheduleFilter, setScheduleFilter] = useState("ALL");
@@ -17,6 +28,7 @@ const GuardsPage = () => {
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [selectedGuard, setSelectedGuard] = useState<User | null>(null);
     const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
+    const [isClientAssignmentModalOpen, setIsClientAssignmentModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
     useEffect(() => {
@@ -61,8 +73,51 @@ const GuardsPage = () => {
         setIsViewModalOpen(true);
     };
 
+    const handleOpenClientAssignment = (guard: User) => {
+        setSelectedGuard(guard);
+        setIsClientAssignmentModalOpen(true);
+    };
+
+    /**
+     * Termina la asignación abierta del guardia. La fila de `/users/datatable`
+     * trae `guardAssignment` con su id; si el API no lo incluyera, se resuelve
+     * con `GET /guard-assignments?guardId=&active=true` (contrato de fase 3).
+     */
+    const handleEndClientAssignment = async (row: any) => {
+        let assignmentId: number | null = row.guardAssignment?.id ?? null;
+        if (assignmentId === null) {
+            try {
+                const active = await getGuardAssignments({ guardId: row.id, active: true });
+                assignmentId = active.success ? active.data?.[0]?.id ?? null : null;
+            } catch {
+                assignmentId = null;
+            }
+        }
+        if (assignmentId === null) {
+            dispatch(showToast({ message: "No se encontró la asignación abierta del guardia", type: "error" }));
+            return;
+        }
+        try {
+            const res = await endGuardAssignment(assignmentId);
+            if (res.success) {
+                dispatch(showToast({ message: "Asignación terminada correctamente", type: "success" }));
+                refreshTable();
+            } else {
+                dispatch(showToast({ message: res.messages?.[0] || "Error al terminar la asignación", type: "error" }));
+            }
+        } catch (error: any) {
+            const message = error?.messages?.[0] || error?.message || "Error al terminar la asignación";
+            dispatch(showToast({ message, type: "error" }));
+        }
+    };
+
     const handleSuccess = () => {
         setIsAssignmentModalOpen(false);
+        refreshTable();
+    };
+
+    const handleClientAssignmentSuccess = () => {
+        setIsClientAssignmentModalOpen(false);
         refreshTable();
     };
 
@@ -76,6 +131,27 @@ const GuardsPage = () => {
         if (role === "MAINT") return "warning";
         if (role === "SHIFT") return "info";
         return "primary";
+    };
+
+    /** Columna de cliente asignado (solo cuando el rol puede consultar clientes). */
+    const clientColumn: Column<any> = {
+        key: "client",
+        label: "CLIENTE",
+        type: "string",
+        render: (row: any) => (
+            row.guardAssignment?.client ? (
+                <ITFlex direction="column" className="text-sm text-slate-600">
+                    <ITFlex direction="column" className="font-bold text-slate-700 text-xs uppercase">
+                        {row.guardAssignment.client.name}
+                    </ITFlex>
+                    <ITText as="span" className="text-[10px] text-slate-400">
+                        {CLIENT_TYPE_LABELS[row.guardAssignment.client.type as keyof typeof CLIENT_TYPE_LABELS] ?? row.guardAssignment.client.type}
+                    </ITText>
+                </ITFlex>
+            ) : (
+                <ITText as="span" className="text-[11px] italic text-slate-300">Sin cliente</ITText>
+            )
+        )
     };
 
     return (
@@ -167,6 +243,7 @@ const GuardsPage = () => {
                                 );
                             }
                         },
+                        ...(canViewClients ? [clientColumn] : []),
                         {
                             key: "schedule",
                             label: "TURNO",
@@ -232,6 +309,28 @@ const GuardsPage = () => {
                                         ariaLabel="Asignar tarea"
                                         title="Asignar tarea"
                                     />
+                                    {canAssignClient && (
+                                        <ITButton
+                                            onClick={() => handleOpenClientAssignment(row)}
+                                            size="md"
+                                            variant="icon-only"
+                                            color="primary"
+                                            icon={<FaBuilding />}
+                                            ariaLabel="Asignar a cliente"
+                                            title="Asignar a cliente"
+                                        />
+                                    )}
+                                    {canAssignClient && row.guardAssignment && (
+                                        <ITButton
+                                            onClick={() => void handleEndClientAssignment(row)}
+                                            size="md"
+                                            variant="icon-only"
+                                            color="danger"
+                                            icon={<FaUnlink />}
+                                            ariaLabel="Terminar asignación"
+                                            title="Terminar asignación"
+                                        />
+                                    )}
                                 </ITFlex>
                             )
                         }
@@ -247,6 +346,14 @@ const GuardsPage = () => {
                         guardId={selectedGuard.id}
                         guardName={`${selectedGuard.name} ${selectedGuard.lastName}`}
                         onSuccess={handleSuccess}
+                    />
+                    <GuardAssignmentModal
+                        isOpen={isClientAssignmentModalOpen}
+                        onClose={() => setIsClientAssignmentModalOpen(false)}
+                        guardId={selectedGuard.id}
+                        guardName={`${selectedGuard.name} ${selectedGuard.lastName}`}
+                        currentClientName={selectedGuard.guardAssignment?.client?.name}
+                        onSuccess={handleClientAssignmentSuccess}
                     />
                     <ViewAssignmentsModal
                         isOpen={isViewModalOpen}

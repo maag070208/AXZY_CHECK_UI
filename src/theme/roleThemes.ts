@@ -33,6 +33,14 @@ const ROLE_THEMES: Record<string, Partial<ITThemePalette>> = {
     ternary: "#94a3b8",
     table: { ...baseTheme.table, rowHover: "#f1f5f9" },
   },
+  // Administrador del cliente (residencial, plaza o maquila): identidad ámbar,
+  // distinta del verde de la organización (ADMIN).
+  CLIENT: {
+    primary: "#B45309",
+    secondary: "#64748b",
+    ternary: "#F59E0B",
+    table: { ...baseTheme.table, rowHover: "#fef3c7" },
+  },
 };
 
 export const getRoleTheme = (role?: string | null): ITThemePalette => {

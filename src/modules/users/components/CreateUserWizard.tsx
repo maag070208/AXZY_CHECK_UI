@@ -1,14 +1,15 @@
 import { useCatalog } from "@app/core/hooks/catalog.hook";
+import { AppState } from "@app/core/store/store";
 import { showToast } from "@app/core/store/toast/toast.slice";
-import { ITButton, ITChip, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
+import { ITAlert, ITButton, ITChip, ITFlex, ITInput, ITSearchSelect, ITText } from "@axzydev/axzy_ui_system";
 import { useFormik } from "formik";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { FaClock, FaEye, FaEyeSlash, FaMagic, FaShieldAlt, FaUser } from "react-icons/fa";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getSchedules, Schedule } from "../../schedules/SchedulesService";
 import { createUser, updateUser, User } from "../services/UserService";
-import { getVisibleRoles } from "../utils/role.utils";
+import { CLIENT_ROLE, getVisibleRoles } from "../utils/role.utils";
 
 interface Props {
   userToEdit?: User;
@@ -18,6 +19,9 @@ interface Props {
 
 /** Roles que operan en campo y por tanto necesitan horario. */
 const OPERATIONAL_ROLES = ["GUARD", "SHIFT", "MAINT"];
+
+/** Aviso cuando el ADMIN no ha elegido cliente para el que sería su administrador. */
+const CLIENT_REQUIRED_MESSAGE = "Elige un cliente para crear su administrador";
 
 const randomPassword = (length = 10) => {
   // Sin caracteres ambiguos (0/O, 1/l/I) para poder dictarla sin errores.
@@ -44,7 +48,20 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const { data: roles } = useCatalog("role");
-  const visibleRoles = useMemo(() => getVisibleRoles(roles), [roles]);
+  const selectedClientId = useSelector((state: AppState) => state.tenant.selectedClientId);
+  const hasSelectedClient = selectedClientId !== null;
+
+  /**
+   * CLIENT se ofrece al crear solo si hay un cliente elegido (el API lo liga
+   * con X-Client-Id). Al editar solo se muestra si el usuario ya era CLIENT:
+   * cambiar de rol a CLIENT por PUT no re-liga su `clientId` en el API.
+   */
+  const canOfferClientRole = isEditing ? userToEdit?.role?.name === CLIENT_ROLE : hasSelectedClient;
+  const visibleRoles = useMemo(
+    () => getVisibleRoles(roles, { includeClient: canOfferClientRole }),
+    [roles, canOfferClientRole],
+  );
+  const showClientRequiredHint = !isEditing && !hasSelectedClient;
 
   useEffect(() => {
     getSchedules().then(setSchedules);
@@ -83,6 +100,12 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
       }),
     }),
     onSubmit: async (values) => {
+      const submittedRoleName = roles.find((role) => String(role.id) === String(values.roleId))?.name;
+      // Defensa extra: el chip CLIENT ni siquiera se pinta sin cliente elegido.
+      if (!isEditing && submittedRoleName === CLIENT_ROLE && !hasSelectedClient) {
+        dispatch(showToast({ message: CLIENT_REQUIRED_MESSAGE, type: "error" }));
+        return;
+      }
       const base = {
         name: values.name.trim(),
         lastName: values.lastName.trim(),
@@ -172,6 +195,11 @@ export const CreateUserWizard: React.FC<Props> = ({ userToEdit, onCancel, onSucc
                 );
               })}
             </ITFlex>
+            {showClientRequiredHint && (
+              <ITFlex className="mt-3">
+                <ITAlert variant="warning">{CLIENT_REQUIRED_MESSAGE}</ITAlert>
+              </ITFlex>
+            )}
             {roleError && <ITText as="p" className="text-xs text-red-500 mt-1.5">{formik.errors.roleId}</ITText>}
           </ITFlex>
 

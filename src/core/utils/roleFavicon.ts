@@ -3,6 +3,7 @@ import shiftIcon from "@assets/roles/shift/checkapp-icon-shift.svg";
 import guardIcon from "@assets/roles/guard/checkapp-icon-guard.svg";
 import resdnIcon from "@assets/roles/resdn/checkapp-icon-resdn.svg";
 import maintIcon from "@assets/roles/maint/checkapp-icon-maint.svg";
+import clientIcon from "@assets/roles/client/checkapp-icon-client.svg";
 
 const ICONS: Record<string, string> = {
   ADMIN: adminIcon,
@@ -10,6 +11,7 @@ const ICONS: Record<string, string> = {
   GUARD: guardIcon,
   RESDN: resdnIcon,
   MAINT: maintIcon,
+  CLIENT: clientIcon,
 };
 
 const KEYS: Record<string, string> = {
@@ -23,6 +25,8 @@ const KEYS: Record<string, string> = {
   resdn: "RESDN",
   mantenimiento: "MAINT",
   maint: "MAINT",
+  cliente: "CLIENT",
+  client: "CLIENT",
 };
 
 /** Cambia el favicon del navegador al icono del rol activo. */

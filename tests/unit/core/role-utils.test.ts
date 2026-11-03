@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { BARCELONA_ROLE_ORDER, getRoleFilterOptions, getVisibleRoles } from "@app/modules/users/utils/role.utils";
+import {
+  BARCELONA_ROLE_ORDER,
+  CLIENT_ROLE,
+  getRoleFilterOptions,
+  getVisibleRoles,
+} from "@app/modules/users/utils/role.utils";
 import { roles } from "../../helpers/fixtures";
 
 describe("role.utils", () => {
@@ -13,14 +18,27 @@ describe("role.utils", () => {
     ];
     expect(getVisibleRoles(mixed).map((r) => r.name)).toEqual(["ADMIN", "GUARD", "MAINT"]);
     expect(BARCELONA_ROLE_ORDER).toEqual(["ADMIN", "GUARD", "SHIFT", "MAINT"]);
+    expect(CLIENT_ROLE).toBe("CLIENT");
   });
 
-  it("getRoleFilterOptions muestra el value como name y conserva el id", () => {
+  it("CLIENT solo aparece cuando se pide expresamente (hay cliente elegido)", () => {
+    expect(getVisibleRoles(roles).map((r) => r.name)).toEqual(["ADMIN", "GUARD", "SHIFT", "MAINT"]);
+    expect(getVisibleRoles(roles, { includeClient: true }).map((r) => r.name)).toEqual([
+      "ADMIN",
+      "GUARD",
+      "SHIFT",
+      "MAINT",
+      "CLIENT",
+    ]);
+  });
+
+  it("getRoleFilterOptions muestra el value como name, conserva el id e incluye CLIENT", () => {
     expect(getRoleFilterOptions(roles)).toEqual([
       { id: 1, name: "Administrador", value: "Administrador" },
       { id: 2, name: "Guardia", value: "Guardia" },
       { id: 3, name: "Supervisor", value: "Supervisor" },
       { id: 4, name: "Mantenimiento", value: "Mantenimiento" },
+      { id: 5, name: "Cliente", value: "Cliente" },
     ]);
   });
 });

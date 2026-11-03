@@ -101,7 +101,33 @@ describe("useNavigationItems / Navbar", () => {
   it("ADMIN ve todas las secciones", () => {
     authAs("ADMIN");
     const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/home") });
-    expect(labels(result.current)).toEqual(["Inicio", "Operación", "Residencial", "Finanzas", "Reportes", "Personal", "Catálogos"]);
+    expect(labels(result.current)).toEqual(["Inicio", "Operación", "Residencial", "Finanzas", "Reportes", "Personal", "Organización", "Catálogos"]);
+  });
+
+  it("ADMIN ve la administración de clientes de la organización", () => {
+    authAs("ADMIN");
+    const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/clients") });
+    const organization = result.current.find((item: any) => item.id === "organization");
+    expect(organization.label).toBe("Organización");
+    expect(organization.subitems[0].items[0]).toMatchObject({ id: "clients", label: "Clientes", isActive: true });
+  });
+
+  it("MAINT solo consulta clientes (client.view)", () => {
+    authAs("MAINT");
+    const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/home") });
+    expect(labels(result.current)).toEqual(["Inicio", "Operación", "Reportes", "Organización"]);
+    const organization = result.current.find((item: any) => item.id === "organization");
+    expect(organization.subitems.flatMap((group: any) => group.items.map((item: any) => item.label))).toEqual(["Clientes"]);
+  });
+
+  it("CLIENT no ve la administración de la organización ni pantallas de staff", () => {
+    authAs("CLIENT");
+    const { result } = renderHook(() => useNavigationItems(), { wrapper: wrapper("/home") });
+    expect(labels(result.current)).toEqual(["Inicio", "Operación", "Residencial", "Finanzas", "Reportes"]);
+    const ids = result.current.map((item: any) => item.id);
+    expect(ids).not.toContain("organization");
+    expect(ids).not.toContain("staff");
+    expect(ids).not.toContain("catalogs");
   });
 
   it("GUARD solo ve lo suyo y no ve secciones vacías", () => {

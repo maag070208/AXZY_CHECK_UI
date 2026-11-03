@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import authReducer, { isAuthenticated, logout, setAuth } from "@app/core/store/auth/auth.slice";
+import authReducer, { isAuthenticated, logout, setAuth, setSession, setSessionScope } from "@app/core/store/auth/auth.slice";
 import loaderReducer, { hideLoader, showLoader } from "@app/core/store/loader/loader.slice";
 import toastReducer, { hideToast, showToast } from "@app/core/store/toast/toast.slice";
 import tableReducer, {
@@ -12,12 +12,34 @@ import tableReducer, {
 import { makeToken } from "../../helpers/render";
 
 describe("auth.slice", () => {
-  const empty = { id: null, name: null, email: null, role: null, photoUrl: null, token: null, session: false, permissions: null };
+  const empty = {
+    id: null,
+    name: null,
+    email: null,
+    role: null,
+    photoUrl: null,
+    token: null,
+    session: false,
+    permissions: null,
+    clientId: null,
+    organizationId: null,
+  };
 
   it("setAuth con token válido guarda los datos del JWT", () => {
     const token = makeToken({ id: 7, name: "Ana", role: "GUARD" });
     const s = authReducer(undefined, setAuth(token));
-    expect(s).toEqual({ id: 7, name: "Ana", email: "admin@check.app", role: "GUARD", photoUrl: null, token, session: true, permissions: null });
+    expect(s).toEqual({
+      id: 7,
+      name: "Ana",
+      email: "admin@check.app",
+      role: "GUARD",
+      photoUrl: null,
+      token,
+      session: true,
+      permissions: null,
+      clientId: null,
+      organizationId: null,
+    });
     expect(isAuthenticated({ auth: s })).toBe(true);
   });
 
@@ -35,6 +57,47 @@ describe("auth.slice", () => {
 
   it("logout limpia la sesión", () => {
     expect(authReducer(authReducer(undefined, setAuth(makeToken())), logout())).toEqual(empty);
+  });
+
+  it("setSession guarda el alcance fijo (clientId/organizationId) de /users/me", () => {
+    const s = authReducer(
+      undefined,
+      setSession({ id: 5, name: "Gaby", email: "g@check.app", role: "GUARD", clientId: 7, organizationId: 3 }),
+    );
+    expect(s).toMatchObject({
+      id: 5,
+      role: "GUARD",
+      clientId: 7,
+      organizationId: 3,
+      token: null,
+      session: true,
+    });
+  });
+
+  it("setSession sin alcance deja clientId/organizationId en null", () => {
+    const s = authReducer(undefined, setSession({ id: 5, role: "MAINT" }));
+    expect(s).toMatchObject({ clientId: null, organizationId: null });
+  });
+
+  it("setSessionScope completa el alcance de un login con token", () => {
+    const logged = authReducer(undefined, setAuth(makeToken({ id: 8, role: "CLIENT" })));
+    expect(logged.clientId).toBeNull();
+    const scoped = authReducer(logged, setSessionScope({ clientId: 9, organizationId: 2 }));
+    expect(scoped).toMatchObject({ clientId: 9, organizationId: 2, role: "CLIENT" });
+    // Solo actualiza las claves enviadas.
+    expect(authReducer(scoped, setSessionScope({ clientId: 4 }))).toMatchObject({
+      clientId: 4,
+      organizationId: 2,
+    });
+  });
+
+  it("un login nuevo resetea el alcance anterior y logout también lo limpia", () => {
+    const scoped = authReducer(undefined, setSession({ id: 5, role: "GUARD", clientId: 7, organizationId: 3 }));
+    expect(authReducer(scoped, setAuth(makeToken({ id: 9, role: "ADMIN" })))).toMatchObject({
+      clientId: null,
+      organizationId: null,
+    });
+    expect(authReducer(scoped, logout())).toMatchObject({ clientId: null, organizationId: null });
   });
 });
 

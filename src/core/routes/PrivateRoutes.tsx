@@ -7,6 +7,8 @@ import { RoleLogo } from "../components/RoleLogo";
 import { post } from "../axios/axios";
 import { isAuthenticated, logout as logoutAction } from "../store/auth/auth.slice";
 import { AppState, AppDispatch } from "../store/store";
+import { useTenantBootstrap } from "../store/tenant/useTenantBootstrap";
+import { ClientSelector } from "@modules/clients/components/ClientSelector";
 
 /**
  * Cierre de sesión real (F9 · T-F9-10): avisa al API (marca isLoggedIn=false),
@@ -28,9 +30,11 @@ const signOut = async (dispatch: AppDispatch, navigate: (to: string) => void) =>
 export const PrivateRoutes = () => {
   const isAuth = useSelector(isAuthenticated);
   const user = useSelector((state: AppState) => state.auth);
+  const selectionVersion = useSelector((state: AppState) => state.tenant.selectionVersion);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const navigationItems = useNavigationItems();
+  const { canSelectClients, clients, selectedClientId, status, selectClient, reload } = useTenantBootstrap();
 
   return isAuth ? (
     <ITLayout
@@ -55,7 +59,23 @@ export const PrivateRoutes = () => {
       }}
       contentClassName="mx-0! px-8! max-w-full! mb-12! bg-slate-50!"
     >
-      <Outlet />
+      {canSelectClients && (
+        <ClientSelector
+          clients={clients}
+          selectedClientId={selectedClientId}
+          status={status}
+          onSelect={selectClient}
+          onRetry={reload}
+        />
+      )}
+      {/*
+        Al cambiar de cliente se remonta la vista actual (key = generación de la
+        selección): así ninguna pantalla conserva filas ni estado del cliente
+        anterior y todas vuelven a pedir sus datos con el nuevo X-Client-Id.
+      */}
+      <div key={canSelectClients ? `${user.id}:${selectionVersion}` : "tenant-fixed"}>
+        <Outlet />
+      </div>
     </ITLayout>
   ) : (
     <Navigate to="/login" />

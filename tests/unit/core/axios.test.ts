@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { axiosInstance, get, patch, post, put, remove } from "@app/core/axios/axios";
 import { setAuth } from "@app/core/store/auth/auth.slice";
 import store from "@app/core/store/store";
+import { setClients, tenantLoading } from "@app/core/store/tenant/tenant.slice";
+import { tenantStorageKey } from "@app/core/store/tenant/tenant.storage";
 import { makeToken } from "../../helpers/render";
 import { API, server } from "../../helpers/server";
 
@@ -98,5 +100,57 @@ describe("baseURL", () => {
     const fresh = await import("@app/core/axios/axios");
     expect(fresh.axiosInstance.defaults.baseURL).toBe("http://localhost:4444/api/v1");
     vi.unstubAllEnvs();
+  });
+});
+
+describe("X-Client-Id (fase 3)", () => {
+  const clients = [
+    { id: 7, name: "Plaza Centro", type: "PLAZA" as const, active: true },
+    { id: 9, name: "Maquila Norte", type: "MAQUILA" as const, active: true },
+  ];
+
+  const captureHeader = async () => {
+    let seen: string | null | undefined;
+    server.use(
+      http.get(`${API}/x`, ({ request }) => {
+        seen = request.headers.get("x-client-id");
+        return HttpResponse.json({ success: true });
+      }),
+    );
+    await get("/x");
+    return seen;
+  };
+
+  it("ADMIN manda el cliente elegido en X-Client-Id", async () => {
+    store.dispatch(setAuth(makeToken({ role: "ADMIN" })));
+    store.dispatch(setClients({ clients, userId: 1, storedClientId: 9 }));
+    await expect(captureHeader()).resolves.toBe("9");
+  });
+
+  it("MAINT también elige cliente y lo manda", async () => {
+    store.dispatch(setAuth(makeToken({ role: "MAINT" })));
+    store.dispatch(setClients({ clients, userId: 1, storedClientId: 7 }));
+    await expect(captureHeader()).resolves.toBe("7");
+  });
+
+  it("usa la selección persistida durante el arranque, antes de cargar el slice", async () => {
+    localStorage.setItem(tenantStorageKey(1), "9");
+    store.dispatch(setAuth(makeToken({ role: "ADMIN" })));
+    expect(store.getState().tenant.selectedClientId).toBeNull();
+    await expect(captureHeader()).resolves.toBe("9");
+  });
+
+  it.each(["GUARD", "SHIFT", "RESDN", "CLIENT"])("%s nunca manda X-Client-Id", async (role) => {
+    store.dispatch(setAuth(makeToken({ role })));
+    // Aunque el slice tenga una selección (p. ej. heredada en el navegador), el
+    // encabezado solo aplica a ADMIN/MAINT: a los demás el API les daría 403.
+    store.dispatch(setClients({ clients, userId: 1, storedClientId: 7 }));
+    await expect(captureHeader()).resolves.toBeNull();
+  });
+
+  it("ADMIN sin selección ni persistencia no manda el encabezado", async () => {
+    store.dispatch(setAuth(makeToken({ role: "ADMIN" })));
+    store.dispatch(tenantLoading(1));
+    await expect(captureHeader()).resolves.toBeNull();
   });
 });

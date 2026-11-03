@@ -7,6 +7,7 @@ import { IAuthLogin } from "@core/types/auth.types";
 import { useState, type ComponentType } from "react";
 import {
   FaArrowRight,
+  FaBuilding,
   FaClipboardList,
   FaComments,
   FaExchangeAlt,
@@ -32,7 +33,7 @@ interface RoleDesign {
   panelClass: string;
   orbClass: string;
   accentClass: string;
-  chipColor: "success" | "info" | "primary" | "purple";
+  chipColor: "success" | "info" | "primary" | "purple" | "warning";
   chipClass: string;
   eyebrow: string;
   headline: string;
@@ -74,6 +75,13 @@ const PEOPLE_RESIDENT: Person[] = [
   { name: "Ana Vecina", role: "Residente" },
   { name: "Sergio Supervisor", role: "Jefe de guardias" },
   { name: "Gabriela Guardia", role: "Guardia" },
+];
+
+const PEOPLE_CLIENT: Person[] = [
+  { name: "Carla Cliente", role: "Administración del cliente" },
+  { name: "Rosa Residente", role: "Residente" },
+  { name: "Sergio Supervisor", role: "Jefe de turno" },
+  { name: "Mateo Mantenimiento", role: "Mantenimiento" },
 ];
 
 const GENERIC: RoleDesign = {
@@ -118,6 +126,31 @@ const ROLE_DESIGNS: Record<string, RoleDesign> = {
     ],
     rightEyebrow: "ACCESO ADMINISTRATIVO",
     rightDescription: "Inicia sesión para continuar con la operación del residencial.",
+  },
+  cliente: {
+    ...GENERIC,
+    panelClass: "bg-[#92400E]",
+    orbClass: "bg-amber-600/50",
+    accentClass: "bg-amber-300/15 text-amber-100",
+    chipColor: "warning",
+    chipClass: "bg-white/10! text-amber-100!",
+    eyebrow: "ADMINISTRACIÓN DE CLIENTE",
+    headline: "Tu sitio, bajo control.",
+    description: "Residentes, accesos, incidencias y finanzas de tu residencial, plaza o maquila, en un solo lugar.",
+    people: PEOPLE_CLIENT,
+    communityTitle: "Tu operación en el sitio",
+    communityLabel: "Tu sitio",
+    communityHint: "Residentes, accesos y finanzas",
+    features: [
+      { icon: FaBuilding, label: "Mi sitio" },
+      { icon: FaQrcode, label: "Pases y accesos" },
+      { icon: FaClipboardList, label: "Incidencias y kardex" },
+      { icon: FaWallet, label: "Finanzas" },
+    ],
+    footerLabel: "Operación del sitio en tiempo real",
+    rightEyebrow: "ACCESO CLIENTE",
+    rightTitle: "Bienvenido a tu sitio",
+    rightDescription: "Inicia sesión para administrar tu residencial, plaza o maquila.",
   },
   jefe: {
     ...GENERIC,
@@ -233,6 +266,9 @@ const ROLE_ALIASES: Record<string, string> = {
   maint: "mantenimiento",
   mantenimiento: "mantenimiento",
   maintenance: "mantenimiento",
+  client: "cliente",
+  cliente: "cliente",
+  "administrador-de-cliente": "cliente",
 };
 
 const LoginPage = () => {

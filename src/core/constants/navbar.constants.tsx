@@ -15,6 +15,7 @@ import {
   FaLayerGroup,
   FaQrcode,
   FaShieldAlt,
+  FaSitemap,
   FaUser,
   FaUsers,
   FaWallet,
@@ -171,6 +172,20 @@ export const NAV_SECTIONS: NavSection[] = [
           { id: "uniform", label: "Uniforme", path: "/uniform", permission: P.UNIFORM_MANAGE },
           { id: "users", label: "Usuarios", path: "/users", permission: P.USERS_MANAGE },
           { id: "roles", label: "Roles y permisos", path: "/roles", permission: P.USERS_MANAGE },
+        ],
+      },
+    ],
+  },
+  {
+    id: "organization",
+    label: "Organización",
+    icon: <FaSitemap />,
+    groups: [
+      {
+        id: "organization-main",
+        label: "Organización",
+        items: [
+          { id: "clients", label: "Clientes", path: "/clients", permission: P.CLIENT_VIEW, icon: <FaBuilding /> },
         ],
       },
     ],

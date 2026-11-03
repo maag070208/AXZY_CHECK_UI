@@ -1,9 +1,11 @@
 import { screen, waitFor, within } from "@testing-library/react";
+import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import store from "@app/core/store/store";
 import { fail, stub, table } from "../helpers/api";
 import { roles, schedules } from "../helpers/fixtures";
 import { renderApp } from "../helpers/render";
+import { API, server } from "../helpers/server";
 import { pickOption } from "../helpers/ui";
 
 const users = [
@@ -26,6 +28,13 @@ const open = async () => {
   return { ...r, bodies };
 };
 const rowBtn = (label: string, idx: number) => screen.getAllByRole("button", { name: label })[idx];
+/** Clientes que devuelve `GET /clients`; con varios no hay auto-selección en el selector. */
+const serveClients = (rows: { id: number; name: string; type: string; active: boolean }[]) =>
+  server.use(http.get(`${API}/clients`, () => HttpResponse.json({ success: true, data: rows })));
+const TWO_CLIENTS = [
+  { id: 7, name: "Plaza Centro", type: "PLAZA", active: true },
+  { id: 9, name: "Maquila Norte", type: "MAQUILA", active: true },
+];
 const dialogOf = (title: string | RegExp) => screen.findByText(title).then((el) => el.closest("[data-it-dialog]") as HTMLElement);
 const typeIn = async (user: any, scope: HTMLElement, placeholder: string, text: string) =>
   user.type(within(scope).getByPlaceholderText(placeholder), text);
@@ -77,12 +86,22 @@ describe("usuarios: alta", () => {
     return { ...ctx, dialog };
   };
 
-  it("solo ofrece los roles del staff de BARCELONA", async () => {
+  it("con un cliente elegido ofrece el staff y el administrador de cliente", async () => {
+    // El shell auto-selecciona el único cliente de la organización (handler base).
+    const { dialog } = await openCreate();
+    expect(within(dialog).getAllByRole("button").map((b) => b.textContent)).toEqual(
+      expect.arrayContaining(["Administrador", "Guardia", "Supervisor", "Mantenimiento", "Cliente"]),
+    );
+  });
+
+  it("sin cliente seleccionado no ofrece CLIENT y muestra el aviso", async () => {
+    serveClients(TWO_CLIENTS);
     const { dialog } = await openCreate();
     expect(within(dialog).getAllByRole("button").map((b) => b.textContent)).toEqual(
       expect.arrayContaining(["Administrador", "Guardia", "Supervisor", "Mantenimiento"]),
     );
-    expect(within(dialog).queryByText("Cliente")).toBeNull();
+    expect(within(dialog).queryByRole("button", { name: "Cliente" })).toBeNull();
+    expect(within(dialog).getByText("Elige un cliente para crear su administrador")).toBeInTheDocument();
   });
 
   it("valida requeridos y que las contraseñas coincidan", async () => {
@@ -131,6 +150,32 @@ describe("usuarios: alta", () => {
     await waitFor(() => expect(created.body).toEqual({ name: "Rob", lastName: "García", username: "rgarcia", roleId: 1, password: "secreto1" }));
     await waitFor(() => expect(toast()).toMatchObject({ message: "Usuario creado correctamente", type: "success" }));
     await waitFor(() => expect(bodies.length).toBeGreaterThan(n));
+  });
+
+  it("administrador de cliente: crea con el cliente elegido y sin horario", async () => {
+    let body: any = null;
+    let clientHeader: string | null = null;
+    server.use(
+      http.post(`${API}/users`, async ({ request }) => {
+        body = await request.json();
+        clientHeader = request.headers.get("x-client-id");
+        return HttpResponse.json({ success: true, data: { id: 9 } });
+      }),
+    );
+    const { user, dialog } = await openCreate();
+    await typeIn(user, dialog, "Ej. Roberto", "Carla");
+    await typeIn(user, dialog, "Ej. García López", "Cliente");
+    await typeIn(user, dialog, "Ej. rgarcia", "ccliente");
+    await typeIn(user, dialog, "Mínimo 6 caracteres", "secreto1");
+    await typeIn(user, dialog, "Repite la contraseña", "secreto1");
+    await user.click(within(dialog).getByRole("button", { name: "Cliente" }));
+    expect(within(dialog).queryByText("Horario laboral")).toBeNull();
+    await user.click(within(dialog).getByRole("button", { name: "Crear usuario" }));
+
+    // roleId 5 = CLIENT en el catálogo; el cliente viaja en X-Client-Id (id 1, único del handler base).
+    await waitFor(() => expect(body).toEqual({ name: "Carla", lastName: "Cliente", username: "ccliente", roleId: 5, password: "secreto1" }));
+    expect(clientHeader).toBe("1");
+    await waitFor(() => expect(toast()).toMatchObject({ message: "Usuario creado correctamente", type: "success" }));
   });
 
   it("guardia: exige horario y lo manda", async () => {
@@ -216,6 +261,39 @@ describe("usuarios: edición", () => {
     await user.click(within(dialog).getByRole("button", { name: "Guardar cambios" }));
     await waitFor(() => expect(updated.body).toEqual({ name: "Luis", lastName: "Soto", username: "luis", roleId: 2, scheduleId: 2 }));
     await waitFor(() => expect(toast()).toMatchObject({ message: "Usuario editado correctamente", type: "success" }));
+  });
+
+  it("editar un usuario de staff no ofrece cambiarlo a CLIENT", async () => {
+    const { user } = await open();
+    await user.click(rowBtn("Editar", 1));
+    const dialog = await dialogOf("Editar Usuario: Luis");
+    expect(within(dialog).queryByRole("button", { name: "Cliente" })).toBeNull();
+  });
+
+  it("editar un administrador de cliente muestra su rol y conserva el clientId", async () => {
+    serveClients([{ id: 1, name: "Residencial Bosques", type: "RESIDENTIAL", active: true }]);
+    stub("get", "/catalog/role", { success: true, data: roles });
+    stub("get", "/schedules", { success: true, data: schedules });
+    const updated = stub("put", "/users/6", { success: true, data: {} });
+    const clientUser = {
+      id: 6,
+      name: "Carla",
+      lastName: "Cliente",
+      username: "carla",
+      roleId: 5,
+      active: true,
+      role: { name: "CLIENT", value: "Cliente" },
+    };
+    table("/users/datatable", [clientUser]);
+    const { user } = renderApp({ route: "/users", role: "ADMIN" });
+    await screen.findByText("@carla");
+
+    await user.click(screen.getByRole("button", { name: "Editar" }));
+    const dialog = await dialogOf("Editar Usuario: Carla");
+    expect(within(dialog).getByRole("button", { name: "Cliente" })).toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: "Guardar cambios" }));
+
+    await waitFor(() => expect(updated.body).toEqual({ name: "Carla", lastName: "Cliente", username: "carla", roleId: 5 }));
   });
 
   it("editar un administrador no manda horario", async () => {

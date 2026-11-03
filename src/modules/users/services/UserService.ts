@@ -3,6 +3,13 @@ import { TResult } from "@app/core/types/TResult";
 
 import { Schedule } from "../../schedules/SchedulesService";
 
+export interface UserGuardAssignment {
+  id?: number;
+  clientId: number;
+  startsAt?: string;
+  client: { id: number; name: string; type?: string };
+}
+
 export interface User {
   id: number;
   name: string;
@@ -21,6 +28,8 @@ export interface User {
   isLoggedIn?: boolean;
   schedule?: Schedule;
   scheduleId?: number;
+  /** Asignación de cliente abierta (fase 3); `null` si el guardia no tiene cliente. */
+  guardAssignment?: UserGuardAssignment | null;
 }
 
 export interface CreateUserDto {

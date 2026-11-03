@@ -3,11 +3,12 @@ import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import store from "@app/core/store/store";
 import { ChatPanel } from "@app/modules/chat/components/ChatPanel";
+import { selectClient } from "@app/core/store/tenant/tenant.slice";
 import { ablyProbe, emitAbly } from "../helpers/ably";
 import { stub } from "../helpers/api";
-import { makeToken, renderApp, renderWithProviders } from "../helpers/render";
+import { authAs, makeToken, renderApp, renderWithProviders } from "../helpers/render";
 import { API, server } from "../helpers/server";
-import { setAuth } from "@app/core/store/auth/auth.slice";
+import { setAuth, setSessionScope } from "@app/core/store/auth/auth.slice";
 
 const toast = () => store.getState().toast;
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60000).toISOString();
@@ -24,10 +25,19 @@ const history = [
   msg(1, 2, "ayer", daysAgo(1)),
 ];
 
+/** Espera a que el chat se haya suscrito al canal del cliente. */
+const waitChannel = async (channel: string) => {
+  await waitFor(() => expect(ablyProbe.channels).toContain(channel));
+};
+
+/** La organización base tiene un solo cliente (id 1): el chat va a `chat:team:1`. */
+const HOME_CHANNEL = "chat:team:1";
+
 const openPage = async (data: unknown[] = history) => {
   stub("get", "/chat/messages", { success: true, data });
   const r = renderApp({ route: "/chat", role: "ADMIN" });
   await screen.findByText("Canal general");
+  if (!ablyProbe.throwOnConnect) await waitChannel(HOME_CHANNEL);
   return r;
 };
 const box = () => screen.getByPlaceholderText("Escribe un mensaje...");
@@ -192,9 +202,9 @@ describe("chat: tiempo real", () => {
   it("agrega mensajes nuevos de Ably y descarta duplicados", async () => {
     await openPage();
     await screen.findByText("tercero");
-    act(() => emitAbly("chat:team", "new-message", msg(10, 2, "en vivo", minutesAgo(0))));
+    act(() => emitAbly(HOME_CHANNEL, "new-message", msg(10, 2, "en vivo", minutesAgo(0))));
     expect(await screen.findByText("en vivo")).toBeInTheDocument();
-    act(() => emitAbly("chat:team", "new-message", msg(10, 2, "en vivo", minutesAgo(0))));
+    act(() => emitAbly(HOME_CHANNEL, "new-message", msg(10, 2, "en vivo", minutesAgo(0))));
     expect(screen.getAllByText("en vivo")).toHaveLength(1);
   });
 
@@ -242,7 +252,7 @@ describe("chat: scroll", () => {
     await openPage();
     await screen.findByText("tercero");
     spy.mockClear();
-    act(() => emitAbly("chat:team", "new-message", msg(10, 2, "nuevo", minutesAgo(0))));
+    act(() => emitAbly(HOME_CHANNEL, "new-message", msg(10, 2, "nuevo", minutesAgo(0))));
     await screen.findByText("nuevo");
     expect(spy).toHaveBeenCalled();
   });
@@ -259,7 +269,7 @@ describe("chat: scroll", () => {
     });
     fireEvent.scroll(list);
     spy.mockClear();
-    act(() => emitAbly("chat:team", "new-message", msg(10, 2, "ajeno", minutesAgo(0))));
+    act(() => emitAbly(HOME_CHANNEL, "new-message", msg(10, 2, "ajeno", minutesAgo(0))));
     await screen.findByText("ajeno");
     expect(spy).not.toHaveBeenCalled();
 
@@ -268,6 +278,89 @@ describe("chat: scroll", () => {
     await user.click(sendBtn());
     await screen.findByText("propio");
     await waitFor(() => expect(spy).toHaveBeenCalled());
+  });
+});
+
+describe("chat: canal por cliente (fase 5)", () => {
+  it("ADMIN se re-suscribe al canal del cliente elegido y cierra el anterior", async () => {
+    await openPage();
+    expect(ablyProbe.channels).toContain("chat:team:1");
+    const closedBefore = ablyProbe.closed;
+
+    act(() => {
+      store.dispatch(selectClient(2));
+    });
+
+    await waitChannel("chat:team:2");
+    expect(ablyProbe.closed).toBeGreaterThan(closedBefore);
+    act(() => emitAbly("chat:team:2", "new-message", msg(21, 2, "del cliente dos", minutesAgo(0))));
+    expect(await screen.findByText("del cliente dos")).toBeInTheDocument();
+  });
+
+  it("MAINT también usa el cliente del selector (no un clientId fijo)", async () => {
+    stub("get", "/chat/messages", { success: true, data: [] });
+    renderApp({ route: "/chat", role: "MAINT" });
+    await screen.findByText("Canal general");
+    // El handler base tiene un único cliente (id 1): el tenant lo auto-selecciona.
+    await waitChannel("chat:team:1");
+  });
+
+  it("GUARD se suscribe al canal de su clientId fijo de /users/me", async () => {
+    stub("get", "/chat/messages", { success: true, data: [] });
+    renderApp({ route: "/chat", role: "GUARD" });
+    await screen.findByText("Canal general");
+    await waitChannel("chat:team:1");
+    // `GET /users/me` completó el alcance fijo del rol en el auth slice.
+    await waitFor(() => expect(store.getState().auth.clientId).toBe(1));
+    expect(store.getState().auth.organizationId).toBe(1);
+    act(() => emitAbly("chat:team:1", "new-message", msg(22, 2, "de mi cliente", minutesAgo(0))));
+    expect(await screen.findByText("de mi cliente")).toBeInTheDocument();
+  });
+
+  it("CLIENT usa su clientId fijo (no el selector) sin abrir el canal global", async () => {
+    stub("get", "/chat/messages", { success: true, data: [] });
+    authAs("CLIENT");
+    store.dispatch(setSessionScope({ clientId: 9, organizationId: 1 }));
+    renderWithProviders(<ChatPanel variant="sidebar" />);
+    await screen.findByText("Chat del equipo");
+    await waitChannel("chat:team:9");
+    expect(ablyProbe.channels).not.toContain("chat:team");
+    expect(ablyProbe.channels).not.toContain("chat:team:1");
+  });
+
+  it("un rol con cliente fijo sin clientId tampoco abre Ably", async () => {
+    stub("get", "/chat/messages", { success: true, data: history });
+    authAs("GUARD");
+    store.dispatch(setSessionScope({ clientId: null, organizationId: 1 }));
+    renderWithProviders(<ChatPanel variant="sidebar" />);
+    await screen.findByText("Chat del equipo");
+    await screen.findByText("tercero");
+    expect(ablyProbe.options).toBeUndefined();
+    expect(ablyProbe.channels).toEqual([]);
+  });
+
+  it("sin cliente activo no se suscribe a Ably y sigue funcionando por REST", async () => {
+    server.use(
+      http.get(`${API}/clients`, () =>
+        HttpResponse.json({
+          success: true,
+          data: [
+            { id: 7, name: "Plaza Centro", type: "PLAZA", active: true },
+            { id: 9, name: "Maquila Norte", type: "MAQUILA", active: true },
+          ],
+        }),
+      ),
+    );
+    stub("get", "/chat/messages", { success: true, data: history });
+    renderApp({ route: "/chat", role: "ADMIN" });
+    await screen.findByText("Canal general");
+    await waitFor(() => expect(store.getState().tenant.status).toBe("ready"));
+    expect(store.getState().tenant.selectedClientId).toBeNull();
+
+    // Sin cliente no hay conexión de Ably: la consola sigue por polling/REST.
+    expect(ablyProbe.options).toBeUndefined();
+    expect(ablyProbe.channels).toEqual([]);
+    expect(await screen.findByText("tercero")).toBeInTheDocument();
   });
 });
 

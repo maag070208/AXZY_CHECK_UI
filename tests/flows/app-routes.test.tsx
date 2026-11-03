@@ -8,29 +8,34 @@ import { permissionsForRole, roleFromAuthHeader } from "../helpers/permissions";
 
 type Role = "ADMIN" | "SHIFT" | "GUARD" | "MAINT" | "CLIENT" | "RESDN";
 
-const ROLES: Role[] = ["ADMIN", "SHIFT", "GUARD", "MAINT"];
+const ROLES: Role[] = ["ADMIN", "SHIFT", "GUARD", "MAINT", "CLIENT"];
 
-/** Rutas protegidas por `PermissionRoute`, con los roles que cumplen el permiso (fixture RBAC). */
+/**
+ * Rutas protegidas por `PermissionRoute`, con los roles que cumplen el permiso
+ * (fixture RBAC). CLIENT (administrador del cliente) entra a las pantallas con
+ * datos de su cliente y queda fuera de la administración de la organización.
+ */
 const GUARDED: { path: string; roles: Role[]; title: string }[] = [
   { path: "/users", roles: ["ADMIN"], title: "Directorio de Usuarios" },
   { path: "/roles", roles: ["ADMIN"], title: "Roles y permisos" },
   { path: "/schedules", roles: ["ADMIN"], title: "Directorio de Horarios" },
   { path: "/catalogs", roles: ["ADMIN"], title: "Catálogos" },
+  { path: "/clients", roles: ["ADMIN", "MAINT"], title: "Clientes" },
   { path: "/guards", roles: ["ADMIN", "SHIFT"], title: "Módulo de Guardias" },
   { path: "/locations", roles: ["ADMIN", "SHIFT"], title: "Ubicaciones" },
-  { path: "/incidents", roles: ["ADMIN", "SHIFT"], title: "Gestión de Incidencias" },
-  { path: "/maintenances", roles: ["ADMIN", "SHIFT", "MAINT"], title: "Gestión de Mantenimientos" },
-  { path: "/club", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT"], title: "Gestión de Casa Club" },
-  { path: "/rounds", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT"], title: "Historial de recorridos" },
+  { path: "/incidents", roles: ["ADMIN", "SHIFT", "GUARD", "CLIENT"], title: "Gestión de Incidencias" },
+  { path: "/maintenances", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT", "CLIENT"], title: "Gestión de Mantenimientos" },
+  { path: "/club", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT", "CLIENT"], title: "Gestión de Casa Club" },
+  { path: "/rounds", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT", "CLIENT"], title: "Historial de recorridos" },
   { path: "/routes", roles: ["ADMIN", "SHIFT"], title: "Gestión de Rutas" },
-  { path: "/kardex", roles: ["ADMIN", "SHIFT"], title: "Kardex" },
+  { path: "/kardex", roles: ["ADMIN", "SHIFT", "CLIENT"], title: "Kardex" },
   { path: "/chat", roles: ["ADMIN", "SHIFT", "GUARD", "MAINT"], title: "Chat del equipo" },
-  { path: "/guard-tracking", roles: ["ADMIN", "SHIFT"], title: "Seguimiento de Guardia" },
+  { path: "/guard-tracking", roles: ["ADMIN", "SHIFT", "CLIENT"], title: "Seguimiento de Guardia" },
   { path: "/shift-handover", roles: ["ADMIN", "SHIFT"], title: "Entrega de Turno" },
   { path: "/uniform", roles: ["ADMIN", "SHIFT"], title: "Uniforme" },
-  { path: "/properties", roles: ["ADMIN", "SHIFT"], title: "Propiedades" },
-  { path: "/residents", roles: ["ADMIN", "SHIFT"], title: "Directorio de Residentes" },
-  { path: "/invitations", roles: ["ADMIN", "SHIFT", "GUARD"], title: "Directorio de Invitados" },
+  { path: "/properties", roles: ["ADMIN", "SHIFT", "CLIENT"], title: "Propiedades" },
+  { path: "/residents", roles: ["ADMIN", "SHIFT", "CLIENT"], title: "Directorio de Residentes" },
+  { path: "/invitations", roles: ["ADMIN", "SHIFT", "GUARD", "CLIENT"], title: "Directorio de Invitados" },
 ];
 
 const ALL_PATHS = ["/home", ...GUARDED.map((r) => r.path)];
@@ -76,13 +81,26 @@ const expectHeading = (title: string) =>
 const expectText = (value: string) =>
   waitFor(() => expect(screen.getByText(value)).toBeInTheDocument());
 
-/** Señal de que `RoleRoute` (o el comodín de App) nos dejó en `/home`. */
+/**
+ * Señal de que `PermissionRoute` (o el comodín de App) nos dejó en `/home`.
+ * Cada rol tiene su propio home: dashboard en vivo (ADMIN/CLIENT), dashboard de
+ * turno (SHIFT), caseta (GUARD), portal del residente (RESDN) e inicio genérico
+ * con accesos rápidos (MAINT).
+ */
 const expectHome = async (role: Role) => {
-  if (role === "ADMIN" || role === "SHIFT") {
+  if (role === "ADMIN" || role === "CLIENT") {
     await expectText("Hoy en números");
-  } else {
-    await expectHeading("Inicio");
+    return;
   }
+  if (role === "SHIFT" || role === "RESDN") {
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1, name: /^Hola, / })).toBeInTheDocument());
+    return;
+  }
+  if (role === "GUARD") {
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1, name: /^Caseta · / })).toBeInTheDocument());
+    return;
+  }
+  await expectHeading("Inicio");
 };
 
 const MATRIX = ROLES.flatMap((role) =>
@@ -109,10 +127,10 @@ describe("App · matriz rol × ruta", () => {
 
 describe("App · roles fuera de la matriz", () => {
   it.each(
-    (["CLIENT", "RESDN"] as Role[]).flatMap((role) => GUARDED.map((route) => ({ role, route }))),
+    (["RESDN"] as Role[]).flatMap((role) => GUARDED.map((route) => ({ role, route }))),
   )("$role en $route.path cae en /home", async ({ role, route }) => {
-    // Ninguna entrada de `GUARDED` incluye CLIENT/RESDN, así que RoleRoute
-    // los expulsa igual que a cualquier rol sin permiso.
+    // RESDN no está en ninguna entrada de `GUARDED`: `PermissionRoute` lo
+    // expulsa igual que a cualquier rol sin permiso.
     renderApp({ route: route.path, role });
     await expectHome(role);
   });

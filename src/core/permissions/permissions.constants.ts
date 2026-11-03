@@ -4,6 +4,10 @@
  */
 export const P = {
   ASSIGNMENTS_MANAGE: "assignments.manage",
+  /** Administración de la organización (fase 3): clientes y asignación de guardias. */
+  CLIENT_VIEW: "client.view",
+  CLIENT_MANAGE: "client.manage",
+  GUARD_ASSIGN: "guard.assign",
   ACCESS_CHECK: "access.check",
   CATALOGS_MANAGE: "catalogs.manage",
   CHAT_USE: "chat.use",

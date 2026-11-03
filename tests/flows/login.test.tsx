@@ -70,6 +70,7 @@ describe("login: color del último rol", () => {
     ["RESDN", "ACCESO RESIDENTE", "Tu comunidad, más simple y segura."],
     ["SHIFT", "ACCESO JEFE DE GUARDIAS", "Cada turno, coordinado y sin huecos."],
     ["ADMIN", "ACCESO ADMINISTRATIVO", "La operación, clara y bajo control."],
+    ["CLIENT", "ACCESO CLIENTE", "Tu sitio, bajo control."],
   ])("recuerda el último rol %s tras cerrar sesión", async (role, eyebrow, headline) => {
     renderApp({ route: "/login", lastRole: role });
     expect(await screen.findByText(eyebrow)).toBeInTheDocument();

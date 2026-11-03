@@ -19,6 +19,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "delinquency.view","delinquency.manage","access.event.view",
     "announcement.view","announcement.manage",
     "vehicle.view","vehicle.manage","invitation.manage","invitation.approve",
+    "client.view","client.manage","guard.assign",
   ],
   SHIFT: [
     "access.check","accesspin.validate","assignments.manage","properties.view","chat.use","club.manage","dashboard.view",
@@ -39,9 +40,26 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "club.view","club.create",
   ],
   MAINT: [
+    "client.view",
     "chat.use","maintenance.manage","recurring.operate","round.view","round.start","round.end","round.scan",
     "assignment.view","incident.create","maintenance.view","maintenance.create","maintenance.resolve","maintenance.delete",
     "club.view","club.create","club.resolve","club.delete",
+  ],
+  /**
+   * Administrador del cliente (residencial / plaza / maquila). Su alcance lo
+   * fija el token: no elige cliente y no administra la organización (sin
+   * usuarios, roles, clientes ni plantilla de guardias). Espejo de la semilla
+   * del API (`permission-matrix.ts`).
+   */
+  CLIENT: [
+    "dashboard.view","documents.view","properties.view","properties.manage","occupancy.change",
+    "residents.manage","complaint.view","complaint.manage",
+    "charge.view","charge.manage","payment.view","payment.manage",
+    "delinquency.view","delinquency.manage","access.event.view",
+    "announcement.view","announcement.manage","vehicle.view","vehicle.manage",
+    "invitation.manage",
+    "incident.view","incident.resolve","maintenance.view","maintenance.resolve",
+    "club.view","club.resolve","round.view","kardex.view","assignment.view",
   ],
   RESDN: [
     "resident.self","invitation.view","invitation.create","invitation.revoke",

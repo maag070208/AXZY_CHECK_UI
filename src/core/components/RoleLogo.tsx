@@ -5,6 +5,7 @@ import shiftLogo from "@assets/roles/shift/checkapp-logo-horizontal-shift.svg";
 import guardLogo from "@assets/roles/guard/checkapp-logo-horizontal-guard.svg";
 import resdnLogo from "@assets/roles/resdn/checkapp-logo-horizontal-resdn.svg";
 import maintLogo from "@assets/roles/maint/checkapp-logo-horizontal-maint.svg";
+import clientLogo from "@assets/roles/client/checkapp-logo-horizontal-client.svg";
 
 const LOGOS: Record<string, string> = {
   ADMIN: adminLogo,
@@ -12,6 +13,7 @@ const LOGOS: Record<string, string> = {
   GUARD: guardLogo,
   RESDN: resdnLogo,
   MAINT: maintLogo,
+  CLIENT: clientLogo,
 };
 
 interface RoleLogoProps {
@@ -32,6 +34,8 @@ const ROLE_KEYS: Record<string, string> = {
   resdn: "RESDN",
   mantenimiento: "MAINT",
   maint: "MAINT",
+  cliente: "CLIENT",
+  client: "CLIENT",
 };
 
 const RoleLogoImage = ({ role, className = "h-8 w-auto", alt = "CheckApp", invert = false }: RoleLogoProps) => {
