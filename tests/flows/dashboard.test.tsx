@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import store from "@app/core/store/store";
 import { setAuth } from "@app/core/store/auth/auth.slice";
+import { selectClient } from "@app/core/store/tenant/tenant.slice";
 import { LiveOpsDashboard } from "@app/modules/dashboard/pages/LiveOpsDashboard";
 import { ablyProbe, emitAbly } from "../helpers/ably";
 import { stub } from "../helpers/api";
@@ -60,8 +61,12 @@ const full = () =>
 
 const serve = (data: unknown) => stub("get", "/dashboard/live", { success: true, data });
 
+/** Canal del cliente activo (el handler base tiene un único cliente: id 1). */
+const LIVE_CHANNEL = "dashboard:live-ops:1";
+
 const mount = (name = "ana lópez") => {
   store.dispatch(setAuth(makeToken({ name, role: "ADMIN" })));
+  store.dispatch(selectClient(1));
   return renderWithProviders(
     <Routes>
       <Route path="/" element={<LiveOpsDashboard />} />
@@ -418,8 +423,8 @@ describe("dashboard en vivo: actualización", () => {
     mount();
     await waitFor(() => expect(calls).toBe(1));
     act(() => {
-      emitAbly("dashboard:live-ops", "refresh");
-      emitAbly("dashboard:live-ops", "refresh");
+      emitAbly(LIVE_CHANNEL, "refresh");
+      emitAbly(LIVE_CHANNEL, "refresh");
     });
     await waitFor(() => expect(calls).toBe(2), { timeout: 4000 });
     await new Promise((r) => setTimeout(r, 300));
@@ -431,7 +436,7 @@ describe("dashboard en vivo: actualización", () => {
     server.use(http.get(`${API}/dashboard/live`, () => ((calls += 1), HttpResponse.json({ success: true, data: full() }))));
     const { unmount } = mount();
     await waitFor(() => expect(calls).toBe(1));
-    act(() => emitAbly("dashboard:live-ops", "refresh"));
+    act(() => emitAbly(LIVE_CHANNEL, "refresh"));
     unmount();
     await new Promise((r) => setTimeout(r, 1800));
     expect(calls).toBe(1);

@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { http, HttpResponse } from "msw";
 import { Route, Routes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
-import { setAuth } from "@app/core/store/auth/auth.slice";
+import { setAuth, setSessionScope } from "@app/core/store/auth/auth.slice";
 import store from "@app/core/store/store";
 import HomePage from "@app/modules/home/pages/HomePage";
 import { emitAbly } from "../helpers/ably";
@@ -49,6 +49,8 @@ const mockInvitations = (byStatus: Record<string, unknown[]>, status = 200) => {
 const openCaseta = (role: "GUARD" | "SHIFT" = "GUARD") => {
   stub("get", "/rounds", { success: true, data: [] });
   store.dispatch(setAuth(makeToken({ role, name: role === "GUARD" ? "Gabriela" : "Sergio" })));
+  // `GET /users/me` deja el cliente fijo de GUARD/SHIFT en el auth slice.
+  store.dispatch(setSessionScope({ clientId: 1, organizationId: 1 }));
   return renderWithProviders(<Routes><Route path="/" element={<HomePage />} /></Routes>);
 };
 
@@ -111,11 +113,11 @@ describe("inicio de caseta (GUARD)", () => {
     expect(await screen.findByText("Nadie por llegar")).toBeInTheDocument();
     const before = requests();
 
-    emitAbly("dashboard:live-ops", "refresh", { reason: "round-started" });
+    emitAbly("dashboard:live-ops:1", "refresh", { reason: "round-started" });
     await new Promise((resolve) => setTimeout(resolve, 1700));
     expect(requests()).toBe(before);
 
-    emitAbly("dashboard:live-ops", "refresh", { reason: "invitation-updated" });
+    emitAbly("dashboard:live-ops:1", "refresh", { reason: "invitation-updated" });
     await waitFor(() => expect(requests()).toBeGreaterThan(before), { timeout: 3000 });
   });
 
